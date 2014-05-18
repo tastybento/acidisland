@@ -310,8 +310,7 @@ public class AcidIsland extends JavaPlugin {
      * @return
      */
     public boolean islandAtLocation(final Location loc) {
-	// TODO: Also need to check WorldGuard
-	getLogger().info("checking islandAtLocation");
+	//getLogger().info("DEBUG checking islandAtLocation");
 	if (loc == null) {
 	    return true;
 	}

@@ -357,7 +357,7 @@ public class IslandCmd implements CommandExecutor {
      * @return
      */
     private Location nextGridLocation(final Location lastIsland) {
-	plugin.getLogger().info("nextIslandLocation");
+	//plugin.getLogger().info("DEBUG nextIslandLocation");
 	final int x = lastIsland.getBlockX();
 	final int z = lastIsland.getBlockZ();
 	final Location nextPos = lastIsland;
@@ -702,7 +702,7 @@ public class IslandCmd implements CommandExecutor {
 		    if (!onRestartWaitTime(player) || Settings.resetWait == 0) {
 			// Actually RESET the island
 			player.sendMessage(ChatColor.YELLOW + "Please wait, generating new island");
-			plugin.getLogger().info("Reset command issued!");
+			//plugin.getLogger().info("DEBUG Reset command issued!");
 			setResetWaitTime(player);
 			Bukkit.getScheduler().runTask(plugin, new Runnable() {
 			    @Override
