@@ -1,0 +1,433 @@
+# Challenges - these are similar to skyblock challenges - replace with your own
+# Rewards and required items have to be described using Bukkit Materials and be exactly correct
+# Do not use Type Id's - they will not work
+# Like skyblock, it's possible to give a permission as a reward.
+# Challenges can be one of three types - inventory, island or level.
+# inventory - means the player must have the items on them
+# island - means the items have to be on the island and within 10 blocks of the player
+# level - means the island level has to be over this amount
+# Challenges can be repeatable only if they are inventory challenges
+challenges:
+  # Challenge levels - list as many as you like
+  levels: 'Novice Competent Expert Advanced'
+  # The number of undone tasks that can be left on a level before revealing next level
+  waiveramount: 1
+  # Challenge list
+  # Challenge names must be in lowercase.
+  challengeList:
+    glassmaker:
+      description: 'Create 64 panes of glass (not blocks)'
+      level: 'Novice'
+      type: inventory
+      requiredItems: 'THIN_GLASS:64'
+      takeItems: true
+      itemReward: 'SAPLING:0:2 SAPLING:1:2 SAPLING:2:2 SAPLING:3:2'
+      rewardText: '2 oak, 2 birch, 2 jungle and 2 spruce saplings'
+      moneyReward: 10
+      expReward: 30
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'SAPLING:0:1 SAPLING:1:1 SAPLING:2:1 SAPLING:3:1'
+      repeatRewardText: '1 of each kind of sapling'
+      repeatMoneyReward: 5
+      repeatExpReward: 10
+    breadmaker:
+      description: 'Bake 21 loaves of bread'
+      level: 'Novice'
+      type: inventory
+      requiredItems: 'BREAD:21'
+      takeItems: true
+      itemReward: 'DIRT:5'
+      rewardText: '5 dirt'
+      moneyReward: 10
+      expReward: 30
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'DIRT:1'
+      repeatRewardText: '1 dirt'
+      repeatMoneyReward: 5
+      repeatExpReward: 10
+    dyecrafter:
+      description: 'Craft 32 cactus green dyes'
+      level: 'Novice'
+      type: inventory
+      requiredItems: 'INK_SACK:2:32'
+      takeItems: true
+      itemReward: 'PACKED_ICE:10'
+      rewardText: '10 blocks of packed ice'
+      moneyReward: 15
+      expReward: 30
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'PACKED_ICE:5'
+      repeatRewardText: '5 blocks of packed ice'
+      repeatMoneyReward: 1
+      repeatExpReward: 10
+    papermaker:
+      description: 'Create 21 pages of paper'
+      level: 'Novice'
+      type: inventory
+      requiredItems: 'PAPER:21'
+      takeItems: true
+      itemReward: 'DIRT:5 CLAY:15'
+      rewardText: '5 dirt and 15 clay blocks'
+      moneyReward: 15
+      expReward: 30
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'CLAY:2'
+      repeatRewardText: '2 clay blocks'
+      repeatMoneyReward: 5
+      repeatExpReward: 10
+    cobblemaker:
+      description: 'Create a cobblestone generator and mine 64 cobblestone.'
+      level: 'Novice'
+      type: inventory
+      requiredItems: 'COBBLESTONE:64'
+      takeItems: true
+      itemReward: 'LEATHER:4'
+      permissionReward: ''
+      rewardText: '4 leather - boots or a book perhaps?'
+      moneyReward: 10
+      expReward: 30
+      repeatable: true
+      repeatItemReward: 'LEATHER:1'
+      repeatRewardText: '1 leather'
+      repeatMoneyReward: 5
+      repeatExpReward: 10
+    seedbank:
+      description: 'Collect 250 melon seeds, 250 pumpkin seeds and 50 wheat seeds'
+      level: 'Novice'
+      type: inventory
+      requiredItems: 'MELON_SEEDS:250 PUMPKIN_SEEDS:250 SEEDS:50'
+      takeItems: true
+      itemReward: 'DIRT:5 VINE:20'
+      rewardText: '5 dirt blocks and 20 vines'
+      moneyReward: 15
+      expReward: 30
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'DIRT:2 VINE:20'
+      repeatRewardText: '2 dirt blocks and 5 vines'
+      repeatMoneyReward: 5
+      repeatExpReward: 10
+    stewmaker:
+      description: 'Cook up 36 bowls of mushroom stew'
+      level: 'Novice'
+      type: inventory
+      requiredItems: 'MUSHROOM_SOUP:36'
+      takeItems: true
+      itemReward: 'MYCEL:2'
+      rewardText: '2 mycelium blocks'
+      moneyReward: 15
+      expReward: 30
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'MYCEL:1'
+      repeatRewardText: '1 mycelium block'
+      repeatMoneyReward: 5
+      repeatExpReward: 10
+    builder:
+      description: 'Reach island level 20 (/island level).'
+      level: 'Novice'
+      type: level
+      requiredItems: 20
+      takeItems: false
+      itemReward: 'IRON_PICKAXE:1 DIRT:5'
+      rewardText: '1 iron pickaxe, 5 dirt and ability to add 1 Welcome Warp Sign'
+      moneyReward: 50
+      expReward: 50
+      permissionReward: 'acid.island.addwarp'
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
+    grinder:
+      description: 'Kill monsters and collect 64 rotten flesh, 32 skeleton bones, 32 string, 32 arrows, 16 gunpowder, 5 spider eyes'
+      level: 'Competent'
+      type: inventory
+      requiredItems: 'ROTTEN_FLESH:64 STRING:32 SULPHUR:16 ARROW:32 BONE:32 SPIDER_EYE:5'
+      takeItems: true
+      itemReward: 'REDSTONE:16 IRON_ORE:5 FLINT:1 POTION:WATER_BREATHING:1 POTION:NIGHT_VISION:1'
+      rewardText: '16 redstone dust, 1 flint, 1 water breathing potion, 1 night vision potion and 5 iron(ore)'
+      moneyReward: 75
+      expReward: 75
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'REDSTONE:2 IRON_ORE:1 FLINT:1 POTION:WATER_BREATHING:1'
+      repeatRewardText: '2 redstone dust, 1 flint, 1 water breathing potion and 1 iron(ore)'
+      repeatMoneyReward: 15
+      repeatExpReward: 15
+    farmer:
+      description: 'Harvest 64 units of the following: wheat, sugar, melon, carrots, potatoes, pumpkin'
+      level: 'Competent'
+      type: inventory
+      requiredItems: 'WHEAT:64 SUGAR:64 MELON:64 CARROT_ITEM:64 POTATO_ITEM:64 PUMPKIN:64'
+      takeItems: true
+      itemReward: 'REDSTONE:16 INK_SACK:3:1 MONSTER_EGG:90:1 MONSTER_EGG:92:1 MONSTER_EGG:93:1'
+      rewardText: '16 redstone dust, 1 cocoa bean, 1 spawn egg(chicken,cow,pig)'
+      moneyReward: 75
+      expReward: 75
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'INK_SACK:3:1 MONSTER_EGG:90:1 MONSTER_EGG:92:1 MONSTER_EGG:93:1'
+      repeatRewardText: '1 cocoa bean, 1 spawn egg(chicken,cow,pig)'
+      repeatMoneyReward: 20
+      repeatExpReward: 20
+    angler:
+      description: 'Catch and cook 10 standard fish (no salmon)'
+      level: 'Competent'
+      type: inventory
+      requiredItems: 'COOKED_FISH:10'
+      takeItems: true
+      itemReward: 'REDSTONE:16 IRON_ORE:5 INK_SACK:5'
+      rewardText: '16 redstone dust, 5 inksacs, 5 iron (ore)'
+      moneyReward: 75
+      expReward: 75
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'REDSTONE:2 IRON_ORE:1 INK_SACK:1'
+      repeatRewardText: '2 redstone dust, 1 inksac, 1 iron (ore)'
+      repeatMoneyReward: 15
+      repeatExpReward: 15
+    treecutter:
+      description: 'Create a tree farm and collect 16 oak, birch, jungle, and spruce logs'
+      level: 'Competent'
+      type: inventory
+      requiredItems: 'LOG:0:16 LOG:1:16 LOG:2:16 LOG:3:16'
+      takeItems: true
+      itemReward: 'REDSTONE:16 IRON_ORE:5 MONSTER_EGG:95:1'
+      rewardText: '16 redstone dust, 5 iron (ore), 1 wolf spawn egg'
+      moneyReward: 75
+      expReward: 75
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'REDSTONE:2 IRON_ORE:1'
+      repeatRewardText: '2 redstone dust, 1 iron (ore)'
+      repeatMoneyReward: 15
+      repeatExpReward: 15
+    cookiemaker:
+      description: 'Make 128 cookies and a bucket of milk'
+      level: 'Competent'
+      type: inventory
+      requiredItems: 'MILK_BUCKET:1 COOKIE:128'
+      takeItems: true
+      itemReward: 'REDSTONE:16 IRON_ORE:5'
+      rewardText: '16 redstone dust, 5 iron (ore)'
+      moneyReward: 75
+      expReward: 75
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'REDSTONE:2 IRON_ORE:1'
+      repeatRewardText: '2 redstone dust, 1 iron (ore)'
+      repeatMoneyReward: 15
+      repeatExpReward: 15
+    craftsman:
+      description: 'Reach island level 100 (/island level).'
+      level: 'Competent'
+      type: level
+      requiredItems: 100
+      takeItems: false
+      itemReward: 'OBSIDIAN:10'
+      rewardText: '10 obsidian blocks'
+      moneyReward: 50
+      expReward: 50
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
+    homestead:
+      description: 'Build a house that contains at least 1 wooden door, bed, bookshelf, crafting table, furnace, glass-block window, and torch.'
+      level: 'Competent'
+      type: island
+      requiredItems: 'BED_BLOCK:1 WORKBENCH:1 GLASS:1 WOODEN_DOOR:1 FURNACE:1 BOOKSHELF:1 TORCH:1'
+      takeItems: false
+      itemReward: 'JUKEBOX:1 RECORD_12:1 LAPIS_BLOCK:10'
+      rewardText: '1 jukebox, 1 music disk, 10 lapis lazuli blocks'
+      moneyReward: 100
+      expReward: 100
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
+    nether:
+      description: 'Build a nether portal on your island and activate it.'
+      level: 'Expert'
+      type: island
+      requiredItems: 'OBSIDIAN:10 PORTAL:1'
+      takeItems: false
+      itemReward: 'DIAMOND_SWORD:1'
+      rewardText: '1 diamond sword'
+      moneyReward: 100
+      expReward: 100
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
+    enderpearls:
+      description: 'Collect 15 enderpearls from endermen'
+      level: 'Expert'
+      type: inventory
+      requiredItems: 'ENDER_PEARL:15'
+      takeItems: true
+      itemReward: 'GOLD_INGOT:5 BLAZE_ROD:1'
+      rewardText: '5 gold ingots and 1 blaze rod'
+      moneyReward: 50
+      expReward: 100
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'GOLD_INGOT:1 BLAZE_ROD:1'
+      repeatRewardText: '1 gold ingot and 1 blaze rod'
+      repeatMoneyReward: 15
+      repeatExpReward: 15
+    slimeballfarmer:
+      description: 'Collect 40 slimeballs from slimes'
+      level: 'Expert'
+      type: inventory
+      requiredItems: 'SLIME_BALL:40'
+      takeItems: true
+      itemReward: 'GOLD_INGOT:5 IRON_ORE:5'
+      rewardText: '5 gold ingots and 5 blocks of iron ore'
+      moneyReward: 50
+      expReward: 100
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'REDSTONE:8'
+      repeatRewardText: '8 redstone dust'
+      repeatMoneyReward: 15
+      repeatExpReward: 15
+    baker:
+      description: 'Bake 5 cakes and 5 pumpkin pies'
+      level: 'Expert'
+      type: inventory
+      requiredItems: 'CAKE:5 PUMPKIN_PIE:5'
+      takeItems: true
+      itemReward: 'GOLD_INGOT:5 DIAMOND:1'
+      rewardText: '5 gold ingots and 1 diamond'
+      moneyReward: 50
+      expReward: 100
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'IRON_ORE:1'
+      repeatRewardText: '1 iron (ore)'
+      repeatMoneyReward: 15
+      repeatExpReward: 15
+    pioneer:
+      description: 'Make 1 map and use it, a compass, a clock and collect 64 netherrack, 16 soulsand, and 1 ghast tear'
+      level: 'Expert'
+      type: inventory
+      requiredItems: 'NETHERRACK:64 SOUL_SAND:16 GHAST_TEAR:1 MAP:1 COMPASS:1 WATCH:1'
+      takeItems: true
+      itemReward: 'POWERED_RAIL:32 RAILS:256 DIAMOND:1 MONSTER_EGG:98:1'
+      rewardText: '256 rails, 32 powered rails, 1 ocelot spawn egg, 1 diamond'
+      moneyReward: 100
+      expReward: 100
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'IRON_ORE:1'
+      repeatRewardText: '1 iron (ore)'
+      repeatMoneyReward: 20
+      repeatExpReward: 20
+    mason:
+      description: 'Reach island level 250 (/island level).'
+      level: 'Expert'
+      type: level
+      requiredItems: 250
+      takeItems: false
+      itemReward: 'DIAMOND:1 DIRT:20 SAND:1:20'
+      rewardText: '1 diamond, 20 dirt, and 20 red sand'
+      moneyReward: 150
+      expReward: 150
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
+    shepherd:
+      description: 'Collect 5 of every color of wool'
+      level: 'Advanced'
+      type: inventory
+      requiredItems: 'WOOL:0:5 WOOL:1:5 WOOL:2:5 WOOL:3:5 WOOL:4:5 WOOL:5:5 WOOL:6:5 WOOL:7:5 WOOL:8:5 WOOL:9:5 WOOL:10:5 WOOL:11:5 WOOL:12:5 WOOL:13:5 WOOL:14:5 35:15:5' 
+      takeItems: true
+      itemReward: 'DIAMOND:2 RECORD_7:1 RECORD_8:1 RECORD_6:1 MONSTER_EGG:91:1 EMERALD:5'
+      rewardText: '2 diamonds, 5 emeralds, 3 music disks, 1 sheep spawn egg'
+      moneyReward: 200
+      expReward: 200
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'EMERALD:1 MONSTER_EGG:91:1'
+      repeatRewardText: '1 emerald, 1 sheep spawn egg'
+      repeatMoneyReward: 20
+      repeatExpReward: 20
+    dj:
+      description: 'Craft a jukebox and collect all music discs'
+      level: 'Advanced'
+      type: inventory
+      requiredItems: 'GOLD_RECORD:1 GREEN_RECORD:1 RECORD_3:1 RECORD_4:1 RECORD_5:1 RECORD_6:1 RECORD_7:1 RECORD_8:1 RECORD_9:1 RECORD_10:1 RECORD_11:1 RECORD_12:1 JUKEBOX:1' 
+      takeItems: true
+      itemReward: 'DIAMOND:3 EMERALD:10'
+      rewardText: '3 diamonds and 10 emeralds'
+      moneyReward: 200
+      expReward: 200
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'GOLD_INGOT:1'
+      repeatRewardText: '1 gold ingot'
+      repeatMoneyReward: 20
+      repeatExpReward: 20
+    gemcollector:
+      description: 'Collect 50 emeralds'
+      level: 'Advanced'
+      type: inventory
+      requiredItems: 'EMERALD:50' 
+      takeItems: true
+      itemReward: 'DIAMOND:2'
+      rewardText: '2 diamonds'
+      moneyReward: 200
+      expReward: 200
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'GOLD_INGOT:2'
+      repeatRewardText: '2 gold ingots'
+      repeatMoneyReward: 20
+      repeatExpReward: 20
+    culinaryartist:
+      description: 'Collect 1 of every kind of cooked or crafted edible food (no raw food, zombie flesh, or super golden apples)'
+      level: 'Advanced'
+      type: inventory
+      requiredItems: 'BAKED_POTATO:1 BREAD:1 CAKE:1 COOKED_CHICKEN:1 COOKED_FISH:1 GRILLED_PORK:1 COOKIE:1 GOLDEN_APPLE:0:1 396:1 MUSHROOM_SOUP:1 PUMPKIN_PIE:1 COOKED_BEEF:1' 
+      takeItems: true
+      itemReward: 'DIAMOND:2 GREEN_RECORD:1 RECORD_3:1 RECORD_5:1 MONSTER_EGG:96:1 EMERALD:5'
+      rewardText: '2 diamonds, 3 music discs, 1 mooshroom spawn egg, and 5 emeralds'
+      moneyReward: 200
+      expReward: 200
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'GOLD_INGOT:1 MONSTER_EGG:96:1 EMERALD:1'
+      repeatRewardText: '1 gold ingot, 1 mooshroom spawn egg, 1 emerald'
+      repeatMoneyReward: 20
+      repeatExpReward: 20
+    acidduke:
+      description: 'Achieve an island level of 1000'
+      level: 'Advanced'
+      type: level
+      requiredItems: 1000
+      takeItems: false
+      itemReward: 'DIAMOND:1'
+      rewardText: '1 diamond'
+      moneyReward: 250
+      expReward: 250
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0

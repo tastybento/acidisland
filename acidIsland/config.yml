@@ -1,0 +1,115 @@
+general:
+   # Sea level height (don't changes this mid-game unless you delete the world)
+   sealevel: 50
+
+   # Name of the AcidIsland world - if it does not exist then it will be generated
+   worldName: AcidIsland
+
+   #How long a player must wait before they can reset their island again
+   resetwait: 300
+
+   # Acid damage to player per second by being in acid if they have no armor on.
+   # A fully health player has 20 health points. Players will regen some health
+   # so the default will give players about 3 seconds to get out the acid
+   # 0 = no damage, 10 = default damage, 20 = instant death
+   aciddamage: 10
+
+   # Sets the limit for number of monsters that can spawn in a chunk in this world. 
+   # Note: If set to a negative number the world will use the server-wide spawn limit instead.
+   # Max is 100
+   monsterspawnlimit: 70
+
+   #[integer] Sets the limit for number of animals that can spawn in a chunk in this world. 
+   # Note: If set to a negative number the world will use the server-wide spawn limit instead.
+   # Max is 100
+   animalspawnlimit: 15
+
+   #[integer] Sets the limit for number of water animals [squid] that can spawn in a chunk in this world. 
+   # Note: If set to a negative number the world will use the server-wide spawn limit instead.
+   # Max is 100
+   wateranimalspawnlimit: 15
+
+   #[integer] Island below this level will be removed if they are abandoned and admins issue the purge command
+   abandonedislandlevel: 10
+
+sponge:
+   # Sponge Saturation [true or false]
+   # Add more realism to sponges by making them only
+   # absorb water from an area without blocking
+   # water's flow afterwards.
+   spongeSaturation: false
+
+   # Water Replacement
+   #	Can a player place water near a sponge
+   #	while it is still there?
+   canPlaceWater: false
+
+   # Lava
+   #	Should lava be affected also? Lava will be treated
+   #	exactly like water as chosen in the other settings.
+   absorbLava: false
+
+   # Debug Messages
+   #	This tends to spam your console, so you'd be best
+   #	served leaving this off unless you know what
+   #	you're doing.
+   debug: false
+
+   # Fire
+   #	Should fire be affected too??? It'll get treated
+   #	just like the liquids.
+   absorbFire: false
+
+   # Fire Extinguisher
+   #	This option only works when absorbFire is true.
+   #	With this enabled, sponges will go out of their way
+   #	to put out fires that try to burn any blocks within
+   #	their effective area, adequately preventing the
+   #	eternal burning bush effect.
+   attackFire: false
+
+   # Affected Radius
+   #	Here you can choose how large the area the sponge affects
+   #	will be. It is based on the numbers of blocks away from
+   #	the sponge. For example, setting this to 2 will give you a
+   #	5x5x5 block area. It's recommended that you do not set
+   #	this value to high as the plugin must check every block
+   #	in the set radius.
+   spongeRadius: 2
+
+   # Water Restoration
+   #	After sponges are removed, they can leave ugly cascades
+   #	of water. With this option turned on, sponges will
+   #	expel their water when they are removed, thus allowing
+   #	the water to be restored.
+   restoreWater: true
+
+   # Water Flowtime Multiplier
+   #	This relates to the Water Restoration feature.
+   #	It multiplies by the spongeRadius in order to calculate
+   #	the amount of time water should be given to flow back.
+   #	Radius * Multiplier :FlowTime (in Milliseconds)
+   #	Ex: 2 x 600 :1200 milliseconds for water to restore itself.
+   #	You only need to change it if your server is really slow.
+   flowTimeMult: 600
+
+   # Piston Effect
+   #	Can pistons move sponges?
+   pistonMove: true
+
+island:
+   # Space between islands in blocks
+   distance: 110
+
+   # The size of the protective region for each island. Must be less than distance
+   protectionRange: 100
+
+   # Items that will be in the chest when the player starts an island
+   # Must be in Bukkit Materials format. The number is qty
+   chestItems: 'MELON:1 TORCH:2 BONE:1 LAVA_BUCKET:1 PUMPKIN_SEEDS:1 SUGAR_CANE:1 RED_MUSHROOM:1 BROWN_MUSHROOM:1 CACTUS:1 BREAD:1 WHEAT:1 POTION:1 LEATHER_BOOTS:1 LEATHER_HELMET:1 LEATHER_CHESTPLATE:1 LEATHER_LEGGINGS:1'
+
+   # If the item list above contains a POTION, then this is the potion effect (only one potion type supported)
+   chestPotion: WATER_BREATHING
+
+   #PVP is allowed or denied. (Values = allow or deny)
+   allowPvP: deny

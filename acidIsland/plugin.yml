@@ -1,0 +1,85 @@
+name: AcidIsland
+main: com.wasteofplastic.acidisland.AcidIsland
+version: 0.1
+description: Acid Island
+author: Tastybento
+depend: [Vault]
+commands:
+    island:
+        description: Main player command
+        aliases: [is, island]
+        usage:  |
+             /island help
+    acid:
+        description: Admin commands
+        usage:  |
+            /acid
+    challenges:
+        description: Game challenges
+        aliases: [c, challenge]
+        usage:  |  
+            /challenges help
+permissions:    
+  acidisland.*:
+    children:
+      acidisland.island.*:
+        children:
+          acidisland.island.create:
+            description: Let the player use the /island command
+            default: true
+          acidisland.island.info:
+            description: Let the player check their island level
+            default: true
+          acidisland.island.topten:
+            description: Let the player see the top ten list
+            default: true
+          acidisland.island.sethome:
+            description: Let the player set their island teleport point
+            default: true
+          acidisland.island.challenges:
+            description: Let the player use the /challenges command
+            default: true
+          acidisland.island.warp:
+            description: Let the player use /island warp to warp to a players island
+            default: true
+          acidisland.island.addwarp:
+            description: Let the player place a Welcome warp sign
+            default: true
+      acidisland.team.*:
+        children:
+          acidisland.team.create:
+            description: Let a player invite other players to join a team
+            default: true
+          acidisland.team.kick:
+            description: Let a player kick other players
+            default: true
+          acidisland.team.makeleader:
+            description: Let a player make another player leader of the team
+            default: true
+          acidisland.team.join:
+            description: Let a player join another player's team
+            default: true
+      acidisland.mod.*:
+        children:
+          acidisland.mod.topten:
+            description: Let a player manually update the top ten list
+            default: op
+          acidisland.mod.team:
+            description: Let a player access the moderator team commands
+            default: op
+          acidisland.mod.challenges:
+            description: Let a player access the moderator challenge commands to complete and reset another player's challenges. 
+            default: op
+      acidisland.admin.*:
+        children:
+          acidisland.admin.reload:
+            description: Reload the config.yml
+            default: op
+          acidisland.admin.delete:
+            description: Let a player completely remove a player's island (including blocks)
+            default: op
+          acidisland.admin.register:
+            description: Let a player register the nearest island (using the bedrock) to another player.
+            default: op
+          acidisland.admin.purge:
+            description: Let a player purge old islands.
