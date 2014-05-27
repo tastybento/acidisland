@@ -18,6 +18,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -659,36 +660,42 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    case 1:
 		// /island <command>
-		switch (split[0].toLowerCase()) {
-		case "warp":
+		if (split[0].equalsIgnoreCase("warp")) {
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
 			player.sendMessage(ChatColor.YELLOW + "/island warp <player>:" + ChatColor.WHITE + " Warp to <player>'s welcome sign.");
 			return true;
 		    }
-		    break;
-		case "warps":
+		} else if (split[0].equalsIgnoreCase("warps")) {
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
 			// Step through warp table
 			Set<UUID> warpList = plugin.listWarps();
 			if (warpList.isEmpty()) {
 			    player.sendMessage(ChatColor.YELLOW + "There are no warps available yet!");
+			    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld())) {
+				player.sendMessage(ChatColor.YELLOW + "Create a warp my placing a sign with [WELCOME] at the top.");
+			    }
 			    return true;
 			} else {
+			    Boolean hasWarp = false;
 			    String wlist = "";
 			    for (UUID w : warpList) {
 				if (wlist.isEmpty()) {
 				    wlist = players.getName(w);
 				} else {
-				    wlist += ", " + w;
+				    wlist += ", " + players.getName(w);
+				}
+				if (w.equals(playerUUID)) {
+				    hasWarp = true;
 				}
 			    }
 			    player.sendMessage(ChatColor.YELLOW + "The following warps are available: " + ChatColor.WHITE + wlist);
+			    if (!hasWarp && (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld()))) {
+				player.sendMessage(ChatColor.YELLOW + "Create a warp my placing a sign with [WELCOME] at the top.");
+			    }
 			    return true;
 			}
 		    }
-		    break;
-		case "restart":
-		case "reset":
+		} else if (split[0].equalsIgnoreCase("restart") || split[0].equalsIgnoreCase("reset")) {
 		    if (players.inTeam(playerUUID)) {
 			if (!players.getTeamLeader(playerUUID).equals(playerUUID)) {
 			    player.sendMessage(ChatColor.RED
@@ -715,13 +722,13 @@ public class IslandCmd implements CommandExecutor {
 			player.sendMessage(ChatColor.YELLOW + "You have to wait " + getResetWaitTime(player) + " seconds before you can do that again.");
 		    }
 		    return true;
-		case "sethome":
+		} else if (split[0].equalsIgnoreCase("sethome")) {
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.sethome", player.getWorld())) {
 			plugin.homeSet(player);
 			return true;
 		    }
-		    break;
-		case "help":    
+		    return false;
+		} else if (split[0].equalsIgnoreCase("help")) { 
 		    player.sendMessage(ChatColor.GREEN + "AcidIsland help:");
 
 		    player.sendMessage(ChatColor.YELLOW + "/island:" + ChatColor.WHITE + " start an island, or teleport to your island.");
@@ -750,13 +757,13 @@ public class IslandCmd implements CommandExecutor {
 			player.sendMessage(ChatColor.YELLOW + "/island makeleader <player>:" + ChatColor.WHITE + " transfer the island to <player>.");
 		    }
 		    return true;
-		case "top":
+		} else if (split[0].equalsIgnoreCase("top")) {
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.topten", player.getWorld())) {
 			plugin.showTopTen(player);
 			return true;
 		    }
-		    break;
-		case "level":
+		    return false;
+		} else if (split[0].equalsIgnoreCase("level")) {
 		    if (plugin.playerIsOnIsland(player)) {
 			if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
 			    player.sendMessage(ChatColor.RED + "You do not have an island!");
@@ -767,7 +774,7 @@ public class IslandCmd implements CommandExecutor {
 		    }
 		    player.sendMessage(ChatColor.RED + "You must be on your island to use this command.");
 		    return true;
-		case "invite":
+		} else if (split[0].equalsIgnoreCase("invite")) {
 		    // Invite command with no name, i.e., /island invite - tells the player how many more people they can invite
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
 			player.sendMessage(ChatColor.YELLOW + "Use" + ChatColor.WHITE + " /island invite <playername>" + ChatColor.YELLOW
@@ -791,8 +798,8 @@ public class IslandCmd implements CommandExecutor {
 
 			return true;
 		    }
-		    break;
-		case "accept":
+		    return false;
+		} else if (split[0].equalsIgnoreCase("accept")) {
 		    // Accept an invite command
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
 			// If player is not in a team but has been invited to join one
@@ -845,8 +852,8 @@ public class IslandCmd implements CommandExecutor {
 			player.sendMessage(ChatColor.RED + "You can't use that command right now.");
 			return true;
 		    }
-		    break;
-		case "reject":
+		    return false;
+		} else if (split[0].equalsIgnoreCase("reject")) {
 		    // Reject /island reject
 		    if (inviteList.containsKey(player.getUniqueId())) {
 			player.sendMessage(ChatColor.YELLOW + "You have rejected the invitation to join an island.");
@@ -862,7 +869,7 @@ public class IslandCmd implements CommandExecutor {
 			player.sendMessage(ChatColor.RED + "You had not been invited to join a team.");
 		    }
 		    return true;
-		case "leave":
+		} else if (split[0].equalsIgnoreCase("leave")) {
 		    // Leave team command
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
 			if (player.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
@@ -907,8 +914,8 @@ public class IslandCmd implements CommandExecutor {
 			}
 			return true;
 		    }
-		    break;
-		case "team":
+		    return false;
+		} else if (split[0].equalsIgnoreCase("team")) {
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
 			player.sendMessage(ChatColor.WHITE + "/island invite <playername>" + ChatColor.YELLOW + " to invite a player to join your island.");
 		    }
@@ -941,19 +948,21 @@ public class IslandCmd implements CommandExecutor {
 			player.sendMessage(ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + " to accept or reject the invite.");
 		    }
 		    return true;
-		default:
+		} else {
 		    // Incorrect syntax
 		    return false;
 		}
 
 	    case 2:
-		switch (split[0].toLowerCase()) {
-		case "warp":
+		if (split[0].equalsIgnoreCase("warp")) {
 		    // Warp somewhere command
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
 			final Set<UUID> warpList = plugin.listWarps();
 			if (warpList.isEmpty()) {
 			    player.sendMessage(ChatColor.YELLOW + "There are no warps available yet!");
+			    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld())) {
+				player.sendMessage(ChatColor.YELLOW + "Create a warp my placing a sign with [WELCOME] at the top.");
+			    }
 			    return true;
 			} else if (!(warpList.contains(players.getUUID(split[1])))) {
 			    player.sendMessage(ChatColor.RED + "That warp doesn't exist.");
@@ -975,12 +984,13 @@ public class IslandCmd implements CommandExecutor {
 				final Location actualWarp = new Location(warpSpot.getWorld(), warpSpot.getBlockX() + 0.5D, warpSpot.getBlockY(),
 					warpSpot.getBlockZ() + 0.5D);
 				player.teleport(actualWarp);
+				player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
 				return true;
 			    }
 			}
 		    }
-		    break;
-		case "level":
+		    return false;
+		} else if (split[0].equalsIgnoreCase("level")) {
 		    // island level command
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.info", player.getWorld())) {
 			if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
@@ -997,8 +1007,8 @@ public class IslandCmd implements CommandExecutor {
 			}
 			return true;
 		    }
-		    break;
-		case "invite":
+		    return false;
+		} else if (split[0].equalsIgnoreCase("invite")) {
 		    // Team invite a player command
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
 			// May return null if not known
@@ -1079,9 +1089,8 @@ public class IslandCmd implements CommandExecutor {
 			}
 			return true;
 		    }
-		    break;
-		case "kick":
-		case "remove":
+		    return false;
+		} else if (split[0].equalsIgnoreCase("kick") || split[0].equalsIgnoreCase("remove")) {
 		    // Island remove command with a player name, or island kick command
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.kick", player.getWorld())) {
 			// The main thing to do is check if the player name to kick is in the list of players in the team.
@@ -1141,8 +1150,8 @@ public class IslandCmd implements CommandExecutor {
 			}
 			return true;
 		    }
-		    break;
-		case "makeleader":
+		    return false;
+		} else if (split[0].equalsIgnoreCase("makeleader")) {
 		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.makeleader", player.getWorld())) {
 			targetPlayer = players.getUUID(split[1]);
 			if (targetPlayer == null) {
@@ -1183,7 +1192,7 @@ public class IslandCmd implements CommandExecutor {
 			}
 			return true;
 		    }
-		default:
+		} else {
 		    return false;
 		}
 	    }

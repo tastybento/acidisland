@@ -86,25 +86,21 @@ public class AdminCmd implements CommandExecutor {
 	    }
 	    return true;
 	case 1:
-	    switch (split[0].toLowerCase()) {
-	    case "reload":
+	    if (split[0].equalsIgnoreCase("reload")) {
 		if ((VaultHelper.checkPerm(player.getName(), "acidisland.admin.reload", player.getWorld()) || player.isOp())) {
 		    plugin.reloadConfig();
 		    plugin.loadPluginConfig();
 		    player.sendMessage(ChatColor.YELLOW + "Configuration reloaded from file.");
 		    return true;
 		}
-		break;
-
-	    case "topten":
+	    } else if (split[0].equalsIgnoreCase("topten")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.topten", player.getWorld()) || player.isOp()) {
 		    player.sendMessage(ChatColor.YELLOW + "Generating the Top Ten list");
 		    plugin.updateTopTen();
 		    player.sendMessage(ChatColor.YELLOW + "Finished generation of the Top Ten list");
 		    return true;
 		}
-		break;
-	    case "purge":
+	    } else if (split[0].equalsIgnoreCase("purge")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
 		    if (purgeFlag) {
 			player.sendMessage(ChatColor.RED + "Purge is already running, please wait for it to finish!");
@@ -113,7 +109,7 @@ public class AdminCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.YELLOW + "Usage: /acid purge [TimeInDays]");
 		    return true;
 		}
-	    case "confirm":
+	    } else if (split[0].equalsIgnoreCase("confirm")) { 
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
 		    if (!confirmReq) {
 			player.sendMessage(ChatColor.RED + "Time limit expired. Please issue command again!");
@@ -125,16 +121,13 @@ public class AdminCmd implements CommandExecutor {
 		    }
 		    return true;
 		}
-
-
-	    default:
+	    } else {
 		player.sendMessage(ChatColor.RED + "Unknown command.");
 		return false;
 	    }
 	    break;
 	case 2:
-	    switch (split[0].toLowerCase()) {
-	    case "purge":
+	    if (split[0].equalsIgnoreCase("purge")) {
 		// PURGE Command
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
 		    // Purge runs in the background so if one is already running this flag stops a repeat
@@ -234,7 +227,7 @@ public class AdminCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.RED + "You can't access that command!");
 		}
 		return true;
-	    case "delete":
+	    } else if (split[0].equalsIgnoreCase("delete")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.delete", player.getWorld()) || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
@@ -254,7 +247,7 @@ public class AdminCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.RED + "You can't access that command!");
 		}
 		return true;
-	    case "register":
+	    } else if (split[0].equalsIgnoreCase("register")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.register", player.getWorld()) || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
@@ -273,7 +266,7 @@ public class AdminCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.RED + "You can't access that command!");
 		}
 		return true;
-	    case "info":
+	    } else if (split[0].equalsIgnoreCase("info")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.team", player.getWorld()) || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
@@ -313,7 +306,7 @@ public class AdminCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.RED + "You can't access that command!");
 		}
 		return true;
-	    case "resetallchallenges":
+	    } else if (split[0].equalsIgnoreCase("resetallchallenges")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
@@ -327,7 +320,7 @@ public class AdminCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.RED + "You can't access that command!");
 		}
 		return true;
-	    case "checkteam":
+	    } else if (split[0].equalsIgnoreCase("checkteam")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.team", player.getWorld()) || player.isOp()) {
 		    player.sendMessage(ChatColor.YELLOW + "Checking Team of " + split[1]);
 		    // Convert name to a UUID
@@ -356,12 +349,11 @@ public class AdminCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.RED + "You can't access that command!");
 		}
 		return true;
-	    default:
+	    } else {
 		return false;
 	    }
 	case 3:
-	    switch (split[0].toLowerCase()) {
-	    case "completechallenge":
+	    if (split[0].equalsIgnoreCase("completechallenge")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[2]);
@@ -380,7 +372,7 @@ public class AdminCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.RED + "You can't access that command!");
 		}
 		return true;
-	    case "resetchallenge":
+	    } else if (split[0].equalsIgnoreCase("resetchallenge")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[2]);
@@ -400,7 +392,7 @@ public class AdminCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.RED + "You can't access that command!");
 		}
 		return true;
-	    default:
+	    } else {
 		return false;
 	    }
 	default:

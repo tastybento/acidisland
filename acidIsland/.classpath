@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/Java SE 6 [1.6.0_65-b14-462]"/>
 	<classpathentry kind="lib" path="/Users/ben/Downloads/bukkit-1.7.9-R0.1.jar"/>
 	<classpathentry kind="lib" path="/Users/ben/Downloads/Vault.jar" sourcepath="/Vault/src"/>
 	<classpathentry kind="output" path="bin"/>

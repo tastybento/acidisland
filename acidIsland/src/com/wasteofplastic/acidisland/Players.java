@@ -1,11 +1,9 @@
 package com.wasteofplastic.acidisland;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -13,8 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-
-import com.evilmidget38.NameFetcher;
 
 /**
  * Tracks the following info on the player
@@ -64,18 +60,12 @@ public class Players {
 	// Load in from YAML file
 	this.playerName = playerInfo.getString("playerName", "");
 	if (playerName.isEmpty()) {
-	    // Some issue with the name - try and retrieve from Mojang
-		NameFetcher fetcher = new NameFetcher(Arrays.asList(uuid));
-		Map<UUID, String> response = null;
-		try {
-		response = fetcher.call();
-		} catch (Exception e) {
-		plugin.getLogger().warning("Exception while running NameFetcher");
-		e.printStackTrace();
-		}
-		if (!response.isEmpty()) {
-		    playerName = response.get(uuid);
-		}
+	    try {
+		playerName = plugin.getServer().getOfflinePlayer(uuid).getName();
+	    } catch (Exception e) {
+		plugin.getLogger().severe("Could not obtain a name for the player with UUID " + uuid.toString());
+		playerName = "";
+	    }
 	}
 	plugin.getLogger().info("Loading player..." + playerName);
 	this.hasIsland = playerInfo.getBoolean("hasIsland", false);
@@ -296,15 +286,15 @@ public class Players {
     public UUID getPlayerUUID() {
 	return uuid;
     }
-    
+
     public String getPlayerName() {
 	return playerName;
     }
-    
+
     public void setPlayerN(String playerName) {
 	this.playerName = playerName;
     }
-    
+
     /**
      * Converts a Bukkit location to a String
      * 
@@ -402,7 +392,7 @@ public class Players {
      * Called when a player leaves a team Resets hasTeam, teamLeader,
      * islandLevel, teamIslandLocation and members array
      */
- 
+
     public void setLeaveTeam() {
 	inTeam = false;
 	teamLeader = null;
