@@ -666,6 +666,23 @@ public class AcidIsland extends JavaPlugin {
 	if (!Settings.allowPvP.equalsIgnoreCase("allow")) {
 	    Settings.allowPvP = "deny";
 	}
+	Settings.allowBreakBlocks = getConfig().getBoolean("island.allowbreakblocks", false);
+	Settings.allowPlaceBlocks= getConfig().getBoolean("island.allowplaceblocks", false);
+	Settings.allowBedUse= getConfig().getBoolean("island.allowbeduse", false);
+	Settings.allowBucketUse = getConfig().getBoolean("island.allowbucketuse", false);
+	Settings.allowShearing = getConfig().getBoolean("island.allowshearing", false);
+	Settings.allowEnderPearls = getConfig().getBoolean("island.allowenderpearls", false);
+	Settings.allowDoorUse = getConfig().getBoolean("island.allowdooruse", false);
+	Settings.allowLeverButtonUse = getConfig().getBoolean("island.allowleverbuttonuse", false);
+	Settings.allowCropTrample = getConfig().getBoolean("island.allowcroptrample", false);
+	Settings.allowChestAccess = getConfig().getBoolean("island.allowchestaccess", false);
+	Settings.allowFurnaceUse = getConfig().getBoolean("island.allowfurnaceuse", false);
+	Settings.allowRedStone = getConfig().getBoolean("island.allowredstone", false);
+	Settings.allowMusic = getConfig().getBoolean("island.allowmusic", false);
+	Settings.allowCrafting = getConfig().getBoolean("island.allowcrafting", false);
+	Settings.allowBrewing = getConfig().getBoolean("island.allowbrewing", false);
+
+
 	Settings.absorbLava = getConfig().getBoolean("sponge.absorbLava", false);
 	Settings.absorbFire = getConfig().getBoolean("sponge.absorbFire", false);
 	Settings.restoreWater = getConfig().getBoolean("sponge.restoreWater", true);
@@ -764,8 +781,8 @@ public class AcidIsland extends JavaPlugin {
 		    } else {
 			getLogger().info("Success!");
 		    };
-		// update the list
-		updateTopTen();
+		    // update the list
+		    updateTopTen();
 		}
 	    }
 	});
@@ -1308,7 +1325,7 @@ public class AcidIsland extends JavaPlugin {
 	}
 	return output;
     }
-// End Sponges
+    // End Sponges
     /**
      * Saves the challenge.yml file if it does not exist
      */

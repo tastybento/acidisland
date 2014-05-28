@@ -137,7 +137,7 @@ challenges:
       rewardText: '1 iron pickaxe, 5 dirt and ability to add 1 Welcome Warp Sign'
       moneyReward: 50
       expReward: 50
-      permissionReward: 'acid.island.addwarp'
+      permissionReward: 'acidisland.island.addwarp'
       repeatable: false
       repeatItemReward: ''
       repeatRewardText: ''

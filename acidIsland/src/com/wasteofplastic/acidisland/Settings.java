@@ -20,7 +20,25 @@ public class Settings {
     public static int monsterSpawnLimit;
     public static int animalSpawnLimit;
     public static int waterAnimalSpawnLimit;
+    // IslandGuard settings
     public static String allowPvP;
+    public static boolean allowBreakBlocks;
+    public static boolean allowPlaceBlocks;
+    public static boolean allowBedUse;
+    public static boolean allowBucketUse;
+    public static boolean allowShearing;
+    public static boolean allowEnderPearls;
+    public static boolean allowDoorUse;
+    public static boolean allowLeverButtonUse;
+    public static boolean allowCropTrample;
+    public static boolean allowChestAccess;
+    public static boolean allowFurnaceUse;
+    public static boolean allowRedStone;
+    public static boolean allowMusic;
+    public static boolean allowCrafting;
+    public static boolean allowBrewing;
+    
+    
     public static ItemStack[] chestItems;
     public static int islandDistance;
     public static int sea_level;

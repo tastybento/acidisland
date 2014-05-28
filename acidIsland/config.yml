@@ -111,5 +111,37 @@ island:
    # If the item list above contains a POTION, then this is the potion effect (only one potion type supported)
    chestPotion: WATER_BREATHING
 
+   # Island Protection Settings
    #PVP is allowed or denied. (Values = allow or deny)
    allowPvP: deny
+   # Other players can break blocks or not or generally damage things
+   allowbreakblocks: false
+   # Other players can place blocks
+   allowplaceblocks: false
+   # Allow players to be able to sleep in beds not on their island
+   allowbeduse: false
+   # Allow players to use buckets, either fill or dump them
+   allowbucketuse: false
+   # Allow players to shear sheep
+   allowshearing: false
+   # Allow players to throw enderpearls and teleport
+   allowenderpearls: false
+   # Allow players to use doors or trapdoors. If a door is operated by a button or redstone, this does not count
+   allowdooruse: false
+   # Allow players to use levers or buttons
+   allowleverbuttonuse: false
+   # Allow players to trample crops
+   allowcroptrample: false
+   # Allow players to access chests of any kind, droppers, dispensers and hoppers
+   allowchestaccess: false
+   # Allow players to access furnaces
+   allowfurnaceuse: false
+   # Allow players to adjust diodes or comparators
+   allowredstone: false
+   # Allow players to use jukeboxes, eject discs and hit note blocks
+   allowmusic: false
+   # Allow players to use crafting benches
+   allowcrafting: true
+   # Allow players to use cauldrons and brewing stands
+   allowbrewing: false
+   

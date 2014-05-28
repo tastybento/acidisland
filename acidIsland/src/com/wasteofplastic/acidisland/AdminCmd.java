@@ -173,6 +173,7 @@ public class AdminCmd implements CommandExecutor {
 			    }
 			    if (removeList.isEmpty()) {
 				player.sendMessage(ChatColor.YELLOW + "No inactive islands to remove.");
+				purgeFlag = false;
 				return;
 			    }
 			    player.sendMessage(ChatColor.YELLOW + "This will remove " + removeList.size() + " inactive islands!");
