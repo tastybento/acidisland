@@ -42,7 +42,7 @@ public class IslandGuard implements Listener {
 	if (!Settings.allowBreakBlocks) {
 	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		}
 	    }
@@ -64,7 +64,7 @@ public class IslandGuard implements Listener {
 	    if (!Settings.allowBreakBlocks) {
 		if (e.getDamager() instanceof Player) {
 		    if (!plugin.playerIsOnIsland((Player)e.getDamager()) && !((Player)e.getDamager()).isOp()) {
-			((Player)e.getDamager()).sendMessage(ChatColor.RED + "Island protected.");
+			((Player)e.getDamager()).sendMessage(ChatColor.RED + Locale.islandProtected);
 			e.setCancelled(true);
 		    }
 		}
@@ -111,7 +111,7 @@ public class IslandGuard implements Listener {
 	if (!Settings.allowPlaceBlocks) {
 	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		}
 	    }
@@ -125,7 +125,7 @@ public class IslandGuard implements Listener {
 	    // Check world
 	    if (Settings.worldName.equalsIgnoreCase(e.getPlayer().getWorld().getName())) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		}
 	    }
@@ -142,7 +142,7 @@ public class IslandGuard implements Listener {
 		if (e.getRemover() instanceof Player) {
 		    Player p = (Player)e.getRemover();
 		    if (!plugin.playerIsOnIsland(p) && !p.isOp()) {
-			p.sendMessage(ChatColor.RED + "Island protected.");
+			p.sendMessage(ChatColor.RED + Locale.islandProtected);
 			e.setCancelled(true);
 		    }
 		}
@@ -155,7 +155,7 @@ public class IslandGuard implements Listener {
 	if (!Settings.allowBucketUse) {
 	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		}
 	    }
@@ -166,7 +166,7 @@ public class IslandGuard implements Listener {
 	if (!Settings.allowBucketUse) {
 	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		}
 	    }
@@ -179,7 +179,7 @@ public class IslandGuard implements Listener {
 	if (!Settings.allowShearing) {	
 	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		}
 	    }
@@ -207,7 +207,7 @@ public class IslandGuard implements Listener {
 	    case WOODEN_DOOR:
 	    case TRAP_DOOR:
 		if (!Settings.allowDoorUse) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}
@@ -221,14 +221,14 @@ public class IslandGuard implements Listener {
 	    case HOPPER_MINECART:
 	    case STORAGE_MINECART:
 		if (!Settings.allowChestAccess) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}
 		break;
 	    case SOIL:
 		if (!Settings.allowCropTrample) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}
@@ -236,7 +236,7 @@ public class IslandGuard implements Listener {
 	    case BREWING_STAND:
 	    case CAULDRON:
 		if (!Settings.allowBrewing) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}
@@ -249,7 +249,7 @@ public class IslandGuard implements Listener {
 	    case REDSTONE_COMPARATOR_ON:
 	    case REDSTONE_COMPARATOR_OFF:
 		if (!Settings.allowRedStone) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}
@@ -259,7 +259,7 @@ public class IslandGuard implements Listener {
 	    case FURNACE:
 	    case BURNING_FURNACE:
 		if (!Settings.allowFurnaceUse) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}
@@ -271,7 +271,7 @@ public class IslandGuard implements Listener {
 	    case JUKEBOX:
 	    case NOTE_BLOCK:
 		if (!Settings.allowMusic) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}
@@ -282,7 +282,7 @@ public class IslandGuard implements Listener {
 	    case WOOD_BUTTON:
 	    case LEVER:
 		if (!Settings.allowLeverButtonUse) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}	
@@ -291,7 +291,7 @@ public class IslandGuard implements Listener {
 		break;
 	    case WORKBENCH:
 		if (!Settings.allowCrafting) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}
@@ -304,13 +304,13 @@ public class IslandGuard implements Listener {
 	if (e.getMaterial() != null) {
 	    if (e.getMaterial().equals(Material.BOAT) && (e.getClickedBlock() != null && !e.getClickedBlock().isLiquid())) {
 		// Trying to put a boat on non-liquid
-		e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		e.setCancelled(true);
 		return;
 	    }
 	    if (e.getMaterial().equals(Material.ENDER_PEARL)) {
 		if (!Settings.allowEnderPearls) {
-		    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		}
 		return;
@@ -325,7 +325,7 @@ public class IslandGuard implements Listener {
 		    } else {
 			// Splash potions are allowed only if PVP is allowed
 			if (!Settings.allowPvP.equalsIgnoreCase("allow")) {
-			    e.getPlayer().sendMessage(ChatColor.RED + "Island protected.");
+			    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 			    e.setCancelled(true);
 			}
 		    }

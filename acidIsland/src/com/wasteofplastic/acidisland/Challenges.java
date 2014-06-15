@@ -57,20 +57,20 @@ public class Challenges implements CommandExecutor {
 		    sender.sendMessage(ChatColor.GOLD + Settings.challengeLevels.get(i) + ": "
 			    + getChallengesByLevel(player, Settings.challengeLevels.get(i)));
 		} else {
-		    sender.sendMessage(ChatColor.GOLD + Settings.challengeLevels.get(i) + ChatColor.GRAY + ": Complete " + levelDone + " more "
-			    + Settings.challengeLevels.get(i-1) + " challenges to unlock this level!");
+		    sender.sendMessage(ChatColor.GOLD + Settings.challengeLevels.get(i) + ChatColor.GRAY + ": "
+		+ Locale.challengestoComplete.replace("[challengesToDo]", String.valueOf(levelDone)).replace("[thisLevel]",Settings.challengeLevels.get(i-1)));
 		}
 	    }
-	    sender.sendMessage(ChatColor.GOLD + "Use /c <name> to view information about a challenge.");
-	    sender.sendMessage(ChatColor.GOLD + "Use /c complete <name> to attempt to complete that challenge.");
+	    sender.sendMessage(ChatColor.GOLD + Locale.challengeshelp1);
+	    sender.sendMessage(ChatColor.GOLD + Locale.challengeshelp2);
 	    return true;
 	case 1:
 	    if (cmd[0].equalsIgnoreCase("help") || cmd[0].equalsIgnoreCase("complete") || cmd[0].equalsIgnoreCase("c")) {
-		sender.sendMessage(ChatColor.GOLD + "Use /c <name> to view information about a challenge.");
-		sender.sendMessage(ChatColor.GOLD + "Use /c complete <name> to try to complete that challenge.");
-		sender.sendMessage(ChatColor.GOLD + "Challenges will have different colors depending on if they are:");
-		sender.sendMessage(ChatColor.GREEN + "Incomplete " + ChatColor.DARK_GREEN + "Completed(not repeatable) " + ChatColor.AQUA
-			+ "Completed(repeatable) ");
+		sender.sendMessage(ChatColor.GOLD + Locale.challengeshelp1);
+		    sender.sendMessage(ChatColor.GOLD + Locale.challengeshelp2);
+		sender.sendMessage(ChatColor.GOLD + Locale.challengescolors);
+		sender.sendMessage(ChatColor.GREEN + Locale.challengesincomplete + ChatColor.DARK_GREEN + Locale.challengescompleteNotRepeatable
+			+ ChatColor.AQUA + Locale.challengescompleteRepeatable);
 	    } else if (isLevelAvailable(player, plugin.getChallengeConfig().getString("challenges.challengeList." + cmd[0].toLowerCase() + ".level"))) {
 		// Provide info on the challenge
 		// Challenge Name
@@ -79,20 +79,20 @@ public class Challenges implements CommandExecutor {
 		// Items taken or not
 		// island or not
 		final String challenge = cmd[0].toLowerCase();
-		sender.sendMessage(ChatColor.GOLD + "Challenge Name: " + ChatColor.WHITE + challenge);
-		sender.sendMessage(ChatColor.WHITE + "Level:" + ChatColor.GOLD + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level",""));
+		sender.sendMessage(ChatColor.GOLD + Locale.challengesname + ": " + ChatColor.WHITE + challenge);
+		sender.sendMessage(ChatColor.WHITE + Locale.challengeslevel +":" + ChatColor.GOLD + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level",""));
 		sender.sendMessage(ChatColor.GOLD + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".description",""));
 		final String type = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type","").toLowerCase();
 		if (type.equals("inventory")) {
 		    if (plugin.getChallengeConfig().getBoolean("challenges.challengeList." + cmd[0].toLowerCase() + ".takeItems")) {
-			sender.sendMessage(ChatColor.RED + "All required items are taken when you complete this challenge!");
+			sender.sendMessage(ChatColor.RED + Locale.challengesitemTakeWarning);
 		    }
 		} else if (type.equals("island")) {
-		    sender.sendMessage(ChatColor.RED + "All required items must be close to you on your island!");
+		    sender.sendMessage(ChatColor.RED + Locale.challengeserrorItemsNotThere);
 		}
 		if (players.checkChallenge(player.getUniqueId(),challenge)
 			&& (!type.equals("inventory") || !plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge + ".repeatable", false))) {
-		    sender.sendMessage(ChatColor.RED + "This Challenge is not repeatable!");
+		    sender.sendMessage(ChatColor.RED + Locale.challengesnotRepeatable);
 		    return true;
 		}
 		int moneyReward = 0;
@@ -104,25 +104,25 @@ public class Challenges implements CommandExecutor {
 		    moneyReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge.toLowerCase() + ".moneyReward", 0);
 		    rewardText = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge.toLowerCase() + ".rewardText", "Goodies!").replace('&', '§');
 		    expReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge + ".xpReward", 0);
-		    sender.sendMessage(ChatColor.GOLD + "First time reward(s): ");
+		    sender.sendMessage(ChatColor.GOLD + Locale.challengesfirstTimeRewards);
 		} else {
 		    // Repeat challenge
 		    moneyReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge.toLowerCase() + ".repeatMoneyReward", 0);
 		    rewardText = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge.toLowerCase() + ".repeatRewardText", "Goodies!").replace('&', '§');
 		    expReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge + ".repeatExpReward", 0);
-		    sender.sendMessage(ChatColor.GOLD + "Repeat reward(s): ");
+		    sender.sendMessage(ChatColor.GOLD + Locale.challengesrepeatRewards);
 
 		}	
 		sender.sendMessage(ChatColor.WHITE + rewardText);
 		if (expReward > 0) {
-		    sender.sendMessage(ChatColor.GOLD + "Experience reward: " + ChatColor.WHITE + expReward);
+		    sender.sendMessage(ChatColor.GOLD + Locale.challengesexpReward + ": " + ChatColor.WHITE + expReward);
 		}
 		if (moneyReward > 0) { 
-		    sender.sendMessage(ChatColor.GOLD + "Money reward: " + ChatColor.WHITE + VaultHelper.econ.format(moneyReward));
+		    sender.sendMessage(ChatColor.GOLD + Locale.challengesmoneyReward + ": " + ChatColor.WHITE + VaultHelper.econ.format(moneyReward));
 		}
-		sender.sendMessage(ChatColor.GOLD + "To complete this challenge, use " + ChatColor.WHITE + "/c c " + challenge);
+		sender.sendMessage(ChatColor.GOLD + Locale.challengestoCompleteUse + ChatColor.WHITE + " /c c " + challenge);
 	    } else {
-		sender.sendMessage(ChatColor.RED + "Invalid challenge name! Use /c help for more information");
+		sender.sendMessage(ChatColor.RED + Locale.challengesinvalidChallengeName);
 	    }
 	    return true;
 	case 2:
@@ -156,30 +156,30 @@ public class Challenges implements CommandExecutor {
 	// If player has done a challenge already, the rewards are different
 	if (!players.checkChallenge(player.getUniqueId(),challenge)) {
 	    // First time
-	    player.sendMessage(ChatColor.GREEN + "You have completed the " + challenge + " challenge!");
-	    plugin.getServer().broadcastMessage(ChatColor.GOLD + player.getName() + " has completed the " + challenge + " challenge!");
+	    player.sendMessage(ChatColor.GREEN + Locale.challengesyouHaveCompleted.replace("[challenge]", challenge));
+	    plugin.getServer().broadcastMessage(ChatColor.GOLD + Locale.challengesnameHasCompleted.replace("[name]", player.getName()).replace("[challenge]", challenge ));
 	    itemRewards = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge.toLowerCase() + ".itemReward", "").split(" ");
 	    moneyReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge.toLowerCase() + ".moneyReward", 0);
 	    rewardText = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge.toLowerCase() + ".rewardText", "Goodies!").replace('&', '§');
 	    expReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge + ".expReward", 0);
 	} else {
 	    // Repeat challenge
-	    player.sendMessage(ChatColor.GREEN + "You repeated the " + challenge + " challenge!");
+	    player.sendMessage(ChatColor.GREEN + Locale.challengesyouRepeated.replace("[challenge]", challenge));
 	    itemRewards = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge.toLowerCase() + ".repeatItemReward", "").split(" ");
 	    moneyReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge.toLowerCase() + ".repeatMoneyReward", 0);
 	    rewardText = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge.toLowerCase() + ".repeatRewardText", "Goodies!").replace('&', '§');
 	    expReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge + ".repeatExpReward", 0);	    
 	}	
 	// Report the rewards and give out exp, money and permissions if appropriate
-	player.sendMessage(ChatColor.GOLD + "Reward(s): " + ChatColor.WHITE +  rewardText);
+	player.sendMessage(ChatColor.GOLD + Locale.challengesrewards + ": " + ChatColor.WHITE +  rewardText);
 	if (expReward > 0) {
-	    player.sendMessage(ChatColor.GOLD + "Exp reward: " + ChatColor.WHITE + expReward);
+	    player.sendMessage(ChatColor.GOLD + Locale.challengesexpReward + ": " + ChatColor.WHITE + expReward);
 	    player.giveExp(expReward);
 	}
 	if (moneyReward > 0 && (VaultHelper.econ != null)) {
 	    EconomyResponse e = VaultHelper.econ.depositPlayer(player.getName(), Settings.worldName, moneyReward);
 	    if (e.transactionSuccess()) {
-		player.sendMessage(ChatColor.GOLD + "Money reward: " + ChatColor.WHITE + VaultHelper.econ.format(moneyReward));
+		player.sendMessage(ChatColor.GOLD + Locale.challengesmoneyReward + ": " + ChatColor.WHITE + VaultHelper.econ.format(moneyReward));
 	    } else {
 		plugin.getLogger().severe("Error giving player " + player.getUniqueId() + " challenge money:" + e.errorMessage);
 		plugin.getLogger().severe("Reward was $" + moneyReward);
@@ -308,26 +308,26 @@ public class Challenges implements CommandExecutor {
      */
     public boolean checkIfCanCompleteChallenge(final Player player, final String challenge) {
 	if (!isLevelAvailable(player, plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level"))) {
-	    player.sendMessage(ChatColor.RED + "You have not unlocked this challenge yet!");
+	    player.sendMessage(ChatColor.RED + Locale.challengesyouHaveNotUnlocked);
 	    return false;
 	}
 	if (!players.challengeExists(player.getUniqueId(),challenge)) {
-	    player.sendMessage(ChatColor.RED + "Unknown challenge name (check spelling)!");
+	    player.sendMessage(ChatColor.RED + Locale.challengesunknownChallenge);
 	    return false;
 	}
 	if (players.checkChallenge(player.getUniqueId(),challenge)
 		&& !plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge + ".repeatable")) {
-	    player.sendMessage(ChatColor.RED + "This challenge is not repeatable!");
+	    player.sendMessage(ChatColor.RED + Locale.challengesnotRepeatable);
 	    return false;
 	}
 	if (players.checkChallenge(player.getUniqueId(),challenge)
 		&& plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type").equalsIgnoreCase("island")) {
-	    player.sendMessage(ChatColor.RED + "This challenge is not repeatable!");
+	    player.sendMessage(ChatColor.RED + Locale.challengesnotRepeatable);
 	    return false;
 	}
 	if (plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type").equalsIgnoreCase("inventory")) {
 	    if (!hasRequired(player, challenge, "inventory")) {
-		player.sendMessage(ChatColor.RED + "You do not have enough of the required item(s):");
+		player.sendMessage(ChatColor.RED + Locale.challengeserrorNotEnoughItems);
 		player.sendMessage(ChatColor.RED + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".description"));
 		return false;
 	    }
@@ -335,10 +335,10 @@ public class Challenges implements CommandExecutor {
 	}
 	if (plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type").equalsIgnoreCase("island")) {
 	    if (!plugin.playerIsOnIsland(player)) {
-		player.sendMessage(ChatColor.RED + "You must be on your island to do that!");
+		player.sendMessage(ChatColor.RED + Locale.challengeserrorNotOnIsland);
 	    }
 	    if (!hasRequired(player, challenge, "island")) {
-		player.sendMessage(ChatColor.RED + "You must be standing within 10 blocks of all required items.");
+		player.sendMessage(ChatColor.RED + Locale.challengeserrorNotCloseEnough);
 		player.sendMessage(ChatColor.RED
 			+ plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".description"));
 		return false;
@@ -350,9 +350,8 @@ public class Challenges implements CommandExecutor {
 		return true;
 	    }
 
-	    player.sendMessage(ChatColor.RED + "Your island must be level "
-		    + plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge + ".requiredItems")
-		    + " to complete this challenge!");
+	    player.sendMessage(ChatColor.RED + Locale.challengeserrorIslandLevel.replace("[level]",
+		    String.valueOf(plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge + ".requiredItems"))));
 	    return false;
 	}
 

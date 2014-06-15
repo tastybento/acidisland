@@ -55,7 +55,7 @@ public class LavaCheck implements Listener {
 	    Chunk chunk = to.getLocation().getChunk();
 	    for (Entity entity : chunk.getEntities()) {
 		if (entity instanceof Player) {
-		    ((Player) entity).sendMessage(ChatColor.RED + "Tip: If obsidian was not intended, it can be scooped back up again with a bucket.");
+		    ((Player) entity).sendMessage(ChatColor.RED + Locale.lavaTip);
 		}
 	    }	    
 	}

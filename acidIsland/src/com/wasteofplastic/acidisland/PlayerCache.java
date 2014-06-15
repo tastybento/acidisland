@@ -158,6 +158,7 @@ public class PlayerCache {
 	addPlayer(playerUUID);
 	playerCache.get(playerUUID).setHasIsland(false);
 	playerCache.get(playerUUID).setHomeLocation(null);
+	playerCache.get(playerUUID).setIslandLocation(null);
 	playerCache.get(playerUUID).save(); // Needed?
     }
 

@@ -54,35 +54,35 @@ public class AdminCmd implements CommandExecutor {
 	case 0:
 	    // Only give help if the player has permissions
 	    // Permissions are split into admin permissions and mod permissions
-	    player.sendMessage("/acid is a command for mods and ops only");
+	    player.sendMessage(Locale.errorNoPermission);
 	    if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.reload", player.getWorld()) || player.isOp()) {
-		player.sendMessage(ChatColor.YELLOW + "/acid reload:" + ChatColor.WHITE + " reload configuration from file.");
+		player.sendMessage(ChatColor.YELLOW + "/acid reload:" + ChatColor.WHITE + " " + Locale.adminHelpreload);
 	    }
 	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.topten", player.getWorld()) || player.isOp()) {
-		player.sendMessage(ChatColor.YELLOW + "/acid topten:" + ChatColor.WHITE + " manually update the top 10 list");
+		player.sendMessage(ChatColor.YELLOW + "/acid topten:" + ChatColor.WHITE + " " + Locale.adminHelptopTen);
 	    }
 	    if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.register", player.getWorld()) || player.isOp()) {
-		player.sendMessage(ChatColor.YELLOW + "/acid register <player>:" + ChatColor.WHITE + " set a player's island to your location");
+		player.sendMessage(ChatColor.YELLOW + "/acid register <player>:" + ChatColor.WHITE + " " + Locale.adminHelpregister);
 	    }
 	    if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.delete", player.getWorld()) || player.isOp()) {
-		player.sendMessage(ChatColor.YELLOW + "/acid delete <player>:" + ChatColor.WHITE + " delete an island (removes blocks).");
+		player.sendMessage(ChatColor.YELLOW + "/acid delete <player>:" + ChatColor.WHITE + " " + Locale.adminHelpdelete);
 	    }
 	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid completechallenge <challengename> <player>:" + ChatColor.WHITE
-			+ " marks a challenge as complete");
+			+ " " + Locale.adminHelpcompleteChallenge);
 	    }
 	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid resetchallenge <challengename> <player>:" + ChatColor.WHITE
-			+ " marks a challenge as incomplete");
+			+ " " + Locale.adminHelpresetChallenge);
 	    }
 	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
-		player.sendMessage(ChatColor.YELLOW + "/acid resetallchallenges <player>:" + ChatColor.WHITE + " resets all of the player's challenges");
+		player.sendMessage(ChatColor.YELLOW + "/acid resetallchallenges <player>:" + ChatColor.WHITE + " " + Locale.adminHelpresetAllChallenges);
 	    }
 	    if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
-		player.sendMessage(ChatColor.YELLOW + "/acid purge [TimeInDays]:" + ChatColor.WHITE + " delete inactive islands older than [TimeInDays].");
+		player.sendMessage(ChatColor.YELLOW + "/acid purge [TimeInDays]:" + ChatColor.WHITE + " " + Locale.adminHelppurge);
 	    }
 	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.team", player.getWorld()) || player.isOp()) {
-		player.sendMessage(ChatColor.YELLOW + "/acid info <player>:" + ChatColor.WHITE + " check the team information for the given player.");
+		player.sendMessage(ChatColor.YELLOW + "/acid info <player>:" + ChatColor.WHITE + " " + Locale.adminHelpinfo);
 	    }
 	    return true;
 	case 1:
@@ -90,29 +90,29 @@ public class AdminCmd implements CommandExecutor {
 		if ((VaultHelper.checkPerm(player.getName(), "acidisland.admin.reload", player.getWorld()) || player.isOp())) {
 		    plugin.reloadConfig();
 		    plugin.loadPluginConfig();
-		    player.sendMessage(ChatColor.YELLOW + "Configuration reloaded from file.");
+		    player.sendMessage(ChatColor.YELLOW + Locale.reloadconfigReloaded);
 		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("topten")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.topten", player.getWorld()) || player.isOp()) {
-		    player.sendMessage(ChatColor.YELLOW + "Generating the Top Ten list");
+		    player.sendMessage(ChatColor.YELLOW + Locale.adminTopTengenerating);
 		    plugin.updateTopTen();
-		    player.sendMessage(ChatColor.YELLOW + "Finished generation of the Top Ten list");
+		    player.sendMessage(ChatColor.YELLOW + Locale.adminTopTenfinished);
 		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("purge")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
 		    if (purgeFlag) {
-			player.sendMessage(ChatColor.RED + "Purge is already running, please wait for it to finish!");
+			player.sendMessage(ChatColor.RED + Locale.purgealreadyRunning);
 			return true;
 		    }
-		    player.sendMessage(ChatColor.YELLOW + "Usage: /acid purge [TimeInDays]");
+		    player.sendMessage(ChatColor.YELLOW + Locale.purgeusage);
 		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("confirm")) { 
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
 		    if (!confirmReq) {
-			player.sendMessage(ChatColor.RED + "Time limit expired. Please issue command again!");
+			player.sendMessage(ChatColor.RED + Locale.confirmerrorTimeLimitExpired);
 			return true;
 		    } else {
 			// Tell purge routine to go
@@ -122,7 +122,7 @@ public class AdminCmd implements CommandExecutor {
 		    return true;
 		}
 	    } else {
-		player.sendMessage(ChatColor.RED + "Unknown command.");
+		player.sendMessage(ChatColor.RED + Locale.errorUnknownCommand);
 		return false;
 	    }
 	    break;
@@ -132,14 +132,15 @@ public class AdminCmd implements CommandExecutor {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
 		    // Purge runs in the background so if one is already running this flag stops a repeat
 		    if (purgeFlag) {
-			player.sendMessage(ChatColor.RED + "A purge is already running, please wait for it to finish!");
+			player.sendMessage(ChatColor.RED + Locale.purgealreadyRunning);
 			return true;
 		    }
 		    // Set the flag
 		    purgeFlag = true;
 		    // Convert days to hours - no other limit checking?
 		    final int time = Integer.parseInt(split[1]) * 24;
-		    player.sendMessage(ChatColor.YELLOW + "Calculating which islands have been inactive for more than " + split[1] + " days.");
+	
+		    player.sendMessage(ChatColor.YELLOW + Locale.purgecalculating.replace("[time]", split[1]));
 		    // Kick off task
 		    plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
 			public void run() {
@@ -172,13 +173,13 @@ public class AdminCmd implements CommandExecutor {
 				}
 			    }
 			    if (removeList.isEmpty()) {
-				player.sendMessage(ChatColor.YELLOW + "No inactive islands to remove.");
+				player.sendMessage(ChatColor.YELLOW + Locale.purgenoneFound);
 				purgeFlag = false;
 				return;
 			    }
-			    player.sendMessage(ChatColor.YELLOW + "This will remove " + removeList.size() + " inactive islands!");
-			    player.sendMessage(ChatColor.RED + "DANGER! Do not run this with players on the server! MAKE BACKUP OF WORLD!");
-			    player.sendMessage(ChatColor.RED + "Type /acid confirm to proceed within 10 seconds");
+			    player.sendMessage(ChatColor.YELLOW + Locale.purgethisWillRemove.replace("[number]",String.valueOf(removeList.size())));
+			    player.sendMessage(ChatColor.RED + Locale.purgewarning);
+			    player.sendMessage(ChatColor.RED + Locale.purgetypeConfirm);
 			    confirmReq = true;
 			    confirmOK = false;
 			    confirmTimer = 0;
@@ -193,7 +194,7 @@ public class AdminCmd implements CommandExecutor {
 					confirmOK = false;
 					purgeFlag = false;
 					removeList.clear();
-					player.sendMessage(ChatColor.YELLOW + "Purge cancelled.");
+					player.sendMessage(ChatColor.YELLOW + Locale.purgepurgeCancelled);
 					this.cancel();
 				    } else if (confirmOK) {
 					// Set up a repeating task to run every 5 seconds to remove
@@ -203,13 +204,13 @@ public class AdminCmd implements CommandExecutor {
 					    public void run() {
 						if (removeList.isEmpty() && purgeFlag) {
 						    purgeFlag = false;
-						    player.sendMessage(ChatColor.YELLOW + "Finished purging of inactive islands.");
+						    player.sendMessage(ChatColor.YELLOW + Locale.purgefinished);
 						    this.cancel();
 						} 
 
 						if (removeList.size() > 0 && purgeFlag) {
 						    plugin.deletePlayerIsland(removeList.get(0));
-						    player.sendMessage(ChatColor.YELLOW + "Purge: Removing " + players.getName(removeList.get(0)) + "'s island");
+						    player.sendMessage(ChatColor.YELLOW + Locale.purgeremovingName.replace("[name]", players.getName(removeList.get(0))));
 						    removeList.remove(0);
 						}
 
@@ -225,7 +226,7 @@ public class AdminCmd implements CommandExecutor {
 		    });
 		    return true;
 		} else {
-		    player.sendMessage(ChatColor.RED + "You can't access that command!");
+		    player.sendMessage(ChatColor.RED + Locale.errorNoPermission);
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("delete")) {
@@ -233,19 +234,19 @@ public class AdminCmd implements CommandExecutor {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
-			player.sendMessage(ChatColor.RED + "Error: Invalid Player (check spelling)");
+			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    } else {
 			if (players.getIslandLocation(playerUUID) != null) {
-			    player.sendMessage(ChatColor.YELLOW + "Removing " + split[1] + "'s island.");
+			    player.sendMessage(ChatColor.YELLOW + Locale.deleteremoving.replace("[name]", split[1]));
 			    plugin.deletePlayerIsland(playerUUID);
 			    return true;
 			}
-			player.sendMessage("Error: That player does not have an island!");
+			player.sendMessage(Locale.errorNoIslandOther);
 			return true;
 		    }
 		} else {
-		    player.sendMessage(ChatColor.RED + "You can't access that command!");
+		    player.sendMessage(ChatColor.RED + Locale.errorNoPermission);
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("register")) {
@@ -253,18 +254,18 @@ public class AdminCmd implements CommandExecutor {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
-			player.sendMessage(ChatColor.RED + "Error: Invalid Player (check spelling)");
+			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    } else {
 			if (adminSetPlayerIsland(sender, player.getLocation(), playerUUID)) {
-			    player.sendMessage(ChatColor.GREEN + "Set " + split[1] + "'s island to the bedrock nearest you.");
+			    player.sendMessage(ChatColor.GREEN + Locale.registersettingIsland.replace("[name]",split[1]));
 			} else {
-			    player.sendMessage(ChatColor.RED + "Bedrock not found: unable to set the island!");
+			    player.sendMessage(ChatColor.RED + Locale.registererrorBedrockNotFound);
 			}
 			return true;
 		    }
 		} else {
-		    player.sendMessage(ChatColor.RED + "You can't access that command!");
+		    player.sendMessage(ChatColor.RED + Locale.errorNoPermission);
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("info")) {
@@ -272,7 +273,7 @@ public class AdminCmd implements CommandExecutor {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
-			player.sendMessage(ChatColor.RED + "Error: Invalid Player (check spelling)");
+			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    } else {
 			if (players.inTeam(playerUUID)) {
@@ -286,25 +287,25 @@ public class AdminCmd implements CommandExecutor {
 				}
 			    }
 			    player.sendMessage(ChatColor.GREEN + players.getName(leader) + " " + ChatColor.WHITE + pList.toString());
-			    player.sendMessage(ChatColor.YELLOW + "Island Location:" + ChatColor.WHITE + " (" + players.getTeamIslandLocation(playerUUID).getBlockX() + ","
+			    player.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + players.getTeamIslandLocation(playerUUID).getBlockX() + ","
 				    + players.getTeamIslandLocation(playerUUID).getBlockY() + "," + players.getTeamIslandLocation(playerUUID).getBlockZ() + ")");
 			} else {
-			    player.sendMessage(ChatColor.YELLOW + "That player is not a member of an island team.");
+			    player.sendMessage(ChatColor.YELLOW + Locale.errorNoTeam);
 			    if (players.hasIsland(playerUUID)) {
-				player.sendMessage(ChatColor.YELLOW + "Island Location:" + ChatColor.WHITE + " (" + players.getIslandLocation(playerUUID).getBlockX() + ","
+				player.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + players.getIslandLocation(playerUUID).getBlockX() + ","
 					+ players.getIslandLocation(playerUUID).getBlockY() + "," + players.getIslandLocation(playerUUID).getBlockZ() + ")");
 			    }
 			    if (!(players.getTeamLeader(playerUUID) == null)) {
-				player.sendMessage(ChatColor.RED + "Team leader should be null!");
+				player.sendMessage(ChatColor.RED + Locale.adminInfoerrorNullTeamLeader);
 			    }
 			    if (!players.getMembers(playerUUID).isEmpty()) {
-				player.sendMessage(ChatColor.RED + "Player has team members, but shouldn't!");
+				player.sendMessage(ChatColor.RED + Locale.adminInfoerrorTeamMembersExist);
 			    }
 			}
 			return true;
 		    }
 		} else {
-		    player.sendMessage(ChatColor.RED + "You can't access that command!");
+		    player.sendMessage(ChatColor.RED + Locale.errorNoPermission);
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("resetallchallenges")) {
@@ -312,22 +313,22 @@ public class AdminCmd implements CommandExecutor {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
-			player.sendMessage(ChatColor.RED + "Error: Invalid Player (check spelling)");
+			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    }
 		    players.resetAllChallenges(playerUUID);
-		    player.sendMessage(ChatColor.YELLOW + split[1] + " has had all challenges reset.");
+		    player.sendMessage(ChatColor.YELLOW + Locale.resetChallengessuccess.replace("[name]", split[1]));
 		} else {
-		    player.sendMessage(ChatColor.RED + "You can't access that command!");
+		    player.sendMessage(ChatColor.RED + Locale.errorNoPermission);
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("checkteam")) {
 		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.team", player.getWorld()) || player.isOp()) {
-		    player.sendMessage(ChatColor.YELLOW + "Checking Team of " + split[1]);
+		    player.sendMessage(ChatColor.YELLOW + Locale.checkTeamcheckingTeam.replace("[name]", split[1]));
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
-			player.sendMessage(ChatColor.RED + "That player doesn't exist!");
+			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    }
 		    if (players.inTeam(playerUUID)) {
@@ -344,10 +345,10 @@ public class AdminCmd implements CommandExecutor {
 			    }
 			}
 		    } else {
-			player.sendMessage(ChatColor.RED + "That player is not in an island team!");
+			player.sendMessage(ChatColor.RED + Locale.errorNoTeam);
 		    }
 		} else {
-		    player.sendMessage(ChatColor.RED + "You can't access that command!");
+		    player.sendMessage(ChatColor.RED + Locale.errorNoPermission);
 		}
 		return true;
 	    } else {
@@ -359,18 +360,18 @@ public class AdminCmd implements CommandExecutor {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[2]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
-			player.sendMessage(ChatColor.RED + "Error: Invalid Player (check spelling)");
+			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    }
 		    if (players.checkChallenge(playerUUID,split[1].toLowerCase()) || !players.get(playerUUID).challengeExists(split[1].toLowerCase())) {
-			player.sendMessage(ChatColor.RED + "Challenge doesn't exist or is already completed");
+			player.sendMessage(ChatColor.RED + Locale.completeChallengeerrorChallengeDoesNotExist);
 			return true;
 		    }
 		    players.get(playerUUID).completeChallenge(split[1].toLowerCase());
-		    player.sendMessage(ChatColor.YELLOW + "challange: " + split[1].toLowerCase() + " has been completed for " + split[2]);
+		    player.sendMessage(ChatColor.YELLOW + Locale.completeChallengechallangeCompleted.replace("[challengename]", split[1].toLowerCase()).replace("[name]", split[2]));
 		    return true;
 		} else {
-		    player.sendMessage(ChatColor.RED + "You can't access that command!");
+		    player.sendMessage(ChatColor.RED + Locale.errorNoPermission);
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("resetchallenge")) {
@@ -378,19 +379,19 @@ public class AdminCmd implements CommandExecutor {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[2]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
-			player.sendMessage(ChatColor.RED + "Error: Invalid Player (check spelling)");
+			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    }
 		    if (!players.checkChallenge(playerUUID,split[1].toLowerCase())
 			    || !players.get(playerUUID).challengeExists(split[1].toLowerCase())) {
-			player.sendMessage(ChatColor.RED + "Challenge doesn't exist or isn't yet completed");
+			player.sendMessage(ChatColor.RED + Locale.resetChallengeerrorChallengeDoesNotExist);
 			return true;
 		    }
 		    players.resetChallenge(playerUUID,split[1].toLowerCase());
-		    player.sendMessage(ChatColor.YELLOW + "challange: " + split[1].toLowerCase() + " has been reset for " + split[2]);
+		    player.sendMessage(ChatColor.YELLOW +  Locale.resetChallengechallengeReset.replace("[challengename]", split[1].toLowerCase()).replace("[name]",split[2]));
 		    return true;
 		} else {
-		    player.sendMessage(ChatColor.RED + "You can't access that command!");
+		    player.sendMessage(ChatColor.RED + Locale.errorNoPermission);
 		}
 		return true;
 	    } else {

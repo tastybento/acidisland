@@ -60,6 +60,9 @@ public class AcidIsland extends JavaPlugin {
     // Where challenges are stored
     private FileConfiguration challenges = null;
     private File challengeConfigFile = null;
+    // Localization Strings
+    private FileConfiguration locale = null;
+    private File localeFile = null;
     // Where warps are stored
     public YamlConfiguration welcomeWarps;
     // Map of all warps stored as player, warp sign Location
@@ -137,9 +140,9 @@ public class AcidIsland extends JavaPlugin {
      * @return - true if successful, false if no Top Ten list exists
      */
     public boolean showTopTen(final Player player) {
-	player.sendMessage(ChatColor.GOLD + "These are the Top 10 islands:");
+	player.sendMessage(ChatColor.GOLD + Locale.topTenheader);
 	if (topTenList == null) {
-	    player.sendMessage(ChatColor.RED + "Top ten list not generated yet!");
+	    player.sendMessage(ChatColor.RED + Locale.topTenerrorNotReady);
 	    return false;
 	}
 	int i = 1;
@@ -154,9 +157,9 @@ public class AcidIsland extends JavaPlugin {
 		if (memberList.length()>2) {
 		    memberList = memberList.substring(0, memberList.length() - 2);
 		}
-		player.sendMessage(ChatColor.AQUA + "#" + i + ": " + players.getName(playerUUID) + " (" + memberList + ") - Island level " + m.getValue());
+		player.sendMessage(ChatColor.AQUA + "#" + i + ": " + players.getName(playerUUID) + " (" + memberList + ") - " + Locale.levelislandLevel + " "+ m.getValue());
 	    } else {
-		player.sendMessage(ChatColor.AQUA + "#" + i + ": " + players.getName(playerUUID) + " - Island level " + m.getValue());
+		player.sendMessage(ChatColor.AQUA + "#" + i + ": " + players.getName(playerUUID) + " - " + Locale.levelislandLevel + " " + m.getValue());
 	    }
 	    if (i++ == 11) {
 		break;
@@ -271,9 +274,9 @@ public class AcidIsland extends JavaPlugin {
     public void homeSet(final Player player) {
 	if (playerIsOnIsland(player)) {
 	    players.setHomeLocation(player.getUniqueId(),player.getLocation());
-	    player.sendMessage(ChatColor.GREEN + "Your island home has been set to your current location.");
+	    player.sendMessage(ChatColor.GREEN + Locale.setHomehomeSet);
 	} else {
-	    player.sendMessage(ChatColor.RED + "You must be within your island boundaries to set home!");
+	    player.sendMessage(ChatColor.RED + Locale.setHomeerrorNotOnIsland);
 	}
     }
 
@@ -292,13 +295,13 @@ public class AcidIsland extends JavaPlugin {
 	    if (!player.performCommand("spawn")) {
 		player.teleport(player.getWorld().getSpawnLocation());
 	    }
-	    player.sendMessage(ChatColor.RED + "You are not part of an island. Returning you the spawn area!");
+	    player.sendMessage(ChatColor.RED + Locale.setHomeerrorNoIsland);
 	    return true;
 	}
 
 	removeMobs(home);
 	player.teleport(home);
-	player.sendMessage(ChatColor.GREEN + "Teleporting you to your island. (/island help for more info)");
+	player.sendMessage(ChatColor.GREEN + Locale.islandteleport);
 	return true;
     }
 
@@ -518,7 +521,7 @@ public class AcidIsland extends JavaPlugin {
 		final Player p = getServer().getPlayer(rp);
 		if (p != null) {
 		    // Inform the player
-		    p.sendMessage(ChatColor.RED + "Your welcome sign was removed!");
+		    p.sendMessage(ChatColor.RED + Locale.warpssignRemoved);
 		}
 		getLogger().warning(rp.toString() + "'s welcome sign at " + loc.toString() + " was removed by something.");
 	    }
@@ -582,6 +585,8 @@ public class AcidIsland extends JavaPlugin {
 	}
 	// Get the challenges
 	getChallengeConfig();
+	// Get the localization strings
+	getLocale();
 	// Assign settings
 	// This might be useful to change in the future
 	Settings.maxTeamSize = 4;
@@ -704,7 +709,177 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.waiverAmount < 0) {
 	    Settings.waiverAmount = 0;
 	}
-    }
+
+	// Localization
+	Locale.changingObsidiantoLava = locale.getString("changingObsidiantoLava", "Changing obsidian back into lava. Be careful!");
+	Locale.acidLore = locale.getString("acidLore","Poison!\nBeware!\nDo not drink!");
+	Locale.acidBucket = locale.getString("acidBucket", "Acid Bucket");
+	Locale.acidBottle = locale.getString("acidBottle", "Bottle O' Acid");
+	Locale.drankAcidAndDied = locale.getString("drankAcidAndDied", "drank acid and died.");
+	Locale.drankAcid = locale.getString("drankAcid", "drank acid.");
+	Locale.errorUnknownPlayer = locale.getString("error.unknownPlayer","That player is unknown.");
+	Locale.errorNoPermission = locale.getString("error.noPermission","You don't have permission to use that command!");
+	Locale.errorNoIsland = locale.getString("error.noIsland","You do not have an island!");
+	Locale.errorNoIslandOther = locale.getString("error.noIslandOther","That player does not have an island!");
+	//"You must be on your island to use this command."
+	Locale.errorCommandNotReady = locale.getString("error.commandNotReady","You can't use that command right now.");
+	Locale.errorOfflinePlayer = locale.getString("error.offlinePlayer","That player is offline or doesn't exist.");
+	Locale.errorUnknownCommand = locale.getString("error.unknownCommand","Unknown command.");
+	Locale.errorNoTeam = locale.getString("error.noTeam","That player is not in an island team!");
+	Locale.islandProtected = locale.getString("islandProtected","Island protected.");
+	Locale.lavaTip = locale.getString("lavaTip","Changing obsidian back into lava. Be careful!");
+	Locale.warpswelcomeLine = locale.getString("warps.welcomeLine","[WELCOME]");
+	Locale.warpswarpTip = locale.getString("warps.warpTip","Create a warp by placing a sign with [WELCOME] at the top.");
+	Locale.warpssuccess = locale.getString("warps.success","Welcome sign placed successfully!");
+	Locale.warpsremoved = locale.getString("warps.removed","Welcome sign removed!");
+	Locale.warpssignRemoved = locale.getString("warps.signRemoved","Your welcome sign was removed!");
+	Locale.warpsdeactivate = locale.getString("warps.deactivate","Deactivating old sign!");
+	Locale.warpserrorNoRemove = locale.getString("warps.errorNoRemove","You can only remove your own Welcome Sign!");
+	Locale.warpserrorNoPerm = locale.getString("warps.errorNoPerm","You do not have permission to place Welcome Signs yet!");
+	Locale.warpserrorNoPlace = locale.getString("warps.errorNoPlace","You must be on your island to place a Welcome Sign!");
+	Locale.warpserrorDuplicate = locale.getString("warps.errorDuplicate","Sorry! There is a sign already in that location!");
+	Locale.warpserrorDoesNotExist = locale.getString("warps.errorDoesNotExist","That warp doesn't exist!");
+	Locale.warpserrorNotReadyYet = locale.getString("warps.errorNotReadyYet","That warp is not ready yet. Try again later.");
+	Locale.warpserrorNotSafe = locale.getString("warps.errorNotSafe","That warp is not safe right now. Try again later.");
+	Locale.warpswarpToPlayersSign = locale.getString("warps.warpToPlayersSign","Warp to <player>'s welcome sign.");
+	Locale.warpserrorNoWarpsYet = locale.getString("warps.errorNoWarpsYet","There are no warps available yet!");
+	Locale.warpswarpsAvailable = locale.getString("warps.warpsAvailable","The following warps are available");
+	Locale.topTenheader = locale.getString("topTen.header","These are the Top 10 islands:");
+	Locale.topTenerrorNotReady = locale.getString("topTen.errorNotReady","Top ten list not generated yet!");
+	Locale.levelislandLevel = locale.getString("level.islandLevel","Island level");
+	Locale.levelerrornotYourIsland = locale.getString("level.errornotYourIsland", "Only the island owner can do that.");
+	Locale.setHomehomeSet = locale.getString("sethome.homeSet","Your island home has been set to your current location.");
+	Locale.setHomeerrorNotOnIsland = locale.getString("sethome.errorNotOnIsland","You must be within your island boundaries to set home!");
+	Locale.setHomeerrorNoIsland = locale.getString("sethome.errorNoIsland","You are not part of an island. Returning you the spawn area!");
+	Locale.challengesyouHaveCompleted = locale.getString("challenges.youHaveCompleted", "You have completed the [challenge] challenge!");
+	Locale.challengesnameHasCompleted = locale.getString("challenges.nameHasCompleted", "[name] has completed the [challenge] challenge!");
+	Locale.challengesyouRepeated = locale.getString("challenges.youRepeated", "You repeated the [challenge] challenge!");
+	Locale.challengestoComplete = locale.getString("challenges.toComplete","Complete [challengesToDo] more [thisLevel] challenges to unlock this level!");
+	Locale.challengeshelp1 = locale.getString("challenges.help1","Use /c <name> to view information about a challenge.");
+	Locale.challengeshelp2 = locale.getString("challenges.help2","Use /c complete <name> to attempt to complete that challenge.");
+	Locale.challengescolors = locale.getString("challenges.colors","Challenges will have different colors depending on if they are:");
+	Locale.challengesincomplete = locale.getString("challenges.incomplete","Incomplete");
+	Locale.challengescompleteNotRepeatable = locale.getString("challenges.completeNotRepeatable","Completed(not repeatable)");
+	Locale.challengescompleteRepeatable = locale.getString("challenges.completeRepeatable","Completed(repeatable)");
+	Locale.challengesname = locale.getString("challenges.name","Challenge Name");
+	Locale.challengeslevel = locale.getString("challenges.level","Level");
+	Locale.challengesitemTakeWarning = locale.getString("challenges.itemTakeWarning","All required items are taken when you complete this challenge!");
+	Locale.challengesnotRepeatable = locale.getString("challenges.notRepeatable","This Challenge is not repeatable!");
+	Locale.challengesfirstTimeRewards = locale.getString("challenges.firstTimeRewards","First time reward(s)");
+	Locale.challengesrepeatRewards = locale.getString("challenges.repeatRewards","Repeat reward(s)");
+	Locale.challengesexpReward = locale.getString("challenges.expReward","Exp reward");
+	Locale.challengesmoneyReward = locale.getString("challenges.moneyReward","Money reward");
+	Locale.challengestoCompleteUse = locale.getString("challenges.toCompleteUse","To complete this challenge, use");
+	Locale.challengesinvalidChallengeName = locale.getString("challenges.invalidChallengeName","Invalid challenge name! Use /c help for more information");
+	Locale.challengesrewards = locale.getString("challenges.rewards","Reward(s)");
+	Locale.challengesyouHaveNotUnlocked = locale.getString("challenges.youHaveNotUnlocked","You have not unlocked this challenge yet!");
+	Locale.challengesunknownChallenge = locale.getString("challenges.unknownChallenge","Unknown challenge name (check spelling)!");
+	Locale.challengeserrorNotEnoughItems = locale.getString("challenges.errorNotEnoughItems","You do not have enough of the required item(s)");
+	Locale.challengeserrorNotOnIsland = locale.getString("challenges.errorNotOnIsland","You must be on your island to do that!");
+	Locale.challengeserrorNotCloseEnough = locale.getString("challenges.errorNotCloseEnough","You must be standing within 10 blocks of all required items.");
+	Locale.challengeserrorItemsNotThere = locale.getString("challenges.errorItemsNotThere","All required items must be close to you on your island!");
+	Locale.challengeserrorIslandLevel = locale.getString("challenges.errorIslandLevel","Your island must be level [level] to complete this challenge!");
+	Locale.islandteleport = locale.getString("island.teleport","Teleporting you to your island. (/island help for more info)");
+	Locale.islandnew = locale.getString("island.new","Creating a new island for you...");
+	Locale.islanderrorCouldNotCreateIsland = locale.getString("island.errorCouldNotCreateIsland","Could not create your Island. Please contact a server moderator.");
+	Locale.islanderrorYouDoNotHavePermission = locale.getString("island.errorYouDoNotHavePermission", "You do not have permission to use that command!");
+	Locale.islandresetOnlyOwner = locale.getString("island.resetOnlyOwner","Only the owner may restart this island. Leave this island in order to start your own (/island leave).");
+	Locale.islandresetMustRemovePlayers = locale.getString("island.resetMustRemovePlayers","You must remove all players from your island before you can restart it (/island kick <player>). See a list of players currently part of your island using /island team.");
+	Locale.islandresetPleaseWait = locale.getString("island.resetPleaseWait","Please wait, generating new island");
+	Locale.islandresetWait = locale.getString("island.resetWait","You have to wait [time] seconds before you can do that again.");
+	Locale.islandhelpIsland = locale.getString("island.helpIsland","start an island, or teleport to your island.");
+	Locale.islandhelpRestart = locale.getString("island.helpRestart","restart your island and remove the old one.");
+	Locale.islandhelpSetHome = locale.getString("island.helpSetHome","set your teleport point for /island.");
+	Locale.islandhelpLevel = locale.getString("island.helpLevel","calculate your island level");
+	Locale.islandhelpLevelPlayer = locale.getString("island.helpLevelPlayer","see another player's island level.");
+	Locale.islandhelpTop = locale.getString("island.helpTop","see the top ranked islands.");
+	Locale.islandhelpWarps = locale.getString("island.helpWarps","Lists all available welcome-sign warps.");
+	Locale.islandhelpWarp = locale.getString("island.helpWarp","Warp to <player>'s welcome sign.");
+	Locale.islandhelpTeam = locale.getString("island.helpTeam","view your team information.");
+	Locale.islandhelpInvite = locale.getString("island.helpInvite","invite a player to join your island.");
+	Locale.islandhelpLeave = locale.getString("island.helpLeave","leave another player's island.");
+	Locale.islandhelpKick = locale.getString("island.helpKick","leave another player's island.");
+	Locale.islandhelpAcceptReject= locale.getString("island..helpAcceptReject","remove a player from your island.");
+	Locale.islandhelpMakeLeader = locale.getString("island.helpMakeLeader","accept or reject an invitation.");
+	Locale.islanderrorLevelNotReady = locale.getString("island.errorLevelNotReady","transfer the island to <player>.");
+	Locale.islanderrorInvalidPlayer = locale.getString("island.errorInvalidPlayer","Can't use that command right now! Try again in a few seconds.");
+	Locale.islandislandLevelis = locale.getString("island.islandLevelis","That player is invalid or does not have an island!");
+	Locale.invitehelp = locale.getString("invite.help","Island level is");
+	Locale.inviteyouCanInvite = locale.getString("invite.youCanInvite","Use [/island invite <playername>] to invite a player to your island.");
+	Locale.inviteyouCannotInvite = locale.getString("invite.youCannotInvite","You can invite [number] more players.");
+	Locale.inviteonlyIslandOwnerCanInvite = locale.getString("invite.onlyIslandOwnerCanInvite","You can't invite any more players.");
+	Locale.inviteyouHaveJoinedAnIsland = locale.getString("invite.youHaveJoinedAnIsland","Only the island's owner can invite!");
+	Locale.invitehasJoinedYourIsland = locale.getString("invite.hasJoinedYourIsland","You have joined an island! Use /island team to see the other members.");
+	Locale.inviteerrorCantJoinIsland = locale.getString("invite.errorCantJoinIsland","[name] has joined your island!");
+	Locale.inviteerrorYouMustHaveIslandToInvite = locale.getString("invite.errorYouMustHaveIslandToInvite","You couldn't join the island, maybe it's full.");
+	Locale.inviteerrorYouCannotInviteYourself = locale.getString("invite.errorYouCannotInviteYourself","You must have an island in order to invite people to it!");
+	Locale.inviteremovingInvite = locale.getString("invite.removingInvite","You can not invite yourself!");
+	Locale.inviteinviteSentTo = locale.getString("invite.inviteSentTo","Removing your previous invite.");
+	Locale.invitenameHasInvitedYou = locale.getString("invite.nameHasInvitedYou","Invite sent to [name]");
+	Locale.invitetoAcceptOrReject = locale.getString("invite.toAcceptOrReject","[name] has invited you to join their island!");
+	Locale.invitewarningYouWillLoseIsland = locale.getString("invite.warningYouWillLoseIsland","to accept or reject the invite.");
+	Locale.inviteerrorYourIslandIsFull = locale.getString("invite.errorYourIslandIsFull","WARNING: You will lose your current island if you accept!");
+	Locale.inviteerrorThatPlayerIsAlreadyInATeam = locale.getString("invite.errorThatPlayerIsAlreadyInATeam","Your island is full, you can't invite anyone else.");
+	Locale.rejectyouHaveRejectedInvitation = locale.getString("reject.youHaveRejectedInvitation","That player is already in a team.");
+	Locale.rejectnameHasRejectedInvite = locale.getString("reject.nameHasRejectedInvite","You have rejected the invitation to join an island.");
+	Locale.rejectyouHaveNotBeenInvited = locale.getString("reject.youHaveNotBeenInvited","[name] has rejected your island invite!");
+	Locale.leaveerrorYouAreTheLeader = locale.getString("leave.errorYouAreTheLeader","You had not been invited to join a team.");
+	Locale.leaveyouHaveLeftTheIsland = locale.getString("leave.youHaveLeftTheIsland","You are the leader, use /island remove <player> instead.");
+	Locale.leavenameHasLeftYourIsland = locale.getString("leave.nameHasLeftYourIsland","You have left the island and returned to the player spawn.");
+	Locale.leaveerrorYouCannotLeaveIsland = locale.getString("leave.errorYouCannotLeaveIsland","[name] has left your island!");
+	Locale.leaveerrorYouMustBeInWorld = locale.getString("leave.errorYouMustBeInWorld","You can't leave your island if you are the only person. Try using /island restart if you want a new one!");
+	Locale.leaveerrorLeadersCannotLeave = locale.getString("leave.errorLeadersCannotLeave","You must be in the AcidIsland world to leave your team!");
+	Locale.teamlistingMembers = locale.getString("team.listingMembers","Leaders cannot leave an island. Make someone else the leader fist using /island makeleader <player>");
+	Locale.kickerrorPlayerNotInTeam = locale.getString("kick.errorPlayerNotInTeam","Listing your island members");
+	Locale.kicknameRemovedYou = locale.getString("kick.nameRemovedYou","That player is not in your team!");
+	Locale.kicknameRemoved = locale.getString("kick.nameRemoved","[name] has removed you from their island!");
+	Locale.kickerrorNotPartOfTeam = locale.getString("kick.errorNotPartOfTeam","[name] has been removed from the island.");
+	Locale.kickerrorOnlyLeaderCan = locale.getString("kick.errorOnlyLeaderCan","That player is not part of your island team!");
+	Locale.kickerrorNoTeam = locale.getString("kick.errorNoTeam","Only the island's owner may remove people from the island!");
+	Locale.makeLeadererrorPlayerMustBeOnline = locale.getString("makeleader.errorPlayerMustBeOnline","No one else is on your island, are you seeing things?");
+	Locale.makeLeadererrorYouMustBeInTeam = locale.getString("makeleader.errorYouMustBeInTeam","That player must be online to transfer the island.");
+	Locale.makeLeadererrorRemoveAllPlayersFirst = locale.getString("makeleader.errorRemoveAllPlayersFirst","You must be in a team to transfer your island.");
+	Locale.makeLeaderyouAreNowTheOwner = locale.getString("makeleader.youAreNowTheOwner","Remove all players from your team other than the player you are transferring to.");
+	Locale.makeLeadernameIsNowTheOwner = locale.getString("makeleader.nameIsNowTheOwner","You are now the owner of your island.");
+	Locale.makeLeadererrorThatPlayerIsNotInTeam = locale.getString("makeleader.errorThatPlayerIsNotInTeam","[name] is now the owner of your island!");
+	Locale.makeLeadererrorNotYourIsland = locale.getString("makeleader.errorNotYourIsland","That player is not part of your island team!");
+	Locale.makeLeadererrorGeneralError = locale.getString("makeleader.errorGeneralError","This isn't your island, so you can't give it away!");
+	Locale.adminHelpreload = locale.getString("adminHelp.reload","Could not change leaders.");
+	Locale.adminHelptopTen = locale.getString("adminHelp.topTen","reload configuration from file.");
+	Locale.adminHelpregister = locale.getString("adminHelp.register","manually update the top 10 list");
+	Locale.adminHelpdelete = locale.getString("adminHelp.delete","set a player's island to your location");
+	Locale.adminHelpcompleteChallenge = locale.getString("adminHelp.completeChallenge","delete an island (removes blocks).");
+	Locale.adminHelpresetChallenge = locale.getString("adminHelp.resetChallenge","marks a challenge as complete");
+	Locale.adminHelpresetAllChallenges = locale.getString("adminHelp.resetAllChallenges","marks a challenge as incomplete");
+	Locale.adminHelppurge = locale.getString("adminHelp.purge","resets all of the player's challenges");
+	Locale.adminHelpinfo = locale.getString("adminHelp.info","delete inactive islands older than [TimeInDays].");
+	Locale.reloadconfigReloaded = locale.getString("reload.configReloaded","check the team information for the given player.");
+	Locale.adminTopTengenerating = locale.getString("adminTopTen.generating","Configuration reloaded from file.");
+	Locale.adminTopTenfinished = locale.getString("adminTopTen.finished","Generating the Top Ten list");
+	Locale.purgealreadyRunning = locale.getString("purge.alreadyRunning","Finished generation of the Top Ten list");
+	Locale.purgeusage = locale.getString("purge.usage","Purge is already running, please wait for it to finish!");
+	Locale.purgecalculating = locale.getString("purge.calculating","Calculating which islands have been inactive for more than [time] days.");
+	Locale.purgenoneFound = locale.getString("purge.noneFound","No inactive islands to remove.");
+	Locale.purgethisWillRemove = locale.getString("purge.thisWillRemove","This will remove [number] inactive islands!");
+	Locale.purgewarning = locale.getString("purge.warning","DANGER! Do not run this with players on the server! MAKE BACKUP OF WORLD!");
+	Locale.purgetypeConfirm = locale.getString("purge.typeConfirm","Type /acid confirm to proceed within 10 seconds");
+	Locale.purgepurgeCancelled = locale.getString("purge.purgeCancelled","Purge cancelled.");
+	Locale.purgefinished = locale.getString("purge.finished","Finished purging of inactive islands.");
+	Locale.purgeremovingName = locale.getString("purge.removingName","Purge: Removing [name]'s island");
+	Locale.confirmerrorTimeLimitExpired = locale.getString("confirm.errorTimeLimitExpired","Time limit expired! Issue command again.");
+	Locale.deleteremoving = locale.getString("delete.removing","Removing [name]'s island.");
+	Locale.registersettingIsland = locale.getString("register.settingIsland","Set [name]'s island to the bedrock nearest you.");
+	Locale.registererrorBedrockNotFound = locale.getString("register.errorBedrockNotFound","Error: unable to set the island!");
+	Locale.adminInfoislandLocation = locale.getString("adminInfo.islandLocation","Island Location");
+	Locale.adminInfoerrorNotPartOfTeam = locale.getString("adminInfo.errorNotPartOfTeam","That player is not a member of an island team.");
+	Locale.adminInfoerrorNullTeamLeader = locale.getString("adminInfo.errorNullTeamLeader","Team leader should be null!");
+	Locale.adminInfoerrorTeamMembersExist = locale.getString("adminInfo.errorTeamMembersExist","Player has team members, but shouldn't!");
+	Locale.resetChallengessuccess = locale.getString("resetallchallenges.success","[name] has had all challenges reset.");
+	Locale.checkTeamcheckingTeam = locale.getString("checkTeam.checkingTeam","Checking Team of [name]");
+	Locale.completeChallengeerrorChallengeDoesNotExist = locale.getString("completechallenge.errorChallengeDoesNotExist","Challenge doesn't exist or is already completed");
+	Locale.completeChallengechallangeCompleted = locale.getString("completechallenge.challangeCompleted","[challengename] has been completed for [name]");
+	Locale.resetChallengeerrorChallengeDoesNotExist = locale.getString("resetchallenge.errorChallengeDoesNotExist","Challenge doesn't exist or isn't yet completed");
+	Locale.resetChallengechallengeReset = locale.getString("resetchallenge.challengeReset","[challengename] has been reset for [name]");    }
 
     /*
      * (non-Javadoc)
@@ -723,7 +898,7 @@ public class AcidIsland extends JavaPlugin {
 	}
     }
 
-    /*
+     /*
      * (non-Javadoc)
      * 
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -734,6 +909,7 @@ public class AcidIsland extends JavaPlugin {
 	plugin = this;
 	saveDefaultConfig();
 	saveDefaultChallengeConfig();
+	saveDefaultLocale();
 	// Metrics
 	try {
 	    final Metrics metrics = new Metrics(this);
@@ -1378,4 +1554,60 @@ public class AcidIsland extends JavaPlugin {
 	    getLogger().severe("Could not save config to " + challengeConfigFile);
 	}
     }
+
+    // Localization
+    /**
+     * Saves the locale.yml file if it does not exist
+     */
+    public void saveDefaultLocale() {
+	if (localeFile == null) {
+	    localeFile = new File(getDataFolder(), "locale.yml");
+	}
+	if (!localeFile.exists()) {            
+	    plugin.saveResource("locale.yml", false);
+	}
+    }
+
+    /**
+     * Reloads the locale file
+     */
+    public void reloadLocale() {
+	if (localeFile == null) {
+	    localeFile = new File(getDataFolder(), "locale.yml");
+	}
+	locale = YamlConfiguration.loadConfiguration(localeFile);
+
+	// Look for defaults in the jar
+	InputStream defLocaleStream = this.getResource("locale.yml");
+	if (defLocaleStream != null) {
+	    YamlConfiguration defLocale = YamlConfiguration.loadConfiguration(defLocaleStream);
+	    locale.setDefaults(defLocale);
+	}
+    }
+
+    /**
+     * @return locale FileConfiguration object
+     */
+    public FileConfiguration getLocale() {
+	if (locale == null) {
+	    reloadLocale();
+	}
+	return locale;
+    }
+
+    /**
+     * Saves challenges.yml
+     */
+    public void saveLocale() {
+	if (locale == null || localeFile == null) {
+	    return;
+	}
+	try {
+	    getLocale().save(localeFile);
+	} catch (IOException ex) {
+	    getLogger().severe("Could not save config to " + localeFile);
+	}
+    }
+
+
 }

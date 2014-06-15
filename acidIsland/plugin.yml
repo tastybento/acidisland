@@ -1,9 +1,10 @@
 name: AcidIsland
 main: com.wasteofplastic.acidisland.AcidIsland
-version: 0.5
+version: 0.6
 description: Acid Island
 author: Tastybento
 depend: [Vault]
+loadbefore: [Multiverse-Core]
 commands:
     island:
         description: Main player command

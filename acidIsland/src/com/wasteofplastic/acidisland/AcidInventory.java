@@ -24,8 +24,8 @@ import org.bukkit.inventory.meta.ItemMeta;
  */
 public class AcidInventory implements Listener {
     private final AcidIsland plugin;
-    private ArrayList<String> lore = new ArrayList<String>(Arrays.asList("Poison", "Beware!", "Do not drink!"));
- 
+    private ArrayList<String> lore = new ArrayList<String>(Arrays.asList(Locale.acidLore.split("\n")));
+    
     public AcidInventory(AcidIsland acidIsland) {
 	plugin = acidIsland;
     }
@@ -48,7 +48,7 @@ public class AcidInventory implements Listener {
 			if (item.getType() == Material.WATER_BUCKET) {
 			    //plugin.getLogger().info("Found it!");
 			    ItemMeta meta = item.getItemMeta();
-			    meta.setDisplayName("Acid Bucket");
+			    meta.setDisplayName(Locale.acidBucket);
 			    meta.setLore(lore);
 			    item.setItemMeta(meta);
 			}
@@ -63,7 +63,7 @@ public class AcidInventory implements Listener {
 			if (item.getType() == Material.POTION && item.getDurability() == 0) {
 			    //plugin.getLogger().info("Found it!");
 			    ItemMeta meta = item.getItemMeta();
-			    meta.setDisplayName("Acid Bottle");
+			    meta.setDisplayName(Locale.acidBottle);
 			    meta.setLore(lore);
 			    item.setItemMeta(meta);
 			}
@@ -85,7 +85,7 @@ public class AcidInventory implements Listener {
 	    ItemStack item = e.getItemStack();
 	    if (item.getType().equals(Material.WATER_BUCKET)) {
 		ItemMeta meta = item.getItemMeta();
-		meta.setDisplayName("Acid Bucket");
+		meta.setDisplayName(Locale.acidBucket);
 		meta.setLore(lore);
 		item.setItemMeta(meta);
 	    }
@@ -101,8 +101,8 @@ public class AcidInventory implements Listener {
 	//plugin.getLogger().info(e.getEventName() + " called for " + e.getItem().getType().toString());	
 	if (e.getItem().getType().equals(Material.POTION) && e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    if (e.getItem().getDurability() == 0) {
-		plugin.getLogger().info(e.getPlayer().getName() + " just drank acid and died.");
-		plugin.getServer().broadcastMessage(e.getPlayer().getDisplayName() + " drank acid.");
+		plugin.getLogger().info(e.getPlayer().getName() + " " + Locale.drankAcidAndDied);
+		plugin.getServer().broadcastMessage(e.getPlayer().getDisplayName() + " " + Locale.drankAcid);
 		final ItemStack item = new ItemStack(Material.GLASS_BOTTLE);
 		e.getPlayer().setItemInHand(item);
 		e.getPlayer().setHealth(0D);
@@ -136,7 +136,7 @@ public class AcidInventory implements Listener {
 				    if (item.getType().equals(Material.POTION) && item.getDurability() == 0) {
 					//plugin.getLogger().info("Water bottle found!");
 					ItemMeta meta = item.getItemMeta();
-					meta.setDisplayName("Acid Bottle");
+					meta.setDisplayName(Locale.acidBottle);
 					//ArrayList<String> lore = new ArrayList<String>(Arrays.asList("Poison", "Beware!", "Do not drink!"));
 					meta.setLore(lore);
 					item.setItemMeta(meta);
