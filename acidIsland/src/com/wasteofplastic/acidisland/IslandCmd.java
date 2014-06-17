@@ -1,5 +1,7 @@
 package com.wasteofplastic.acidisland;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
@@ -237,6 +239,22 @@ public class IslandCmd implements CommandExecutor {
      * @param world
      */
     private void generateIslandBlocks(final int x, final int z, final Player player, final World world) {
+	// Check if there is a schematic
+	File schematicFile = new File(plugin.getDataFolder(), "island.schematic");
+	if (schematicFile.exists()) {    
+	    plugin.getLogger().info("Trying to load island schematic");
+	    Schematic island = null;
+	    try {
+		island = Schematic.loadSchematic(schematicFile);
+		Location islandLoc = new Location(world,x,Settings.sea_level+5,z);
+		Schematic.pasteSchematic(world, islandLoc, island);
+	    } catch (IOException e) {
+		// TODO Auto-generated catch block
+		plugin.getLogger().severe("Could not load island schematic! Error in file.");
+		e.printStackTrace();
+	    }
+	    return;
+	}
 	// Build island layer by layer
 	// Start from the base
 	// half sandstone; half sand

@@ -898,7 +898,7 @@ public class AcidIsland extends JavaPlugin {
 	}
     }
 
-     /*
+    /*
      * (non-Javadoc)
      * 
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -959,6 +959,15 @@ public class AcidIsland extends JavaPlugin {
 		    };
 		    // update the list
 		    updateTopTen();
+		}
+		if (manager.isPluginEnabled("Multiverse-Core")) {
+		    getLogger().info("Trying to register generator with Multiverse ");
+		    try {
+			getServer().dispatchCommand(getServer().getConsoleSender(), "mv modify set generator AcidIsland " + Settings.worldName);
+		    } catch (Exception e) {
+			getLogger().info("Not successfull");
+			e.printStackTrace();
+		    }
 		}
 	    }
 	});
@@ -1524,8 +1533,10 @@ public class AcidIsland extends JavaPlugin {
 	challenges = YamlConfiguration.loadConfiguration(challengeConfigFile);
 
 	// Look for defaults in the jar
+
 	InputStream defConfigStream = this.getResource("challenges.yml");
 	if (defConfigStream != null) {
+	    @SuppressWarnings("deprecation")
 	    YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
 	    challenges.setDefaults(defConfig);
 	}
