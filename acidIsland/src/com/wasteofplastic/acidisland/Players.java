@@ -389,7 +389,7 @@ public class Players {
     }
 
     /**
-     * Called when a player leaves a team Resets hasTeam, teamLeader,
+     * Called when a player leaves a team Resets inTeam, teamLeader,
      * islandLevel, teamIslandLocation and members array
      */
 
@@ -398,8 +398,6 @@ public class Players {
 	teamLeader = null;
 	islandLevel = 0;
 	teamIslandLocation = null;
-	islandLocation = null;
-	homeLocation = null;
 	members = new ArrayList<UUID>();
     }
 

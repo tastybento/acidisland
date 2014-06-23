@@ -79,7 +79,10 @@ public class IslandCmd implements CommandExecutor {
 	    return false;
 	}
 	plugin.getLogger().info("Adding player: " + playerUUID + " to team with leader: " + teamLeader);
-	// Set the player's team giving the team leader's name and the island
+	plugin.getLogger().info("The island location is: " + players.getIslandLocation(teamLeader));
+	plugin.getLogger().info("The leader's home location is: " + players.getHomeLocation(teamLeader) + " (may be different or null)");
+
+	// Set the player's team giving the team leader's name and the team's island
 	// location
 	players.setJoinTeam(playerUUID, teamLeader, players.getIslandLocation(teamLeader));
 	// If the player's name and the team leader are NOT the same when this
@@ -89,8 +92,11 @@ public class IslandCmd implements CommandExecutor {
 	if (!playerUUID.equals(teamLeader)) {
 	    if (players.getHomeLocation(teamLeader) != null) {
 		players.setHomeLocation(playerUUID,players.getHomeLocation(teamLeader));
+		plugin.getLogger().info("Setting player's home to the leader's home location");		
 	    } else {
+		//TODO - concerned this may be a bug
 		players.setHomeLocation(playerUUID, players.getIslandLocation(teamLeader));
+		plugin.getLogger().info("Setting player's home to the team island location");
 	    }
 	    // If the leader's member list does not contain player then add it
 	    if (!players.getMembers(teamLeader).contains(playerUUID)) {
@@ -108,21 +114,21 @@ public class IslandCmd implements CommandExecutor {
     /**
      * Removes a player from a team run by teamleader
      * 
-     * @param playername
+     * @param player
      * @param teamleader
      */
-    public void removePlayerFromTeam(final UUID playername, final UUID teamleader) {
-	// Deal with players
+    public void removePlayerFromTeam(final UUID player, final UUID teamleader) {
+	// Remove player from the team
+	players.removeMember(teamleader,player);
 	// If player is online
 	// If player is not the leader of their own team
-	if (!players.getTeamLeader(playername).equals(playername)) {
-	    // Clear the home location
-	    players.setHomeLocation(playername, null);
-	}
-	players.setLeaveTeam(playername);
-	// Deal with leaders
-	if (players.getMembers(teamleader).contains(playername)) {
-	    players.removeMember(teamleader,playername);
+	if (!player.equals(teamleader)) {
+	    players.setLeaveTeam(player);
+	    players.setHomeLocation(player, null);
+	    players.setIslandLocation(player, null);
+	} else {
+	    // Ex-Leaders keeps their island, but the rest of the team items are removed
+	    players.setLeaveTeam(player);	    
 	}
     }
 
@@ -181,7 +187,7 @@ public class IslandCmd implements CommandExecutor {
 		    //plugin.getLogger().warning("DEBUG: econ is null!");
 		    VaultHelper.setupEconomy();
 		}
-		Double playerBalance = VaultHelper.econ.getBalance(player.getName(), Settings.worldName);
+		Double playerBalance = VaultHelper.econ.getBalance(player, Settings.worldName);
 		// plugin.getLogger().info("DEBUG: playerbalance = " +
 		// playerBalance);
 		// Round the balance to 2 decimal places and slightly down to
@@ -191,7 +197,7 @@ public class IslandCmd implements CommandExecutor {
 		playerBalance = bd.doubleValue();
 		// plugin.getLogger().info("DEBUG: playerbalance after rounding = "
 		// + playerBalance);
-		EconomyResponse response = VaultHelper.econ.withdrawPlayer(player.getName(), Settings.worldName, playerBalance);
+		EconomyResponse response = VaultHelper.econ.withdrawPlayer(player, Settings.worldName, playerBalance);
 		// plugin.getLogger().info("DEBUG: withdrawn");
 		if (response.transactionSuccess()) {
 		    plugin.getLogger().info(
@@ -212,10 +218,12 @@ public class IslandCmd implements CommandExecutor {
 		final Entity tempent = ents.next();
 		// Remove anything except for the player himself and the cow (!)
 		if (!(tempent instanceof Player) && !tempent.getType().equals(EntityType.COW)) {
+		    plugin.getLogger().warning("Removed an " + tempent.getType().toString() + " when creating island for " + player.getName());
 		    tempent.remove();
 		} else if (tempent.getType().equals(EntityType.COW)) {
 		    numberOfCows++;
 		    if (numberOfCows > 1) {
+			plugin.getLogger().warning("Removed an extra cow when creating island for " + player.getName());
 			tempent.remove();
 		    }
 		}
@@ -242,12 +250,15 @@ public class IslandCmd implements CommandExecutor {
 	// Check if there is a schematic
 	File schematicFile = new File(plugin.getDataFolder(), "island.schematic");
 	if (schematicFile.exists()) {    
-	    plugin.getLogger().info("Trying to load island schematic");
+	    plugin.getLogger().info("Trying to load island schematic...");
 	    Schematic island = null;
 	    try {
 		island = Schematic.loadSchematic(schematicFile);
-		Location islandLoc = new Location(world,x,Settings.sea_level+5,z);
-		Schematic.pasteSchematic(world, islandLoc, island);
+		Location islandLoc = new Location(world,x,Settings.sea_level,z);
+		if (!Schematic.pasteSchematic(world, islandLoc, island, player)) {
+		    // Error
+		    return;
+		}
 	    } catch (IOException e) {
 		// TODO Auto-generated catch block
 		plugin.getLogger().severe("Could not load island schematic! Error in file.");
@@ -669,365 +680,353 @@ public class IslandCmd implements CommandExecutor {
 	// The target player's UUID
 	UUID targetPlayer = null;
 	// Check if a player has an island or is in a team
-	if (players.getIslandLocation(playerUUID) != null || players.inTeam(playerUUID)) {
-	    switch (split.length) {
-	    // /island command when the player has an island or is in a team
-	    case 0:
+	switch (split.length) {
+	// /island command by itself
+	case 0:
+	    // New island
+	    if (players.getIslandLocation(playerUUID) == null && !players.inTeam(playerUUID)) {
+		// Create new island for player
+		player.sendMessage(ChatColor.GREEN + Locale.islandnew);
+		return newIsland(sender);
+	    } else {
 		// Teleport home
 		plugin.homeTeleport(player);
 		return true;
-	    case 1:
-		// /island <command>
-		if (split[0].equalsIgnoreCase("warp")) {
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
-			player.sendMessage(ChatColor.YELLOW + "/island warp <player>: " + ChatColor.WHITE + Locale.islandhelpWarp);
-			return true;
-		    }
-		} else if (split[0].equalsIgnoreCase("warps")) {
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
-			// Step through warp table
-			Set<UUID> warpList = plugin.listWarps();
-			if (warpList.isEmpty()) {
-			    player.sendMessage(ChatColor.YELLOW + Locale.warpserrorNoWarpsYet);
-			    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld())) {
-				player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
-			    }
-			    return true;
-			} else {
-			    Boolean hasWarp = false;
-			    String wlist = "";
-			    for (UUID w : warpList) {
-				if (wlist.isEmpty()) {
-				    wlist = players.getName(w);
-				} else {
-				    wlist += ", " + players.getName(w);
-				}
-				if (w.equals(playerUUID)) {
-				    hasWarp = true;
-				}
-			    }
-			    player.sendMessage(ChatColor.YELLOW + Locale.warpswarpsAvailable + ": " + ChatColor.WHITE + wlist);
-			    if (!hasWarp && (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld()))) {
-				player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
-			    }
-			    return true;
-			}
-		    }
-		} else if (split[0].equalsIgnoreCase("restart") || split[0].equalsIgnoreCase("reset")) {
-		    if (players.inTeam(playerUUID)) {
-			if (!players.getTeamLeader(playerUUID).equals(playerUUID)) {
-			    player.sendMessage(ChatColor.RED
-				    + Locale.islandresetOnlyOwner);
-			} else {
-			    player.sendMessage(ChatColor.YELLOW
-				    + Locale.islandresetMustRemovePlayers);
+	    }
+	case 1:
+	    // /island <command>
+	    if (split[0].equalsIgnoreCase("warp")) {
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
+		    player.sendMessage(ChatColor.YELLOW + "/island warp <player>: " + ChatColor.WHITE + Locale.islandhelpWarp);
+		    return true;
+		}
+	    } else if (split[0].equalsIgnoreCase("warps")) {
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
+		    // Step through warp table
+		    Set<UUID> warpList = plugin.listWarps();
+		    if (warpList.isEmpty()) {
+			player.sendMessage(ChatColor.YELLOW + Locale.warpserrorNoWarpsYet);
+			if (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld())) {
+			    player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
 			}
 			return true;
-		    }
-		    if (!onRestartWaitTime(player) || Settings.resetWait == 0) {
-			// Actually RESET the island
-			player.sendMessage(ChatColor.YELLOW + Locale.islandresetPleaseWait);
-			//plugin.getLogger().info("DEBUG Reset command issued!");
-			setResetWaitTime(player);
-			Bukkit.getScheduler().runTask(plugin, new Runnable() {
-			    @Override
-			    public void run() {
-				plugin.deletePlayerIsland(playerUUID);
-				newIsland(sender);
-			    }
-			});
 		    } else {
-			player.sendMessage(ChatColor.YELLOW + Locale.islandresetWait.replace("[time]",String.valueOf(getResetWaitTime(player))));
-		    }
-		    return true;
-		} else if (split[0].equalsIgnoreCase("sethome")) {
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.sethome", player.getWorld())) {
-			plugin.homeSet(player);
-			return true;
-		    }
-		    return false;
-		} else if (split[0].equalsIgnoreCase("help")) { 
-		    player.sendMessage(ChatColor.GREEN + "AcidIsland help:");
-
-		    player.sendMessage(ChatColor.YELLOW + "/island: " + ChatColor.WHITE + Locale.islandhelpIsland);
-		    player.sendMessage(ChatColor.YELLOW + "/island restart: " + ChatColor.WHITE + Locale.islandhelpRestart);
-		    player.sendMessage(ChatColor.YELLOW + "/island sethome: " + ChatColor.WHITE + Locale.islandhelpSetHome);
-		    player.sendMessage(ChatColor.YELLOW + "/island level: " + ChatColor.WHITE + Locale.islandhelpLevel);
-		    player.sendMessage(ChatColor.YELLOW + "/island level <player>: " + ChatColor.WHITE + Locale.islandhelpLevelPlayer);
-		    player.sendMessage(ChatColor.YELLOW + "/island top: " + ChatColor.WHITE + Locale.islandhelpTop);
-
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
-			player.sendMessage(ChatColor.YELLOW + "/island warps: " + ChatColor.WHITE + Locale.islandhelpWarps);
-			player.sendMessage(ChatColor.YELLOW + "/island warp <player>: " + ChatColor.WHITE + Locale.islandhelpWarp);
-		    }
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
-			player.sendMessage(ChatColor.YELLOW + "/island team: " + ChatColor.WHITE + Locale.islandhelpTeam);
-			player.sendMessage(ChatColor.YELLOW + "/island invite <player>: " + ChatColor.WHITE + Locale.islandhelpInvite);
-			player.sendMessage(ChatColor.YELLOW + "/island leave: " + ChatColor.WHITE + Locale.islandhelpLeave);
-		    }
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.kick", player.getWorld())) {
-			player.sendMessage(ChatColor.YELLOW + "/island kick <player>: " + ChatColor.WHITE + Locale.islandhelpKick);
-		    }
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
-			player.sendMessage(ChatColor.YELLOW + "/island <accept/reject>: " + ChatColor.WHITE + Locale.islandhelpAcceptReject);
-		    }
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.makeleader", player.getWorld())) {
-			player.sendMessage(ChatColor.YELLOW + "/island makeleader <player>: " + ChatColor.WHITE + Locale.islandhelpMakeLeader);
-		    }
-		    return true;
-		} else if (split[0].equalsIgnoreCase("top")) {
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.topten", player.getWorld())) {
-			plugin.showTopTen(player);
-			return true;
-		    }
-		    return false;
-		} else if (split[0].equalsIgnoreCase("level")) {
-		    if (plugin.playerIsOnIsland(player)) {
-			if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
-			    player.sendMessage(ChatColor.RED + Locale.errorNoIsland);
-			} else {
-			    getIslandLevel(player, playerUUID);
-			}
-			return true;
-		    }
-		    player.sendMessage(ChatColor.RED + Locale.setHomeerrorNotOnIsland);
-		    return true;
-		} else if (split[0].equalsIgnoreCase("invite")) {
-		    // Invite command with no name, i.e., /island invite - tells the player how many more people they can invite
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
-			player.sendMessage(ChatColor.YELLOW + "Use" + ChatColor.WHITE + " /island invite <playername> " + ChatColor.YELLOW
-				+ Locale.islandhelpInvite);
-			// If the player who is doing the inviting has a team
-			if (players.inTeam(playerUUID)) {
-			    // Check to see if the player is the leader
-			    if (teamLeader.equals(playerUUID)) {
-				// Check to see if the team is already full
-				if (teamMembers.size() < Settings.maxTeamSize) {
-				    player.sendMessage(ChatColor.GREEN + Locale.inviteyouCanInvite.replace("[number]", String.valueOf(Settings.maxTeamSize - teamMembers.size())));
-				} else {
-				    player.sendMessage(ChatColor.RED + Locale.inviteerrorYourIslandIsFull);
-				}
-				return true;
-			    }
-
-			    player.sendMessage(ChatColor.RED + Locale.inviteerrorYouMustHaveIslandToInvite);
-			    return true;
-			}
-
-			return true;
-		    }
-		    return false;
-		} else if (split[0].equalsIgnoreCase("accept")) {
-		    // Accept an invite command
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
-			// If player is not in a team but has been invited to join one
-			if (!players.inTeam(playerUUID) && inviteList.containsKey(playerUUID)) {
-
-			    if (!players.inTeam(inviteList.get(playerUUID))) {
-				if (players.hasIsland(playerUUID)) {
-				    plugin.deletePlayerIsland(playerUUID);
-				}
-
-				addPlayertoTeam(playerUUID, inviteList.get(playerUUID));
-				addPlayertoTeam(inviteList.get(playerUUID), inviteList.get(playerUUID));
-				player.sendMessage(ChatColor.GREEN + Locale.inviteyouHaveJoinedAnIsland);
-				if (Bukkit.getPlayer(inviteList.get(playerUUID)) != null) {
-				    Bukkit.getPlayer(inviteList.get(playerUUID)).sendMessage(ChatColor.GREEN + Locale.invitehasJoinedYourIsland.replace("[name]", player.getName()));
-				}
+			Boolean hasWarp = false;
+			String wlist = "";
+			for (UUID w : warpList) {
+			    if (wlist.isEmpty()) {
+				wlist = players.getName(w);
 			    } else {
-				if (players.hasIsland(playerUUID)) {
-				    plugin.deletePlayerIsland(playerUUID);
-				}
-				player.sendMessage(ChatColor.GREEN + Locale.inviteyouHaveJoinedAnIsland);
-				addPlayertoTeam(playerUUID, inviteList.get(playerUUID));
-				if (Bukkit.getPlayer(inviteList.get(playerUUID)) != null) {
-				    Bukkit.getPlayer(inviteList.get(playerUUID)).sendMessage(ChatColor.GREEN + Locale.invitehasJoinedYourIsland.replace("[name]", player.getName()));
-				} else {
-				    player.sendMessage(ChatColor.RED + Locale.inviteerrorCantJoinIsland);
-
-				    return true;
-				}
+				wlist += ", " + players.getName(w);
 			    }
-			    setResetWaitTime(player);
-
-			    plugin.homeTeleport(player);
-
-			    // Clear their inventory and equipment and set them as
-			    // survival
-			    player.getInventory().clear(); // Javadocs are wrong -
-			    // this does not clear
-			    // armor slots! So...
-			    player.getInventory().setHelmet(null);
-			    player.getInventory().setChestplate(null);
-			    player.getInventory().setLeggings(null);
-			    player.getInventory().setBoots(null);
-			    player.getEquipment().clear();
-			    player.setGameMode(GameMode.SURVIVAL);
-			    inviteList.remove(player.getUniqueId());
-			    return true;
+			    if (w.equals(playerUUID)) {
+				hasWarp = true;
+			    }
 			}
-
-			player.sendMessage(ChatColor.RED + Locale.errorCommandNotReady);
+			player.sendMessage(ChatColor.YELLOW + Locale.warpswarpsAvailable + ": " + ChatColor.WHITE + wlist);
+			if (!hasWarp && (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld()))) {
+			    player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
+			}
 			return true;
 		    }
-		    return false;
-		} else if (split[0].equalsIgnoreCase("reject")) {
-		    // Reject /island reject
-		    if (inviteList.containsKey(player.getUniqueId())) {
-			player.sendMessage(ChatColor.YELLOW + Locale.rejectyouHaveRejectedInvitation);
-			// If the player is online still then tell them directly about the rejection
-			if (Bukkit.getPlayer(inviteList.get(player.getUniqueId())) != null) {
-			    Bukkit.getPlayer(inviteList.get(player.getUniqueId())).sendMessage(
-				    ChatColor.RED + Locale.rejectnameHasRejectedInvite.replace("[name]", player.getName()));
-			}
-			// Remove this player from the global invite list
-			inviteList.remove(player.getUniqueId());
+		}
+	    } else if (split[0].equalsIgnoreCase("restart") || split[0].equalsIgnoreCase("reset")) {
+		if (players.inTeam(playerUUID)) {
+		    if (!players.getTeamLeader(playerUUID).equals(playerUUID)) {
+			player.sendMessage(ChatColor.RED
+				+ Locale.islandresetOnlyOwner);
 		    } else {
-			// Someone typed /island reject and had not been invited
-			player.sendMessage(ChatColor.RED + Locale.rejectyouHaveNotBeenInvited);
+			player.sendMessage(ChatColor.YELLOW
+				+ Locale.islandresetMustRemovePlayers);
 		    }
 		    return true;
-		} else if (split[0].equalsIgnoreCase("leave")) {
-		    // Leave team command
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
-			if (player.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
-			    if (players.inTeam(playerUUID)) {
-				if (players.getTeamLeader(playerUUID).equals(playerUUID)) {
-				    player.sendMessage(ChatColor.YELLOW + Locale.leaveerrorYouAreTheLeader);
-				    return true;
+		}
+		if (!onRestartWaitTime(player) || Settings.resetWait == 0) {
+		    // Actually RESET the island
+		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetPleaseWait);
+		    //plugin.getLogger().info("DEBUG Reset command issued!");
+		    setResetWaitTime(player);
+		    // Delete the island on one tick
+		    // Restart it on the next
+		    Bukkit.getScheduler().runTask(plugin, new Runnable() {
+			@Override
+			public void run() {
+			    plugin.deletePlayerIsland(playerUUID);
+			    Bukkit.getScheduler().runTask(plugin, new Runnable() {
+				@Override
+				public void run() {
+				    newIsland(sender);
 				}
-
-				// Clear their inventory and equipment and set them
-				// as survival
-				player.getInventory().clear(); // Javadocs are wrong
-				// - this does not
-				// clear armor
-				// slots! So...
-				player.getInventory().setHelmet(null);
-				player.getInventory().setChestplate(null);
-				player.getInventory().setLeggings(null);
-				player.getInventory().setBoots(null);
-				player.getEquipment().clear();
-				if (!player.performCommand("spawn")) {
-				    player.teleport(player.getWorld().getSpawnLocation());
-				}
-				removePlayerFromTeam(playerUUID, teamLeader);
-
-				player.sendMessage(ChatColor.YELLOW + Locale.leaveyouHaveLeftTheIsland);
-				if (Bukkit.getPlayer(teamLeader) != null) {
-				    Bukkit.getPlayer(teamLeader).sendMessage(ChatColor.RED + Locale.leavenameHasLeftYourIsland.replace("[name]",player.getName()));
-				}
-				teamMembers.remove(playerUUID);
-				if (teamMembers.size() < 2) {
-				    //plugin.getLogger().info("DEBUG: Part is less than 2 - removing leader from team");
-				    removePlayerFromTeam(teamLeader, teamLeader);
-				}
-			    } else {
-				player.sendMessage(ChatColor.RED + Locale.leaveerrorYouCannotLeaveIsland);
-				return true;
-			    }
-			} else {
-			    player.sendMessage(ChatColor.RED + Locale.leaveerrorYouMustBeInWorld);
+			    });
 			}
-			return true;
+		    });
+		} else {
+		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetWait.replace("[time]",String.valueOf(getResetWaitTime(player))));
+		}
+		return true;
+	    } else if (split[0].equalsIgnoreCase("sethome")) {
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.sethome", player.getWorld())) {
+		    plugin.homeSet(player);
+		    return true;
+		}
+		return false;
+	    } else if (split[0].equalsIgnoreCase("help")) { 
+		player.sendMessage(ChatColor.GREEN + "AcidIsland help:");
+
+		player.sendMessage(ChatColor.YELLOW + "/island: " + ChatColor.WHITE + Locale.islandhelpIsland);
+		player.sendMessage(ChatColor.YELLOW + "/island restart: " + ChatColor.WHITE + Locale.islandhelpRestart);
+		player.sendMessage(ChatColor.YELLOW + "/island sethome: " + ChatColor.WHITE + Locale.islandhelpSetHome);
+		player.sendMessage(ChatColor.YELLOW + "/island level: " + ChatColor.WHITE + Locale.islandhelpLevel);
+		player.sendMessage(ChatColor.YELLOW + "/island level <player>: " + ChatColor.WHITE + Locale.islandhelpLevelPlayer);
+		player.sendMessage(ChatColor.YELLOW + "/island top: " + ChatColor.WHITE + Locale.islandhelpTop);
+
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
+		    player.sendMessage(ChatColor.YELLOW + "/island warps: " + ChatColor.WHITE + Locale.islandhelpWarps);
+		    player.sendMessage(ChatColor.YELLOW + "/island warp <player>: " + ChatColor.WHITE + Locale.islandhelpWarp);
+		}
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
+		    player.sendMessage(ChatColor.YELLOW + "/island team: " + ChatColor.WHITE + Locale.islandhelpTeam);
+		    player.sendMessage(ChatColor.YELLOW + "/island invite <player>: " + ChatColor.WHITE + Locale.islandhelpInvite);
+		    player.sendMessage(ChatColor.YELLOW + "/island leave: " + ChatColor.WHITE + Locale.islandhelpLeave);
+		}
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.kick", player.getWorld())) {
+		    player.sendMessage(ChatColor.YELLOW + "/island kick <player>: " + ChatColor.WHITE + Locale.islandhelpKick);
+		}
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
+		    player.sendMessage(ChatColor.YELLOW + "/island <accept/reject>: " + ChatColor.WHITE + Locale.islandhelpAcceptReject);
+		}
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.makeleader", player.getWorld())) {
+		    player.sendMessage(ChatColor.YELLOW + "/island makeleader <player>: " + ChatColor.WHITE + Locale.islandhelpMakeLeader);
+		}
+		return true;
+	    } else if (split[0].equalsIgnoreCase("top")) {
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.topten", player.getWorld())) {
+		    plugin.showTopTen(player);
+		    return true;
+		}
+		return false;
+	    } else if (split[0].equalsIgnoreCase("level")) {
+		if (plugin.playerIsOnIsland(player)) {
+		    if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
+			player.sendMessage(ChatColor.RED + Locale.errorNoIsland);
+		    } else {
+			getIslandLevel(player, playerUUID);
 		    }
-		    return false;
-		} else if (split[0].equalsIgnoreCase("team")) {
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
-			player.sendMessage(ChatColor.WHITE + "/island invite <playername>" + ChatColor.YELLOW + " " + Locale.islandhelpTeam);
-		    }
+		    return true;
+		}
+		player.sendMessage(ChatColor.RED + Locale.setHomeerrorNotOnIsland);
+		return true;
+	    } else if (split[0].equalsIgnoreCase("invite")) {
+		// Invite command with no name, i.e., /island invite - tells the player how many more people they can invite
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
+		    player.sendMessage(ChatColor.YELLOW + "Use" + ChatColor.WHITE + " /island invite <playername> " + ChatColor.YELLOW
+			    + Locale.islandhelpInvite);
+		    // If the player who is doing the inviting has a team
 		    if (players.inTeam(playerUUID)) {
-			player.sendMessage(ChatColor.WHITE + "/island leave" + ChatColor.YELLOW + " " + Locale.islandhelpLeave);
+			// Check to see if the player is the leader
 			if (teamLeader.equals(playerUUID)) {
-			    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.kick", player.getWorld())) {
-				player.sendMessage(ChatColor.WHITE + "/island kick <playername>" + ChatColor.YELLOW + " " + Locale.islandhelpKick);
-			    }
-			    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.makeleader", player.getWorld())) {
-				player.sendMessage(ChatColor.WHITE + "/island makeleader <playername>" + ChatColor.YELLOW
-					+ " " + Locale.islandhelpMakeLeader);
-			    }
-
+			    // Check to see if the team is already full
 			    if (teamMembers.size() < Settings.maxTeamSize) {
 				player.sendMessage(ChatColor.GREEN + Locale.inviteyouCanInvite.replace("[number]", String.valueOf(Settings.maxTeamSize - teamMembers.size())));
 			    } else {
 				player.sendMessage(ChatColor.RED + Locale.inviteerrorYourIslandIsFull);
 			    }
+			    return true;
 			}
 
-			player.sendMessage(ChatColor.YELLOW + Locale.teamlistingMembers + ":");
-			// Display members in the list
-			for (UUID m : players.getMembers(teamLeader)) {
-			    player.sendMessage(ChatColor.WHITE + players.getName(m));
-			}
-		    } else if (inviteList.containsKey(playerUUID)) {
-			// TODO: Worried about this next line...
-			player.sendMessage(ChatColor.YELLOW + Locale.invitenameHasInvitedYou.replace("[name]", players.getName(inviteList.get(playerUUID))));
-			player.sendMessage(ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + Locale.invitetoAcceptOrReject);
-		    }
-		    return true;
-		} else {
-		    // Incorrect syntax
-		    return false;
-		}
-
-	    case 2:
-		if (split[0].equalsIgnoreCase("warp")) {
-		    // Warp somewhere command
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
-			final Set<UUID> warpList = plugin.listWarps();
-			if (warpList.isEmpty()) {
-			    player.sendMessage(ChatColor.YELLOW + Locale.warpserrorNoWarpsYet);
-			    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld())) {
-				player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
-			    }
-			    return true;
-			} else if (!(warpList.contains(players.getUUID(split[1])))) {
-			    player.sendMessage(ChatColor.RED + Locale.warpserrorDoesNotExist);
-			    return true;
-			} else {
-			    // Warp exists!
-			    final Location warpSpot = plugin.getWarp(players.getUUID(split[1]));
-			    // Check if the warp spot is safe
-			    if (warpSpot == null) {
-				player.sendMessage(ChatColor.RED + Locale.warpserrorNotReadyYet);
-				plugin.getLogger().warning("Null warp found, owned by " + split[1]);
-				return true;
-			    }
-			    if (!(AcidIsland.isSafeLocation(warpSpot))) {
-				player.sendMessage(ChatColor.RED + Locale.warpserrorNotSafe);
-				plugin.getLogger().warning("Unsafe warp found at " + warpSpot.toString() + " owned by " + split[1]);
-				return true;
-			    } else {
-				final Location actualWarp = new Location(warpSpot.getWorld(), warpSpot.getBlockX() + 0.5D, warpSpot.getBlockY(),
-					warpSpot.getBlockZ() + 0.5D);
-				player.teleport(actualWarp);
-				player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
-				return true;
-			    }
-			}
-		    }
-		    return false;
-		} else if (split[0].equalsIgnoreCase("level")) {
-		    // island level command
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.island.info", player.getWorld())) {
-			if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
-			    player.sendMessage(ChatColor.RED + Locale.errorNoIsland);
-			} else {
-			    // May return null if not known
-			    final UUID invitedPlayerUUID = players.getUUID(split[1]);
-			    // Invited player must be known
-			    if (invitedPlayerUUID == null) {
-				player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
-				return true;
-			    }
-			    getIslandLevel(player, players.getUUID(split[1]));
-			}
+			player.sendMessage(ChatColor.RED + Locale.inviteerrorYouMustHaveIslandToInvite);
 			return true;
 		    }
-		    return false;
-		} else if (split[0].equalsIgnoreCase("invite")) {
-		    // Team invite a player command
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
+
+		    return true;
+		}
+		return false;
+	    } else if (split[0].equalsIgnoreCase("accept")) {
+		// Accept an invite command
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
+		    // If player is not in a team but has been invited to join one
+		    if (!players.inTeam(playerUUID) && inviteList.containsKey(playerUUID)) {
+			// If the invitee has an island of their own
+			if (players.hasIsland(playerUUID)) {
+			    plugin.getLogger().info(player.getName() + "'s island will be deleted because they joined a party.");
+			    // Delete the island next tick
+			    Bukkit.getScheduler().runTask(plugin, new Runnable() {
+				@Override
+				public void run() {
+				    plugin.deletePlayerIsland(playerUUID);
+				    plugin.getLogger().info("Island deleted.");
+				}
+			    });
+			}
+			// Add the player to the team
+			addPlayertoTeam(playerUUID, inviteList.get(playerUUID));
+			// If the leader who did the invite does not yet have a team (leader is not in a team yet)
+			if (!players.inTeam(inviteList.get(playerUUID))) {
+			    // Add the leader to their own team
+			    addPlayertoTeam(inviteList.get(playerUUID), inviteList.get(playerUUID));
+			} 
+			setResetWaitTime(player);
+
+			plugin.homeTeleport(player);
+
+			// Clear their inventory and equipment and set them as
+			// survival
+			player.getInventory().clear(); // Javadocs are wrong -
+			// this does not clear
+			// armor slots! So...
+			player.getInventory().setHelmet(null);
+			player.getInventory().setChestplate(null);
+			player.getInventory().setLeggings(null);
+			player.getInventory().setBoots(null);
+			player.getEquipment().clear();
+			player.setGameMode(GameMode.SURVIVAL);
+			player.sendMessage(ChatColor.GREEN + Locale.inviteyouHaveJoinedAnIsland);
+			if (Bukkit.getPlayer(inviteList.get(playerUUID)) != null) {
+			    Bukkit.getPlayer(inviteList.get(playerUUID)).sendMessage(ChatColor.GREEN + Locale.invitehasJoinedYourIsland.replace("[name]", player.getName()));
+			}
+			// Remove the invite
+			inviteList.remove(player.getUniqueId());
+			return true;
+		    }
+		    player.sendMessage(ChatColor.RED + Locale.errorCommandNotReady);
+		    return true;
+		}
+		return false;
+	    } else if (split[0].equalsIgnoreCase("reject")) {
+		// Reject /island reject
+		if (inviteList.containsKey(player.getUniqueId())) {
+		    player.sendMessage(ChatColor.YELLOW + Locale.rejectyouHaveRejectedInvitation);
+		    // If the player is online still then tell them directly about the rejection
+		    if (Bukkit.getPlayer(inviteList.get(player.getUniqueId())) != null) {
+			Bukkit.getPlayer(inviteList.get(player.getUniqueId())).sendMessage(
+				ChatColor.RED + Locale.rejectnameHasRejectedInvite.replace("[name]", player.getName()));
+		    }
+		    // Remove this player from the global invite list
+		    inviteList.remove(player.getUniqueId());
+		} else {
+		    // Someone typed /island reject and had not been invited
+		    player.sendMessage(ChatColor.RED + Locale.rejectyouHaveNotBeenInvited);
+		}
+		return true;
+	    } else if (split[0].equalsIgnoreCase("leave")) {
+		// Leave team command
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
+		    if (player.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
+			if (players.inTeam(playerUUID)) {
+			    // TODO: Bug with leaving and creating islands
+			    // TODO: When player leaves island and there's only two players, the left leader looses the island
+			    if (players.getTeamLeader(playerUUID).equals(playerUUID)) {
+				player.sendMessage(ChatColor.YELLOW + Locale.leaveerrorYouAreTheLeader);
+				return true;
+			    }
+
+			    // Clear their inventory and equipment and set them
+			    // as survival
+			    player.getInventory().clear(); // Javadocs are wrong
+			    // - this does not
+			    // clear armor
+			    // slots! So...
+			    player.getInventory().setHelmet(null);
+			    player.getInventory().setChestplate(null);
+			    player.getInventory().setLeggings(null);
+			    player.getInventory().setBoots(null);
+			    player.getEquipment().clear();
+			    if (!player.performCommand("spawn")) {
+				player.teleport(player.getWorld().getSpawnLocation());
+			    }
+			    removePlayerFromTeam(playerUUID, teamLeader);
+
+			    player.sendMessage(ChatColor.YELLOW + Locale.leaveyouHaveLeftTheIsland);
+			    // Tell the leader if they are online
+			    if (Bukkit.getPlayer(teamLeader) != null) {
+				Bukkit.getPlayer(teamLeader).sendMessage(ChatColor.RED + Locale.leavenameHasLeftYourIsland.replace("[name]",player.getName()));
+			    }
+			    // Check if the size of the team is now 1
+			    //teamMembers.remove(playerUUID);
+			    if (teamMembers.size() < 3) {
+				plugin.getLogger().info("Party is less than 2 - removing leader from team");
+				removePlayerFromTeam(teamLeader, teamLeader);
+			    }
+			    return true;
+			} else {
+			    player.sendMessage(ChatColor.RED + Locale.leaveerrorYouCannotLeaveIsland);
+			    return true;
+			}
+		    } else {
+			player.sendMessage(ChatColor.RED + Locale.leaveerrorYouMustBeInWorld);
+		    }
+		    return true;
+		}
+		return false;
+	    } else if (split[0].equalsIgnoreCase("team")) {
+		if (players.inTeam(playerUUID)) {
+		    if (teamLeader.equals(playerUUID)) {
+			if (teamMembers.size() < Settings.maxTeamSize) {
+			    player.sendMessage(ChatColor.GREEN + Locale.inviteyouCanInvite.replace("[number]", String.valueOf(Settings.maxTeamSize - teamMembers.size())));
+			} else {
+			    player.sendMessage(ChatColor.RED + Locale.inviteerrorYourIslandIsFull);
+			}
+		    }
+
+		    player.sendMessage(ChatColor.YELLOW + Locale.teamlistingMembers + ":");
+		    // Display members in the list
+		    for (UUID m : players.getMembers(teamLeader)) {
+			player.sendMessage(ChatColor.WHITE + players.getName(m));
+		    }
+		} else if (inviteList.containsKey(playerUUID)) {
+		    // TODO: Worried about this next line...
+		    player.sendMessage(ChatColor.YELLOW + Locale.invitenameHasInvitedYou.replace("[name]", players.getName(inviteList.get(playerUUID))));
+		    player.sendMessage(ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + Locale.invitetoAcceptOrReject);
+		}
+		return true;
+	    } else {
+		// Incorrect syntax
+		return false;
+	    }
+
+	case 2:
+	    if (split[0].equalsIgnoreCase("warp")) {
+		// Warp somewhere command
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
+		    final Set<UUID> warpList = plugin.listWarps();
+		    if (warpList.isEmpty()) {
+			player.sendMessage(ChatColor.YELLOW + Locale.warpserrorNoWarpsYet);
+			if (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld())) {
+			    player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
+			}
+			return true;
+		    } else if (!(warpList.contains(players.getUUID(split[1])))) {
+			player.sendMessage(ChatColor.RED + Locale.warpserrorDoesNotExist);
+			return true;
+		    } else {
+			// Warp exists!
+			final Location warpSpot = plugin.getWarp(players.getUUID(split[1]));
+			// Check if the warp spot is safe
+			if (warpSpot == null) {
+			    player.sendMessage(ChatColor.RED + Locale.warpserrorNotReadyYet);
+			    plugin.getLogger().warning("Null warp found, owned by " + split[1]);
+			    return true;
+			}
+			if (!(AcidIsland.isSafeLocation(warpSpot))) {
+			    player.sendMessage(ChatColor.RED + Locale.warpserrorNotSafe);
+			    plugin.getLogger().warning("Unsafe warp found at " + warpSpot.toString() + " owned by " + split[1]);
+			    return true;
+			} else {
+			    final Location actualWarp = new Location(warpSpot.getWorld(), warpSpot.getBlockX() + 0.5D, warpSpot.getBlockY(),
+				    warpSpot.getBlockZ() + 0.5D);
+			    player.teleport(actualWarp);
+			    player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
+			    return true;
+			}
+		    }
+		}
+		return false;
+	    } else if (split[0].equalsIgnoreCase("level")) {
+		// island level command
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.info", player.getWorld())) {
+		    if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
+			player.sendMessage(ChatColor.RED + Locale.errorNoIsland);
+		    } else {
 			// May return null if not known
 			final UUID invitedPlayerUUID = players.getUUID(split[1]);
 			// Invited player must be known
@@ -1035,187 +1034,201 @@ public class IslandCmd implements CommandExecutor {
 			    player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			    return true;
 			}
-			// Player must be online
-			// TODO: enable offline players to be invited
-			if (plugin.getServer().getPlayer(invitedPlayerUUID) == null) {
-			    player.sendMessage(ChatColor.RED + Locale.errorOfflinePlayer);
-			    return true;
-			}
-			// Player issuing the command must have an island
-			if (!players.hasIsland(player.getUniqueId())) {
-			    player.sendMessage(ChatColor.RED + Locale.inviteerrorYouMustHaveIslandToInvite);
-			    return true;
-			}
-			// Player cannot invite themselves
-			if (player.getName().equalsIgnoreCase(split[1])) {
-			    player.sendMessage(ChatColor.RED + Locale.inviteerrorYouCannotInviteYourself);
-			    return true;
-			}
-			// If the player already has a team then check that they are the leader, etc
-			if (players.inTeam(player.getUniqueId())) {
-			    // Leader?
-			    if (teamLeader.equals(player.getUniqueId())) {
-				// Invited player is free and not in a team
-				if (!players.inTeam(invitedPlayerUUID)) {
-				    // Player has space in their team
-				    if (teamMembers.size() < Settings.maxTeamSize) {
-					// If that player already has an invite out then retract it.
-					// Players can only have one invite out at a time - interesting
-					if (inviteList.containsValue(playerUUID)) {
-					    inviteList.remove(getKeyByValue(inviteList, player.getUniqueId()));
-					    player.sendMessage(ChatColor.YELLOW + Locale.inviteremovingInvite);
-					}
-					// Put the invited player (key) onto the list with inviter (value)
-					// If someone else has invited a player, then this invite will overwrite the previous invite!
-					inviteList.put(invitedPlayerUUID, player.getUniqueId());
-					player.sendMessage(ChatColor.GREEN + Locale.inviteinviteSentTo.replace("[name]", split[1]));
-					// Send message to online player
-					Bukkit.getPlayer(invitedPlayerUUID).sendMessage(Locale.invitenameHasInvitedYou.replace("[name]", player.getName()));
-					Bukkit.getPlayer(invitedPlayerUUID).sendMessage(
-						ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + " " + Locale.invitetoAcceptOrReject);
-					Bukkit.getPlayer(invitedPlayerUUID).sendMessage(ChatColor.RED + Locale.invitewarningYouWillLoseIsland);
-				    } else {
-					player.sendMessage(ChatColor.RED + Locale.inviteerrorYourIslandIsFull);
-				    }
-				} else {
-				    player.sendMessage(ChatColor.RED + Locale.inviteerrorThatPlayerIsAlreadyInATeam);
-				}
-			    } else {
-				player.sendMessage(ChatColor.RED + Locale.inviteerrorYouMustHaveIslandToInvite);
-			    }
-			} else {
-			    // First-time invite player does not have a team
-			    // Check if invitee is in a team or not
+			getIslandLevel(player, players.getUUID(split[1]));
+		    }
+		    return true;
+		}
+		return false;
+	    } else if (split[0].equalsIgnoreCase("invite")) {
+		// Team invite a player command
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
+		    // May return null if not known
+		    final UUID invitedPlayerUUID = players.getUUID(split[1]);
+		    // Invited player must be known
+		    if (invitedPlayerUUID == null) {
+			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
+			return true;
+		    }
+		    // Player must be online
+		    // TODO: enable offline players to be invited
+		    if (plugin.getServer().getPlayer(invitedPlayerUUID) == null) {
+			player.sendMessage(ChatColor.RED + Locale.errorOfflinePlayer);
+			return true;
+		    }
+		    // Player issuing the command must have an island
+		    if (!players.hasIsland(player.getUniqueId())) {
+			player.sendMessage(ChatColor.RED + Locale.inviteerrorYouMustHaveIslandToInvite);
+			return true;
+		    }
+		    // Player cannot invite themselves
+		    if (player.getName().equalsIgnoreCase(split[1])) {
+			player.sendMessage(ChatColor.RED + Locale.inviteerrorYouCannotInviteYourself);
+			return true;
+		    }
+		    // If the player already has a team then check that they are the leader, etc
+		    if (players.inTeam(player.getUniqueId())) {
+			// Leader?
+			if (teamLeader.equals(player.getUniqueId())) {
+			    // Invited player is free and not in a team
 			    if (!players.inTeam(invitedPlayerUUID)) {
-				// If the inviter already has an invite out, remove it
-				if (inviteList.containsValue(playerUUID)) {
-				    inviteList.remove(getKeyByValue(inviteList, player.getUniqueId()));
-				    player.sendMessage(ChatColor.YELLOW + Locale.inviteremovingInvite);
+				// Player has space in their team
+				if (teamMembers.size() < Settings.maxTeamSize) {
+				    // If that player already has an invite out then retract it.
+				    // Players can only have one invite out at a time - interesting
+				    if (inviteList.containsValue(playerUUID)) {
+					inviteList.remove(getKeyByValue(inviteList, player.getUniqueId()));
+					player.sendMessage(ChatColor.YELLOW + Locale.inviteremovingInvite);
+				    }
+				    // Put the invited player (key) onto the list with inviter (value)
+				    // If someone else has invited a player, then this invite will overwrite the previous invite!
+				    inviteList.put(invitedPlayerUUID, player.getUniqueId());
+				    player.sendMessage(ChatColor.GREEN + Locale.inviteinviteSentTo.replace("[name]", split[1]));
+				    // Send message to online player
+				    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(Locale.invitenameHasInvitedYou.replace("[name]", player.getName()));
+				    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(
+					    ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + " " + Locale.invitetoAcceptOrReject);
+				    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(ChatColor.RED + Locale.invitewarningYouWillLoseIsland);
+				} else {
+				    player.sendMessage(ChatColor.RED + Locale.inviteerrorYourIslandIsFull);
 				}
-				// Place the player and invitee on the invite list
-				inviteList.put(invitedPlayerUUID, player.getUniqueId());
-
-				player.sendMessage(ChatColor.GREEN + Locale.inviteinviteSentTo.replace("[name]", split[1]));
-				Bukkit.getPlayer(invitedPlayerUUID).sendMessage(Locale.invitenameHasInvitedYou.replace("[name]", player.getName()));
-				Bukkit.getPlayer(invitedPlayerUUID).sendMessage(
-					ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + " " + Locale.invitetoAcceptOrReject);
-				Bukkit.getPlayer(invitedPlayerUUID).sendMessage(ChatColor.RED + Locale.invitewarningYouWillLoseIsland);
 			    } else {
 				player.sendMessage(ChatColor.RED + Locale.inviteerrorThatPlayerIsAlreadyInATeam);
 			    }
+			} else {
+			    player.sendMessage(ChatColor.RED + Locale.inviteerrorYouMustHaveIslandToInvite);
 			}
-			return true;
-		    }
-		    return false;
-		} else if (split[0].equalsIgnoreCase("kick") || split[0].equalsIgnoreCase("remove")) {
-		    // Island remove command with a player name, or island kick command
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.kick", player.getWorld())) {
-			// The main thing to do is check if the player name to kick is in the list of players in the team.
-			targetPlayer = null;
-			for (UUID member : teamMembers) {
-			    if (players.getName(member).equalsIgnoreCase(split[1])) {
-				targetPlayer = member;
+		    } else {
+			// First-time invite player does not have a team
+			// Check if invitee is in a team or not
+			if (!players.inTeam(invitedPlayerUUID)) {
+			    // If the inviter already has an invite out, remove it
+			    if (inviteList.containsValue(playerUUID)) {
+				inviteList.remove(getKeyByValue(inviteList, player.getUniqueId()));
+				player.sendMessage(ChatColor.YELLOW + Locale.inviteremovingInvite);
 			    }
-			}
-			if (targetPlayer == null) {
-			    player.sendMessage(ChatColor.RED + Locale.kickerrorNotPartOfTeam);
-			    return true;
-			}
-			if (players.inTeam(playerUUID)) {		
-			    // If this player is the leader
-			    if (teamLeader.equals(playerUUID)) {
-				if (teamMembers.contains(targetPlayer)) {
-				    // If the player leader tries to kick or remove themselves
-				    if (player.getUniqueId().equals(targetPlayer)) {
-					player.sendMessage(ChatColor.RED + Locale.leaveerrorLeadersCannotLeave);
-					return true;
-				    }
-				    // If target is online
-				    if (Bukkit.getPlayer(targetPlayer).isOnline()) {
-					// Clear the player out
-					if (Bukkit.getPlayer(targetPlayer).getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
-					    Bukkit.getPlayer(targetPlayer).getInventory().clear();
-					    Bukkit.getPlayer(targetPlayer).getEquipment().clear();
-					    Bukkit.getPlayer(targetPlayer).getInventory().setHelmet(null);
-					    Bukkit.getPlayer(targetPlayer).getInventory().setChestplate(null);
-					    Bukkit.getPlayer(targetPlayer).getInventory().setLeggings(null);
-					    Bukkit.getPlayer(targetPlayer).getInventory().setBoots(null);
-					    Bukkit.getPlayer(targetPlayer).sendMessage(ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
-					}
-					if (!Bukkit.getPlayer(targetPlayer).performCommand("spawn")) {
-					    Bukkit.getPlayer(targetPlayer).teleport(AcidIsland.getIslandWorld().getSpawnLocation());
-					}
-				    }
-				    // If the leader is still online - tell them they removed the player (race condition mitigation?)
-				    if (Bukkit.getPlayer(teamLeader) != null) {
-					Bukkit.getPlayer(teamLeader).sendMessage(ChatColor.RED + Locale.kicknameRemoved.replace("[name]", split[1]));
-				    }
-				    removePlayerFromTeam(targetPlayer, teamLeader);
-				    teamMembers.remove(targetPlayer);
-				    if (teamMembers.size() < 2) {
-					removePlayerFromTeam(player.getUniqueId(), teamLeader);
-				    }
-				} else {
-				    plugin.getLogger().warning("Player " + player.getName() + " failed to remove " + players.getName(targetPlayer));
-				    player.sendMessage(ChatColor.RED + Locale.kickerrorNotPartOfTeam);
-				}
-			    } else {
-				player.sendMessage(ChatColor.RED + Locale.kickerrorOnlyLeaderCan);
+			    // Place the player and invitee on the invite list
+			    inviteList.put(invitedPlayerUUID, player.getUniqueId());
+
+			    player.sendMessage(ChatColor.GREEN + Locale.inviteinviteSentTo.replace("[name]", split[1]));
+			    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(Locale.invitenameHasInvitedYou.replace("[name]", player.getName()));
+			    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(
+				    ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + " " + Locale.invitetoAcceptOrReject);
+			    // Check if the player has an island and warn accordingly
+			    if (players.hasIsland(invitedPlayerUUID)) {
+				Bukkit.getPlayer(invitedPlayerUUID).sendMessage(ChatColor.RED + Locale.invitewarningYouWillLoseIsland);
 			    }
 			} else {
-			    player.sendMessage(ChatColor.RED + Locale.kickerrorNoTeam);
+			    player.sendMessage(ChatColor.RED + Locale.inviteerrorThatPlayerIsAlreadyInATeam);
 			}
+		    }
+		    return true;
+		}
+		return false;
+	    } else if (split[0].equalsIgnoreCase("kick") || split[0].equalsIgnoreCase("remove")) {
+		// Island remove command with a player name, or island kick command
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.kick", player.getWorld())) {
+		    // The main thing to do is check if the player name to kick is in the list of players in the team.
+		    targetPlayer = null;
+		    for (UUID member : teamMembers) {
+			if (players.getName(member).equalsIgnoreCase(split[1])) {
+			    targetPlayer = member;
+			}
+		    }
+		    if (targetPlayer == null) {
+			player.sendMessage(ChatColor.RED + Locale.kickerrorNotPartOfTeam);
 			return true;
 		    }
-		    return false;
-		} else if (split[0].equalsIgnoreCase("makeleader")) {
-		    if (VaultHelper.checkPerm(player.getName(), "acidisland.team.makeleader", player.getWorld())) {
-			targetPlayer = players.getUUID(split[1]);
-			if (targetPlayer == null) {
-			    player.sendMessage(ChatColor.RED + Locale.makeLeadererrorPlayerMustBeOnline);
-			    return true;
-			}
-			if (!players.inTeam(player.getUniqueId())) {
-			    player.sendMessage(ChatColor.RED + Locale.makeLeadererrorYouMustBeInTeam);
-			    return true;
-			}
-
-			if (players.getMembers(player.getUniqueId()).size() > 2) {
-			    player.sendMessage(ChatColor.RED + Locale.makeLeadererrorRemoveAllPlayersFirst);
-			    plugin.getLogger().info(player.getName() + " tried to transfer his island, but failed because >2 people in a team");
-			    return true;
-			}
-
-			if (players.inTeam(player.getUniqueId())) {
-			    if (teamLeader.equals(player.getUniqueId())) {
-				if (teamMembers.contains(targetPlayer)) {
-				    if (Bukkit.getPlayer(targetPlayer) != null) {
-					Bukkit.getPlayer(targetPlayer).sendMessage(ChatColor.GREEN + Locale.makeLeaderyouAreNowTheOwner);
-				    }
-				    player.sendMessage(ChatColor.GREEN + Locale.makeLeadernameIsNowTheOwner.replace("[name]", Bukkit.getPlayer(targetPlayer).getName()));
-				    removePlayerFromTeam(targetPlayer, teamLeader);
-				    removePlayerFromTeam(player.getUniqueId(), teamLeader);
-				    addPlayertoTeam(player.getUniqueId(), targetPlayer);
-				    addPlayertoTeam(targetPlayer, targetPlayer);
-				    plugin.transferIsland(player.getUniqueId(), targetPlayer);
+		    if (players.inTeam(playerUUID)) {		
+			// If this player is the leader
+			if (teamLeader.equals(playerUUID)) {
+			    if (teamMembers.contains(targetPlayer)) {
+				// If the player leader tries to kick or remove themselves
+				if (player.getUniqueId().equals(targetPlayer)) {
+				    player.sendMessage(ChatColor.RED + Locale.leaveerrorLeadersCannotLeave);
 				    return true;
 				}
-				player.sendMessage(ChatColor.RED + Locale.makeLeadererrorThatPlayerIsNotInTeam);
+				// If target is online
+				if (Bukkit.getPlayer(targetPlayer).isOnline()) {
+				    // Clear the player out
+				    if (Bukkit.getPlayer(targetPlayer).getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
+					Bukkit.getPlayer(targetPlayer).getInventory().clear();
+					Bukkit.getPlayer(targetPlayer).getEquipment().clear();
+					Bukkit.getPlayer(targetPlayer).getInventory().setHelmet(null);
+					Bukkit.getPlayer(targetPlayer).getInventory().setChestplate(null);
+					Bukkit.getPlayer(targetPlayer).getInventory().setLeggings(null);
+					Bukkit.getPlayer(targetPlayer).getInventory().setBoots(null);
+					Bukkit.getPlayer(targetPlayer).sendMessage(ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
+				    }
+				    if (!Bukkit.getPlayer(targetPlayer).performCommand("spawn")) {
+					Bukkit.getPlayer(targetPlayer).teleport(AcidIsland.getIslandWorld().getSpawnLocation());
+				    }
+				}
+				// If the leader is still online - tell them they removed the player (race condition mitigation?)
+				if (Bukkit.getPlayer(teamLeader) != null) {
+				    Bukkit.getPlayer(teamLeader).sendMessage(ChatColor.RED + Locale.kicknameRemoved.replace("[name]", split[1]));
+				}
+				removePlayerFromTeam(targetPlayer, teamLeader);
+				teamMembers.remove(targetPlayer);
+				if (teamMembers.size() < 2) {
+				    removePlayerFromTeam(player.getUniqueId(), teamLeader);
+				}
 			    } else {
-				player.sendMessage(ChatColor.RED + Locale.makeLeadererrorNotYourIsland);
+				plugin.getLogger().warning("Player " + player.getName() + " failed to remove " + players.getName(targetPlayer));
+				player.sendMessage(ChatColor.RED + Locale.kickerrorNotPartOfTeam);
 			    }
 			} else {
-			    player.sendMessage(ChatColor.RED + Locale.makeLeadererrorGeneralError);
+			    player.sendMessage(ChatColor.RED + Locale.kickerrorOnlyLeaderCan);
 			}
+		    } else {
+			player.sendMessage(ChatColor.RED + Locale.kickerrorNoTeam);
+		    }
+		    return true;
+		}
+		return false;
+	    } else if (split[0].equalsIgnoreCase("makeleader")) {
+		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.makeleader", player.getWorld())) {
+		    targetPlayer = players.getUUID(split[1]);
+		    if (targetPlayer == null) {
+			player.sendMessage(ChatColor.RED + Locale.makeLeadererrorPlayerMustBeOnline);
 			return true;
 		    }
-		} else {
-		    return false;
+		    if (!players.inTeam(player.getUniqueId())) {
+			player.sendMessage(ChatColor.RED + Locale.makeLeadererrorYouMustBeInTeam);
+			return true;
+		    }
+
+		    if (players.getMembers(player.getUniqueId()).size() > 2) {
+			player.sendMessage(ChatColor.RED + Locale.makeLeadererrorRemoveAllPlayersFirst);
+			plugin.getLogger().info(player.getName() + " tried to transfer his island, but failed because >2 people in a team");
+			return true;
+		    }
+
+		    if (players.inTeam(player.getUniqueId())) {
+			if (teamLeader.equals(player.getUniqueId())) {
+			    if (teamMembers.contains(targetPlayer)) {
+				if (Bukkit.getPlayer(targetPlayer) != null) {
+				    Bukkit.getPlayer(targetPlayer).sendMessage(ChatColor.GREEN + Locale.makeLeaderyouAreNowTheOwner);
+				}
+				player.sendMessage(ChatColor.GREEN + Locale.makeLeadernameIsNowTheOwner.replace("[name]", Bukkit.getPlayer(targetPlayer).getName()));
+				removePlayerFromTeam(targetPlayer, teamLeader);
+				removePlayerFromTeam(player.getUniqueId(), teamLeader);
+				addPlayertoTeam(player.getUniqueId(), targetPlayer);
+				addPlayertoTeam(targetPlayer, targetPlayer);
+				plugin.transferIsland(player.getUniqueId(), targetPlayer);
+				return true;
+			    }
+			    player.sendMessage(ChatColor.RED + Locale.makeLeadererrorThatPlayerIsNotInTeam);
+			} else {
+			    player.sendMessage(ChatColor.RED + Locale.makeLeadererrorNotYourIsland);
+			}
+		    } else {
+			player.sendMessage(ChatColor.RED + Locale.makeLeadererrorGeneralError);
+		    }
+		    return true;
 		}
+	    } else {
+		return false;
 	    }
-	} else {
-	    player.sendMessage(ChatColor.GREEN + Locale.islandnew);
-	    return newIsland(sender);
 	}
 	return false;
     }

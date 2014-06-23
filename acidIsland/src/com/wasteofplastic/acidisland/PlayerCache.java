@@ -222,7 +222,10 @@ public class PlayerCache {
 	addPlayer(teamLeader);
 	playerCache.get(playerUUID).setJoinTeam(teamLeader, islandLocation);
     }
-
+    /**
+     * Called when a player leaves a team Resets inTeam, teamLeader,
+     * islandLevel, teamIslandLocation, homeLocation, islandLocation and members array
+     */
     public void setLeaveTeam(UUID playerUUID) {
 	addPlayer(playerUUID);
 	playerCache.get(playerUUID).setLeaveTeam();

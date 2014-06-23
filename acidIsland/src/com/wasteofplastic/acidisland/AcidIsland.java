@@ -1125,8 +1125,8 @@ public class AcidIsland extends JavaPlugin {
 	    final int px = l.getBlockX();
 	    final int pz = l.getBlockZ();
 	    // Place a temporary entity
-	    final World world = getIslandWorld();
-	    Entity snowBall = world.spawnEntity(loc, EntityType.SNOWBALL);
+	    //final World world = getIslandWorld();
+	    Entity snowBall = loc.getWorld().spawnEntity(loc, EntityType.SNOWBALL);
 	    // Remove any mobs if they just so happen to be around in the
 	    // vicinity
 	    final Iterator<Entity> ents = snowBall.getNearbyEntities((Settings.island_protectionRange / 2.0), 110.0D, (Settings.island_protectionRange / 2.0))
@@ -1135,8 +1135,7 @@ public class AcidIsland extends JavaPlugin {
 		final Entity tempent = ents.next();
 		// Remove anything except for a player
 		if (!(tempent instanceof Player)) {
-		    // getLogger().info("Removed entity type " +
-		    // tempent.getType().toString());
+		    getLogger().info("Removed entity type " + tempent.getType().toString() + " when removing island at location " + loc.toString());
 		    tempent.remove();
 		}
 	    }
