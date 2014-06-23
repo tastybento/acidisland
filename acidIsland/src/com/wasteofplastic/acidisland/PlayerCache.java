@@ -4,8 +4,10 @@
 package com.wasteofplastic.acidisland;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -280,6 +282,20 @@ public class PlayerCache {
 	for (UUID id : playerCache.keySet()) {
 	    if (playerCache.get(id).getPlayerName().equalsIgnoreCase(string)) {
 		return id;
+	    }
+	}
+	// Look in the file system
+	for (final File f : plugin.playersFolder.listFiles()) {
+	    // Need to remove the .yml suffix
+	    String fileName = f.getName();
+	    if (fileName.endsWith(".yml")) {
+		try {
+		    final UUID playerUUID = UUID.fromString(fileName.substring(0, fileName.length() - 4));
+		    if (plugin.getServer().getOfflinePlayer(playerUUID).getName().equalsIgnoreCase(string)) {
+			return playerUUID;
+		    }
+		} catch (Exception e) {
+		}
 	    }
 	}
 	return null;
