@@ -741,7 +741,7 @@ public class IslandCmd implements CommandExecutor {
 		    }
 		    return true;
 		}
-		if (!onRestartWaitTime(player) || Settings.resetWait == 0) {
+		if (!onRestartWaitTime(player) || Settings.resetWait == 0 || player.isOp()) {
 		    // Actually RESET the island
 		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetPleaseWait);
 		    //plugin.getLogger().info("DEBUG Reset command issued!");
@@ -1148,7 +1148,7 @@ public class IslandCmd implements CommandExecutor {
 				    return true;
 				}
 				// If target is online
-				if (Bukkit.getPlayer(targetPlayer).isOnline()) {
+				if (Bukkit.getOfflinePlayer(targetPlayer).isOnline()) {
 				    // Clear the player out
 				    if (Bukkit.getPlayer(targetPlayer).getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
 					Bukkit.getPlayer(targetPlayer).getInventory().clear();

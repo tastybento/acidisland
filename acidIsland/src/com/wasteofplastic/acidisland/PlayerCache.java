@@ -281,7 +281,7 @@ public class PlayerCache {
     public UUID getUUID(String string) {
 	for (UUID id : playerCache.keySet()) {
 	    String name = playerCache.get(id).getPlayerName();
-	    plugin.getLogger().info("DEBUG: Testing name " + name);
+	    //plugin.getLogger().info("DEBUG: Testing name " + name);
 	    if (name != null && name.equalsIgnoreCase(string)) {
 		return id;
 	    }

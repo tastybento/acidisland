@@ -105,12 +105,13 @@ island:
    protectionRange: 100
 
    # Items that will be in the chest when the player starts an island
-   # Must be in Bukkit Materials format. The number is qty
-   chestItems: 'MELON:1 TORCH:2 BONE:1 LAVA_BUCKET:1 PUMPKIN_SEEDS:1 SUGAR_CANE:1 RED_MUSHROOM:1 BROWN_MUSHROOM:1 CACTUS:1 BREAD:1 WHEAT:1 POTION:1 LEATHER_BOOTS:1 LEATHER_HELMET:1 LEATHER_CHESTPLATE:1 LEATHER_LEGGINGS:1'
-
-   # If the item list above contains a POTION, then this is the potion effect (only one potion type supported)
-   chestPotion: WATER_BREATHING
-
+   # Must be in Bukkit Materials format. Format is <Material>:<Qty>
+   # or <Material>:<Damage>:<Qty>
+   # Use <Damage> to set the durability of a item or to select sub-items/colors.
+   # Format for POTION is POTION:<effect>:<qty> or POTION:<effect>:<type>:<qty>
+   # <type> is EXTENDED, SPLASH or EXTENDEDSPLASH. Not all potions can be extended.
+   # Check console for errors and guidance after typing /acid reload
+   chestItems: 'MELON:1 TORCH:2 BONE:1 LAVA_BUCKET:1 PUMPKIN_SEEDS:1 SUGAR_CANE:1 RED_MUSHROOM:1 BROWN_MUSHROOM:1 CACTUS:1 BREAD:1 WHEAT:1 POTION:WATER_BREATHING:EXTENDED:1 LEATHER_BOOTS:1 LEATHER_HELMET:1 LEATHER_CHESTPLATE:1 LEATHER_LEGGINGS:1'
    # Island Protection Settings
    #PVP is allowed or denied. (Values = allow or deny)
    allowPvP: deny

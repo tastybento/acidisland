@@ -209,7 +209,7 @@ public class AdminCmd implements CommandExecutor {
 	    } else if (split[0].equalsIgnoreCase("info")) {
 		// Convert name to a UUID
 		final UUID playerUUID = players.getUUID(split[1]);
-		plugin.getLogger().info("DEBUG: console player info UUID = " + playerUUID);
+		//plugin.getLogger().info("DEBUG: console player info UUID = " + playerUUID);
 		if (!players.isAKnownPlayer(playerUUID)) {
 		    sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 		    return true;
