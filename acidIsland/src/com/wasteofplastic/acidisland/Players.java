@@ -66,6 +66,10 @@ public class Players {
 		plugin.getLogger().severe("Could not obtain a name for the player with UUID " + uuid.toString());
 		playerName = "";
 	    }
+	    if (playerName == null) {
+		plugin.getLogger().severe("Could not obtain a name for the player with UUID " + uuid.toString());
+		playerName = "";		
+	    }
 	}
 	plugin.getLogger().info("Loading player..." + playerName);
 	this.hasIsland = playerInfo.getBoolean("hasIsland", false);

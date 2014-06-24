@@ -80,7 +80,7 @@ public class Challenges implements CommandExecutor {
 		// island or not
 		final String challenge = cmd[0].toLowerCase();
 		sender.sendMessage(ChatColor.GOLD + Locale.challengesname + ": " + ChatColor.WHITE + challenge);
-		sender.sendMessage(ChatColor.WHITE + Locale.challengeslevel +":" + ChatColor.GOLD + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level",""));
+		sender.sendMessage(ChatColor.WHITE + Locale.challengeslevel +": " + ChatColor.GOLD + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level",""));
 		sender.sendMessage(ChatColor.GOLD + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".description",""));
 		final String type = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type","").toLowerCase();
 		if (type.equals("inventory")) {
