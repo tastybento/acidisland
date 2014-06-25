@@ -771,7 +771,7 @@ public class IslandCmd implements CommandExecutor {
 		}
 		return false;
 	    } else if (split[0].equalsIgnoreCase("help")) { 
-		player.sendMessage(ChatColor.GREEN + "AcidIsland help:");
+		player.sendMessage(ChatColor.GREEN + "AcidIsland " + plugin.getDescription().getVersion() + " help:");
 
 		player.sendMessage(ChatColor.YELLOW + "/island: " + ChatColor.WHITE + Locale.islandhelpIsland);
 		player.sendMessage(ChatColor.YELLOW + "/island restart: " + ChatColor.WHITE + Locale.islandhelpRestart);

@@ -19,7 +19,7 @@ error:
    commandNotReady: "You can't use that command right now."
    offlinePlayer: "That player is offline or doesn't exist."
    unknownCommand: "Unknown command."
-   noTeam: "That player is not in an island team!"
+   noTeam: "Player is not in a team."
 
 #AcidEffect
 changingObsidiantoLava: "Changing obsidian back into lava. Be careful!"
@@ -279,7 +279,7 @@ register:
 
 #info
 adminInfo:
-   islandLocation: "Island Location:"
+   islandLocation: "Island Location"
    errorNotPartOfTeam: "That player is not a member of an island team."
    errorNullTeamLeader: "Team leader should be null!"
    errorTeamMembersExist: "Player has team members, but shouldn't!"

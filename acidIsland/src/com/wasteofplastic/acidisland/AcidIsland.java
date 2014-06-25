@@ -768,7 +768,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.errorCommandNotReady = locale.getString("error.commandNotReady","You can't use that command right now.");
 	Locale.errorOfflinePlayer = locale.getString("error.offlinePlayer","That player is offline or doesn't exist.");
 	Locale.errorUnknownCommand = locale.getString("error.unknownCommand","Unknown command.");
-	Locale.errorNoTeam = locale.getString("error.noTeam","That player is not in an island team!");
+	Locale.errorNoTeam = locale.getString("error.noTeam","That player is not in a team.");
 	Locale.islandProtected = locale.getString("islandProtected","Island protected.");
 	Locale.lavaTip = locale.getString("lavaTip","Changing obsidian back into lava. Be careful!");
 	Locale.warpswelcomeLine = locale.getString("warps.welcomeLine","[WELCOME]");
