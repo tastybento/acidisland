@@ -20,6 +20,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.TreeType;
 import org.bukkit.World;
@@ -34,6 +35,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 public class IslandCmd implements CommandExecutor {
@@ -1148,30 +1150,45 @@ public class IslandCmd implements CommandExecutor {
 				    return true;
 				}
 				// If target is online
-				if (Bukkit.getOfflinePlayer(targetPlayer).isOnline()) {
-				    // Clear the player out
-				    if (Bukkit.getPlayer(targetPlayer).getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
-					Bukkit.getPlayer(targetPlayer).getInventory().clear();
-					Bukkit.getPlayer(targetPlayer).getEquipment().clear();
-					Bukkit.getPlayer(targetPlayer).getInventory().setHelmet(null);
-					Bukkit.getPlayer(targetPlayer).getInventory().setChestplate(null);
-					Bukkit.getPlayer(targetPlayer).getInventory().setLeggings(null);
-					Bukkit.getPlayer(targetPlayer).getInventory().setBoots(null);
-					Bukkit.getPlayer(targetPlayer).sendMessage(ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
+				Player target = plugin.getServer().getPlayer(targetPlayer);
+				if (target != null) {
+				    target.sendMessage(ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
+				    // Clear the player out and throw their stuff at the leader
+				    if (target.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
+					for (ItemStack i : target.getInventory().getContents()) {
+					    if (i != null) {
+						try {
+						    player.getWorld().dropItemNaturally(player.getLocation(), i);
+						    target.getInventory().remove(i);
+						} catch (Exception e) {}
+					    }
+					}
+					for (ItemStack i : target.getEquipment().getArmorContents()) {
+					    if (i != null) {
+						try {
+					        player.getWorld().dropItemNaturally(player.getLocation(), i);
+						} catch (Exception e) {}
+					    }
+					}
+					target.getInventory().clear();
+					target.getEquipment().clear();
+					target.getInventory().setHelmet(null);
+					target.getInventory().setChestplate(null);
+					target.getInventory().setLeggings(null);
+					target.getInventory().setBoots(null);
+					
 				    }
-				    if (!Bukkit.getPlayer(targetPlayer).performCommand("spawn")) {
-					Bukkit.getPlayer(targetPlayer).teleport(AcidIsland.getIslandWorld().getSpawnLocation());
-				    }
-				}
-				// If the leader is still online - tell them they removed the player (race condition mitigation?)
-				if (Bukkit.getPlayer(teamLeader) != null) {
-				    Bukkit.getPlayer(teamLeader).sendMessage(ChatColor.RED + Locale.kicknameRemoved.replace("[name]", split[1]));
-				}
+				    if (!target.performCommand("spawn")) {
+					target.teleport(AcidIsland.getIslandWorld().getSpawnLocation());
+				    } 
+				} 
+				// Tell leader they removed the player
+				sender.sendMessage(ChatColor.RED + Locale.kicknameRemoved.replace("[name]", split[1]));
 				removePlayerFromTeam(targetPlayer, teamLeader);
 				teamMembers.remove(targetPlayer);
 				if (teamMembers.size() < 2) {
 				    removePlayerFromTeam(player.getUniqueId(), teamLeader);
-				}
+				}				
 			    } else {
 				plugin.getLogger().warning("Player " + player.getName() + " failed to remove " + players.getName(targetPlayer));
 				player.sendMessage(ChatColor.RED + Locale.kickerrorNotPartOfTeam);
