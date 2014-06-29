@@ -729,7 +729,7 @@ public class AcidIsland extends JavaPlugin {
 	Settings.allowMusic = getConfig().getBoolean("island.allowmusic", false);
 	Settings.allowCrafting = getConfig().getBoolean("island.allowcrafting", false);
 	Settings.allowBrewing = getConfig().getBoolean("island.allowbrewing", false);
-
+	Settings.allowGateUse = getConfig().getBoolean("island.allowgateuse", false);
 
 	Settings.absorbLava = getConfig().getBoolean("sponge.absorbLava", false);
 	Settings.absorbFire = getConfig().getBoolean("sponge.absorbFire", false);

@@ -212,6 +212,13 @@ public class IslandGuard implements Listener {
 		    return; 
 		}
 		break;
+	    case FENCE_GATE:
+		if (!Settings.allowGateUse) {
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
+		    e.setCancelled(true);
+		    return;  
+		}
+		break;
 	    case CHEST:
 	    case TRAPPED_CHEST:
 	    case ENDER_CHEST:

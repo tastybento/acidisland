@@ -3,7 +3,6 @@ package com.wasteofplastic.acidisland;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
@@ -45,14 +44,10 @@ public class VaultHelper {
      * Checks permission of player in world or in any world
      * @param player
      * @param perm
-     * @param world
      * @return
      */
-    public static boolean checkPerm(final String player, final String perm, final World world) {
-	if (permission.has((String) null, player, perm)) {
-	    return true;
-	}
-	return permission.has(world, player, perm);
+    public static boolean checkPerm(final Player player, final String perm) {
+	return permission.has(player, perm);
    }
     
     /**
@@ -61,7 +56,7 @@ public class VaultHelper {
      * @param perm
      */
     public static void addPerm(final Player player, final String perm) {
-	permission.playerAdd((String) null, player.getName(), perm);
+	permission.playerAdd(player, perm);
     }
 
     /**
@@ -70,7 +65,7 @@ public class VaultHelper {
      * @param perm
      */
     public static void removePerm(final Player player, final String perm) {
-	permission.playerRemove((String) null, player.getName(), perm);
+	permission.playerRemove(player, perm);
     }
 
 

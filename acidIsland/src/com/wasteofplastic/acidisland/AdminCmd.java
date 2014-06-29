@@ -327,53 +327,53 @@ public class AdminCmd implements CommandExecutor {
 	    // Only give help if the player has permissions
 	    // Permissions are split into admin permissions and mod permissions
 	    player.sendMessage(Locale.errorNoPermission);
-	    if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.reload", player.getWorld()) || player.isOp()) {
+	    if (VaultHelper.checkPerm(player, "acidisland.admin.reload") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid reload:" + ChatColor.WHITE + " " + Locale.adminHelpreload);
 	    }
-	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.topten", player.getWorld()) || player.isOp()) {
+	    if (VaultHelper.checkPerm(player, "acidisland.mod.topten") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid topten:" + ChatColor.WHITE + " " + Locale.adminHelptopTen);
 	    }
-	    if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.register", player.getWorld()) || player.isOp()) {
+	    if (VaultHelper.checkPerm(player, "acidisland.admin.register") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid register <player>:" + ChatColor.WHITE + " " + Locale.adminHelpregister);
 	    }
-	    if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.delete", player.getWorld()) || player.isOp()) {
+	    if (VaultHelper.checkPerm(player, "acidisland.admin.delete") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid delete <player>:" + ChatColor.WHITE + " " + Locale.adminHelpdelete);
 	    }
-	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
+	    if (VaultHelper.checkPerm(player, "acidisland.mod.challenges") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid completechallenge <challengename> <player>:" + ChatColor.WHITE
 			+ " " + Locale.adminHelpcompleteChallenge);
 	    }
-	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
+	    if (VaultHelper.checkPerm(player, "acidisland.mod.challenges") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid resetchallenge <challengename> <player>:" + ChatColor.WHITE
 			+ " " + Locale.adminHelpresetChallenge);
 	    }
-	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
+	    if (VaultHelper.checkPerm(player, "acidisland.mod.challenges") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid resetallchallenges <player>:" + ChatColor.WHITE + " " + Locale.adminHelpresetAllChallenges);
 	    }
-	    if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
+	    if (VaultHelper.checkPerm(player, "acidisland.admin.purge") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid purge [TimeInDays]:" + ChatColor.WHITE + " " + Locale.adminHelppurge);
 	    }
-	    if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.team", player.getWorld()) || player.isOp()) {
+	    if (VaultHelper.checkPerm(player, "acidisland.mod.team") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid info <player>:" + ChatColor.WHITE + " " + Locale.adminHelpinfo);
 	    }
 	    return true;
 	case 1:
 	    if (split[0].equalsIgnoreCase("reload")) {
-		if ((VaultHelper.checkPerm(player.getName(), "acidisland.admin.reload", player.getWorld()) || player.isOp())) {
+		if ((VaultHelper.checkPerm(player, "acidisland.admin.reload") || player.isOp())) {
 		    plugin.reloadConfig();
 		    plugin.loadPluginConfig();
 		    player.sendMessage(ChatColor.YELLOW + Locale.reloadconfigReloaded);
 		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("topten")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.topten", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.mod.topten") || player.isOp()) {
 		    player.sendMessage(ChatColor.YELLOW + Locale.adminTopTengenerating);
 		    plugin.updateTopTen();
 		    player.sendMessage(ChatColor.YELLOW + Locale.adminTopTenfinished);
 		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("purge")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.admin.purge") || player.isOp()) {
 		    if (purgeFlag) {
 			player.sendMessage(ChatColor.RED + Locale.purgealreadyRunning);
 			return true;
@@ -382,7 +382,7 @@ public class AdminCmd implements CommandExecutor {
 		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("confirm")) { 
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.admin.purge") || player.isOp()) {
 		    if (!confirmReq) {
 			player.sendMessage(ChatColor.RED + Locale.confirmerrorTimeLimitExpired);
 			return true;
@@ -401,7 +401,7 @@ public class AdminCmd implements CommandExecutor {
 	case 2:
 	    if (split[0].equalsIgnoreCase("purge")) {
 		// PURGE Command
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.purge", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.admin.purge") || player.isOp()) {
 		    // Purge runs in the background so if one is already running this flag stops a repeat
 		    if (purgeFlag) {
 			player.sendMessage(ChatColor.RED + Locale.purgealreadyRunning);
@@ -502,7 +502,7 @@ public class AdminCmd implements CommandExecutor {
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("delete")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.delete", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.admin.delete") || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
@@ -522,7 +522,7 @@ public class AdminCmd implements CommandExecutor {
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("register")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.admin.register", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.admin.register") || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
@@ -541,7 +541,7 @@ public class AdminCmd implements CommandExecutor {
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("info")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.team", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.mod.team") || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
@@ -588,7 +588,7 @@ public class AdminCmd implements CommandExecutor {
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("resetallchallenges")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.mod.challenges") || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
@@ -602,7 +602,7 @@ public class AdminCmd implements CommandExecutor {
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("checkteam")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.team", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.mod.team") || player.isOp()) {
 		    player.sendMessage(ChatColor.YELLOW + Locale.checkTeamcheckingTeam.replace("[name]", split[1]));
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[1]);
@@ -635,7 +635,7 @@ public class AdminCmd implements CommandExecutor {
 	    }
 	case 3:
 	    if (split[0].equalsIgnoreCase("completechallenge")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.mod.challenges") || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[2]);
 		    if (!players.isAKnownPlayer(playerUUID)) {
@@ -654,7 +654,7 @@ public class AdminCmd implements CommandExecutor {
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("resetchallenge")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.mod.challenges", player.getWorld()) || player.isOp()) {
+		if (VaultHelper.checkPerm(player, "acidisland.mod.challenges") || player.isOp()) {
 		    // Convert name to a UUID
 		    final UUID playerUUID = players.getUUID(split[2]);
 		    if (!players.isAKnownPlayer(playerUUID)) {

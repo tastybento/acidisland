@@ -177,7 +177,7 @@ public class Challenges implements CommandExecutor {
 	    player.giveExp(expReward);
 	}
 	if (moneyReward > 0 && (VaultHelper.econ != null)) {
-	    EconomyResponse e = VaultHelper.econ.depositPlayer(player.getName(), Settings.worldName, moneyReward);
+	    EconomyResponse e = VaultHelper.econ.depositPlayer(player, Settings.worldName, moneyReward);
 	    if (e.transactionSuccess()) {
 		player.sendMessage(ChatColor.GOLD + Locale.challengesmoneyReward + ": " + ChatColor.WHITE + VaultHelper.econ.format(moneyReward));
 	    } else {
@@ -189,7 +189,7 @@ public class Challenges implements CommandExecutor {
 	permList = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge.toLowerCase() + ".permissionReward", "").split(" ");
 	for (final String s : permList) {
 	    if (!s.isEmpty()) {
-		if (!VaultHelper.checkPerm(player.getName(), s, player.getWorld())) {
+		if (!VaultHelper.checkPerm(player, s)) {
 		    VaultHelper.addPerm(player, s);
 		    plugin.getLogger().info("Added permission " + s + " to " + player.getName() + "");
 		}

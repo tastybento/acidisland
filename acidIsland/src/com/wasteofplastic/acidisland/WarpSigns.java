@@ -126,7 +126,7 @@ public class WarpSigns implements Listener {
 		if (title.equalsIgnoreCase(Locale.warpswelcomeLine)) {
 		    //plugin.getLogger().info("Welcome sign detected");
 		    // Welcome sign detected - check permissions
-		    if (!(VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld()))) {
+		    if (!(VaultHelper.checkPerm(player, "acidisland.island.addwarp"))) {
 			player.sendMessage(ChatColor.RED + Locale.warpserrorNoPerm);
 			return;
 		    }

@@ -37,7 +37,7 @@ public class Settings {
     public static boolean allowMusic;
     public static boolean allowCrafting;
     public static boolean allowBrewing;
-    
+    public static boolean allowGateUse;
     
     public static ItemStack[] chestItems;
     public static int islandDistance;
@@ -55,6 +55,4 @@ public class Settings {
     public static Object excludedWorlds;
     public static boolean pistonMove;
     public static boolean spongeSaturation;
-
-
 }

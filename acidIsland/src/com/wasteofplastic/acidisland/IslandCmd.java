@@ -20,7 +20,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.TreeType;
 import org.bukkit.World;
@@ -668,7 +667,7 @@ public class IslandCmd implements CommandExecutor {
 	}
 	final Player player = (Player) sender;
 	// Basic permissions check to even use /island
-	if (!VaultHelper.checkPerm(player.getName(), "acidisland.island.create", player.getWorld())) {
+	if (!VaultHelper.checkPerm(player, "acidisland.island.create")) {
 	    player.sendMessage(ChatColor.RED + Locale.islanderrorYouDoNotHavePermission);
 	    return true;
 	}
@@ -698,17 +697,17 @@ public class IslandCmd implements CommandExecutor {
 	case 1:
 	    // /island <command>
 	    if (split[0].equalsIgnoreCase("warp")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.island.warp")) {
 		    player.sendMessage(ChatColor.YELLOW + "/island warp <player>: " + ChatColor.WHITE + Locale.islandhelpWarp);
 		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("warps")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.island.warp")) {
 		    // Step through warp table
 		    Set<UUID> warpList = plugin.listWarps();
 		    if (warpList.isEmpty()) {
 			player.sendMessage(ChatColor.YELLOW + Locale.warpserrorNoWarpsYet);
-			if (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld())) {
+			if (VaultHelper.checkPerm(player, "acidisland.island.addwarp")) {
 			    player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
 			}
 			return true;
@@ -726,7 +725,7 @@ public class IslandCmd implements CommandExecutor {
 			    }
 			}
 			player.sendMessage(ChatColor.YELLOW + Locale.warpswarpsAvailable + ": " + ChatColor.WHITE + wlist);
-			if (!hasWarp && (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld()))) {
+			if (!hasWarp && (VaultHelper.checkPerm(player, "acidisland.island.addwarp"))) {
 			    player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
 			}
 			return true;
@@ -767,7 +766,7 @@ public class IslandCmd implements CommandExecutor {
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("sethome")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.sethome", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.island.sethome")) {
 		    plugin.homeSet(player);
 		    return true;
 		}
@@ -782,27 +781,27 @@ public class IslandCmd implements CommandExecutor {
 		player.sendMessage(ChatColor.YELLOW + "/island level <player>: " + ChatColor.WHITE + Locale.islandhelpLevelPlayer);
 		player.sendMessage(ChatColor.YELLOW + "/island top: " + ChatColor.WHITE + Locale.islandhelpTop);
 
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.island.warp")) {
 		    player.sendMessage(ChatColor.YELLOW + "/island warps: " + ChatColor.WHITE + Locale.islandhelpWarps);
 		    player.sendMessage(ChatColor.YELLOW + "/island warp <player>: " + ChatColor.WHITE + Locale.islandhelpWarp);
 		}
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.create")) {
 		    player.sendMessage(ChatColor.YELLOW + "/island team: " + ChatColor.WHITE + Locale.islandhelpTeam);
 		    player.sendMessage(ChatColor.YELLOW + "/island invite <player>: " + ChatColor.WHITE + Locale.islandhelpInvite);
 		    player.sendMessage(ChatColor.YELLOW + "/island leave: " + ChatColor.WHITE + Locale.islandhelpLeave);
 		}
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.kick", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.kick")) {
 		    player.sendMessage(ChatColor.YELLOW + "/island kick <player>: " + ChatColor.WHITE + Locale.islandhelpKick);
 		}
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.join")) {
 		    player.sendMessage(ChatColor.YELLOW + "/island <accept/reject>: " + ChatColor.WHITE + Locale.islandhelpAcceptReject);
 		}
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.makeleader", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.makeleader")) {
 		    player.sendMessage(ChatColor.YELLOW + "/island makeleader <player>: " + ChatColor.WHITE + Locale.islandhelpMakeLeader);
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("top")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.topten", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.island.topten")) {
 		    plugin.showTopTen(player);
 		    return true;
 		}
@@ -820,7 +819,7 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    } else if (split[0].equalsIgnoreCase("invite")) {
 		// Invite command with no name, i.e., /island invite - tells the player how many more people they can invite
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.create")) {
 		    player.sendMessage(ChatColor.YELLOW + "Use" + ChatColor.WHITE + " /island invite <playername> " + ChatColor.YELLOW
 			    + Locale.islandhelpInvite);
 		    // If the player who is doing the inviting has a team
@@ -845,7 +844,7 @@ public class IslandCmd implements CommandExecutor {
 		return false;
 	    } else if (split[0].equalsIgnoreCase("accept")) {
 		// Accept an invite command
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.join")) {
 		    // If player is not in a team but has been invited to join one
 		    if (!players.inTeam(playerUUID) && inviteList.containsKey(playerUUID)) {
 			// If the invitee has an island of their own
@@ -912,7 +911,7 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    } else if (split[0].equalsIgnoreCase("leave")) {
 		// Leave team command
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.join", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.join")) {
 		    if (player.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
 			if (players.inTeam(playerUUID)) {
 			    // TODO: Bug with leaving and creating islands
@@ -989,11 +988,11 @@ public class IslandCmd implements CommandExecutor {
 	case 2:
 	    if (split[0].equalsIgnoreCase("warp")) {
 		// Warp somewhere command
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.warp", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.island.warp")) {
 		    final Set<UUID> warpList = plugin.listWarps();
 		    if (warpList.isEmpty()) {
 			player.sendMessage(ChatColor.YELLOW + Locale.warpserrorNoWarpsYet);
-			if (VaultHelper.checkPerm(player.getName(), "acidisland.island.addwarp", player.getWorld())) {
+			if (VaultHelper.checkPerm(player, "acidisland.island.addwarp")) {
 			    player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
 			}
 			return true;
@@ -1025,7 +1024,7 @@ public class IslandCmd implements CommandExecutor {
 		return false;
 	    } else if (split[0].equalsIgnoreCase("level")) {
 		// island level command
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.island.info", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.island.info")) {
 		    if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
 			player.sendMessage(ChatColor.RED + Locale.errorNoIsland);
 		    } else {
@@ -1043,7 +1042,7 @@ public class IslandCmd implements CommandExecutor {
 		return false;
 	    } else if (split[0].equalsIgnoreCase("invite")) {
 		// Team invite a player command
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.create", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.create")) {
 		    // May return null if not known
 		    final UUID invitedPlayerUUID = players.getUUID(split[1]);
 		    // Invited player must be known
@@ -1128,7 +1127,7 @@ public class IslandCmd implements CommandExecutor {
 		return false;
 	    } else if (split[0].equalsIgnoreCase("kick") || split[0].equalsIgnoreCase("remove")) {
 		// Island remove command with a player name, or island kick command
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.kick", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.kick")) {
 		    // The main thing to do is check if the player name to kick is in the list of players in the team.
 		    targetPlayer = null;
 		    for (UUID member : teamMembers) {
@@ -1203,7 +1202,7 @@ public class IslandCmd implements CommandExecutor {
 		}
 		return false;
 	    } else if (split[0].equalsIgnoreCase("makeleader")) {
-		if (VaultHelper.checkPerm(player.getName(), "acidisland.team.makeleader", player.getWorld())) {
+		if (VaultHelper.checkPerm(player, "acidisland.team.makeleader")) {
 		    targetPlayer = players.getUUID(split[1]);
 		    if (targetPlayer == null) {
 			player.sendMessage(ChatColor.RED + Locale.makeLeadererrorPlayerMustBeOnline);
