@@ -47,7 +47,7 @@ challenges:
       repeatRewardText: '1 dirt'
       repeatMoneyReward: 5
       repeatExpReward: 10
-    dyecrafter:
+    dyemaker:
       description: 'Craft 32 cactus green dyes'
       level: 'Novice'
       type: inventory
@@ -96,10 +96,10 @@ challenges:
       repeatMoneyReward: 5
       repeatExpReward: 10
     seedbank:
-      description: 'Collect 250 melon seeds, 250 pumpkin seeds and 50 wheat seeds'
+      description: 'Collect 64 melon seeds, 64 pumpkin seeds and 64 wheat seeds'
       level: 'Novice'
       type: inventory
-      requiredItems: 'MELON_SEEDS:250 PUMPKIN_SEEDS:250 SEEDS:50'
+      requiredItems: 'MELON_SEEDS:64 PUMPKIN_SEEDS:64 SEEDS:64'
       takeItems: true
       itemReward: 'DIRT:5 VINE:20'
       rewardText: '5 dirt blocks and 20 vines'
@@ -112,10 +112,10 @@ challenges:
       repeatMoneyReward: 5
       repeatExpReward: 10
     stewmaker:
-      description: 'Cook up 36 bowls of mushroom stew'
+      description: 'Cook up 18 bowls of mushroom stew'
       level: 'Novice'
       type: inventory
-      requiredItems: 'MUSHROOM_SOUP:36'
+      requiredItems: 'MUSHROOM_SOUP:18'
       takeItems: true
       itemReward: 'MYCEL:2'
       rewardText: '2 mycelium blocks'
@@ -128,7 +128,7 @@ challenges:
       repeatMoneyReward: 5
       repeatExpReward: 10
     builder:
-      description: 'Reach island level 20 (/island level).'
+      description: 'Reach island level 10 (/island level).'
       level: 'Novice'
       type: level
       requiredItems: 20
