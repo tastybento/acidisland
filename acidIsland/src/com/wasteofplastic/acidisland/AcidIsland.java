@@ -96,6 +96,11 @@ public class AcidIsland extends JavaPlugin {
     public boolean debug = false;
     public boolean flag = false;
 
+    // Offline Messages
+    private HashMap<UUID, List<String>> messages = new HashMap<UUID, List<String>>();
+    private YamlConfiguration messageStore;
+
+
     /**
      * @return AcidIsland object instance
      */
@@ -430,6 +435,11 @@ public class AcidIsland extends JavaPlugin {
 	    // Create the missing file
 	    config = new YamlConfiguration();
 	    getPlugin().getLogger().info("No " + file + " found. Creating it...");
+	    try {
+		config.save(yamlFile);
+	    } catch (Exception e) {
+		getPlugin().getLogger().severe("Could not create the " + file + " file!");
+	    }
 	}
 	return config;
     }
@@ -437,7 +447,7 @@ public class AcidIsland extends JavaPlugin {
     /**
      * Creates the warp list if it does not exist
      */
-    public void createWarpList() {
+    public void loadWarpList() {
 	getLogger().info("Loading warps...");
 	// warpList.clear();
 	welcomeWarps = loadYamlFile("warps.yml");
@@ -935,8 +945,10 @@ public class AcidIsland extends JavaPlugin {
 	    // Remove players from memory
 	    players.removeAllPlayers();
 	    saveConfig();
+	    saveWarpList();
+	    saveMessages();
 	} catch (final Exception e) {
-	    plugin.getLogger().severe("Something went wrong saving players or config.yml!");
+	    plugin.getLogger().severe("Something went wrong saving files!");
 	    e.printStackTrace();
 	}
     }
@@ -983,7 +995,9 @@ public class AcidIsland extends JavaPlugin {
 	// Register events that this plugin uses
 	registerEvents();
 	// Load warps
-	createWarpList();
+	loadWarpList();
+	// Load messages
+	loadMessages();
 
 	// Kick off a few tasks on the next tick
 	// By calling getIslandWorld(), if there is no island
@@ -1662,5 +1676,84 @@ public class AcidIsland extends JavaPlugin {
 	}
     }
 
+    /**
+     * Sets a message for the player to receive next time they login
+     * @param player
+     * @param message
+     * @return true if message sent to player, or saved for later
+     */
+    public boolean setMessage(UUID playerUUID, String message) {
+	getLogger().info("DEBUG: received message - " + message);
+	Player player = getServer().getPlayer(playerUUID);
+	// Check if player is online
+	/*
+	if (player != null) {
+	    if (player.isOnline()) {
+		player.sendMessage(message);
+		return true;
+	    }
+	}*/
+	// Player is offline so store the message
+	
+	List<String> playerMessages = messages.get(playerUUID);
+	if (playerMessages != null) {
+	    playerMessages.add(message);
+	} else {
+	    playerMessages = new ArrayList<String>(Arrays.asList(message));
+	}
+	messages.put(playerUUID, playerMessages);
+	return true;
+    }
+
+    public List<String> getMessages(UUID playerUUID) {
+	List<String> playerMessages = messages.get(playerUUID);
+	if (playerMessages != null) {
+	    // Remove the messages
+	    messages.remove(playerUUID);
+	} else {
+	    // No messages
+	    playerMessages = new ArrayList<String>();
+	}
+	return playerMessages;
+    }
+    
+    public boolean saveMessages() {
+	plugin.getLogger().info("Saving offline messages...");
+	try {
+	    // Convert to a serialized string
+	    final HashMap<String,Object> offlineMessages = new HashMap<String,Object>();
+	    for (UUID p : messages.keySet()) {
+		offlineMessages.put(p.toString(),messages.get(p));
+	    }
+	    // Convert to YAML
+	    messageStore.set("messages", offlineMessages);
+	    saveYamlFile(messageStore, "messages.yml");
+	    return true;
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    return false;
+	}
+    }
+
+    public boolean loadMessages() {
+	getLogger().info("Loading offline messages...");
+	try {
+	    messageStore = loadYamlFile("messages.yml");
+	    if (messageStore.getConfigurationSection("messages") == null) {
+		messageStore.createSection("messages"); // This is only used to create
+	    }
+	    HashMap<String,Object> temp = (HashMap<String, Object>) messageStore.getConfigurationSection("messages").getValues(true);
+	    for (String s : temp.keySet()) {
+		List<String> messageList = messageStore.getStringList("messages." + s);
+		if (!messageList.isEmpty()) {
+		    messages.put(UUID.fromString(s), messageList);
+		}
+	    }
+	    return true;
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    return false;
+	}
+    }
 
 }
