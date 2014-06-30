@@ -437,6 +437,7 @@ public class IslandCmd implements CommandExecutor {
 	plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
 	    public void run() {
 		plugin.getLogger().info("Calculating island level");
+		int oldLevel = players.getIslandLevel(islandPlayer);
 		try {
 		    Location l;
 		    if (players.inTeam(islandPlayer)) {
@@ -610,6 +611,10 @@ public class IslandCmd implements CommandExecutor {
 			players.setIslandLevel(islandPlayer, blockcount / 100);
 			players.save(islandPlayer);
 			plugin.updateTopTen();
+			// Tell offline team members the island level increased.
+			if (players.getIslandLevel(islandPlayer) > oldLevel) {
+			    plugin.tellOfflineTeam(islandPlayer, ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(islandPlayer));
+			}
 		    }
 		} catch (final Exception e) {
 		    plugin.getLogger().info("Error while calculating Island Level: " + e);
@@ -811,7 +816,9 @@ public class IslandCmd implements CommandExecutor {
 		    if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
 			player.sendMessage(ChatColor.RED + Locale.errorNoIsland);
 		    } else {
+			int oldLevel = players.getIslandLevel(player.getUniqueId());
 			getIslandLevel(player, playerUUID);
+			
 		    }
 		    return true;
 		}
@@ -914,8 +921,6 @@ public class IslandCmd implements CommandExecutor {
 		if (VaultHelper.checkPerm(player, "acidisland.team.join")) {
 		    if (player.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
 			if (players.inTeam(playerUUID)) {
-			    // TODO: Bug with leaving and creating islands
-			    // TODO: When player leaves island and there's only two players, the left leader looses the island
 			    if (players.getTeamLeader(playerUUID).equals(playerUUID)) {
 				player.sendMessage(ChatColor.YELLOW + Locale.leaveerrorYouAreTheLeader);
 				return true;
@@ -939,8 +944,11 @@ public class IslandCmd implements CommandExecutor {
 
 			    player.sendMessage(ChatColor.YELLOW + Locale.leaveyouHaveLeftTheIsland);
 			    // Tell the leader if they are online
-			    if (Bukkit.getPlayer(teamLeader) != null) {
-				Bukkit.getPlayer(teamLeader).sendMessage(ChatColor.RED + Locale.leavenameHasLeftYourIsland.replace("[name]",player.getName()));
+			    if (plugin.getServer().getPlayer(teamLeader) != null) {
+				plugin.getServer().getPlayer(teamLeader).sendMessage(ChatColor.RED + Locale.leavenameHasLeftYourIsland.replace("[name]",player.getName()));
+			    } else {
+				// Leave them a message
+				plugin.setMessage(teamLeader, ChatColor.RED + Locale.leavenameHasLeftYourIsland.replace("[name]",player.getName()));
 			    }
 			    // Check if the size of the team is now 1
 			    //teamMembers.remove(playerUUID);
@@ -1180,7 +1188,11 @@ public class IslandCmd implements CommandExecutor {
 				    if (!target.performCommand("spawn")) {
 					target.teleport(AcidIsland.getIslandWorld().getSpawnLocation());
 				    } 
-				} 
+				} else {
+				    // Offline
+				    // Tell offline player they were kicked
+				    plugin.setMessage(targetPlayer, ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
+				}
 				// Tell leader they removed the player
 				sender.sendMessage(ChatColor.RED + Locale.kicknameRemoved.replace("[name]", split[1]));
 				removePlayerFromTeam(targetPlayer, teamLeader);

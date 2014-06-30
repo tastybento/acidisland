@@ -231,6 +231,11 @@ public class PlayerCache {
 	playerCache.get(playerUUID).setLeaveTeam();
     }
 
+    /**
+     * Returns a list of team member UUID's 
+     * @param playerUUID
+     * @return
+     */
     public List<UUID> getMembers(UUID playerUUID) {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).getMembers();

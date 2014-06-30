@@ -166,7 +166,7 @@ public class AcidIsland extends JavaPlugin {
 	    } else {
 		player.sendMessage(ChatColor.AQUA + "#" + i + ": " + players.getName(playerUUID) + " - " + Locale.levelislandLevel + " " + m.getValue());
 	    }
-	    if (i++ == 11) {
+	    if (i++ == 10) {
 		break;
 	    }
 	}
@@ -1676,23 +1676,34 @@ public class AcidIsland extends JavaPlugin {
 	}
     }
 
+    public void tellOfflineTeam(UUID playerUUID, String message) {
+	if (!players.inTeam(playerUUID)) {
+	    return;
+	}
+	List<UUID> teamMembers = players.getMembers(playerUUID);
+	for (UUID member : teamMembers) {
+	    if (getServer().getPlayer(member) == null) {
+		// Offline player
+		setMessage(member, message);
+	    }
+	}
+    }
     /**
      * Sets a message for the player to receive next time they login
      * @param player
      * @param message
-     * @return true if message sent to player, or saved for later
+     * @return true if player is offline, false if online
      */
     public boolean setMessage(UUID playerUUID, String message) {
 	getLogger().info("DEBUG: received message - " + message);
 	Player player = getServer().getPlayer(playerUUID);
 	// Check if player is online
-	/*
 	if (player != null) {
 	    if (player.isOnline()) {
-		player.sendMessage(message);
-		return true;
+		//player.sendMessage(message);
+		return false;
 	    }
-	}*/
+	}
 	// Player is offline so store the message
 	
 	List<String> playerMessages = messages.get(playerUUID);
