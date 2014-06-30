@@ -167,6 +167,11 @@ public class PlayerCache {
 	playerCache.get(playerUUID).setHomeLocation(location);
     }
 
+    /**
+     * Returns the home location, or null if none
+     * @param playerUUID
+     * @return
+     */
     public Location getHomeLocation(UUID playerUUID) {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).getHomeLocation();

@@ -118,6 +118,11 @@ public class AcidIsland extends JavaPlugin {
 	if (acidWorld == null) {
 	    acidWorld = WorldCreator.name(Settings.worldName).type(WorldType.FLAT).environment(World.Environment.NORMAL)
 		    .generator(new AcidChunkGenerator()).createWorld();
+	    // Make the nether if it does not exist
+	    if (plugin.getServer().getWorld(Settings.worldName + "_nether") == null) {
+		Bukkit.getLogger().info("Creating AcidIsland's nether...");
+		    WorldCreator.name(Settings.worldName + "_nether").type(WorldType.NORMAL).environment(World.Environment.NETHER).createWorld();
+	    }
 	}
 	// Set world settings
 	acidWorld.setWaterAnimalSpawnLimit(Settings.waterAnimalSpawnLimit);
@@ -1123,6 +1128,8 @@ public class AcidIsland extends JavaPlugin {
      */
     public void registerEvents() {
 	final PluginManager manager = getServer().getPluginManager();
+	// Nether portal events
+	manager.registerEvents(new NetherPortals(this), this);
 	// Island Protection events
 	manager.registerEvents(new IslandGuard(this), this);
 	// Events for when a player joins or leaves the server
