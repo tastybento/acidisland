@@ -937,8 +937,10 @@ public class AcidIsland extends JavaPlugin {
 	Locale.completeChallengeerrorChallengeDoesNotExist = locale.getString("completechallenge.errorChallengeDoesNotExist","Challenge doesn't exist or is already completed");
 	Locale.completeChallengechallangeCompleted = locale.getString("completechallenge.challangeCompleted","[challengename] has been completed for [name]");
 	Locale.resetChallengeerrorChallengeDoesNotExist = locale.getString("resetchallenge.errorChallengeDoesNotExist","Challenge doesn't exist or isn't yet completed");
-	Locale.resetChallengechallengeReset = locale.getString("resetchallenge.challengeReset","[challengename] has been reset for [name]");    }
-
+	Locale.resetChallengechallengeReset = locale.getString("resetchallenge.challengeReset","[challengename] has been reset for [name]");
+	Locale.newsHeadline = locale.getString("news.headline","[AcidIsland News] While you were offline...");
+    }
+    
     /*
      * (non-Javadoc)
      * 
@@ -1684,11 +1686,15 @@ public class AcidIsland extends JavaPlugin {
     }
 
     public void tellOfflineTeam(UUID playerUUID, String message) {
+	//getLogger().info("DEBUG: tell offline team called");
 	if (!players.inTeam(playerUUID)) {
+	    //getLogger().info("DEBUG: player is not in a team");
 	    return;
 	}
-	List<UUID> teamMembers = players.getMembers(playerUUID);
+	UUID teamLeader = players.getTeamLeader(playerUUID);
+	List<UUID> teamMembers = players.getMembers(teamLeader);
 	for (UUID member : teamMembers) {
+	    //getLogger().info("DEBUG: trying UUID " + member.toString());
 	    if (getServer().getPlayer(member) == null) {
 		// Offline player
 		setMessage(member, message);
@@ -1702,7 +1708,7 @@ public class AcidIsland extends JavaPlugin {
      * @return true if player is offline, false if online
      */
     public boolean setMessage(UUID playerUUID, String message) {
-	getLogger().info("DEBUG: received message - " + message);
+	//getLogger().info("DEBUG: received message - " + message);
 	Player player = getServer().getPlayer(playerUUID);
 	// Check if player is online
 	if (player != null) {

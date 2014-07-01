@@ -266,4 +266,7 @@ public class Locale {
     public static String resetChallengeerrorChallengeDoesNotExist;
     public static String resetChallengechallengeReset;
     
+    // AcidIsland news
+    public static String newsHeadline;
+    
 }

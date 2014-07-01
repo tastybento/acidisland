@@ -71,7 +71,7 @@ public class Players {
 		playerName = "";		
 	    }
 	}
-	plugin.getLogger().info("Loading player..." + playerName);
+	//plugin.getLogger().info("Loading player..." + playerName);
 	this.hasIsland = playerInfo.getBoolean("hasIsland", false);
 	this.islandLocation = playerInfo.getString("islandLocation", "");
 	this.homeLocation = playerInfo.getString("homeLocation", "");

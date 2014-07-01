@@ -422,7 +422,7 @@ public class IslandCmd implements CommandExecutor {
      * @param islandPlayer - UUID of the player's island that is being requested
      * @return - true if successful.
      */
-    public boolean getIslandLevel(final Player player, final UUID islandPlayer) {
+    public boolean calculateIslandLevel(final Player player, final UUID islandPlayer) {
 	if (!busyFlag) {
 	    player.sendMessage(ChatColor.RED + Locale.islanderrorLevelNotReady);
 	    plugin.getLogger().info(player.getName() + " tried to use /island info but someone else used it first!");
@@ -816,13 +816,11 @@ public class IslandCmd implements CommandExecutor {
 		    if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
 			player.sendMessage(ChatColor.RED + Locale.errorNoIsland);
 		    } else {
-			int oldLevel = players.getIslandLevel(player.getUniqueId());
-			getIslandLevel(player, playerUUID);
-			
+			calculateIslandLevel(player, playerUUID);
 		    }
 		    return true;
 		}
-		player.sendMessage(ChatColor.RED + Locale.setHomeerrorNotOnIsland);
+		player.sendMessage(ChatColor.RED + Locale.challengeserrorNotOnIsland);
 		return true;
 	    } else if (split[0].equalsIgnoreCase("invite")) {
 		// Invite command with no name, i.e., /island invite - tells the player how many more people they can invite
@@ -986,6 +984,8 @@ public class IslandCmd implements CommandExecutor {
 		    // TODO: Worried about this next line...
 		    player.sendMessage(ChatColor.YELLOW + Locale.invitenameHasInvitedYou.replace("[name]", players.getName(inviteList.get(playerUUID))));
 		    player.sendMessage(ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + Locale.invitetoAcceptOrReject);
+		} else {
+		    player.sendMessage(ChatColor.RED + Locale.kickerrorNoTeam);
 		}
 		return true;
 	    } else {
@@ -1043,7 +1043,7 @@ public class IslandCmd implements CommandExecutor {
 			    player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			    return true;
 			}
-			getIslandLevel(player, players.getUUID(split[1]));
+			calculateIslandLevel(player, players.getUUID(split[1]));
 		    }
 		    return true;
 		}

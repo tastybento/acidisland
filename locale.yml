@@ -204,7 +204,7 @@ kick:
   nameRemoved: "[name] has been removed from the island."
   errorNotPartOfTeam: "That player is not part of your island team!"
   errorOnlyLeaderCan: "Only the island's owner may remove people from the island!"
-  errorNoTeam: "No one else is on your island, are you seeing things?"
+  errorNoTeam: "You do not have a team!"
 
 #makeleader
 makeleader:
@@ -302,6 +302,9 @@ resetchallenge:
    errorChallengeDoesNotExist: "Challenge doesn't exist or isn't yet completed"
    challengeReset: "Challange: [challengename] has been reset for [name]"
 
+#AcidIsland news
+news:
+   headline: "[AcidIsland News] While you were offline..."
 
 
 

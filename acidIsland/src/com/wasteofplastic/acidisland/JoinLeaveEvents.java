@@ -41,7 +41,7 @@ public class JoinLeaveEvents implements Listener {
 	    plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
 		@Override
 		public void run() {
-		    event.getPlayer().sendMessage(ChatColor.AQUA + "[AcidIsland] While you were gone...");
+		    event.getPlayer().sendMessage(ChatColor.AQUA + Locale.newsHeadline);
 		    int i = 1;
 		    for (String message : messages) {
 			event.getPlayer().sendMessage(i++ + ": " + message);
