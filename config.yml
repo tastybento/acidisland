@@ -32,6 +32,9 @@ general:
    #[integer] Island below this level will be removed if they are abandoned and admins issue the purge command
    abandonedislandlevel: 10
 
+   # Starting money - this is how much money new players will have as their balance at the start of an island. (Default is zero)
+   startingmoney: 10.00
+
 sponge:
    # Sponge Saturation [true or false]
    # Add more realism to sponges by making them only

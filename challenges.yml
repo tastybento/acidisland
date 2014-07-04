@@ -224,10 +224,10 @@ challenges:
       repeatMoneyReward: 15
       repeatExpReward: 15
     craftsman:
-      description: 'Reach island level 100 (/island level).'
+      description: 'Reach island level 75 (/island level).'
       level: 'Competent'
       type: level
-      requiredItems: 100
+      requiredItems: 75
       takeItems: false
       itemReward: 'OBSIDIAN:10'
       rewardText: '10 obsidian blocks'

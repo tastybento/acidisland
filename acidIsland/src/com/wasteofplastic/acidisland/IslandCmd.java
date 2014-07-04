@@ -180,7 +180,7 @@ public class IslandCmd implements CommandExecutor {
 	    // Clear any potion effects
 	    for (PotionEffect effect : player.getActivePotionEffects())
 		player.removePotionEffect(effect.getType());
-	    // Set player's balance in acid island to $0
+	    // Set player's balance in acid island to the starting balance
 	    try {
 		// plugin.getLogger().info("DEBUG: " + player.getName() + " " +
 		// Settings.general_worldName);
@@ -198,14 +198,30 @@ public class IslandCmd implements CommandExecutor {
 		playerBalance = bd.doubleValue();
 		// plugin.getLogger().info("DEBUG: playerbalance after rounding = "
 		// + playerBalance);
-		EconomyResponse response = VaultHelper.econ.withdrawPlayer(player, Settings.worldName, playerBalance);
-		// plugin.getLogger().info("DEBUG: withdrawn");
-		if (response.transactionSuccess()) {
-		    plugin.getLogger().info(
-			    "FYI:" + player.getName() + " had " + VaultHelper.econ.format(playerBalance) + " when they typed /island and it was zeroed");
-		} else {
-		    plugin.getLogger().warning(
-			    "Problem trying to remove " + playerBalance + " from " + player.getName() + "'s account when they typed /island!");
+		if (playerBalance != Settings.startingMoney)  {
+		    if (playerBalance > Settings.startingMoney) {
+			Double difference = playerBalance - Settings.startingMoney;
+			EconomyResponse response = VaultHelper.econ.withdrawPlayer(player, Settings.worldName, difference);
+			// plugin.getLogger().info("DEBUG: withdrawn");
+			if (response.transactionSuccess()) {
+			    plugin.getLogger().info(
+				    "FYI:" + player.getName() + " had " + VaultHelper.econ.format(playerBalance) + " when they typed /island and it was set to " + Settings.startingMoney);
+			} else {
+			    plugin.getLogger().warning(
+				    "Problem trying to withdraw " + playerBalance + " from " + player.getName() + "'s account when they typed /island!");
+			}
+		    } else {
+			Double difference = Settings.startingMoney - playerBalance;
+			EconomyResponse response = VaultHelper.econ.depositPlayer(player, Settings.worldName, difference);
+			if (response.transactionSuccess()) {
+			    plugin.getLogger().info(
+				    "FYI:" + player.getName() + " had " + VaultHelper.econ.format(playerBalance) + " when they typed /island and it was set to " + Settings.startingMoney);
+			} else {
+			    plugin.getLogger().warning(
+				    "Problem trying to deposit " + playerBalance + " from " + player.getName() + "'s account when they typed /island!");
+			}
+			
+		    }
 		}
 	    } catch (final Exception e) {
 		plugin.getLogger().severe("Error trying to zero " + player.getName() + "'s account when they typed /island!");
@@ -1004,28 +1020,38 @@ public class IslandCmd implements CommandExecutor {
 			    player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
 			}
 			return true;
-		    } else if (!(warpList.contains(players.getUUID(split[1])))) {
-			player.sendMessage(ChatColor.RED + Locale.warpserrorDoesNotExist);
-			return true;
 		    } else {
-			// Warp exists!
-			final Location warpSpot = plugin.getWarp(players.getUUID(split[1]));
-			// Check if the warp spot is safe
-			if (warpSpot == null) {
-			    player.sendMessage(ChatColor.RED + Locale.warpserrorNotReadyYet);
-			    plugin.getLogger().warning("Null warp found, owned by " + split[1]);
-			    return true;
+			// Check if this is part of a name
+			UUID foundWarp = null;
+			for (UUID warp : warpList) {
+			    if (players.getName(warp).toLowerCase().startsWith(split[1].toLowerCase())) {
+				foundWarp = warp;
+				break;
+			    }
 			}
-			if (!(AcidIsland.isSafeLocation(warpSpot))) {
-			    player.sendMessage(ChatColor.RED + Locale.warpserrorNotSafe);
-			    plugin.getLogger().warning("Unsafe warp found at " + warpSpot.toString() + " owned by " + split[1]);
+			if (foundWarp == null) {
+			    player.sendMessage(ChatColor.RED + Locale.warpserrorDoesNotExist);
 			    return true;
 			} else {
-			    final Location actualWarp = new Location(warpSpot.getWorld(), warpSpot.getBlockX() + 0.5D, warpSpot.getBlockY(),
-				    warpSpot.getBlockZ() + 0.5D);
-			    player.teleport(actualWarp);
-			    player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
-			    return true;
+			    // Warp exists!
+			    final Location warpSpot = plugin.getWarp(foundWarp);
+			    // Check if the warp spot is safe
+			    if (warpSpot == null) {
+				player.sendMessage(ChatColor.RED + Locale.warpserrorNotReadyYet);
+				plugin.getLogger().warning("Null warp found, owned by " + players.getName(foundWarp));
+				return true;
+			    }
+			    if (!(AcidIsland.isSafeLocation(warpSpot))) {
+				player.sendMessage(ChatColor.RED + Locale.warpserrorNotSafe);
+				plugin.getLogger().warning("Unsafe warp found at " + warpSpot.toString() + " owned by " + players.getName(foundWarp));
+				return true;
+			    } else {
+				final Location actualWarp = new Location(warpSpot.getWorld(), warpSpot.getBlockX() + 0.5D, warpSpot.getBlockY(),
+					warpSpot.getBlockZ() + 0.5D);
+				player.teleport(actualWarp);
+				player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
+				return true;
+			    }
 			}
 		    }
 		}
@@ -1173,7 +1199,7 @@ public class IslandCmd implements CommandExecutor {
 					for (ItemStack i : target.getEquipment().getArmorContents()) {
 					    if (i != null) {
 						try {
-					        player.getWorld().dropItemNaturally(player.getLocation(), i);
+						    player.getWorld().dropItemNaturally(player.getLocation(), i);
 						} catch (Exception e) {}
 					    }
 					}
@@ -1183,7 +1209,7 @@ public class IslandCmd implements CommandExecutor {
 					target.getInventory().setChestplate(null);
 					target.getInventory().setLeggings(null);
 					target.getInventory().setBoots(null);
-					
+
 				    }
 				    if (!target.performCommand("spawn")) {
 					target.teleport(AcidIsland.getIslandWorld().getSpawnLocation());

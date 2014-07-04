@@ -55,4 +55,5 @@ public class Settings {
     public static Object excludedWorlds;
     public static boolean pistonMove;
     public static boolean spongeSaturation;
+    public static Double startingMoney;
 }

@@ -652,6 +652,8 @@ public class AcidIsland extends JavaPlugin {
 	} else if (Settings.island_protectionRange < 0) {
 	    Settings.island_protectionRange = 0;
 	}
+	
+	Settings.startingMoney = getConfig().getDouble("general.startingmoney", 0D);
 
 	Settings.resetWait = getConfig().getInt("general.resetwait", 300);
 	if (Settings.resetWait < 0) {
@@ -767,6 +769,9 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.waiverAmount < 0) {
 	    Settings.waiverAmount = 0;
 	}
+	
+	// Control Panel / Mini Shop
+	
 
 	// Localization
 	Locale.changingObsidiantoLava = locale.getString("changingObsidiantoLava", "Changing obsidian back into lava. Be careful!");
@@ -939,6 +944,8 @@ public class AcidIsland extends JavaPlugin {
 	Locale.resetChallengeerrorChallengeDoesNotExist = locale.getString("resetchallenge.errorChallengeDoesNotExist","Challenge doesn't exist or isn't yet completed");
 	Locale.resetChallengechallengeReset = locale.getString("resetchallenge.challengeReset","[challengename] has been reset for [name]");
 	Locale.newsHeadline = locale.getString("news.headline","[AcidIsland News] While you were offline...");
+    
+    
     }
     
     /*
@@ -1144,6 +1151,8 @@ public class AcidIsland extends JavaPlugin {
 	manager.registerEvents(new SafeBoat(this), this);
 	// Enables warp signs in AcidIsland
 	manager.registerEvents(new WarpSigns(this), this);
+	// Control panel
+	manager.registerEvents(new ControlPanel(), this);
 	// Handle sponges
 	manager.registerEvents(new SpongeBaseListener(this), this);
 	if (Settings.spongeSaturation) {
