@@ -172,18 +172,7 @@ public class IslandCmd implements CommandExecutor {
 		 * NOTE: Important section - make sure this is applied any time an
 		 * island is reset!
 		 */
-		// Clear their inventory and equipment and set them as survival
-		player.getInventory().clear(); // Javadocs are wrong - this does not
-		// clear armor slots! So...
-		player.getInventory().setHelmet(null);
-		player.getInventory().setChestplate(null);
-		player.getInventory().setLeggings(null);
-		player.getInventory().setBoots(null);
-		player.getEquipment().clear();
-		player.setGameMode(GameMode.SURVIVAL);
-		// Clear any potion effects
-		for (PotionEffect effect : player.getActivePotionEffects())
-		    player.removePotionEffect(effect.getType());
+		resetPlayer(player);
 		Bukkit.getScheduler().runTask(plugin, new Runnable() {
 		    @Override
 		    public void run() {
@@ -256,9 +245,32 @@ public class IslandCmd implements CommandExecutor {
 		});
 		// End of inside runTask
 	    }
+
 	});
 	// Done
 	return true;
+    }
+
+    /**
+     * Resets a player's inventory, armor slots, equipment, enderchest and potion effects
+     * @param player
+     */
+    private void resetPlayer(Player player) {
+	// Clear their inventory and equipment and set them as survival
+	player.getInventory().clear(); // Javadocs are wrong - this does not
+	// clear armor slots! So...
+	player.getInventory().setHelmet(null);
+	player.getInventory().setChestplate(null);
+	player.getInventory().setLeggings(null);
+	player.getInventory().setBoots(null);
+	player.getEquipment().clear();
+	player.setGameMode(GameMode.SURVIVAL);
+	// Clear any Enderchest contents
+	final ItemStack[] items = new ItemStack[player.getEnderChest().getContents().length];
+	player.getEnderChest().setContents(items);
+	// Clear any potion effects
+	for (PotionEffect effect : player.getActivePotionEffects())
+	    player.removePotionEffect(effect.getType());	
     }
 
     /**
@@ -924,18 +936,7 @@ public class IslandCmd implements CommandExecutor {
 			setResetWaitTime(player);
 
 			plugin.homeTeleport(player);
-
-			// Clear their inventory and equipment and set them as
-			// survival
-			player.getInventory().clear(); // Javadocs are wrong -
-			// this does not clear
-			// armor slots! So...
-			player.getInventory().setHelmet(null);
-			player.getInventory().setChestplate(null);
-			player.getInventory().setLeggings(null);
-			player.getInventory().setBoots(null);
-			player.getEquipment().clear();
-			player.setGameMode(GameMode.SURVIVAL);
+			resetPlayer(player);
 			player.sendMessage(ChatColor.GREEN + Locale.inviteyouHaveJoinedAnIsland);
 			if (Bukkit.getPlayer(inviteList.get(playerUUID)) != null) {
 			    Bukkit.getPlayer(inviteList.get(playerUUID)).sendMessage(ChatColor.GREEN + Locale.invitehasJoinedYourIsland.replace("[name]", player.getName()));
@@ -973,18 +974,7 @@ public class IslandCmd implements CommandExecutor {
 				player.sendMessage(ChatColor.YELLOW + Locale.leaveerrorYouAreTheLeader);
 				return true;
 			    }
-
-			    // Clear their inventory and equipment and set them
-			    // as survival
-			    player.getInventory().clear(); // Javadocs are wrong
-			    // - this does not
-			    // clear armor
-			    // slots! So...
-			    player.getInventory().setHelmet(null);
-			    player.getInventory().setChestplate(null);
-			    player.getInventory().setLeggings(null);
-			    player.getInventory().setBoots(null);
-			    player.getEquipment().clear();
+			    resetPlayer(player);
 			    if (!player.performCommand("spawn")) {
 				player.teleport(player.getWorld().getSpawnLocation());
 			    }
@@ -1237,13 +1227,7 @@ public class IslandCmd implements CommandExecutor {
 						} catch (Exception e) {}
 					    }
 					}
-					target.getInventory().clear();
-					target.getEquipment().clear();
-					target.getInventory().setHelmet(null);
-					target.getInventory().setChestplate(null);
-					target.getInventory().setLeggings(null);
-					target.getInventory().setBoots(null);
-
+					resetPlayer(target);
 				    }
 				    if (!target.performCommand("spawn")) {
 					target.teleport(AcidIsland.getIslandWorld().getSpawnLocation());

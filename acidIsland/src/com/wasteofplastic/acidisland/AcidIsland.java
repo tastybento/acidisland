@@ -32,6 +32,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.Furnace;
+import org.bukkit.block.Hopper;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
@@ -1211,6 +1212,7 @@ public class AcidIsland extends JavaPlugin {
 	    final int pz = l.getBlockZ();
 	    // Place a temporary entity
 	    //final World world = getIslandWorld();
+	    
 	    Entity snowBall = loc.getWorld().spawnEntity(loc, EntityType.SNOWBALL);
 	    // Remove any mobs if they just so happen to be around in the
 	    // vicinity
@@ -1236,7 +1238,7 @@ public class AcidIsland extends JavaPlugin {
 			try {
 			    Entity boat = pl.getWorld().spawnEntity(pl.getLocation(), EntityType.BOAT);
 			    boat.setPassenger(pl);
-			    pl.sendMessage(ChatColor.RED + "! " + Locale.islandDeletedLifeboats);
+			    pl.sendMessage(ChatColor.RED + Locale.islandDeletedLifeboats);
 			} catch (Exception e) {
 			    getLogger().warning("In deleting an island, could not put a nearby player in a boat");
 			    e.printStackTrace();
@@ -1246,32 +1248,52 @@ public class AcidIsland extends JavaPlugin {
 	    }
 
 	    for (int x = Settings.island_protectionRange / 2 * -1; x <= Settings.island_protectionRange / 2; x++) {
-		for (int y = 0; y <= 255; y++) {
+		for (int y = 255; y > 0; y--) {
 		    for (int z = Settings.island_protectionRange / 2 * -1; z <= Settings.island_protectionRange / 2; z++) {
 			final Block b = new Location(l.getWorld(), px + x, y, pz + z).getBlock();
 			final Material bt = new Location(l.getWorld(), px + x, y, pz + z).getBlock().getType();
 			// Grab anything out of containers (do that it is
 			// destroyed)
-			if (bt.equals(Material.CHEST)) {
+			switch (bt) {
+			case CHEST:
+			    getLogger().info("DEBUG: Chest");
+			case TRAPPED_CHEST:
+			    getLogger().info("DEBUG: Trapped Chest");
 			    final Chest c = (Chest) b.getState();
 			    final ItemStack[] items = new ItemStack[c.getInventory().getContents().length];
 			    c.getInventory().setContents(items);
-			} else if (bt.equals(Material.FURNACE)) {
+			    break;
+			case FURNACE:
 			    final Furnace f = (Furnace) b.getState();
-			    final ItemStack[] items = new ItemStack[f.getInventory().getContents().length];
-			    f.getInventory().setContents(items);
-			} else if (bt.equals(Material.DISPENSER)) {
+			    final ItemStack[] i2 = new ItemStack[f.getInventory().getContents().length];
+			    f.getInventory().setContents(i2);
+			    break;
+			case DISPENSER:
 			    final Dispenser d = (Dispenser) b.getState();
-			    final ItemStack[] items = new ItemStack[d.getInventory().getContents().length];
-			    d.getInventory().setContents(items);
+			    final ItemStack[] i3 = new ItemStack[d.getInventory().getContents().length];
+			    d.getInventory().setContents(i3);
+			    break;
+			case HOPPER:
+			    final Hopper h = (Hopper) b.getState();
+			    final ItemStack[] i4 = new ItemStack[h.getInventory().getContents().length];
+			    h.getInventory().setContents(i4);
+			    break;
+			case SIGN_POST:
+			case WALL_SIGN:
+			case SIGN:
+			    getLogger().info("DEBUG: Sign");
+			    b.setType(Material.AIR);
+			    break;
+			default:
+			    break;
 			}
 			// Split depending on below or above water line
-			if (!bt.equals(Material.AIR) && !bt.equals(Material.STATIONARY_WATER)) {
-			    if (y < Settings.sea_level + 5) {
+			if (y < Settings.sea_level + 5) {
+			    if (!b.getType().equals(Material.STATIONARY_WATER))
 				b.setType(Material.STATIONARY_WATER);
-			    } else {
+			} else {
+			    if (!b.getType().equals(Material.AIR))
 				b.setType(Material.AIR);
-			    }
 			}
 		    }
 		}
