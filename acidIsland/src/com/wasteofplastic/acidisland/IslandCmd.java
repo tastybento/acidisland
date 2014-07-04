@@ -30,6 +30,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -731,7 +732,19 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    } else {
 		// Teleport home
-		plugin.homeTeleport(player);
+		// Check if player is in a boat
+		if (player.isInsideVehicle()) {
+		    Entity boat = player.getVehicle();
+		    if (boat instanceof Boat) {
+			// Remove the boat so they don't lie around everywhere
+			plugin.homeTeleport(player);
+			boat.remove();
+			player.getInventory().addItem(new ItemStack(Material.BOAT, 1));
+			player.updateInventory();
+		    }
+		} else {
+		    plugin.homeTeleport(player);
+		}
 		return true;
 	    }
 	case 1:
