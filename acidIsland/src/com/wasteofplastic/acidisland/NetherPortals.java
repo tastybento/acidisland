@@ -70,9 +70,9 @@ public class NetherPortals implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(final BlockBreakEvent e) {
-	plugin.getLogger().info("Block break");
+	//plugin.getLogger().info("Block break");
 	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName + "_nether")) {
-	    plugin.getLogger().info("Block break in acid island nether");
+	    //plugin.getLogger().info("Block break in acid island nether");
 	    if (!awayFromSpawn(e.getPlayer()) && !e.getPlayer().isOp()) {
 		
 		e.setCancelled(true);

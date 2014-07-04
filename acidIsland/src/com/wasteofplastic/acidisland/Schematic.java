@@ -196,9 +196,9 @@ public class Schematic {
 	grass.subtract(bedrock);
 	grass.add(loc);
 	while (!AcidIsland.isSafeLocation(grass) && grass.getY() < 250) {
-	    grass.setY(grass.getY() + 1);
+	    grass.setY(grass.getY() + 1.1D);
 	}
-	//Bukkit.getLogger().info("DEBUG grass location " + grass.toString());
+	Bukkit.getLogger().info("DEBUG cow location " + grass.toString());
 	world.spawnEntity(grass, EntityType.COW);
 	// Place a helpful sign in front of player
 	//Bukkit.getLogger().info("DEBUG welcome sign schematic relative is:" + welcomeSign.toString());
