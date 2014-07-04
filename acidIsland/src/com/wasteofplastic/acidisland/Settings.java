@@ -56,4 +56,5 @@ public class Settings {
     public static boolean pistonMove;
     public static boolean spongeSaturation;
     public static Double startingMoney;
+    public static double netherSpawnRadius;
 }

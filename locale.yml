@@ -306,6 +306,9 @@ resetchallenge:
 news:
    headline: "[AcidIsland News] While you were offline..."
 
+#Nether
+nether:
+   spawnisprotected: "The Nether spawn area is protected."
 
 
 

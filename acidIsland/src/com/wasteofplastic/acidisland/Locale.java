@@ -269,4 +269,7 @@ public class Locale {
     // AcidIsland news
     public static String newsHeadline;
     
+    // Nether
+    public static String netherSpawnIsProtected;
+    
 }

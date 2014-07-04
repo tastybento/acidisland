@@ -246,7 +246,8 @@ public class AcidIsland extends JavaPlugin {
 	    return l;
 	}
 	if (l == null) {
-	    getLogger().severe("Island location is null!");
+	    getLogger().warning("This player has no island!");
+	    return null;
 	}
 	//getLogger().info("DEVUG: If these island locations are not safe, then we need to get creative");
 	// If these island locations are not safe, then we need to get creative
@@ -654,7 +655,14 @@ public class AcidIsland extends JavaPlugin {
 	}
 	
 	Settings.startingMoney = getConfig().getDouble("general.startingmoney", 0D);
-
+	// Nether spawn protection radius
+	Settings.netherSpawnRadius = getConfig().getInt("general.netherspawnradius",25);
+	if (Settings.netherSpawnRadius < 0) {
+	    Settings.netherSpawnRadius = 0;
+	} else if (Settings.netherSpawnRadius > 100) {
+	    Settings.netherSpawnRadius = 100;
+	}
+	
 	Settings.resetWait = getConfig().getInt("general.resetwait", 300);
 	if (Settings.resetWait < 0) {
 	    Settings.resetWait = 0;
@@ -944,7 +952,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.resetChallengeerrorChallengeDoesNotExist = locale.getString("resetchallenge.errorChallengeDoesNotExist","Challenge doesn't exist or isn't yet completed");
 	Locale.resetChallengechallengeReset = locale.getString("resetchallenge.challengeReset","[challengename] has been reset for [name]");
 	Locale.newsHeadline = locale.getString("news.headline","[AcidIsland News] While you were offline...");
-    
+	Locale.netherSpawnIsProtected = locale.getString("nether.spawnisprotected", "The Nether spawn area is protected.");
     
     }
     

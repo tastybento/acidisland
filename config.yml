@@ -35,6 +35,9 @@ general:
    # Starting money - this is how much money new players will have as their balance at the start of an island. (Default is zero)
    startingmoney: 10.00
 
+   # Nether spawn protection radius - this is the distance around the AcidIsland_nether spawn point that will be protected from player interaction (breaking blocks, pouring lava etc.). Minimum is 0 (not recommended), maximum is 100. Default is 25.
+   netherspawnradius: 25
+
 sponge:
    # Sponge Saturation [true or false]
    # Add more realism to sponges by making them only
