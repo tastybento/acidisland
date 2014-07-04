@@ -1,5 +1,7 @@
 package com.wasteofplastic.acidisland;
 
+import org.bukkit.ChatColor;
+
 /**
  * @author ben
  * All the text strings in the game sent to players
@@ -105,6 +107,7 @@ public class Locale {
     public static String islandhelpIsland;
     ///island restart
     public static String islandhelpRestart;
+    public static String islandDeletedLifeboats;
     ///island sethome
     public static String islandhelpSetHome;
     ///island level
@@ -271,5 +274,7 @@ public class Locale {
     
     // Nether
     public static String netherSpawnIsProtected;
+    
+    
     
 }

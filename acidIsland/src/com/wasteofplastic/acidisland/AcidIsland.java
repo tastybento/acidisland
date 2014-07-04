@@ -34,6 +34,7 @@ import org.bukkit.block.Dispenser;
 import org.bukkit.block.Furnace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Monster;
@@ -121,7 +122,7 @@ public class AcidIsland extends JavaPlugin {
 	    // Make the nether if it does not exist
 	    if (plugin.getServer().getWorld(Settings.worldName + "_nether") == null) {
 		Bukkit.getLogger().info("Creating AcidIsland's nether...");
-		    WorldCreator.name(Settings.worldName + "_nether").type(WorldType.NORMAL).environment(World.Environment.NETHER).createWorld();
+		WorldCreator.name(Settings.worldName + "_nether").type(WorldType.NORMAL).environment(World.Environment.NETHER).createWorld();
 	    }
 	}
 	// Set world settings
@@ -653,7 +654,7 @@ public class AcidIsland extends JavaPlugin {
 	} else if (Settings.island_protectionRange < 0) {
 	    Settings.island_protectionRange = 0;
 	}
-	
+
 	Settings.startingMoney = getConfig().getDouble("general.startingmoney", 0D);
 	// Nether spawn protection radius
 	Settings.netherSpawnRadius = getConfig().getInt("general.netherspawnradius",25);
@@ -662,7 +663,7 @@ public class AcidIsland extends JavaPlugin {
 	} else if (Settings.netherSpawnRadius > 100) {
 	    Settings.netherSpawnRadius = 100;
 	}
-	
+
 	Settings.resetWait = getConfig().getInt("general.resetwait", 300);
 	if (Settings.resetWait < 0) {
 	    Settings.resetWait = 0;
@@ -777,9 +778,9 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.waiverAmount < 0) {
 	    Settings.waiverAmount = 0;
 	}
-	
+
 	// Control Panel / Mini Shop
-	
+
 
 	// Localization
 	Locale.changingObsidiantoLava = locale.getString("changingObsidiantoLava", "Changing obsidian back into lava. Be careful!");
@@ -860,6 +861,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.islandresetWait = locale.getString("island.resetWait","You have to wait [time] seconds before you can do that again.");
 	Locale.islandhelpIsland = locale.getString("island.helpIsland","start an island, or teleport to your island.");
 	Locale.islandhelpRestart = locale.getString("island.helpRestart","restart your island and remove the old one.");
+	Locale.islandDeletedLifeboats = locale.getString("island.islandDeletedLifeboats","Island deleted! Head to the lifeboats!");
 	Locale.islandhelpSetHome = locale.getString("island.helpSetHome","set your teleport point for /island.");
 	Locale.islandhelpLevel = locale.getString("island.helpLevel","calculate your island level");
 	Locale.islandhelpLevelPlayer = locale.getString("island.helpLevelPlayer","see another player's island level.");
@@ -953,9 +955,9 @@ public class AcidIsland extends JavaPlugin {
 	Locale.resetChallengechallengeReset = locale.getString("resetchallenge.challengeReset","[challengename] has been reset for [name]");
 	Locale.newsHeadline = locale.getString("news.headline","[AcidIsland News] While you were offline...");
 	Locale.netherSpawnIsProtected = locale.getString("nether.spawnisprotected", "The Nether spawn area is protected.");
-    
+
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -1216,10 +1218,30 @@ public class AcidIsland extends JavaPlugin {
 		    .iterator();
 	    while (ents.hasNext()) {
 		final Entity tempent = ents.next();
-		// Remove anything except for a player
+		// Remove anything except for a player of player in a boat
 		if (!(tempent instanceof Player)) {
-		    getLogger().info("Removed entity type " + tempent.getType().toString() + " when removing island at location " + loc.toString());
-		    tempent.remove();
+		    if (tempent instanceof Boat) {
+			if (((Boat)tempent).isEmpty()) {
+			    tempent.remove();
+			} 
+		    } else {
+			getLogger().info("Removed entity type " + tempent.getType().toString() + " when removing island at location " + loc.toString());
+			tempent.remove();
+		    }
+		} else {
+		    // Player
+		    Player pl = (Player)tempent;
+		    if (!pl.isFlying() && !pl.isInsideVehicle()) {
+			// Try to put them into a boat
+			try {
+			    Entity boat = pl.getWorld().spawnEntity(pl.getLocation(), EntityType.BOAT);
+			    boat.setPassenger(pl);
+			    pl.sendMessage(ChatColor.RED + "! " + Locale.islandDeletedLifeboats);
+			} catch (Exception e) {
+			    getLogger().warning("In deleting an island, could not put a nearby player in a boat");
+			    e.printStackTrace();
+			}
+		    }
 		}
 	    }
 
@@ -1735,7 +1757,7 @@ public class AcidIsland extends JavaPlugin {
 	    }
 	}
 	// Player is offline so store the message
-	
+
 	List<String> playerMessages = messages.get(playerUUID);
 	if (playerMessages != null) {
 	    playerMessages.add(message);
@@ -1757,7 +1779,7 @@ public class AcidIsland extends JavaPlugin {
 	}
 	return playerMessages;
     }
-    
+
     public boolean saveMessages() {
 	plugin.getLogger().info("Saving offline messages...");
 	try {

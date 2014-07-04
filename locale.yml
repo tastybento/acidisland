@@ -122,6 +122,7 @@ island:
    helpIsland: "start an island, or teleport to your island."
    #/island restart
    helpRestart: "restart your island and remove the old one."
+   islandDeletedLifeboats: "Island deleted! Head to the lifeboats!"
    #/island sethome
    helpSetHome: "set your teleport point for /island."
    #/island level

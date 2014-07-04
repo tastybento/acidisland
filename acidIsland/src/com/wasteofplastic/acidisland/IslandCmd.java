@@ -375,10 +375,10 @@ public class IslandCmd implements CommandExecutor {
 	// Add island items
 	y = Settings.sea_level;
 	// Add tree (natural)
-	final Location treeLoc = new Location(world,x,y + 5, z);
+	final Location treeLoc = new Location(world,x,y + 5D, z);
 	world.generateTree(treeLoc, TreeType.ACACIA);
 	// Place the cow
-	Location cowSpot = new Location(world, x, Settings.sea_level + 6, z - 2);
+	Location cowSpot = new Location(world, x, Settings.sea_level + 6D, z - 2D);
 	world.spawnEntity(cowSpot, EntityType.COW);
 	// Place a helpful sign in front of player
 	Block blockToChange = world.getBlockAt(x, Settings.sea_level + 5, z + 3);
@@ -386,8 +386,11 @@ public class IslandCmd implements CommandExecutor {
 	Sign sign = (Sign) blockToChange.getState();
 	sign.setLine(0, ChatColor.BLUE + "[Acid Island]");
 	sign.setLine(1, player.getName());
-	sign.setLine(2, "Beware! Water");
-	sign.setLine(3, "is acid!");
+	String[] lore = Locale.acidLore.split("\n");
+	if (lore.length >2) {
+	    sign.setLine(2, lore[0] + " " + lore[1]);
+	    sign.setLine(3, lore[2]);
+	}
 	((org.bukkit.material.Sign) sign.getData()).setFacingDirection(BlockFace.NORTH);
 	sign.update();
 	// Place the chest - no need to use the safe spawn function because we
@@ -789,13 +792,15 @@ public class IslandCmd implements CommandExecutor {
 		    Bukkit.getScheduler().runTask(plugin, new Runnable() {
 			@Override
 			public void run() {
-			    plugin.deletePlayerIsland(playerUUID);
-			    Bukkit.getScheduler().runTask(plugin, new Runnable() {
+			    // Delete the old island
+			    final Location oldIsland = plugin.players.getIslandLocation(playerUUID);
+			    newIsland(sender);		
+			    Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 				@Override
 				public void run() {
-				    newIsland(sender);
+				    plugin.removeIsland(oldIsland);;
 				}
-			    });
+			    }, 20L);
 			}
 		    });
 		} else {
