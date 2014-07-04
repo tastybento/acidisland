@@ -1256,9 +1256,9 @@ public class AcidIsland extends JavaPlugin {
 			// destroyed)
 			switch (bt) {
 			case CHEST:
-			    getLogger().info("DEBUG: Chest");
+			    //getLogger().info("DEBUG: Chest");
 			case TRAPPED_CHEST:
-			    getLogger().info("DEBUG: Trapped Chest");
+			    //getLogger().info("DEBUG: Trapped Chest");
 			    final Chest c = (Chest) b.getState();
 			    final ItemStack[] items = new ItemStack[c.getInventory().getContents().length];
 			    c.getInventory().setContents(items);
@@ -1281,7 +1281,7 @@ public class AcidIsland extends JavaPlugin {
 			case SIGN_POST:
 			case WALL_SIGN:
 			case SIGN:
-			    getLogger().info("DEBUG: Sign");
+			    //getLogger().info("DEBUG: Sign");
 			    b.setType(Material.AIR);
 			    break;
 			default:
