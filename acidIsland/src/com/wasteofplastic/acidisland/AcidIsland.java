@@ -1151,8 +1151,8 @@ public class AcidIsland extends JavaPlugin {
 	manager.registerEvents(new SafeBoat(this), this);
 	// Enables warp signs in AcidIsland
 	manager.registerEvents(new WarpSigns(this), this);
-	// Control panel
-	manager.registerEvents(new ControlPanel(), this);
+	// Control panel - for future use
+	//manager.registerEvents(new ControlPanel(), this);
 	// Handle sponges
 	manager.registerEvents(new SpongeBaseListener(this), this);
 	if (Settings.spongeSaturation) {
