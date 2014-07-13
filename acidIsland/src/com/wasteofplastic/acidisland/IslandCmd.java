@@ -760,6 +760,9 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    }
 	case 1:
+	    if (split[0].equalsIgnoreCase("minishop")) {
+		player.openInventory(ControlPanel.miniShop);
+	    }
 	    // /island <command>
 	    if (split[0].equalsIgnoreCase("warp")) {
 		if (VaultHelper.checkPerm(player, "acidisland.island.warp")) {

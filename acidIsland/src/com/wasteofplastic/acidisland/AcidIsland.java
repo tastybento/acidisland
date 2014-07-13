@@ -444,7 +444,14 @@ public class AcidIsland extends JavaPlugin {
 	    config = new YamlConfiguration();
 	    getPlugin().getLogger().info("No " + file + " found. Creating it...");
 	    try {
-		config.save(yamlFile);
+		if (plugin.getResource(file) != null) {
+		    getPlugin().getLogger().info("Using default found in jar file.");
+		    plugin.saveResource(file, false);
+		    config = new YamlConfiguration();
+		    config.load(yamlFile);
+		} else {
+		    config.save(yamlFile);
+		}
 	    } catch (Exception e) {
 		getPlugin().getLogger().severe("Could not create the " + file + " file!");
 	    }
@@ -1051,6 +1058,10 @@ public class AcidIsland extends JavaPlugin {
 			e.printStackTrace();
 		    }
 		}
+		final PluginManager m = getServer().getPluginManager();
+		// Minishop
+		m.registerEvents(new ControlPanel(), plugin);
+
 	    }
 	});
 
@@ -1212,7 +1223,7 @@ public class AcidIsland extends JavaPlugin {
 	    final int pz = l.getBlockZ();
 	    // Place a temporary entity
 	    //final World world = getIslandWorld();
-	    
+
 	    Entity snowBall = loc.getWorld().spawnEntity(loc, EntityType.SNOWBALL);
 	    // Remove any mobs if they just so happen to be around in the
 	    // vicinity

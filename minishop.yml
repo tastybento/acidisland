@@ -1,0 +1,25 @@
+# This is a minishop. Minishop can be activated via the config.yml
+# List items in the minishop in this format
+# Material, Durability (0 if none), quantity to sell at once, price
+items:
+   item1:
+      material: LAVA_BUCKET
+      quantity: 1
+      price: 100
+      description: Lava Bucket
+   item2:
+      material: DIRT
+      quantity: 1
+      price: 10
+      description: Dirt
+   item3:
+      material: IRON_INGOT
+      quantity: 1
+      price: 100
+      description: Iron bar
+   item4:
+      material: GRASS
+      quantity: 1
+      price: 50
+      description: Grass
+
