@@ -14,6 +14,13 @@ general:
    # 0 = no damage, 10 = default damage, 20 = instant death
    aciddamage: 10
 
+   # Damage type to apply in addition to acid damage
+   # Types can be : SLOW, SLOW_DIGGING, CONFUSION,BLINDNESS, HUNGER, WEAKNESS and POISON
+   # If you just want these to act, then make the acid damage 0 above
+   # Note - these are potion effects and so can be cured by milk
+   damagetype:
+   - confusion
+
    # Sets the limit for number of monsters that can spawn in a chunk in this world. 
    # Note: If set to a negative number the world will use the server-wide spawn limit instead.
    # Max is 100

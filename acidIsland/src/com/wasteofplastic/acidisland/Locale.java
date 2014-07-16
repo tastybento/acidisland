@@ -1,6 +1,5 @@
 package com.wasteofplastic.acidisland;
 
-import org.bukkit.ChatColor;
 
 /**
  * @author ben
@@ -274,6 +273,10 @@ public class Locale {
     
     // Nether
     public static String netherSpawnIsProtected;
+    
+    // Minishop
+    public static String islandhelpMiniShop;
+    public static String islandMiniShopTitle;
     
     
     

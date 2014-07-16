@@ -46,6 +46,9 @@ permissions:
           acidisland.island.addwarp:
             description: Let the player place a Welcome warp sign
             default: true
+          acidisland.island.minishop:
+            description: Allows usage of the minishop
+            default: true
       acidisland.team.*:
         children:
           acidisland.team.create:

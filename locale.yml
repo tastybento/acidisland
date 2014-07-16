@@ -218,6 +218,11 @@ makeleader:
    errorNotYourIsland: "This isn't your island, so you can't give it away!"
    errorGeneralError: "Could not change leaders."
 
+#minishop
+minishop:
+   title: "MiniShop"
+   islandhelpMiniShop: "Opens the MiniShop"
+
 ################################
 #Admin commands that use /acid #
 ################################

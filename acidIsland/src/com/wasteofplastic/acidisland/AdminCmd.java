@@ -66,6 +66,7 @@ public class AdminCmd implements CommandExecutor {
 		if (split[0].equalsIgnoreCase("reload")) {
 		    plugin.reloadConfig();
 		    plugin.loadPluginConfig();
+		    ControlPanel.loadShop();
 		    sender.sendMessage(ChatColor.YELLOW + Locale.reloadconfigReloaded);
 		    return true;
 		} else if (split[0].equalsIgnoreCase("topten")) {
@@ -362,6 +363,7 @@ public class AdminCmd implements CommandExecutor {
 		if ((VaultHelper.checkPerm(player, "acidisland.admin.reload") || player.isOp())) {
 		    plugin.reloadConfig();
 		    plugin.loadPluginConfig();
+		    ControlPanel.loadShop();
 		    player.sendMessage(ChatColor.YELLOW + Locale.reloadconfigReloaded);
 		    return true;
 		}

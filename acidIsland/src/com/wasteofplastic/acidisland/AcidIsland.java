@@ -45,6 +45,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.Potion;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 /**
@@ -73,6 +75,8 @@ public class AcidIsland extends JavaPlugin {
     private Map<UUID, Integer> topTenList;
     // Players object
     public PlayerCache players;
+    // Acid Damage Potion
+    PotionEffectType acidPotion;
     /**
      * A database of where the sponges are stored a serialized location and
      * integer
@@ -629,6 +633,32 @@ public class AcidIsland extends JavaPlugin {
 	} else if (Settings.acidDamage < 0) {
 	    Settings.acidDamage = 0;
 	}
+	// Damage Type
+	List<String> acidDamageType = getConfig().getStringList("general.damagetype");
+	Settings.acidDamageType.clear();
+	if (acidDamageType != null) {
+	    for (String effect : acidDamageType) {
+		PotionEffectType newPotionType = PotionEffectType.getByName(effect);
+		if (newPotionType != null) {
+		    // Check if it is a valid addition
+		    if (newPotionType.equals(PotionEffectType.BLINDNESS)
+			    || newPotionType.equals(PotionEffectType.CONFUSION)
+			    || newPotionType.equals(PotionEffectType.HUNGER)
+			    || newPotionType.equals(PotionEffectType.POISON)
+			    || newPotionType.equals(PotionEffectType.SLOW)
+			    || newPotionType.equals(PotionEffectType.SLOW_DIGGING)
+			    || newPotionType.equals(PotionEffectType.WEAKNESS)
+			    ) {
+			Settings.acidDamageType.add(newPotionType);
+		    }
+		} else {
+		    getLogger().warning("Could not interpret acid damage modifier: " + effect + " - skipping");
+		    getLogger().warning("Types can be : SLOW, SLOW_DIGGING, CONFUSION,");	
+		    getLogger().warning("BLINDNESS, HUNGER, WEAKNESS and POISON");
+		}
+	    }
+	}
+
 
 	Settings.animalSpawnLimit = getConfig().getInt("general.animalspawnlimit", 15);
 	if (Settings.animalSpawnLimit > 100) {
@@ -963,7 +993,8 @@ public class AcidIsland extends JavaPlugin {
 	Locale.resetChallengechallengeReset = locale.getString("resetchallenge.challengeReset","[challengename] has been reset for [name]");
 	Locale.newsHeadline = locale.getString("news.headline","[AcidIsland News] While you were offline...");
 	Locale.netherSpawnIsProtected = locale.getString("nether.spawnisprotected", "The Nether spawn area is protected.");
-
+	Locale.islandhelpMiniShop = locale.getString("minishop.islandhelpMiniShop","Opens the MiniShop" );
+	Locale.islandMiniShopTitle = locale.getString("minishop.title","MiniShop" );
     }
 
     /*
@@ -976,7 +1007,7 @@ public class AcidIsland extends JavaPlugin {
 	try {
 	    // Remove players from memory
 	    players.removeAllPlayers();
-	    saveConfig();
+	    //saveConfig();
 	    saveWarpList();
 	    saveMessages();
 	} catch (final Exception e) {
@@ -1851,5 +1882,4 @@ public class AcidIsland extends JavaPlugin {
 	    return false;
 	}
     }
-
 }

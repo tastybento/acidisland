@@ -1,25 +1,60 @@
-# This is a minishop. Minishop can be activated via the config.yml
-# List items in the minishop in this format
-# Material, Durability (0 if none), quantity to sell at once, price
+# This is a minishop. Minishop can be allowed via permissions
+# See examples for the format
+# Maximum number of items in the minishop is 9 - that's why it's mini!
 items:
    item1:
       material: LAVA_BUCKET
       quantity: 1
       price: 100
-      description: Lava Bucket
    item2:
       material: DIRT
       quantity: 1
-      price: 10
-      description: Dirt
+      price: 100
+   # You can add a user-friendly description to the item if you like
    item3:
       material: IRON_INGOT
-      quantity: 1
+      quantity: 3
       price: 100
-      description: Iron bar
+      description: Iron bars
    item4:
       material: GRASS
       quantity: 1
-      price: 50
-      description: Grass
+      price: 150
+   item5:
+      material: DIAMOND
+      quantity: 1
+      price: 200
 
+   # Potions can be different types and Extended, Splash or ExtendedSplash.
+   # If you do not know the potion types, just guess and look in the console
+   # If you get it wrong, it will tell you the options
+   item6:
+      material: POTION
+      quantity: 1
+      extra: WATER_BREATHING
+      #Or you could do:
+      #extra: WATER_BREATHING:EXTENDED
+      #extra: WATER_BREATHING:SPLASH
+      #extra: WATER_BREATHING:EXTENDEDSPLASH
+      price: 50
+      description: AcidProof Potion
+   # Potions can be Extended, Splash or ExtendedSplash. Not all potions can be modified
+   item7:
+      material: MONSTER_EGG
+      quantity: 1
+      extra: 90
+      price: 300
+      description: A pig
+   # A dark oak (4 saplings needed)
+   item8:
+      material: SAPLING
+      quantity: 4
+      # Extras is durability/damage
+      extra: 5
+      price: 150
+   item9:
+      material: POTION
+      quantity: 1
+      extra: NIGHT_VISION:EXTENDED
+      price: 20
+      description: Extended night vision

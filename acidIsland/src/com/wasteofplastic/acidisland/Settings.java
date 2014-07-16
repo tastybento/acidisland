@@ -1,9 +1,11 @@
 package com.wasteofplastic.acidisland;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 
 /**
  * @author ben
@@ -57,4 +59,5 @@ public class Settings {
     public static boolean spongeSaturation;
     public static Double startingMoney;
     public static double netherSpawnRadius;
+    public static List<PotionEffectType> acidDamageType = new ArrayList<PotionEffectType>();
 }

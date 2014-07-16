@@ -760,8 +760,13 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    }
 	case 1:
-	    if (split[0].equalsIgnoreCase("minishop")) {
-		player.openInventory(ControlPanel.miniShop);
+	    if (split[0].equalsIgnoreCase("minishop") || split[0].equalsIgnoreCase("ms")) {
+		if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+		    if (VaultHelper.checkPerm(player, "acidisland.island.minishop")) {
+			player.openInventory(ControlPanel.miniShop);
+			return true;
+		    }
+		}
 	    }
 	    // /island <command>
 	    if (split[0].equalsIgnoreCase("warp")) {
@@ -850,7 +855,9 @@ public class IslandCmd implements CommandExecutor {
 		player.sendMessage(ChatColor.YELLOW + "/island level: " + ChatColor.WHITE + Locale.islandhelpLevel);
 		player.sendMessage(ChatColor.YELLOW + "/island level <player>: " + ChatColor.WHITE + Locale.islandhelpLevelPlayer);
 		player.sendMessage(ChatColor.YELLOW + "/island top: " + ChatColor.WHITE + Locale.islandhelpTop);
-
+		if (VaultHelper.checkPerm(player, "acidisland.island.minishop")) {
+		    player.sendMessage(ChatColor.YELLOW + "/island minishop or ms: " + ChatColor.WHITE + Locale.islandhelpMiniShop);		    
+		}
 		if (VaultHelper.checkPerm(player, "acidisland.island.warp")) {
 		    player.sendMessage(ChatColor.YELLOW + "/island warps: " + ChatColor.WHITE + Locale.islandhelpWarps);
 		    player.sendMessage(ChatColor.YELLOW + "/island warp <player>: " + ChatColor.WHITE + Locale.islandhelpWarp);
