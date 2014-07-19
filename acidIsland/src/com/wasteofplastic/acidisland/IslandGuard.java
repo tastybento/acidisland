@@ -1,10 +1,13 @@
 package com.wasteofplastic.acidisland;
 
 
+import java.util.UUID;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -20,6 +23,7 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.potion.Potion;
+
 
 /**
  * @author ben
@@ -39,8 +43,8 @@ public class IslandGuard implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(final BlockBreakEvent e) {
-	if (!Settings.allowBreakBlocks) {
-	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    if (!Settings.allowBreakBlocks) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
@@ -59,27 +63,115 @@ public class IslandGuard implements Listener {
 	if (!Settings.worldName.equalsIgnoreCase(e.getEntity().getWorld().getName())) {
 	    return;
 	}
+	// Ops can do anything
+	if (e.getDamager() instanceof Player) {
+	    if (((Player)e.getDamager()).isOp()) {
+		return;
+	    }
+	}
 	// Check to see if it's an item frame
 	if (e.getEntity() instanceof ItemFrame) {
 	    if (!Settings.allowBreakBlocks) {
 		if (e.getDamager() instanceof Player) {
-		    if (!plugin.playerIsOnIsland((Player)e.getDamager()) && !((Player)e.getDamager()).isOp()) {
+		    if (!plugin.playerIsOnIsland((Player)e.getDamager())) {
 			((Player)e.getDamager()).sendMessage(ChatColor.RED + Locale.islandProtected);
 			e.setCancelled(true);
 		    }
 		}
 	    }
 	}
+	// If the attacker is non-human and not an arrow then everything is okay
+	if (!(e.getDamager() instanceof Player) && !(e.getDamager() instanceof Projectile)) {
+	    return;
+	}
+
+	//plugin.getLogger().info("Entity is " + e.getEntity().toString());
+	// Check for player initiated damage
+	if (e.getDamager() instanceof Player) {
+	    //plugin.getLogger().info("Damager is " + ((Player)e.getDamager()).getName());
+	    // If the target is not a player check if mobs can be hurt
+	    if (!(e.getEntity() instanceof Player)) {
+		if (e.getEntity() instanceof Monster) {
+		    //plugin.getLogger().info("Entity is a monster - ok to hurt"); 
+		    return;
+		} else {
+		    //plugin.getLogger().info("Entity is a non-monster - check if ok to hurt"); 
+		    UUID playerUUID = e.getDamager().getUniqueId();
+		    //if (playerUUID == null) {
+		    //plugin.getLogger().info("player ID is null");
+		    //}
+		    if (!Settings.allowHurtMobs) {
+			((Player)e.getDamager()).sendMessage(ChatColor.RED + Locale.islandProtected);
+			e.setCancelled(true);
+			return;
+		    }
+		    return;
+		}
+	    } else {
+		// PVP
+		// If PVP is okay then return
+		if (Settings.allowPvP.equalsIgnoreCase("allow")) {
+		    plugin.getLogger().info("PVP allowed");
+		    return;
+		}
+		plugin.getLogger().info("PVP not allowed");
+
+	    }
+	}
+
+	//plugin.getLogger().info("Player attack (or arrow)");
+	// Only damagers who are players or arrows are left
+	// Handle splash potions separately.
+	if (e.getDamager() instanceof Arrow) {
+	    //plugin.getLogger().info("Arrow attack");
+	    Arrow arrow = (Arrow)e.getDamager();
+	    // It really is an Arrow
+	    if (arrow.getShooter() instanceof Player) {
+		Player shooter = (Player)arrow.getShooter();
+		//plugin.getLogger().info("Player arrow attack");
+		if (e.getEntity() instanceof Player) {
+		    //plugin.getLogger().info("Player vs Player!");
+		    // Arrow shot by a player at another player
+		    if (!Settings.allowPvP.equalsIgnoreCase("allow")) {
+			//plugin.getLogger().info("Target player is in a no-PVP area!");
+			((Player)arrow.getShooter()).sendMessage("Target is in a no-PVP area!");
+			e.setCancelled(true);
+			return;
+		    } 
+		} else {
+		    if (!(e.getEntity() instanceof Monster)) {
+			//plugin.getLogger().info("Entity is a non-monster - check if ok to hurt"); 
+			if (!Settings.allowHurtMobs) {
+			    shooter.sendMessage(ChatColor.RED + Locale.islandProtected);
+			    e.setCancelled(true);
+			    return;
+			}
+			return;
+		    }
+		}
+	    }
+	} else if (e.getDamager() instanceof Player){
+	    //plugin.getLogger().info("Player attack");
+	    // Just a player attack
+	    if (!Settings.allowPvP.equalsIgnoreCase("allow")) {
+		((Player)e.getDamager()).sendMessage("Target is in a no-PVP area!");
+		e.setCancelled(true);
+		return;
+	    } 
+	}
+	return;
+	/*
+	// If the attacker is non-human and not an arrow then everything is okay
+	if (!(e.getDamager() instanceof Player) && !(e.getDamager() instanceof Projectile)) {
+	    return;
+	}
+
 	// If the target is not a player return
 	if (!(e.getEntity() instanceof Player)) {
 	    return;
 	}
 	// If PVP is okay then return
 	if (Settings.allowPvP.equalsIgnoreCase("allow")) {
-	    return;
-	}
-	// If the attacker is non-human and not an arrow then everything is okay
-	if (!(e.getDamager() instanceof Player) && !(e.getDamager() instanceof Projectile)) {
 	    return;
 	}
 	// Only damagers who are players or arrows are left
@@ -99,6 +191,7 @@ public class IslandGuard implements Listener {
 	    }
 	}
 	return;
+	 */
     }
 
 
@@ -108,8 +201,8 @@ public class IslandGuard implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerBlockPlace(final BlockPlaceEvent e) {
-	if (!Settings.allowPlaceBlocks) {
-	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    if (!Settings.allowPlaceBlocks) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
@@ -121,9 +214,9 @@ public class IslandGuard implements Listener {
     // Prevent sleeping in other beds
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerBedEnter(final PlayerBedEnterEvent e) {
-	if (!Settings.allowBedUse) {
-	    // Check world
-	    if (Settings.worldName.equalsIgnoreCase(e.getPlayer().getWorld().getName())) {
+	// Check world
+	if (Settings.worldName.equalsIgnoreCase(e.getPlayer().getWorld().getName())) {
+	    if (!Settings.allowBedUse) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
@@ -137,8 +230,8 @@ public class IslandGuard implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBreakHanging(final HangingBreakByEntityEvent e) {
-	if (!Settings.allowBreakBlocks) {
-	    if (e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	if (e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    if (!Settings.allowBreakBlocks) {
 		if (e.getRemover() instanceof Player) {
 		    Player p = (Player)e.getRemover();
 		    if (!plugin.playerIsOnIsland(p) && !p.isOp()) {
@@ -152,8 +245,8 @@ public class IslandGuard implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBucketEmpty(final PlayerBucketEmptyEvent e) {
-	if (!Settings.allowBucketUse) {
-	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    if (!Settings.allowBucketUse) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
@@ -163,8 +256,8 @@ public class IslandGuard implements Listener {
     }
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBucketFill(final PlayerBucketFillEvent e) {
-	if (!Settings.allowBucketUse) {
-	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    if (!Settings.allowBucketUse) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
@@ -176,8 +269,8 @@ public class IslandGuard implements Listener {
     // Protect sheep
     @EventHandler(priority = EventPriority.NORMAL)
     public void onShear(final PlayerShearEntityEvent e) {
-	if (!Settings.allowShearing) {	
-	    if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    if (!Settings.allowShearing) {	
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);

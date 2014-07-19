@@ -1,3 +1,4 @@
+# Config for Version 0.9c or later
 general:
    # Sea level height (don't changes this mid-game unless you delete the world)
    sealevel: 50
@@ -160,4 +161,6 @@ island:
    allowbrewing: false
    # Allow gates to be used
    allowgateuse: false
+   # Allow friendly mobs to be hurt (cows etc.)
+   allowhurtmobs: true
    

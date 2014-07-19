@@ -45,7 +45,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.Potion;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
@@ -794,6 +793,7 @@ public class AcidIsland extends JavaPlugin {
 	Settings.allowCrafting = getConfig().getBoolean("island.allowcrafting", false);
 	Settings.allowBrewing = getConfig().getBoolean("island.allowbrewing", false);
 	Settings.allowGateUse = getConfig().getBoolean("island.allowgateuse", false);
+	Settings.allowHurtMobs = getConfig().getBoolean("island.allowhurtmobs", true);
 
 	Settings.absorbLava = getConfig().getBoolean("sponge.absorbLava", false);
 	Settings.absorbFire = getConfig().getBoolean("sponge.absorbFire", false);

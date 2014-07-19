@@ -55,6 +55,6 @@ items:
    item9:
       material: POTION
       quantity: 1
-      extra: NIGHT_VISION:EXTENDED
+      extra: WATER_BREATHING:EXTENDED
       price: 20
-      description: Extended night vision
+      description: Extended acid-proof water breathing

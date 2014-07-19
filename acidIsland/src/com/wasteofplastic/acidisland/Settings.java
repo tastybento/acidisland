@@ -40,6 +40,7 @@ public class Settings {
     public static boolean allowCrafting;
     public static boolean allowBrewing;
     public static boolean allowGateUse;
+    public static boolean allowHurtMobs;
     
     public static ItemStack[] chestItems;
     public static int islandDistance;
@@ -60,4 +61,5 @@ public class Settings {
     public static Double startingMoney;
     public static double netherSpawnRadius;
     public static List<PotionEffectType> acidDamageType = new ArrayList<PotionEffectType>();
+    
 }
