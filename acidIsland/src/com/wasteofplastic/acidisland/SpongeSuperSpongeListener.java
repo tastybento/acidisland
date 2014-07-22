@@ -28,6 +28,8 @@ public class SpongeSuperSpongeListener implements Listener {
 
     @EventHandler
     public void onBlockFromTo(BlockFromToEvent event) {
+	if (plugin.isNewIsland())
+	    return;
 	if (plugin.debug) {
 	    plugin.getLogger().info("Liquid incoming at: " + event.getToBlock().getX() + ", " + event.getToBlock().getY() + ", " + event.getToBlock().getZ());
 	}

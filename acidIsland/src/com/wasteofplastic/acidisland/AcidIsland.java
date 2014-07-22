@@ -29,10 +29,6 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
-import org.bukkit.block.Dispenser;
-import org.bukkit.block.Furnace;
-import org.bukkit.block.Hopper;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
@@ -40,6 +36,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
@@ -53,6 +51,7 @@ import org.bukkit.potion.PotionType;
  * Main AcidIsland class - provides an island minigame in a sea of acid
  */
 public class AcidIsland extends JavaPlugin {
+    private boolean newIsland = false;
     // This plugin
     private static AcidIsland plugin;
     // The AcidIsland world
@@ -76,6 +75,11 @@ public class AcidIsland extends JavaPlugin {
     public PlayerCache players;
     // Acid Damage Potion
     PotionEffectType acidPotion;
+    // Listeners
+    private Listener spongeListener;
+    private Listener warpSignsListener;
+    private Listener lavaListener;
+    
     /**
      * A database of where the sponges are stored a serialized location and
      * integer
@@ -144,6 +148,8 @@ public class AcidIsland extends JavaPlugin {
     public void deletePlayerIsland(final UUID player) {
 	// Removes the island
 	removeIsland(players.getIslandLocation(player));
+	DeleteIsland deleteIsland = new DeleteIsland(plugin,players.getIslandLocation(player));
+	deleteIsland.runTaskTimer(plugin, 40L, 40L);
 	players.removeIsland(player);
     }
 
@@ -356,6 +362,20 @@ public class AcidIsland extends JavaPlugin {
 	return false;
     }
 
+
+    /**
+     * @return the newIsland
+     */
+    public boolean isNewIsland() {
+        return newIsland;
+    }
+
+    /**
+     * @param newIsland the newIsland to set
+     */
+    public void setNewIsland(boolean newIsland) {
+        this.newIsland = newIsland;
+    }
 
     /**
      * Checks if this location is safe for a player to teleport to. Used by
@@ -1197,24 +1217,52 @@ public class AcidIsland extends JavaPlugin {
 	// Events for when a player joins or leaves the server
 	manager.registerEvents(new JoinLeaveEvents(this, players), this);
 	// Ensures Lava flows correctly in AcidIsland world
-	manager.registerEvents(new LavaCheck(this), this);
+	lavaListener = new LavaCheck(this);
+	manager.registerEvents(lavaListener, this);
 	// Ensures that water is acid
 	manager.registerEvents(new AcidEffect(this), this);
 	// Ensures that boats are safe in AcidIsland
 	manager.registerEvents(new SafeBoat(this), this);
 	// Enables warp signs in AcidIsland
-	manager.registerEvents(new WarpSigns(this), this);
+	warpSignsListener = new WarpSigns(this);
+	manager.registerEvents(warpSignsListener, this);
 	// Control panel - for future use
 	//manager.registerEvents(new ControlPanel(), this);
 	// Handle sponges
 	manager.registerEvents(new SpongeBaseListener(this), this);
 	if (Settings.spongeSaturation) {
-	    manager.registerEvents(new SpongeSaturatedSpongeListener(this), this);
+	    spongeListener = new SpongeSaturatedSpongeListener(this);
+	    manager.registerEvents(spongeListener, this);
 	} else {
-	    manager.registerEvents(new SpongeSuperSpongeListener(this), this);
+	    spongeListener = new SpongeSuperSpongeListener(this);
+	    manager.registerEvents(spongeListener, this);
 	}
 	// Change names of inventory items
 	manager.registerEvents(new AcidInventory(this), this);
+    }
+    
+    public void unregisterEvents() {
+	HandlerList.unregisterAll(spongeListener);
+	HandlerList.unregisterAll(warpSignsListener);
+	HandlerList.unregisterAll(lavaListener);	
+    }
+    
+    public void restartEvents() {
+	final PluginManager manager = getServer().getPluginManager();
+	lavaListener = new LavaCheck(this);
+	manager.registerEvents(lavaListener, this);
+	// Enables warp signs in AcidIsland
+	warpSignsListener = new WarpSigns(this);
+	manager.registerEvents(warpSignsListener, this);
+	// Handle sponges
+	manager.registerEvents(new SpongeBaseListener(this), this);
+	if (Settings.spongeSaturation) {
+	    spongeListener = new SpongeSaturatedSpongeListener(this);
+	    manager.registerEvents(spongeListener, this);
+	} else {
+	    spongeListener = new SpongeSuperSpongeListener(this);
+	    manager.registerEvents(spongeListener, this);
+	}	
     }
 
     /**
@@ -1249,12 +1297,9 @@ public class AcidIsland extends JavaPlugin {
     public void removeIsland(final Location loc) {
 	//getLogger().info("DEBUG: removeIsland");
 	if (loc != null) {
-	    final Location l = loc;
-	    final int px = l.getBlockX();
-	    final int pz = l.getBlockZ();
 	    // Place a temporary entity
 	    //final World world = getIslandWorld();
-
+	    
 	    Entity snowBall = loc.getWorld().spawnEntity(loc, EntityType.SNOWBALL);
 	    // Remove any mobs if they just so happen to be around in the
 	    // vicinity
@@ -1269,7 +1314,7 @@ public class AcidIsland extends JavaPlugin {
 			    tempent.remove();
 			} 
 		    } else {
-			getLogger().info("Removed entity type " + tempent.getType().toString() + " when removing island at location " + loc.toString());
+			//getLogger().info("Removed entity type " + tempent.getType().toString() + " when removing island at location " + loc.toString());
 			tempent.remove();
 		    }
 		} else {
@@ -1288,10 +1333,11 @@ public class AcidIsland extends JavaPlugin {
 		    }
 		}
 	    }
-
+	    /*
 	    for (int x = Settings.island_protectionRange / 2 * -1; x <= Settings.island_protectionRange / 2; x++) {
-		for (int y = 255; y > 0; y--) {
+		for (int y = 255; y >= 0; y--) {
 		    for (int z = Settings.island_protectionRange / 2 * -1; z <= Settings.island_protectionRange / 2; z++) {
+			
 			final Block b = new Location(l.getWorld(), px + x, y, pz + z).getBlock();
 			final Material bt = new Location(l.getWorld(), px + x, y, pz + z).getBlock().getType();
 			// Grab anything out of containers (do that it is
@@ -1339,7 +1385,7 @@ public class AcidIsland extends JavaPlugin {
 			}
 		    }
 		}
-	    }
+	    }*/
 	}
     }
 
@@ -1882,4 +1928,6 @@ public class AcidIsland extends JavaPlugin {
 	    return false;
 	}
     }
+
+   
 }

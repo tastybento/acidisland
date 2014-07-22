@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -42,6 +41,7 @@ public class IslandCmd implements CommandExecutor {
     public boolean busyFlag = true;
     public Location Islandlocation;
     private AcidIsland plugin;
+
     /**
      * Invite list - invited player name string (key), inviter name string (value)
      */
@@ -147,106 +147,97 @@ public class IslandCmd implements CommandExecutor {
 	final UUID playerUUID = player.getUniqueId();
 	//final Players p = players.get(player.getName());
 	// Island building is done in tasks
-	Bukkit.getScheduler().runTask(plugin, new Runnable() {
-	    @Override
-	    public void run() {			  
-		// Get the location of the last island generated
-		final Location last = new Location(AcidIsland.getIslandWorld(), 0D, Settings.sea_level, 0D);
-		// Find the next free spot
-		Location next;
-		next = nextGridLocation(last);
-		while (plugin.islandAtLocation(next)) {
-		    next = nextGridLocation(next);
-		}
-		generateIslandBlocks(next.getBlockX(), next.getBlockZ(), player, AcidIsland.getIslandWorld());
-		//plugin.getLogger().info("DEBUG: player ID is: " + playerUUID.toString());
-		players.setHasIsland(playerUUID,true);
-		//plugin.getLogger().info("DEBUG: Set island to true - actually is " + players.hasIsland(playerUUID));
+	// Get the location of the last island generated
+	final Location last = new Location(AcidIsland.getIslandWorld(), 0D, Settings.sea_level, 0D);
+	// Find the next free spot
+	Location next;
+	next = nextGridLocation(last);
+	while (plugin.islandAtLocation(next)) {
+	    next = nextGridLocation(next);
+	}
+	plugin.setNewIsland(true);
+	generateIslandBlocks(next.getBlockX(), next.getBlockZ(), player, AcidIsland.getIslandWorld());
+	plugin.setNewIsland(false);
+	//plugin.getLogger().info("DEBUG: player ID is: " + playerUUID.toString());
+	players.setHasIsland(playerUUID,true);
+	//plugin.getLogger().info("DEBUG: Set island to true - actually is " + players.hasIsland(playerUUID));
 
-		players.setIslandLocation(playerUUID,next);
-		//plugin.getLogger().info("DEBUG: player island location is " + players.getIslandLocation(playerUUID).toString());
-		// Teleport the player to a safe place
-		plugin.homeTeleport(player);
-		players.save(playerUUID);
-		/***************
-		 * NOTE: Important section - make sure this is applied any time an
-		 * island is reset!
-		 */
-		resetPlayer(player);
-		Bukkit.getScheduler().runTask(plugin, new Runnable() {
-		    @Override
-		    public void run() {
-			// Set player's balance in acid island to the starting balance
-			try {
-			    // plugin.getLogger().info("DEBUG: " + player.getName() + " " +
-			    // Settings.general_worldName);
-			    if (VaultHelper.econ == null) {
-				//plugin.getLogger().warning("DEBUG: econ is null!");
-				VaultHelper.setupEconomy();
-			    }
-			    Double playerBalance = VaultHelper.econ.getBalance(player, Settings.worldName);
-			    // plugin.getLogger().info("DEBUG: playerbalance = " +
-			    // playerBalance);
-			    // Round the balance to 2 decimal places and slightly down to
-			    // avoid issues when withdrawing the amount later
-			    BigDecimal bd = new BigDecimal(playerBalance);
-			    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
-			    playerBalance = bd.doubleValue();
-			    // plugin.getLogger().info("DEBUG: playerbalance after rounding = "
-			    // + playerBalance);
-			    if (playerBalance != Settings.startingMoney)  {
-				if (playerBalance > Settings.startingMoney) {
-				    Double difference = playerBalance - Settings.startingMoney;
-				    EconomyResponse response = VaultHelper.econ.withdrawPlayer(player, Settings.worldName, difference);
-				    // plugin.getLogger().info("DEBUG: withdrawn");
-				    if (response.transactionSuccess()) {
-					plugin.getLogger().info(
-						"FYI:" + player.getName() + " had " + VaultHelper.econ.format(playerBalance) + " when they typed /island and it was set to " + Settings.startingMoney);
-				    } else {
-					plugin.getLogger().warning(
-						"Problem trying to withdraw " + playerBalance + " from " + player.getName() + "'s account when they typed /island!");
-				    }
-				} else {
-				    Double difference = Settings.startingMoney - playerBalance;
-				    EconomyResponse response = VaultHelper.econ.depositPlayer(player, Settings.worldName, difference);
-				    if (response.transactionSuccess()) {
-					plugin.getLogger().info(
-						"FYI:" + player.getName() + " had " + VaultHelper.econ.format(playerBalance) + " when they typed /island and it was set to " + Settings.startingMoney);
-				    } else {
-					plugin.getLogger().warning(
-						"Problem trying to deposit " + playerBalance + " from " + player.getName() + "'s account when they typed /island!");
-				    }
-
-				}
-			    }
-			} catch (final Exception e) {
-			    plugin.getLogger().severe("Error trying to zero " + player.getName() + "'s account when they typed /island!");
-			    plugin.getLogger().severe(e.getMessage());
-			}
-			// Remove any mobs if they just so happen to be around in the
-			// vicinity
-			final Iterator<Entity> ents = player.getNearbyEntities(50.0D, 250.0D, 50.0D).iterator();
-			int numberOfCows = 0;
-			while (ents.hasNext()) {
-			    final Entity tempent = ents.next();
-			    // Remove anything except for the player himself and the cow (!)
-			    if (!(tempent instanceof Player) && !tempent.getType().equals(EntityType.COW)) {
-				plugin.getLogger().warning("Removed an " + tempent.getType().toString() + " when creating island for " + player.getName());
-				tempent.remove();
-			    } else if (tempent.getType().equals(EntityType.COW)) {
-				numberOfCows++;
-				if (numberOfCows > 1) {
-				    plugin.getLogger().warning("Removed an extra cow when creating island for " + player.getName());
-				    tempent.remove();
-				}
-			    }
-			}
-		    }
-		});
-		// End of inside runTask
+	players.setIslandLocation(playerUUID,next);
+	//plugin.getLogger().info("DEBUG: player island location is " + players.getIslandLocation(playerUUID).toString());
+	// Teleport the player to a safe place
+	//plugin.homeTeleport(player);
+	players.save(playerUUID);
+	/***************
+	 * NOTE: Important section - make sure this is applied any time an
+	 * island is reset!
+	 */
+	resetPlayer(player);
+	// Set player's balance in acid island to the starting balance
+	try {
+	    // plugin.getLogger().info("DEBUG: " + player.getName() + " " +
+	    // Settings.general_worldName);
+	    if (VaultHelper.econ == null) {
+		//plugin.getLogger().warning("DEBUG: econ is null!");
+		VaultHelper.setupEconomy();
 	    }
+	    Double playerBalance = VaultHelper.econ.getBalance(player, Settings.worldName);
+	    // plugin.getLogger().info("DEBUG: playerbalance = " +
+	    // playerBalance);
+	    // Round the balance to 2 decimal places and slightly down to
+	    // avoid issues when withdrawing the amount later
+	    BigDecimal bd = new BigDecimal(playerBalance);
+	    bd = bd.setScale(2, RoundingMode.HALF_DOWN);
+	    playerBalance = bd.doubleValue();
+	    // plugin.getLogger().info("DEBUG: playerbalance after rounding = "
+	    // + playerBalance);
+	    if (playerBalance != Settings.startingMoney)  {
+		if (playerBalance > Settings.startingMoney) {
+		    Double difference = playerBalance - Settings.startingMoney;
+		    EconomyResponse response = VaultHelper.econ.withdrawPlayer(player, Settings.worldName, difference);
+		    // plugin.getLogger().info("DEBUG: withdrawn");
+		    if (response.transactionSuccess()) {
+			plugin.getLogger().info(
+				"FYI:" + player.getName() + " had " + VaultHelper.econ.format(playerBalance) + " when they typed /island and it was set to " + Settings.startingMoney);
+		    } else {
+			plugin.getLogger().warning(
+				"Problem trying to withdraw " + playerBalance + " from " + player.getName() + "'s account when they typed /island!");
+		    }
+		} else {
+		    Double difference = Settings.startingMoney - playerBalance;
+		    EconomyResponse response = VaultHelper.econ.depositPlayer(player, Settings.worldName, difference);
+		    if (response.transactionSuccess()) {
+			plugin.getLogger().info(
+				"FYI:" + player.getName() + " had " + VaultHelper.econ.format(playerBalance) + " when they typed /island and it was set to " + Settings.startingMoney);
+		    } else {
+			plugin.getLogger().warning(
+				"Problem trying to deposit " + playerBalance + " from " + player.getName() + "'s account when they typed /island!");
+		    }
 
-	});
+		}
+	    }
+	} catch (final Exception e) {
+	    plugin.getLogger().severe("Error trying to zero " + player.getName() + "'s account when they typed /island!");
+	    plugin.getLogger().severe(e.getMessage());
+	}
+	// Remove any mobs if they just so happen to be around in the
+	// vicinity
+	/*
+	final Iterator<Entity> ents = player.getNearbyEntities(50.0D, 250.0D, 50.0D).iterator();
+	int numberOfCows = 0;
+	while (ents.hasNext()) {
+	    final Entity tempent = ents.next();
+	    // Remove anything except for the player himself and the cow (!)
+	    if (!(tempent instanceof Player) && !tempent.getType().equals(EntityType.COW)) {
+		plugin.getLogger().warning("Removed an " + tempent.getType().toString() + " when creating island for " + player.getName());
+		tempent.remove();
+	    } else if (tempent.getType().equals(EntityType.COW)) {
+		numberOfCows++;
+		if (numberOfCows > 1) {
+		    plugin.getLogger().warning("Removed an extra cow when creating island for " + player.getName());
+		    tempent.remove();
+		}
+	    }
+	}*/
 	// Done
 	return true;
     }
@@ -730,17 +721,19 @@ public class IslandCmd implements CommandExecutor {
 	    if (players.getIslandLocation(playerUUID) == null && !players.inTeam(playerUUID)) {
 		// Create new island for player
 		player.sendMessage(ChatColor.GREEN + Locale.islandnew);
-		Bukkit.getScheduler().runTask(plugin, new Runnable() {
-		    @Override
-		    public void run() {			  
-			Bukkit.getScheduler().runTask(plugin, new Runnable() {
-			    @Override
-			    public void run() {
+		//Bukkit.getScheduler().runTask(plugin, new Runnable() {
+		    //@Override
+		    //public void run() {			  
+			//Bukkit.getScheduler().runTask(plugin, new Runnable() {
+			   // @Override
+			    //public void run() {
 				newIsland(sender);
-			    }
-			});
-		    }
-		});
+				plugin.homeTeleport(player);
+				setResetWaitTime(player);
+			   // }
+			//});
+		    //}
+		//});
 		return true;
 	    } else {
 		// Teleport home
@@ -822,20 +815,14 @@ public class IslandCmd implements CommandExecutor {
 		    setResetWaitTime(player);
 		    // Delete the island on one tick
 		    // Restart it on the next
-		    Bukkit.getScheduler().runTask(plugin, new Runnable() {
-			@Override
-			public void run() {
-			    // Delete the old island
-			    final Location oldIsland = plugin.players.getIslandLocation(playerUUID);
-			    newIsland(sender);		
-			    Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-				@Override
-				public void run() {
-				    plugin.removeIsland(oldIsland);;
-				}
-			    }, 20L);
-			}
-		    });
+		    final Location oldIsland = plugin.players.getIslandLocation(playerUUID);
+		    plugin.unregisterEvents();
+		    newIsland(sender);
+		    plugin.homeTeleport(player);
+		    plugin.removeIsland(oldIsland);
+		    DeleteIsland deleteIsland = new DeleteIsland(plugin,oldIsland);
+		    deleteIsland.runTaskTimer(plugin, 40L, 40L);
+		    plugin.restartEvents();
 		} else {
 		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetWait.replace("[time]",String.valueOf(getResetWaitTime(player))));
 		}

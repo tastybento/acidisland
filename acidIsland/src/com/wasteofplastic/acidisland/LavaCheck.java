@@ -22,10 +22,10 @@ import org.bukkit.scheduler.BukkitTask;
  */
 public class LavaCheck implements Listener {
     BukkitTask task;
-    //private final AcidIsland plugin;
+    private final AcidIsland plugin;
 
     public LavaCheck(AcidIsland acidIsland) {
-	//plugin = acidIsland;
+	plugin = acidIsland;
     }
 
     /**
@@ -38,6 +38,8 @@ public class LavaCheck implements Listener {
 	if (!e.getBlock().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    return;
 	}
+	if (plugin.isNewIsland())
+	    return;
 	Material from = e.getBlock().getType();
 	final Block to = e.getToBlock();
 	// plugin.getLogger().info("From material is " + from.toString());

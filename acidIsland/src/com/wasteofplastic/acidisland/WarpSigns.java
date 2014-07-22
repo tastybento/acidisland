@@ -40,6 +40,8 @@ public class WarpSigns implements Listener {
 	    // Wrong world
 	    return;
 	}
+	//if (plugin.isNewIsland())
+	    //return;
 	// plugin.getLogger().info("Block type " + b.getType().toString());
 	if (plugin.checkWarp(b.getLocation())) {
 	    //plugin.getLogger().info("Known warp location!");

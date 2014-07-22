@@ -1,8 +1,6 @@
 package com.wasteofplastic.acidisland;
 
 
-import java.util.UUID;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
@@ -96,14 +94,16 @@ public class IslandGuard implements Listener {
 		    return;
 		} else {
 		    //plugin.getLogger().info("Entity is a non-monster - check if ok to hurt"); 
-		    UUID playerUUID = e.getDamager().getUniqueId();
+		    //UUID playerUUID = e.getDamager().getUniqueId();
 		    //if (playerUUID == null) {
 		    //plugin.getLogger().info("player ID is null");
 		    //}
 		    if (!Settings.allowHurtMobs) {
-			((Player)e.getDamager()).sendMessage(ChatColor.RED + Locale.islandProtected);
-			e.setCancelled(true);
-			return;
+			if (!plugin.playerIsOnIsland((Player)e.getDamager())) {
+			    ((Player)e.getDamager()).sendMessage(ChatColor.RED + Locale.islandProtected);
+			    e.setCancelled(true);
+			    return;
+			}
 		    }
 		    return;
 		}
@@ -142,9 +142,11 @@ public class IslandGuard implements Listener {
 		    if (!(e.getEntity() instanceof Monster)) {
 			//plugin.getLogger().info("Entity is a non-monster - check if ok to hurt"); 
 			if (!Settings.allowHurtMobs) {
-			    shooter.sendMessage(ChatColor.RED + Locale.islandProtected);
-			    e.setCancelled(true);
-			    return;
+			    if (!plugin.playerIsOnIsland((Player)e.getDamager())) {
+				shooter.sendMessage(ChatColor.RED + Locale.islandProtected);
+				e.setCancelled(true);
+				return;
+			    }
 			}
 			return;
 		    }
