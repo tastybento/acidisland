@@ -201,7 +201,7 @@ public class Locale {
     ////////////////////////////////////////////////////////////////
 
     //Help
-
+    public static String adminHelpHelp;
     public static String adminHelpreload;
     ///acid top ten;
     public static String adminHelptopTen;
@@ -277,6 +277,7 @@ public class Locale {
     // Minishop
     public static String islandhelpMiniShop;
     public static String islandMiniShopTitle;
+    
     
     
     

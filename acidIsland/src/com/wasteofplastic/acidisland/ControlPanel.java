@@ -90,10 +90,10 @@ public class ControlPanel implements Listener {
 		MiniShopItem item = store.get(slot);
 		if (clicked.equals(item.getItem())) {
 		    // Check they can afford it
-		    if (!VaultHelper.econ.has(player, item.getPrice())) {
+		    if (!VaultHelper.econ.has(player, player.getWorld().getName(), item.getPrice())) {
 			message = "You cannot afford that item!";
 		    } else {
-			EconomyResponse r = VaultHelper.econ.withdrawPlayer(player, item.getPrice());
+			EconomyResponse r = VaultHelper.econ.withdrawPlayer(player, player.getWorld().getName(), item.getPrice());
 			if (r.transactionSuccess()) {
 			    message = "You bought " + item.getQuantity() + " " + item.getDescription() + " for " + VaultHelper.econ.format(item.getPrice());			
 			    player.getInventory().addItem(item.getItemClean());

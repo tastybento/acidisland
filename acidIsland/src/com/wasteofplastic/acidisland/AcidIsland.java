@@ -975,6 +975,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.makeLeadererrorThatPlayerIsNotInTeam = locale.getString("makeleader.errorThatPlayerIsNotInTeam","[name] is now the owner of your island!");
 	Locale.makeLeadererrorNotYourIsland = locale.getString("makeleader.errorNotYourIsland","That player is not part of your island team!");
 	Locale.makeLeadererrorGeneralError = locale.getString("makeleader.errorGeneralError","This isn't your island, so you can't give it away!");
+	Locale.adminHelpHelp = locale.getString("adminHelp.help","Acid Admin Commands:");
 	Locale.adminHelpreload = locale.getString("adminHelp.reload","Could not change leaders.");
 	Locale.adminHelptopTen = locale.getString("adminHelp.topTen","reload configuration from file.");
 	Locale.adminHelpregister = locale.getString("adminHelp.register","manually update the top 10 list");

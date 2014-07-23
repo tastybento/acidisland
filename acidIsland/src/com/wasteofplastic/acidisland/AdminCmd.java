@@ -327,7 +327,7 @@ public class AdminCmd implements CommandExecutor {
 	case 0:
 	    // Only give help if the player has permissions
 	    // Permissions are split into admin permissions and mod permissions
-	    player.sendMessage(Locale.errorNoPermission);
+	    player.sendMessage(Locale.adminHelpHelp);
 	    if (VaultHelper.checkPerm(player, "acidisland.admin.reload") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid reload:" + ChatColor.WHITE + " " + Locale.adminHelpreload);
 	    }

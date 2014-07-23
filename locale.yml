@@ -229,6 +229,7 @@ minishop:
 
 #Help
 adminHelp:
+   help: "Acid Admin Commands:"
    #/acid reload:
    reload: "reload configuration from file."
    #/acid top ten:
