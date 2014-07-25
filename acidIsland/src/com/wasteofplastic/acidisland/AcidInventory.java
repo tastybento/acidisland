@@ -117,16 +117,20 @@ public class AcidInventory implements Listener {
 	}
     }
 
+    /**
+     * This event makes sure that any acid bottles become potions without the warning
+     * @param e
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     public void onBrewComplete(final BrewEvent e) {
 	if (e.getBlock().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
-	    plugin.getLogger().info("DEBUG: Brew Event called");
+	    //plugin.getLogger().info("DEBUG: Brew Event called");
 	    BrewerInventory inv = e.getContents();
 	    int i=0;
 	    for (ItemStack item : inv.getContents()) {
 		// Remove lore
 		ItemMeta meta = item.getItemMeta();
-		plugin.getLogger().info("DEBUG: " + meta.getDisplayName());
+		//plugin.getLogger().info("DEBUG: " + meta.getDisplayName());
 		meta.setDisplayName(null);
 		meta.setLore(null);
 		item.setItemMeta(null);
