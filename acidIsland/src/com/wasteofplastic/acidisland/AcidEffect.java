@@ -186,6 +186,7 @@ public class AcidEffect implements Listener {
 		    e.getPlayer().sendMessage(ChatColor.YELLOW + Locale.changingObsidiantoLava);
 		    e.getPlayer().getInventory().removeItem(new ItemStack(Material.BUCKET, 1));
 		    e.getPlayer().getInventory().addItem(new ItemStack(Material.LAVA_BUCKET, 1));
+		    e.getPlayer().updateInventory();
 		    e.getClickedBlock().setType(Material.AIR);
 		}
 	    }

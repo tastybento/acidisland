@@ -82,7 +82,7 @@ public class Schematic {
     }
 
     @SuppressWarnings("deprecation")
-    public static boolean pasteSchematic(final World world, final Location loc, final Schematic schematic, final Player player)
+    public static Location pasteSchematic(final World world, final Location loc, final Schematic schematic, final Player player)
     {
 	byte[] blocks = schematic.getBlocks();
 	byte[] blockData = schematic.getData();
@@ -146,19 +146,19 @@ public class Schematic {
 	}
 	if (bedrock == null) {
 	    Bukkit.getLogger().severe("AcidIsland: Schematic must have at least one bedrock in it!");
-	    return false;
+	    return null;
 	}
 	if (chest == null) {
 	    Bukkit.getLogger().severe("AcidIsland: Schematic must have at least one chest in it!");
-	    return false;
+	    return null;
 	}
 	if (welcomeSign == null) {
 	    Bukkit.getLogger().severe("AcidIsland: Schematic must have at least one sign post in it!");
-	    return false;
+	    return null;
 	}
 	if (grass == null) {
 	    Bukkit.getLogger().severe("AcidIsland: Schematic must have at least one grass block in it!");
-	    return false;
+	    return null;
 	}
 	// Center on the last bedrock location
 	//Bukkit.getLogger().info("DEBUG loc is before subtract:" + loc.toString());
@@ -198,8 +198,8 @@ public class Schematic {
 	while (!AcidIsland.isSafeLocation(grass) && grass.getY() < 250) {
 	    grass.setY(grass.getY() + 1.1D);
 	}
-	Bukkit.getLogger().info("DEBUG cow location " + grass.toString());
-	world.spawnEntity(grass, EntityType.COW);
+	//Bukkit.getLogger().info("DEBUG cow location " + grass.toString());
+	//world.spawnEntity(grass, EntityType.COW);
 	// Place a helpful sign in front of player
 	//Bukkit.getLogger().info("DEBUG welcome sign schematic relative is:" + welcomeSign.toString());
 	welcomeSign.subtract(bedrock);
@@ -230,7 +230,7 @@ public class Schematic {
 	final Inventory inventory = islandChest.getInventory();
 	inventory.clear();
 	inventory.setContents(Settings.chestItems);
-	return true;
+	return grass;
     }
 
     public static Schematic loadSchematic(File file) throws IOException

@@ -29,6 +29,7 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Boat;
@@ -79,7 +80,7 @@ public class AcidIsland extends JavaPlugin {
     private Listener spongeListener;
     private Listener warpSignsListener;
     private Listener lavaListener;
-    
+
     /**
      * A database of where the sponges are stored a serialized location and
      * integer
@@ -147,6 +148,7 @@ public class AcidIsland extends JavaPlugin {
      */
     public void deletePlayerIsland(final UUID player) {
 	// Removes the island
+	removeWarp(player);
 	removeIsland(players.getIslandLocation(player));
 	DeleteIsland deleteIsland = new DeleteIsland(plugin,players.getIslandLocation(player));
 	deleteIsland.runTaskTimer(plugin, 40L, 40L);
@@ -367,14 +369,14 @@ public class AcidIsland extends JavaPlugin {
      * @return the newIsland
      */
     public boolean isNewIsland() {
-        return newIsland;
+	return newIsland;
     }
 
     /**
      * @param newIsland the newIsland to set
      */
     public void setNewIsland(boolean newIsland) {
-        this.newIsland = newIsland;
+	this.newIsland = newIsland;
     }
 
     /**
@@ -496,7 +498,19 @@ public class AcidIsland extends JavaPlugin {
 	}
 	HashMap<String,Object> temp = (HashMap<String, Object>) welcomeWarps.getConfigurationSection("warps").getValues(true);
 	for (String s : temp.keySet()) {
-	    warpList.put(UUID.fromString(s), temp.get(s));
+	    try {
+		UUID playerUUID = UUID.fromString(s);
+		Location l = getLocationString((String)temp.get(s));
+		Block b = l.getBlock();   
+		// Check that a warp sign is still there
+		if (b.getType().equals(Material.SIGN_POST)) {
+		    warpList.put(playerUUID, temp.get(s));
+		} else {
+		    getLogger().warning("Warp at location "+ (String)temp.get(s) + " has no sign - removing.");
+		}
+	    } catch (Exception e) {
+		getLogger().severe("Problem loading warp at location "+ (String)temp.get(s) + " - removing.");
+	    }
 	}
     }
 
@@ -543,11 +557,24 @@ public class AcidIsland extends JavaPlugin {
      */
     public void removeWarp(UUID uuid) {
 	if (warpList.containsKey(uuid)) {
+	    popSign(getLocationString((String)warpList.get(uuid)));
 	    warpList.remove(uuid);
 	}
 	saveWarpList();
     }
 
+    private void popSign(Location loc) {
+	Block b = loc.getBlock();
+	if (b.getType().equals(Material.SIGN_POST)) {
+	    Sign s = (Sign) b.getState();
+	    if (s != null) {
+		if (s.getLine(0).equalsIgnoreCase(ChatColor.GREEN + Locale.warpswelcomeLine)) {
+		    s.setLine(0, ChatColor.RED + Locale.warpswelcomeLine);
+		    s.update();
+		}
+	    }
+	}
+    }
     /**
      * Removes a warp at a location. Called by WarpSigns.java.
      * 
@@ -556,6 +583,7 @@ public class AcidIsland extends JavaPlugin {
     public void removeWarp(Location loc) {
 	final String locS = getStringLocation(loc);
 	getLogger().info("Asked to remove warp at " + locS);
+	popSign(loc);
 	if (warpList.containsValue(locS)) {
 	    // Step through every key (sigh)
 	    List<UUID> playerList = new ArrayList<UUID>();
@@ -711,7 +739,7 @@ public class AcidIsland extends JavaPlugin {
 	} else if (Settings.island_protectionRange < 0) {
 	    Settings.island_protectionRange = 0;
 	}
-
+	Settings.resetMoney = getConfig().getBoolean("general.resetmoney", true);
 	Settings.startingMoney = getConfig().getDouble("general.startingmoney", 0D);
 	// Nether spawn protection radius
 	Settings.netherSpawnRadius = getConfig().getInt("general.netherspawnradius",25);
@@ -888,6 +916,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.challengeshelp1 = locale.getString("challenges.help1","Use /c <name> to view information about a challenge.");
 	Locale.challengeshelp2 = locale.getString("challenges.help2","Use /c complete <name> to attempt to complete that challenge.");
 	Locale.challengescolors = locale.getString("challenges.colors","Challenges will have different colors depending on if they are:");
+	Locale.challengescomplete = locale.getString("challenges.complete", "Complete");
 	Locale.challengesincomplete = locale.getString("challenges.incomplete","Incomplete");
 	Locale.challengescompleteNotRepeatable = locale.getString("challenges.completeNotRepeatable","Completed(not repeatable)");
 	Locale.challengescompleteRepeatable = locale.getString("challenges.completeRepeatable","Completed(repeatable)");
@@ -917,6 +946,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.islandresetMustRemovePlayers = locale.getString("island.resetMustRemovePlayers","You must remove all players from your island before you can restart it (/island kick <player>). See a list of players currently part of your island using /island team.");
 	Locale.islandresetPleaseWait = locale.getString("island.resetPleaseWait","Please wait, generating new island");
 	Locale.islandresetWait = locale.getString("island.resetWait","You have to wait [time] seconds before you can do that again.");
+	Locale.islandresetConfirm = locale.getString("island.resetConfirm", "Type /island confirm within 10 seconds to delete your island and restart!");
 	Locale.islandhelpIsland = locale.getString("island.helpIsland","start an island, or teleport to your island.");
 	Locale.islandhelpRestart = locale.getString("island.helpRestart","restart your island and remove the old one.");
 	Locale.islandDeletedLifeboats = locale.getString("island.islandDeletedLifeboats","Island deleted! Head to the lifeboats!");
@@ -1086,7 +1116,7 @@ public class AcidIsland extends JavaPlugin {
 	// Kick off a few tasks on the next tick
 	// By calling getIslandWorld(), if there is no island
 	// world, it will be created
-	getServer().getScheduler().runTask(getPlugin(), new Runnable() {
+	getServer().getScheduler().runTask(this, new Runnable() {
 	    @Override
 	    public void run() {
 		final PluginManager manager = Bukkit.getServer().getPluginManager();
@@ -1241,13 +1271,13 @@ public class AcidIsland extends JavaPlugin {
 	// Change names of inventory items
 	manager.registerEvents(new AcidInventory(this), this);
     }
-    
+
     public void unregisterEvents() {
 	HandlerList.unregisterAll(spongeListener);
 	HandlerList.unregisterAll(warpSignsListener);
 	HandlerList.unregisterAll(lavaListener);	
     }
-    
+
     public void restartEvents() {
 	final PluginManager manager = getServer().getPluginManager();
 	lavaListener = new LavaCheck(this);
@@ -1300,7 +1330,7 @@ public class AcidIsland extends JavaPlugin {
 	if (loc != null) {
 	    // Place a temporary entity
 	    //final World world = getIslandWorld();
-	    
+
 	    Entity snowBall = loc.getWorld().spawnEntity(loc, EntityType.SNOWBALL);
 	    // Remove any mobs if they just so happen to be around in the
 	    // vicinity
@@ -1338,7 +1368,7 @@ public class AcidIsland extends JavaPlugin {
 	    for (int x = Settings.island_protectionRange / 2 * -1; x <= Settings.island_protectionRange / 2; x++) {
 		for (int y = 255; y >= 0; y--) {
 		    for (int z = Settings.island_protectionRange / 2 * -1; z <= Settings.island_protectionRange / 2; z++) {
-			
+
 			final Block b = new Location(l.getWorld(), px + x, y, pz + z).getBlock();
 			final Material bt = new Location(l.getWorld(), px + x, y, pz + z).getBlock().getType();
 			// Grab anything out of containers (do that it is
@@ -1930,5 +1960,5 @@ public class AcidIsland extends JavaPlugin {
 	}
     }
 
-   
+
 }

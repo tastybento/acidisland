@@ -41,6 +41,8 @@ public class IslandCmd implements CommandExecutor {
     public boolean busyFlag = true;
     public Location Islandlocation;
     private AcidIsland plugin;
+    // The island reset confirmation
+    private HashMap<UUID,Boolean> confirm = new HashMap<UUID,Boolean>();
 
     /**
      * Invite list - invited player name string (key), inviter name string (value)
@@ -141,7 +143,7 @@ public class IslandCmd implements CommandExecutor {
      *            player who issued the island command
      * @return true if successful
      */
-    private boolean newIsland(final CommandSender sender) {
+    private Location newIsland(final CommandSender sender) {
 	// Player who is issuing the command
 	final Player player = (Player) sender;
 	final UUID playerUUID = player.getUniqueId();
@@ -156,7 +158,7 @@ public class IslandCmd implements CommandExecutor {
 	    next = nextGridLocation(next);
 	}
 	plugin.setNewIsland(true);
-	generateIslandBlocks(next.getBlockX(), next.getBlockZ(), player, AcidIsland.getIslandWorld());
+	Location cowSpot = generateIslandBlocks(next.getBlockX(), next.getBlockZ(), player, AcidIsland.getIslandWorld());
 	plugin.setNewIsland(false);
 	//plugin.getLogger().info("DEBUG: player ID is: " + playerUUID.toString());
 	players.setHasIsland(playerUUID,true);
@@ -172,6 +174,33 @@ public class IslandCmd implements CommandExecutor {
 	 * island is reset!
 	 */
 	resetPlayer(player);
+	if (Settings.resetMoney) {
+	    resetMoney(player);
+	}
+	// Remove any mobs if they just so happen to be around in the
+	// vicinity
+	/*
+	final Iterator<Entity> ents = player.getNearbyEntities(50.0D, 250.0D, 50.0D).iterator();
+	int numberOfCows = 0;
+	while (ents.hasNext()) {
+	    final Entity tempent = ents.next();
+	    // Remove anything except for the player himself and the cow (!)
+	    if (!(tempent instanceof Player) && !tempent.getType().equals(EntityType.COW)) {
+		plugin.getLogger().warning("Removed an " + tempent.getType().toString() + " when creating island for " + player.getName());
+		tempent.remove();
+	    } else if (tempent.getType().equals(EntityType.COW)) {
+		numberOfCows++;
+		if (numberOfCows > 1) {
+		    plugin.getLogger().warning("Removed an extra cow when creating island for " + player.getName());
+		    tempent.remove();
+		}
+	    }
+	}*/
+	// Done
+	return cowSpot;
+    }
+
+    private void resetMoney(Player player) {
 	// Set player's balance in acid island to the starting balance
 	try {
 	    // plugin.getLogger().info("DEBUG: " + player.getName() + " " +
@@ -219,29 +248,8 @@ public class IslandCmd implements CommandExecutor {
 	    plugin.getLogger().severe("Error trying to zero " + player.getName() + "'s account when they typed /island!");
 	    plugin.getLogger().severe(e.getMessage());
 	}
-	// Remove any mobs if they just so happen to be around in the
-	// vicinity
-	/*
-	final Iterator<Entity> ents = player.getNearbyEntities(50.0D, 250.0D, 50.0D).iterator();
-	int numberOfCows = 0;
-	while (ents.hasNext()) {
-	    final Entity tempent = ents.next();
-	    // Remove anything except for the player himself and the cow (!)
-	    if (!(tempent instanceof Player) && !tempent.getType().equals(EntityType.COW)) {
-		plugin.getLogger().warning("Removed an " + tempent.getType().toString() + " when creating island for " + player.getName());
-		tempent.remove();
-	    } else if (tempent.getType().equals(EntityType.COW)) {
-		numberOfCows++;
-		if (numberOfCows > 1) {
-		    plugin.getLogger().warning("Removed an extra cow when creating island for " + player.getName());
-		    tempent.remove();
-		}
-	    }
-	}*/
-	// Done
-	return true;
-    }
 
+    }
     /**
      * Resets a player's inventory, armor slots, equipment, enderchest and potion effects
      * @param player
@@ -272,25 +280,24 @@ public class IslandCmd implements CommandExecutor {
      * @param player
      * @param world
      */
-    private void generateIslandBlocks(final int x, final int z, final Player player, final World world) {
+    private Location generateIslandBlocks(final int x, final int z, final Player player, final World world) {
+	Location cowSpot = null;
 	// Check if there is a schematic
 	File schematicFile = new File(plugin.getDataFolder(), "island.schematic");
 	if (schematicFile.exists()) {    
 	    plugin.getLogger().info("Trying to load island schematic...");
 	    Schematic island = null;
+
 	    try {
 		island = Schematic.loadSchematic(schematicFile);
 		Location islandLoc = new Location(world,x,Settings.sea_level,z);
-		if (!Schematic.pasteSchematic(world, islandLoc, island, player)) {
-		    // Error
-		    return;
-		}
+		cowSpot = Schematic.pasteSchematic(world, islandLoc, island, player);
 	    } catch (IOException e) {
 		// TODO Auto-generated catch block
 		plugin.getLogger().severe("Could not load island schematic! Error in file.");
 		e.printStackTrace();
 	    }
-	    return;
+	    return cowSpot;
 	}
 	// Build island layer by layer
 	// Start from the base
@@ -382,8 +389,8 @@ public class IslandCmd implements CommandExecutor {
 	final Location treeLoc = new Location(world,x,y + 5D, z);
 	world.generateTree(treeLoc, TreeType.ACACIA);
 	// Place the cow
-	Location cowSpot = new Location(world, x, Settings.sea_level + 6D, z - 2D);
-	world.spawnEntity(cowSpot, EntityType.COW);
+	cowSpot = new Location(world, x, (Settings.sea_level+5), z-2);
+
 	// Place a helpful sign in front of player
 	Block blockToChange = world.getBlockAt(x, Settings.sea_level + 5, z + 3);
 	blockToChange.setType(Material.SIGN_POST);
@@ -406,6 +413,7 @@ public class IslandCmd implements CommandExecutor {
 	final Inventory inventory = chest.getInventory();
 	inventory.clear();
 	inventory.setContents(Settings.chestItems);
+	return cowSpot;
     }
 
     /**
@@ -721,19 +729,16 @@ public class IslandCmd implements CommandExecutor {
 	    if (players.getIslandLocation(playerUUID) == null && !players.inTeam(playerUUID)) {
 		// Create new island for player
 		player.sendMessage(ChatColor.GREEN + Locale.islandnew);
-		//Bukkit.getScheduler().runTask(plugin, new Runnable() {
-		    //@Override
-		    //public void run() {			  
-			//Bukkit.getScheduler().runTask(plugin, new Runnable() {
-			   // @Override
-			    //public void run() {
-				newIsland(sender);
-				plugin.homeTeleport(player);
-				setResetWaitTime(player);
-			   // }
-			//});
-		    //}
-		//});
+		final Location cowSpot = newIsland(sender);
+		plugin.homeTeleport(player);
+		Bukkit.getScheduler().runTaskLater(plugin, new Runnable () {
+		    @Override
+		    public void run() {
+			player.getWorld().spawnEntity(cowSpot, EntityType.COW);
+
+		    }
+		}, 40L);		    
+		setResetWaitTime(player);
 		return true;
 	    } else {
 		// Teleport home
@@ -809,24 +814,49 @@ public class IslandCmd implements CommandExecutor {
 		    return true;
 		}
 		if (!onRestartWaitTime(player) || Settings.resetWait == 0 || player.isOp()) {
+		    // Kick off the confirmation
+		    player.sendMessage(ChatColor.RED + Locale.islandresetConfirm);
+		    if (!confirm.containsKey(playerUUID) || !confirm.get(playerUUID)) {
+			confirm.put(playerUUID, true);
+			Bukkit.getScheduler().runTaskLater(plugin, new Runnable () {
+			    @Override
+			    public void run() {
+				confirm.put(playerUUID,false);
+			    }
+			}, 200L);	
+		    }
+		    return true;
+		} else {
+		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetWait.replace("[time]",String.valueOf(getResetWaitTime(player))));
+		}
+		return true;
+	    } else if (split[0].equalsIgnoreCase("confirm")) {
+		if (confirm.containsKey(playerUUID) && confirm.get(playerUUID)) {
 		    // Actually RESET the island
 		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetPleaseWait);
 		    //plugin.getLogger().info("DEBUG Reset command issued!");
-		    setResetWaitTime(player);
-		    // Delete the island on one tick
-		    // Restart it on the next
 		    final Location oldIsland = plugin.players.getIslandLocation(playerUUID);
-		    plugin.unregisterEvents();
-		    newIsland(sender);
+		    plugin.unregisterEvents();		
+		    final Location cowSpot = newIsland(sender);
+		    players.setHomeLocation(player.getUniqueId(), null);
 		    plugin.homeTeleport(player);
+		    Bukkit.getScheduler().runTaskLater(plugin, new Runnable () {
+			@Override
+			public void run() {
+			    player.getWorld().spawnEntity(cowSpot, EntityType.COW);
+
+			}
+		    }, 40L);		    
+		    //player.getWorld().spawnEntity(cowSpot, EntityType.COW);
+		    setResetWaitTime(player);
+		    plugin.removeWarp(playerUUID);
 		    plugin.removeIsland(oldIsland);
 		    DeleteIsland deleteIsland = new DeleteIsland(plugin,oldIsland);
 		    deleteIsland.runTaskTimer(plugin, 40L, 40L);
 		    plugin.restartEvents();
 		} else {
-		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetWait.replace("[time]",String.valueOf(getResetWaitTime(player))));
+		    player.sendMessage(ChatColor.YELLOW + "/island restart: " + ChatColor.WHITE + Locale.islandhelpRestart);
 		}
-		return true;
 	    } else if (split[0].equalsIgnoreCase("sethome")) {
 		if (VaultHelper.checkPerm(player, "acidisland.island.sethome")) {
 		    plugin.homeSet(player);
@@ -976,7 +1006,8 @@ public class IslandCmd implements CommandExecutor {
 				player.teleport(player.getWorld().getSpawnLocation());
 			    }
 			    removePlayerFromTeam(playerUUID, teamLeader);
-
+			    // Remove any warps
+			    plugin.removeWarp(playerUUID);
 			    player.sendMessage(ChatColor.YELLOW + Locale.leaveyouHaveLeftTheIsland);
 			    // Tell the leader if they are online
 			    if (plugin.getServer().getPlayer(teamLeader) != null) {
@@ -1207,6 +1238,7 @@ public class IslandCmd implements CommandExecutor {
 				Player target = plugin.getServer().getPlayer(targetPlayer);
 				if (target != null) {
 				    target.sendMessage(ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
+
 				    // Clear the player out and throw their stuff at the leader
 				    if (target.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
 					for (ItemStack i : target.getInventory().getContents()) {
@@ -1234,6 +1266,8 @@ public class IslandCmd implements CommandExecutor {
 				    // Tell offline player they were kicked
 				    plugin.setMessage(targetPlayer, ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
 				}
+				// Remove any warps
+				plugin.removeWarp(target.getUniqueId());
 				// Tell leader they removed the player
 				sender.sendMessage(ChatColor.RED + Locale.kicknameRemoved.replace("[name]", split[1]));
 				removePlayerFromTeam(targetPlayer, teamLeader);

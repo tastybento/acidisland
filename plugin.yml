@@ -66,13 +66,13 @@ permissions:
       acidisland.mod.*:
         children:
           acidisland.mod.topten:
-            description: Let a player manually update the top ten list
+            description: Let a moderator update the top ten list
             default: op
-          acidisland.mod.team:
-            description: Let a player access the moderator team commands
+          acidisland.mod.info:
+            description: Let a moderator see info on a player
             default: op
           acidisland.mod.challenges:
-            description: Let a player access the moderator challenge commands to complete and reset another player's challenges. 
+            description: Let a moderator access challenge commands 
             default: op
       acidisland.admin.*:
         children:

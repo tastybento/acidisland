@@ -8,10 +8,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -25,7 +27,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class AcidInventory implements Listener {
     private final AcidIsland plugin;
     private ArrayList<String> lore = new ArrayList<String>(Arrays.asList(Locale.acidLore.split("\n")));
-    
+
     public AcidInventory(AcidIsland acidIsland) {
 	plugin = acidIsland;
     }
@@ -114,11 +116,34 @@ public class AcidInventory implements Listener {
 	    }
 	}
     }
-    
-    
-    
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
+    public void onBrewComplete(final BrewEvent e) {
+	if (e.getBlock().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    plugin.getLogger().info("DEBUG: Brew Event called");
+	    BrewerInventory inv = e.getContents();
+	    int i=0;
+	    for (ItemStack item : inv.getContents()) {
+		// Remove lore
+		ItemMeta meta = item.getItemMeta();
+		plugin.getLogger().info("DEBUG: " + meta.getDisplayName());
+		meta.setDisplayName(null);
+		meta.setLore(null);
+		item.setItemMeta(null);
+		inv.setItem(i, item);
+		i++;
+	    }
+	}
+    }
+
+
+    /**
+     * Event that covers filling a bottle
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     public void onWaterBottleFill(final PlayerInteractEvent e) {
+	if (!e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName))
+	    return;
 	//plugin.getLogger().info(e.getEventName() + " called");	
 	try {
 	    if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) && e.getMaterial().equals(Material.GLASS_BOTTLE))

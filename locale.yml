@@ -83,6 +83,7 @@ challenges:
    help1: "Use /c <name> to view information about a challenge."
    help2: "Use /c complete <name> to attempt to complete that challenge."
    colors: "Challenges will have different colors depending on if they are:"
+   complete: "Complete"
    incomplete: "Incomplete"
    completeNotRepeatable: "Completed(not repeatable)"
    completeRepeatable: "Completed(repeatable)"
@@ -117,6 +118,8 @@ island:
    resetPleaseWait: "Please wait, generating new island"
    #Cool down warning - [time] is number of seconds left
    resetWait: "You have to wait [time] seconds before you can do that again."
+   #Confirm
+   resetConfirm: "Type /island confirm within 10 seconds to delete your island and restart!"
    #/island help
    #/island
    helpIsland: "start an island, or teleport to your island."

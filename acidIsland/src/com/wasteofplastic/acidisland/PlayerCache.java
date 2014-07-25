@@ -207,10 +207,27 @@ public class PlayerCache {
 	playerCache.get(playerUUID).setTeamIslandLocation(islandLocation);	
     }
 
+    /**
+     * Checks if a challenge has been completed or not
+     * @param playerUUID
+     * @param challenge
+     * @return
+     */
     public boolean checkChallenge(UUID playerUUID, String challenge) {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).checkChallenge(challenge);
     }
+    
+    /**
+     * Provides the status of all challenges for this player
+     * @param playerUUID
+     * @return
+     */
+    public HashMap<String, Boolean> getChallengeStatus(UUID playerUUID) {
+	addPlayer(playerUUID);
+	return playerCache.get(playerUUID).getChallengeStatus();	
+    }
+     
 
     public void resetChallenge(UUID playerUUID, String challenge) {
 	addPlayer(playerUUID);

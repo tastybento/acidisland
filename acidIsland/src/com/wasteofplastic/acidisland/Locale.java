@@ -1,5 +1,7 @@
 package com.wasteofplastic.acidisland;
 
+import org.bukkit.ChatColor;
+
 
 /**
  * @author ben
@@ -67,6 +69,7 @@ public class Locale {
     public static String challengeshelp1;
     public static String challengeshelp2;
     public static String challengescolors;
+    public static String challengescomplete;
     public static String challengesincomplete;
     public static String challengescompleteNotRepeatable;
     public static String challengescompleteRepeatable;
@@ -99,6 +102,7 @@ public class Locale {
     public static String islandresetOnlyOwner;
     public static String islandresetMustRemovePlayers;
     public static String islandresetPleaseWait;
+    public static String islandresetConfirm;
     //Cool down warning - [time] is number of seconds left
     public static String islandresetWait;
     ///island help
@@ -277,6 +281,8 @@ public class Locale {
     // Minishop
     public static String islandhelpMiniShop;
     public static String islandMiniShopTitle;
+
+   
     
     
     

@@ -198,6 +198,10 @@ public class Players {
 	}
 	return false;
     }
+    
+    public HashMap<String,Boolean> getChallengeStatus() {
+	return challengeList;
+    }
 
     /**
      * Records the challenge as being complete in the player's list If the

@@ -355,7 +355,7 @@ challenges:
       description: 'Collect 5 of every color of wool'
       level: 'Advanced'
       type: inventory
-      requiredItems: 'WOOL:0:5 WOOL:1:5 WOOL:2:5 WOOL:3:5 WOOL:4:5 WOOL:5:5 WOOL:6:5 WOOL:7:5 WOOL:8:5 WOOL:9:5 WOOL:10:5 WOOL:11:5 WOOL:12:5 WOOL:13:5 WOOL:14:5 35:15:5' 
+      requiredItems: 'WOOL:0:5 WOOL:1:5 WOOL:2:5 WOOL:3:5 WOOL:4:5 WOOL:5:5 WOOL:6:5 WOOL:7:5 WOOL:8:5 WOOL:9:5 WOOL:10:5 WOOL:11:5 WOOL:12:5 WOOL:13:5 WOOL:14:5 WOOL:15:5' 
       takeItems: true
       itemReward: 'DIAMOND:2 RECORD_7:1 RECORD_8:1 RECORD_6:1 MONSTER_EGG:91:1 EMERALD:5'
       rewardText: '2 diamonds, 5 emeralds, 3 music disks, 1 sheep spawn egg'
@@ -365,6 +365,22 @@ challenges:
       repeatable: true
       repeatItemReward: 'EMERALD:1 MONSTER_EGG:91:1'
       repeatRewardText: '1 emerald, 1 sheep spawn egg'
+      repeatMoneyReward: 20
+      repeatExpReward: 20
+    alchemist:
+      description: 'Brew 1 potion of Fire Resistance, Slowness, Swiftness, Healing, Harming, Invisibility, Strength and Regeneration'
+      level: 'Advanced'
+      type: inventory
+      requiredItems: 'POTION:8195:1 POTION:8202:1 POTION:8194:1 POTION:8197:1 POTION:8204:1 POTION:8206:1 POTION:8201:1 POTION:8193:1'
+      takeItems: true
+      itemReward: 'ENCHANTMENT_TABLE:1'
+      rewardText: 'Enchantment Table'
+      moneyReward: 200
+      expReward: 200
+      permissionReward: ''
+      repeatable: true
+      repeatItemReward: 'DIAMOND:1'
+      repeatRewardText: '1 diamond'
       repeatMoneyReward: 20
       repeatExpReward: 20
     dj:
