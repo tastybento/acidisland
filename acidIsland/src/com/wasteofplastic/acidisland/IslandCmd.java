@@ -867,32 +867,32 @@ public class IslandCmd implements CommandExecutor {
 	    } else if (split[0].equalsIgnoreCase("help")) { 
 		player.sendMessage(ChatColor.GREEN + "AcidIsland " + plugin.getDescription().getVersion() + " help:");
 
-		player.sendMessage(ChatColor.YELLOW + "/island: " + ChatColor.WHITE + Locale.islandhelpIsland);
-		player.sendMessage(ChatColor.YELLOW + "/island restart: " + ChatColor.WHITE + Locale.islandhelpRestart);
-		player.sendMessage(ChatColor.YELLOW + "/island sethome: " + ChatColor.WHITE + Locale.islandhelpSetHome);
-		player.sendMessage(ChatColor.YELLOW + "/island level: " + ChatColor.WHITE + Locale.islandhelpLevel);
-		player.sendMessage(ChatColor.YELLOW + "/island level <player>: " + ChatColor.WHITE + Locale.islandhelpLevelPlayer);
-		player.sendMessage(ChatColor.YELLOW + "/island top: " + ChatColor.WHITE + Locale.islandhelpTop);
+		player.sendMessage(ChatColor.YELLOW + "/" + label + ": " + ChatColor.WHITE + Locale.islandhelpIsland);
+		player.sendMessage(ChatColor.YELLOW + "/" + label + " restart: " + ChatColor.WHITE + Locale.islandhelpRestart);
+		player.sendMessage(ChatColor.YELLOW + "/" + label + " sethome: " + ChatColor.WHITE + Locale.islandhelpSetHome);
+		player.sendMessage(ChatColor.YELLOW + "/" + label + " level: " + ChatColor.WHITE + Locale.islandhelpLevel);
+		player.sendMessage(ChatColor.YELLOW + "/" + label + " level <player>: " + ChatColor.WHITE + Locale.islandhelpLevelPlayer);
+		player.sendMessage(ChatColor.YELLOW + "/" + label + " top: " + ChatColor.WHITE + Locale.islandhelpTop);
 		if (VaultHelper.checkPerm(player, "acidisland.island.minishop")) {
-		    player.sendMessage(ChatColor.YELLOW + "/island minishop or ms: " + ChatColor.WHITE + Locale.islandhelpMiniShop);		    
+		    player.sendMessage(ChatColor.YELLOW + "/" + label + " minishop or ms: " + ChatColor.WHITE + Locale.islandhelpMiniShop);		    
 		}
 		if (VaultHelper.checkPerm(player, "acidisland.island.warp")) {
-		    player.sendMessage(ChatColor.YELLOW + "/island warps: " + ChatColor.WHITE + Locale.islandhelpWarps);
-		    player.sendMessage(ChatColor.YELLOW + "/island warp <player>: " + ChatColor.WHITE + Locale.islandhelpWarp);
+		    player.sendMessage(ChatColor.YELLOW + "/" + label + " warps: " + ChatColor.WHITE + Locale.islandhelpWarps);
+		    player.sendMessage(ChatColor.YELLOW + "/" + label + " warp <player>: " + ChatColor.WHITE + Locale.islandhelpWarp);
 		}
 		if (VaultHelper.checkPerm(player, "acidisland.team.create")) {
-		    player.sendMessage(ChatColor.YELLOW + "/island team: " + ChatColor.WHITE + Locale.islandhelpTeam);
-		    player.sendMessage(ChatColor.YELLOW + "/island invite <player>: " + ChatColor.WHITE + Locale.islandhelpInvite);
-		    player.sendMessage(ChatColor.YELLOW + "/island leave: " + ChatColor.WHITE + Locale.islandhelpLeave);
+		    player.sendMessage(ChatColor.YELLOW + "/" + label + " team: " + ChatColor.WHITE + Locale.islandhelpTeam);
+		    player.sendMessage(ChatColor.YELLOW + "/" + label + " invite <player>: " + ChatColor.WHITE + Locale.islandhelpInvite);
+		    player.sendMessage(ChatColor.YELLOW + "/" + label + " leave: " + ChatColor.WHITE + Locale.islandhelpLeave);
 		}
 		if (VaultHelper.checkPerm(player, "acidisland.team.kick")) {
-		    player.sendMessage(ChatColor.YELLOW + "/island kick <player>: " + ChatColor.WHITE + Locale.islandhelpKick);
+		    player.sendMessage(ChatColor.YELLOW + "/" + label + " kick <player>: " + ChatColor.WHITE + Locale.islandhelpKick);
 		}
 		if (VaultHelper.checkPerm(player, "acidisland.team.join")) {
-		    player.sendMessage(ChatColor.YELLOW + "/island <accept/reject>: " + ChatColor.WHITE + Locale.islandhelpAcceptReject);
+		    player.sendMessage(ChatColor.YELLOW + "/" + label + " <accept/reject>: " + ChatColor.WHITE + Locale.islandhelpAcceptReject);
 		}
 		if (VaultHelper.checkPerm(player, "acidisland.team.makeleader")) {
-		    player.sendMessage(ChatColor.YELLOW + "/island makeleader <player>: " + ChatColor.WHITE + Locale.islandhelpMakeLeader);
+		    player.sendMessage(ChatColor.YELLOW + "/" + label + " makeleader <player>: " + ChatColor.WHITE + Locale.islandhelpMakeLeader);
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("top")) {
@@ -913,9 +913,9 @@ public class IslandCmd implements CommandExecutor {
 		player.sendMessage(ChatColor.RED + Locale.challengeserrorNotOnIsland);
 		return true;
 	    } else if (split[0].equalsIgnoreCase("invite")) {
-		// Invite command with no name, i.e., /island invite - tells the player how many more people they can invite
+		// Invite label with no name, i.e., /island invite - tells the player how many more people they can invite
 		if (VaultHelper.checkPerm(player, "acidisland.team.create")) {
-		    player.sendMessage(ChatColor.YELLOW + "Use" + ChatColor.WHITE + " /island invite <playername> " + ChatColor.YELLOW
+		    player.sendMessage(ChatColor.YELLOW + "Use" + ChatColor.WHITE + " /" + label + " invite <playername> " + ChatColor.YELLOW
 			    + Locale.islandhelpInvite);
 		    // If the player who is doing the inviting has a team
 		    if (players.inTeam(playerUUID)) {
@@ -1052,7 +1052,7 @@ public class IslandCmd implements CommandExecutor {
 		} else if (inviteList.containsKey(playerUUID)) {
 		    // TODO: Worried about this next line...
 		    player.sendMessage(ChatColor.YELLOW + Locale.invitenameHasInvitedYou.replace("[name]", players.getName(inviteList.get(playerUUID))));
-		    player.sendMessage(ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + Locale.invitetoAcceptOrReject);
+		    player.sendMessage(ChatColor.WHITE + "/" + label + " [accept/reject]" + ChatColor.YELLOW + Locale.invitetoAcceptOrReject);
 		} else {
 		    player.sendMessage(ChatColor.RED + Locale.kickerrorNoTeam);
 		}
@@ -1174,7 +1174,7 @@ public class IslandCmd implements CommandExecutor {
 				    // Send message to online player
 				    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(Locale.invitenameHasInvitedYou.replace("[name]", player.getName()));
 				    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(
-					    ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + " " + Locale.invitetoAcceptOrReject);
+					    ChatColor.WHITE + "/" + label + " [accept/reject]" + ChatColor.YELLOW + " " + Locale.invitetoAcceptOrReject);
 				    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(ChatColor.RED + Locale.invitewarningYouWillLoseIsland);
 				} else {
 				    player.sendMessage(ChatColor.RED + Locale.inviteerrorYourIslandIsFull);
@@ -1200,7 +1200,7 @@ public class IslandCmd implements CommandExecutor {
 			    player.sendMessage(ChatColor.GREEN + Locale.inviteinviteSentTo.replace("[name]", split[1]));
 			    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(Locale.invitenameHasInvitedYou.replace("[name]", player.getName()));
 			    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(
-				    ChatColor.WHITE + "/island [accept/reject]" + ChatColor.YELLOW + " " + Locale.invitetoAcceptOrReject);
+				    ChatColor.WHITE + "/" + label + " [accept/reject]" + ChatColor.YELLOW + " " + Locale.invitetoAcceptOrReject);
 			    // Check if the player has an island and warn accordingly
 			    if (players.hasIsland(invitedPlayerUUID)) {
 				Bukkit.getPlayer(invitedPlayerUUID).sendMessage(ChatColor.RED + Locale.invitewarningYouWillLoseIsland);
