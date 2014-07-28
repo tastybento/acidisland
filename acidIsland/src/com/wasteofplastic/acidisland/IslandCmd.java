@@ -702,6 +702,7 @@ public class IslandCmd implements CommandExecutor {
      * org.bukkit.command.CommandExecutor#onCommand(org.bukkit.command.CommandSender
      * , org.bukkit.command.Command, java.lang.String, java.lang.String[])
      */
+    @SuppressWarnings("deprecation")
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] split) {
 	if (!(sender instanceof Player)) {
 	    return false;

@@ -14,6 +14,7 @@ import org.bukkit.generator.ChunkGenerator;
  * Creates the world
  */
 public class AcidChunkGenerator extends ChunkGenerator {
+    @SuppressWarnings("deprecation")
     public byte[][] generateBlockSections(World world, Random random, int chunkX, int chunkZ, BiomeGrid biomeGrid)
     {
         byte[][] result = new byte[world.getMaxHeight() / 16][];

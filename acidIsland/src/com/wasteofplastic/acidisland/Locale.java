@@ -1,6 +1,5 @@
 package com.wasteofplastic.acidisland;
 
-import org.bukkit.ChatColor;
 
 
 /**

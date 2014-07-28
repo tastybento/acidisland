@@ -386,6 +386,7 @@ public class Challenges implements CommandExecutor {
      * @param type
      * @return true if the player has everything required
      */
+    @SuppressWarnings("deprecation")
     public boolean hasRequired(final Player player, final String challenge, final String type) {
 	final String[] reqList = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".requiredItems").split(" ");
 	// The format of the requiredItems is as follows:

@@ -164,6 +164,7 @@ public class AcidEffect implements Listener {
      * Enables changing of obsidian back into lava
      * @param e
      */
+    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerInteract(final PlayerInteractEvent e) {
 	if (plugin.playerIsOnIsland(e.getPlayer())) {

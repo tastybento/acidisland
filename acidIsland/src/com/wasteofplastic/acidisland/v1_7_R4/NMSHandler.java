@@ -22,6 +22,7 @@ public class NMSHandler implements NMSAbstraction {
     /* (non-Javadoc)
      * @see com.wasteofplastic.acidisland.nms.NMSAbstraction#setBlockSuperFast(org.bukkit.block.Block, org.bukkit.Material)
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void setBlockSuperFast(Block b, Material mat) {
 	int typeId = mat.getId();
