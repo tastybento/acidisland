@@ -66,7 +66,7 @@ topTen:
    errorNotReady: "Top ten list not generated yet!"
 level:
    islandLevel: "Island level"
-   errornotYourIsland: "Only the island owner can do that."
+   errornotYourIsland: "Only the leader can do that."
    
 sethome:
    homeSet: "Your island home has been set to your current location."
@@ -165,8 +165,7 @@ invite:
    help: "Use [/island invite <playername>] to invite a player to your island."
    youCanInvite: "You can invite [number] more players."
    youCannotInvite: "You can't invite any more players."
-   #"Only the island's owner may invite new players."
-   onlyIslandOwnerCanInvite: "Only the island's owner can invite!"
+   onlyIslandOwnerCanInvite: "Only the leader can invite!"
    youHaveJoinedAnIsland: "You have joined an island! Use /island team to see the other members."
    hasJoinedYourIsland: "[name] has joined your island!"
    errorCantJoinIsland: "You couldn't join the island, maybe it's full."
@@ -207,7 +206,7 @@ kick:
   nameRemovedYou: "[name] has removed you from their island!"
   nameRemoved: "[name] has been removed from the island."
   errorNotPartOfTeam: "That player is not part of your island team!"
-  errorOnlyLeaderCan: "Only the island's owner may remove people from the island!"
+  errorOnlyLeaderCan: "Only the leader can kick people off the island!"
   errorNoTeam: "You do not have a team!"
 
 #makeleader

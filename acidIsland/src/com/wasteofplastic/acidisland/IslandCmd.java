@@ -83,7 +83,7 @@ public class IslandCmd implements CommandExecutor {
 	    return false;
 	}
 	plugin.getLogger().info("Adding player: " + playerUUID + " to team with leader: " + teamLeader);
-	plugin.getLogger().info("The island location is: " + players.getIslandLocation(teamLeader));
+	plugin.getLogger().info("The team island location is: " + players.getIslandLocation(teamLeader));
 	plugin.getLogger().info("The leader's home location is: " + players.getHomeLocation(teamLeader) + " (may be different or null)");
 
 	// Set the player's team giving the team leader's name and the team's island
@@ -1215,6 +1215,15 @@ public class IslandCmd implements CommandExecutor {
 	    } else if (split[0].equalsIgnoreCase("kick") || split[0].equalsIgnoreCase("remove")) {
 		// Island remove command with a player name, or island kick command
 		if (VaultHelper.checkPerm(player, "acidisland.team.kick")) {
+		    if (!players.inTeam(playerUUID)) {
+			player.sendMessage(ChatColor.RED + Locale.kickerrorNoTeam);
+			return true;
+		    }
+		    // Only leaders can kick
+		    if (teamLeader != null && !teamLeader.equals(playerUUID)) {
+			player.sendMessage(ChatColor.RED + Locale.kickerrorOnlyLeaderCan);
+			return true;
+		    }
 		    // The main thing to do is check if the player name to kick is in the list of players in the team.
 		    targetPlayer = null;
 		    for (UUID member : teamMembers) {
@@ -1226,65 +1235,56 @@ public class IslandCmd implements CommandExecutor {
 			player.sendMessage(ChatColor.RED + Locale.kickerrorNotPartOfTeam);
 			return true;
 		    }
-		    if (players.inTeam(playerUUID)) {		
-			// If this player is the leader
-			if (teamLeader.equals(playerUUID)) {
-			    if (teamMembers.contains(targetPlayer)) {
-				// If the player leader tries to kick or remove themselves
-				if (player.getUniqueId().equals(targetPlayer)) {
-				    player.sendMessage(ChatColor.RED + Locale.leaveerrorLeadersCannotLeave);
-				    return true;
-				}
-				// If target is online
-				Player target = plugin.getServer().getPlayer(targetPlayer);
-				if (target != null) {
-				    target.sendMessage(ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
-
-				    // Clear the player out and throw their stuff at the leader
-				    if (target.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
-					for (ItemStack i : target.getInventory().getContents()) {
-					    if (i != null) {
-						try {
-						    player.getWorld().dropItemNaturally(player.getLocation(), i);
-						    target.getInventory().remove(i);
-						} catch (Exception e) {}
-					    }
-					}
-					for (ItemStack i : target.getEquipment().getArmorContents()) {
-					    if (i != null) {
-						try {
-						    player.getWorld().dropItemNaturally(player.getLocation(), i);
-						} catch (Exception e) {}
-					    }
-					}
-					resetPlayer(target);
-				    }
-				    if (!target.performCommand("spawn")) {
-					target.teleport(AcidIsland.getIslandWorld().getSpawnLocation());
-				    } 
-				} else {
-				    // Offline
-				    // Tell offline player they were kicked
-				    plugin.setMessage(targetPlayer, ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
-				}
-				// Remove any warps
-				plugin.removeWarp(target.getUniqueId());
-				// Tell leader they removed the player
-				sender.sendMessage(ChatColor.RED + Locale.kicknameRemoved.replace("[name]", split[1]));
-				removePlayerFromTeam(targetPlayer, teamLeader);
-				teamMembers.remove(targetPlayer);
-				if (teamMembers.size() < 2) {
-				    removePlayerFromTeam(player.getUniqueId(), teamLeader);
-				}				
-			    } else {
-				plugin.getLogger().warning("Player " + player.getName() + " failed to remove " + players.getName(targetPlayer));
-				player.sendMessage(ChatColor.RED + Locale.kickerrorNotPartOfTeam);
-			    }
-			} else {
-			    player.sendMessage(ChatColor.RED + Locale.kickerrorOnlyLeaderCan);
+		    if (teamMembers.contains(targetPlayer)) {
+			// If the player leader tries to kick or remove themselves
+			if (player.getUniqueId().equals(targetPlayer)) {
+			    player.sendMessage(ChatColor.RED + Locale.leaveerrorLeadersCannotLeave);
+			    return true;
 			}
+			// If target is online
+			Player target = plugin.getServer().getPlayer(targetPlayer);
+			if (target != null) {
+			    target.sendMessage(ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
+
+			    // Clear the player out and throw their stuff at the leader
+			    if (target.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
+				for (ItemStack i : target.getInventory().getContents()) {
+				    if (i != null) {
+					try {
+					    player.getWorld().dropItemNaturally(player.getLocation(), i);
+					    target.getInventory().remove(i);
+					} catch (Exception e) {}
+				    }
+				}
+				for (ItemStack i : target.getEquipment().getArmorContents()) {
+				    if (i != null) {
+					try {
+					    player.getWorld().dropItemNaturally(player.getLocation(), i);
+					} catch (Exception e) {}
+				    }
+				}
+				resetPlayer(target);
+			    }
+			    if (!target.performCommand("spawn")) {
+				target.teleport(AcidIsland.getIslandWorld().getSpawnLocation());
+			    } 
+			} else {
+			    // Offline
+			    // Tell offline player they were kicked
+			    plugin.setMessage(targetPlayer, ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
+			}
+			// Remove any warps
+			plugin.removeWarp(target.getUniqueId());
+			// Tell leader they removed the player
+			sender.sendMessage(ChatColor.RED + Locale.kicknameRemoved.replace("[name]", split[1]));
+			removePlayerFromTeam(targetPlayer, teamLeader);
+			teamMembers.remove(targetPlayer);
+			if (teamMembers.size() < 2) {
+			    removePlayerFromTeam(player.getUniqueId(), teamLeader);
+			}				
 		    } else {
-			player.sendMessage(ChatColor.RED + Locale.kickerrorNoTeam);
+			plugin.getLogger().warning("Player " + player.getName() + " failed to remove " + players.getName(targetPlayer));
+			player.sendMessage(ChatColor.RED + Locale.kickerrorNotPartOfTeam);
 		    }
 		    return true;
 		}
@@ -1310,15 +1310,22 @@ public class IslandCmd implements CommandExecutor {
 		    if (players.inTeam(player.getUniqueId())) {
 			if (teamLeader.equals(player.getUniqueId())) {
 			    if (teamMembers.contains(targetPlayer)) {
-				if (Bukkit.getPlayer(targetPlayer) != null) {
-				    Bukkit.getPlayer(targetPlayer).sendMessage(ChatColor.GREEN + Locale.makeLeaderyouAreNowTheOwner);
+				if (plugin.getServer().getPlayer(targetPlayer) != null) {
+				    plugin.getServer().getPlayer(targetPlayer).sendMessage(ChatColor.GREEN + Locale.makeLeaderyouAreNowTheOwner);
 				}
 				player.sendMessage(ChatColor.GREEN + Locale.makeLeadernameIsNowTheOwner.replace("[name]", Bukkit.getPlayer(targetPlayer).getName()));
+				// targetPlayer is the new leader
+				// Remove the target player from the team
 				removePlayerFromTeam(targetPlayer, teamLeader);
-				removePlayerFromTeam(player.getUniqueId(), teamLeader);
+				// Remove the leader from the team
+				removePlayerFromTeam(teamLeader, teamLeader);
+				// Transfer the data from the old leader to the new one
+				plugin.transferIsland(player.getUniqueId(), targetPlayer);
+				// Create a new team with 			
 				addPlayertoTeam(player.getUniqueId(), targetPlayer);
 				addPlayertoTeam(targetPlayer, targetPlayer);
-				plugin.transferIsland(player.getUniqueId(), targetPlayer);
+
+
 				return true;
 			    }
 			    player.sendMessage(ChatColor.RED + Locale.makeLeadererrorThatPlayerIsNotInTeam);

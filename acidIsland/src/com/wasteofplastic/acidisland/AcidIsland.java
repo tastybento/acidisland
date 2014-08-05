@@ -1440,7 +1440,7 @@ public class AcidIsland extends JavaPlugin {
 	    players.setHasIsland(playerOne, false);
 	    players.setIslandLocation(playerOne, null);
 	    players.setIslandLevel(playerOne, 0);
-	    players.setTeamIslandLocation(playerOne, players.get(playerTwo).getIslandLocation());
+	    players.setTeamIslandLocation(playerOne, players.getIslandLocation(playerOne));
 	    return true;
 	}
 	return false;
