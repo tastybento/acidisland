@@ -45,6 +45,8 @@ public class AcidInventory implements Listener {
 	    if (inventory.getName().equalsIgnoreCase(Locale.islandMiniShopTitle)) {
 		return;
 	    }
+	    if (Settings.acidDamage == 0D)
+		return;
 	    if (inventory.contains(Material.WATER_BUCKET)) {
 		//plugin.getLogger().info("Inventory contains water bucket");
 		ItemStack[] inv = inventory.getContents();
@@ -88,12 +90,14 @@ public class AcidInventory implements Listener {
 	// plugin.getLogger().info("Player filled the bucket");
 	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    // plugin.getLogger().info("Correct world");
-	    ItemStack item = e.getItemStack();
-	    if (item.getType().equals(Material.WATER_BUCKET)) {
-		ItemMeta meta = item.getItemMeta();
-		meta.setDisplayName(Locale.acidBucket);
-		meta.setLore(lore);
-		item.setItemMeta(meta);
+	    if (Settings.acidDamage > 0D) {
+		ItemStack item = e.getItemStack();
+		if (item.getType().equals(Material.WATER_BUCKET)) {
+		    ItemMeta meta = item.getItemMeta();
+		    meta.setDisplayName(Locale.acidBucket);
+		    meta.setLore(lore);
+		    item.setItemMeta(meta);
+		}
 	    }
 	}
     }
@@ -104,6 +108,8 @@ public class AcidInventory implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     public void onWaterBottleDrink(final PlayerItemConsumeEvent e) {
+	if (Settings.acidDamage == 0D)
+	    return;
 	//plugin.getLogger().info(e.getEventName() + " called for " + e.getItem().getType().toString());	
 	if (e.getItem().getType().equals(Material.POTION) && e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    if (e.getItem().getDurability() == 0) {
@@ -147,6 +153,8 @@ public class AcidInventory implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     public void onWaterBottleFill(final PlayerInteractEvent e) {
 	if (!e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName))
+	    return;
+	if (Settings.acidDamage == 0D)
 	    return;
 	//plugin.getLogger().info(e.getEventName() + " called");	
 	try {

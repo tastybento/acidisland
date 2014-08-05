@@ -120,7 +120,7 @@ public class Challenges implements CommandExecutor {
 		if (moneyReward > 0) { 
 		    sender.sendMessage(ChatColor.GOLD + Locale.challengesmoneyReward + ": " + ChatColor.WHITE + VaultHelper.econ.format(moneyReward));
 		}
-		sender.sendMessage(ChatColor.GOLD + Locale.challengestoCompleteUse + ChatColor.WHITE + " /c c " + challenge);
+		sender.sendMessage(ChatColor.GOLD + Locale.challengestoCompleteUse + ChatColor.WHITE + " /" + label + " c " + challenge);
 	    } else {
 		sender.sendMessage(ChatColor.RED + Locale.challengesinvalidChallengeName);
 	    }

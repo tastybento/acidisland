@@ -131,7 +131,7 @@ challenges:
       description: 'Reach island level 10 (/island level).'
       level: 'Novice'
       type: level
-      requiredItems: 20
+      requiredItems: 10
       takeItems: false
       itemReward: 'IRON_PICKAXE:1 DIRT:5'
       rewardText: '1 iron pickaxe, 5 dirt and ability to add 1 Welcome Warp Sign'

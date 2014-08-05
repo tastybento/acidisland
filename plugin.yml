@@ -17,7 +17,7 @@ commands:
             /acid
     challenges:
         description: Game challenges
-        aliases: [c, challenge]
+        aliases: [c, challenge, aic, aichallenge]
         usage:  |  
             /challenges help
 permissions:    

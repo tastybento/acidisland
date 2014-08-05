@@ -1087,6 +1087,7 @@ public class AcidIsland extends JavaPlugin {
 	}
 	if (!VaultHelper.setupEconomy()) {
 	    getLogger().severe("Could not set up economy!");
+	    getServer().getPluginManager().disablePlugin(this);
 	}
 	loadPluginConfig();
 	getIslandWorld();

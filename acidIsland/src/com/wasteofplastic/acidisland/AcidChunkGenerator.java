@@ -21,7 +21,7 @@ public class AcidChunkGenerator extends ChunkGenerator {
 
 	for (int x = 0; x < 16; x++) {
 	    for (int z = 0; z < 16; z++) {
-		for (int y = 0; y < 50; y++) {
+		for (int y = 0; y < Settings.sea_level + 5; y++) {
 		    setBlock(result,x,y,z, (byte) Material.STATIONARY_WATER.getId()); // Stationary Water
 		    // Allows stuff to fall through into oblivion, thus keeping lag to a minimum
 		}

@@ -119,37 +119,43 @@ public class AcidEffect implements Listener {
 			this.cancel();
 		    } else if (player.getLocation().getBlock().isLiquid()
 			    && player.getLocation().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
-			plugin.getLogger().info("Damage setting = " + Settings.acidDamage);
+			//plugin.getLogger().info("Damage setting = " + Settings.acidDamage);
 			//plugin.getLogger().info("Damage to player = " + (Settings.general_acidDamage - Settings.general_acidDamage * getDamageReduced(player)));
-			plugin.getLogger().info("Player health is " + player.getHealth());
+			//plugin.getLogger().info("Player health is " + player.getHealth());
 			// Apply additional potion effects
-			for (PotionEffectType t: Settings.acidDamageType) {
-			    plugin.getLogger().info("Applying " + t.toString());
-			    //player.addPotionEffect(new PotionEffect(t, 20, amplifier));
-			    if (t.equals(PotionEffectType.BLINDNESS)
-				    || t.equals(PotionEffectType.CONFUSION)
-				    || t.equals(PotionEffectType.HUNGER)
-				    || t.equals(PotionEffectType.SLOW)
-				    || t.equals(PotionEffectType.SLOW_DIGGING)
-				    || t.equals(PotionEffectType.WEAKNESS)
-				    ) {
-				player.addPotionEffect(new PotionEffect(t, 600, 1));
-			    } else {
-				// Poison
-				player.addPotionEffect(new PotionEffect(t, 200, 1));
+			plugin.getLogger().info("Potion damage " + Settings.acidDamageType.toString());
+			if (!Settings.acidDamageType.isEmpty()) {
+			    for (PotionEffectType t: Settings.acidDamageType) {
+				//plugin.getLogger().info("Applying " + t.toString());
+				//player.addPotionEffect(new PotionEffect(t, 20, amplifier));
+				if (t.equals(PotionEffectType.BLINDNESS)
+					|| t.equals(PotionEffectType.CONFUSION)
+					|| t.equals(PotionEffectType.HUNGER)
+					|| t.equals(PotionEffectType.SLOW)
+					|| t.equals(PotionEffectType.SLOW_DIGGING)
+					|| t.equals(PotionEffectType.WEAKNESS)
+					) {
+				    player.addPotionEffect(new PotionEffect(t, 600, 1));
+				} else {
+				    // Poison
+				    player.addPotionEffect(new PotionEffect(t, 200, 1));
+				}
 			    }
 			}
 			//double health = player.getHealth();
-			double health = player.getHealth() - (Settings.acidDamage - Settings.acidDamage * getDamageReduced(player));
-			if (health < 0D) {
-			    health = 0D;
-			} else if (health > 20D) {
-			    health = 20D;
+			// Apply damage if there is any
+			if (Settings.acidDamage > 0D) {
+			    double health = player.getHealth() - (Settings.acidDamage - Settings.acidDamage * getDamageReduced(player));
+			    if (health < 0D) {
+				health = 0D;
+			    } else if (health > 20D) {
+				health = 20D;
+			    }
+			    player.setHealth(health);
+
+			    player.getWorld().playSound(playerLoc, Sound.FIZZ, 2F, 2F);
 			}
-			player.setHealth(health);
-			player.getWorld().playSound(playerLoc, Sound.FIZZ, 2F, 2F);
-			
-			
+
 		    } else {
 			burningPlayers.remove(player);
 			// plugin.getLogger().info("Cancelled!");
@@ -164,6 +170,7 @@ public class AcidEffect implements Listener {
      * Enables changing of obsidian back into lava
      * @param e
      */
+    // Deprecation is due to the updateinventory that still is required for some reason.
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerInteract(final PlayerInteractEvent e) {

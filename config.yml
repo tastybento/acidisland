@@ -1,6 +1,7 @@
 # Config for Version 0.9c or later
 general:
    # Sea level height (don't changes this mid-game unless you delete the world)
+   # Minimum is 25
    sealevel: 50
 
    # Name of the AcidIsland world - if it does not exist then it will be generated
