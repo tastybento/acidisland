@@ -25,7 +25,7 @@ public class ControlPanel implements Listener {
     private static YamlConfiguration miniShopFile;
     private static HashMap<Integer, MiniShopItem> store = new HashMap<Integer,MiniShopItem>();
     private static YamlConfiguration cpFile;
-    
+
     /**
      * Map of panel contents by name
      */
@@ -154,26 +154,27 @@ public class ControlPanel implements Listener {
 		//plugin.getLogger().info("DEBUG: panels length " + panels.size());
 		//plugin.getLogger().info("DEBUG: panel name " + panelName);
 		HashMap<Integer, CPItem> thisPanel = panels.get(panelName);
-		//plugin.getLogger().info("DEBUG: slot is " + slot);
-		// Do something
-		String command = thisPanel.get(slot).getCommand();
-		String nextSection = thisPanel.get(slot).getNextSection();
-		if (!command.isEmpty()) {
-		    player.closeInventory(); // Closes the inventory
-		    event.setCancelled(true);
-		    //plugin.getLogger().info("DEBUG: performing command " + command);
-		    player.performCommand(command);
-		    return;
+		if (slot < thisPanel.size()) {
+		    //plugin.getLogger().info("DEBUG: slot is " + slot);
+		    // Do something
+		    String command = thisPanel.get(slot).getCommand();
+		    String nextSection = thisPanel.get(slot).getNextSection();
+		    if (!command.isEmpty()) {
+			player.closeInventory(); // Closes the inventory
+			event.setCancelled(true);
+			//plugin.getLogger().info("DEBUG: performing command " + command);
+			player.performCommand(command);
+			return;
+		    }
+		    if (!nextSection.isEmpty()) {
+			player.closeInventory(); // Closes the inventory
+			Inventory next = controlPanel.get(nextSection);
+			//plugin.getLogger().info("DEBUG: opening next cp "+nextSection);
+			player.openInventory(next);
+			event.setCancelled(true);
+			return;
+		    }
 		}
-		if (!nextSection.isEmpty()) {
-		    player.closeInventory(); // Closes the inventory
-		    Inventory next = controlPanel.get(nextSection);
-		    //plugin.getLogger().info("DEBUG: opening next cp "+nextSection);
-		    player.openInventory(next);
-		    event.setCancelled(true);
-		    return;
-		}
-	
 	    }
 	}
 	if (inventory.getName().equals(miniShop.getName())) { // The inventory is our custom Inventory
