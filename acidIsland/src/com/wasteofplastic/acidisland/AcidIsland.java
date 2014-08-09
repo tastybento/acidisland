@@ -948,6 +948,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.islandresetWait = locale.getString("island.resetWait","You have to wait [time] seconds before you can do that again.");
 	Locale.islandresetConfirm = locale.getString("island.resetConfirm", "Type /island confirm within 10 seconds to delete your island and restart!");
 	Locale.islandhelpIsland = locale.getString("island.helpIsland","start an island, or teleport to your island.");
+	Locale.islandhelpControlPanel = locale.getString("island.helpControlPanel","open the island GUI.");
 	Locale.islandhelpRestart = locale.getString("island.helpRestart","restart your island and remove the old one.");
 	Locale.islandDeletedLifeboats = locale.getString("island.islandDeletedLifeboats","Island deleted! Head to the lifeboats!");
 	Locale.islandhelpSetHome = locale.getString("island.helpSetHome","set your teleport point for /island.");

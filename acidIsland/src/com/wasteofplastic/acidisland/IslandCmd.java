@@ -759,6 +759,15 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    }
 	case 1:
+	    if (split[0].equalsIgnoreCase("controlpanel") || split[0].equalsIgnoreCase("cp")) {
+		if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+		    if (VaultHelper.checkPerm(player, "acidisland.island.controlpanel")) {
+			player.openInventory(ControlPanel.controlPanel.get("AcidIsland"));
+			return true;
+		    }
+		}
+	    }
+
 	    if (split[0].equalsIgnoreCase("minishop") || split[0].equalsIgnoreCase("ms")) {
 		if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 		    if (VaultHelper.checkPerm(player, "acidisland.island.minishop")) {
@@ -868,6 +877,7 @@ public class IslandCmd implements CommandExecutor {
 		player.sendMessage(ChatColor.GREEN + "AcidIsland " + plugin.getDescription().getVersion() + " help:");
 
 		player.sendMessage(ChatColor.YELLOW + "/" + label + ": " + ChatColor.WHITE + Locale.islandhelpIsland);
+		player.sendMessage(ChatColor.YELLOW + "/" + label + " controlpanel or cp: " + ChatColor.WHITE + Locale.islandhelpControlPanel);
 		player.sendMessage(ChatColor.YELLOW + "/" + label + " restart: " + ChatColor.WHITE + Locale.islandhelpRestart);
 		player.sendMessage(ChatColor.YELLOW + "/" + label + " sethome: " + ChatColor.WHITE + Locale.islandhelpSetHome);
 		player.sendMessage(ChatColor.YELLOW + "/" + label + " level: " + ChatColor.WHITE + Locale.islandhelpLevel);

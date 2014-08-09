@@ -1,0 +1,39 @@
+# Control panel file
+default:
+  panelname: AcidIsland
+  buttons:
+    0:
+      material: GRASS
+      description: Go to your island
+      command: 'ai'
+      nextsection: ''
+    1:
+      material: LAVA_BUCKET
+      description: Open the minishop
+      command: 'ai ms'
+      nextsection: ''
+    2:
+      material: SKULL_ITEM
+      description: List team members
+      command: ai team
+      nextsection:
+    3:
+      material: BED
+      description: Set your home here
+      command: 'ai sethome'
+      nextsection:
+    4:
+      material: ACACIA_STAIRS
+      description: Island level
+      command: 'ai level'
+      nextsection:
+    5:
+      material: BOOK
+      description: List the Top 10 islands
+      command: 'ai top'
+      nextsection:
+    6:
+      material: SIGN
+      description: List warps available
+      command: 'ai warps'
+      nextsection:

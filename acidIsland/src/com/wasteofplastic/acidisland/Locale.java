@@ -2,6 +2,8 @@ package com.wasteofplastic.acidisland;
 
 
 
+
+
 /**
  * @author ben
  * All the text strings in the game sent to players
@@ -107,6 +109,8 @@ public class Locale {
     ///island help
     ///island
     public static String islandhelpIsland;
+    //island cp
+    public static String islandhelpControlPanel;
     ///island restart
     public static String islandhelpRestart;
     public static String islandDeletedLifeboats;
@@ -277,9 +281,11 @@ public class Locale {
     // Nether
     public static String netherSpawnIsProtected;
     
-    // Minishop
+    // Minishop & Control Panel
     public static String islandhelpMiniShop;
     public static String islandMiniShopTitle;
+    public static String controlPanelTitle;
+    
 
    
     

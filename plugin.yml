@@ -49,6 +49,9 @@ permissions:
           acidisland.island.minishop:
             description: Allows usage of the minishop
             default: true
+          acidisland.island.controlpanel:
+            description: Allows usage of the island GUI
+            default: true
       acidisland.team.*:
         children:
           acidisland.team.create:

@@ -123,6 +123,7 @@ island:
    #/island help
    #/island
    helpIsland: "start an island, or teleport to your island."
+   helpContolPanel: "open the island GUI."
    #/island restart
    helpRestart: "restart your island and remove the old one."
    islandDeletedLifeboats: "Island deleted! Head to the lifeboats!"

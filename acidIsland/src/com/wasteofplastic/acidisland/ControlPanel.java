@@ -24,9 +24,18 @@ public class ControlPanel implements Listener {
 
     private static YamlConfiguration miniShopFile;
     private static HashMap<Integer, MiniShopItem> store = new HashMap<Integer,MiniShopItem>();
-
+    private static YamlConfiguration cpFile;
+    
+    /**
+     * Map of panel contents by name
+     */
+    private static HashMap<String, HashMap<Integer,CPItem>> panels = new HashMap<String, HashMap<Integer,CPItem>>();
     //public static final Inventory challenges = Bukkit.createInventory(null, 9, ChatColor.YELLOW + "Challenges");
 
+    /**
+     * Map of CP inventories by name
+     */
+    public static HashMap<String,Inventory> controlPanel = new HashMap<String,Inventory>();
 
     public static final Inventory miniShop = Bukkit.createInventory(null, 9, ChatColor.YELLOW + Locale.islandMiniShopTitle);
     // The first parameter, is the inventory owner. I make it null to let everyone use it.
@@ -35,6 +44,7 @@ public class ControlPanel implements Listener {
 
     static {
 	loadShop();
+	loadControlPanel();
     }
 
     public static void loadShop() {
@@ -74,6 +84,63 @@ public class ControlPanel implements Listener {
 	}	
     }
 
+    private static void loadControlPanel() {
+	AcidIsland plugin = AcidIsland.getPlugin();
+	// Map of known panel contents by name
+	panels.clear();
+	// Map of panel inventories by name
+	controlPanel.clear();
+	cpFile = AcidIsland.loadYamlFile("controlpanel.yml");
+	ConfigurationSection controlPanels = cpFile.getRoot();
+	if (controlPanels == null) {
+	    plugin.getLogger().severe("Controlpanel.yml is corrupted! Delete so it can be regenerated or fix!");
+	    return;
+	}
+	// Go through the yml file and create inventories and panel maps
+	for (String panel : controlPanels.getKeys(false)) {
+	    ConfigurationSection panelConf = cpFile.getConfigurationSection(panel);
+	    // New panel map
+	    HashMap<Integer, CPItem> cp = new HashMap<Integer,CPItem>();
+	    String panelName = panelConf.getString("panelname", "Commands");
+	    //plugin.getLogger().info("DEBUG: Panel section " + panelName);
+	    // New inventory
+	    Inventory newPanel = Bukkit.createInventory(null, 9, panelName);
+	    if (newPanel == null) {
+		plugin.getLogger().info("DEBUG: new panel is null!");
+	    }
+	    // Add inventory to map of inventories
+	    controlPanel.put(newPanel.getName(),newPanel);
+	    ConfigurationSection buttons = cpFile.getConfigurationSection(panel + ".buttons");
+	    if (buttons != null) {
+		// Run through buttons
+		int slot = 0;
+		for (String item : buttons.getKeys(false)) {
+		    try {
+			String m = buttons.getString(item + ".material","AIR");
+			//plugin.getLogger().info("Material = " + m);
+			Material material = Material.matchMaterial(m);
+			String description = buttons.getString(item + ".description","");
+			String command = buttons.getString(item + ".command","");
+			String nextSection = buttons.getString(item + ".nextSection","");
+			CPItem cpItem = new CPItem(material,description,command,nextSection);
+			cp.put(slot, cpItem);
+			newPanel.setItem(slot, cpItem.getItem());
+			slot++;
+			if (slot > 8) {
+			    break;
+			}
+		    } catch (Exception e) {
+			plugin.getLogger().warning("Problem loading control panel " + panel + " item #" + slot);
+			plugin.getLogger().warning(e.getMessage());
+			e.printStackTrace();
+		    }
+		}
+		// Add overall control panel
+		panels.put(panelName, cp);
+	    }
+	}	
+    }
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
 	Player player = (Player) event.getWhoClicked(); // The player that clicked the item
@@ -81,6 +148,34 @@ public class ControlPanel implements Listener {
 	Inventory inventory = event.getInventory(); // The inventory that was clicked in
 	//AcidIsland plugin = AcidIsland.getPlugin();
 	int slot = event.getSlot();
+	// Check control panels
+	for (String panelName : controlPanel.keySet()) {
+	    if (inventory.getName().equals(panelName)) {
+		//plugin.getLogger().info("DEBUG: panels length " + panels.size());
+		//plugin.getLogger().info("DEBUG: panel name " + panelName);
+		HashMap<Integer, CPItem> thisPanel = panels.get(panelName);
+		//plugin.getLogger().info("DEBUG: slot is " + slot);
+		// Do something
+		String command = thisPanel.get(slot).getCommand();
+		String nextSection = thisPanel.get(slot).getNextSection();
+		if (!command.isEmpty()) {
+		    player.closeInventory(); // Closes the inventory
+		    event.setCancelled(true);
+		    //plugin.getLogger().info("DEBUG: performing command " + command);
+		    player.performCommand(command);
+		    return;
+		}
+		if (!nextSection.isEmpty()) {
+		    player.closeInventory(); // Closes the inventory
+		    Inventory next = controlPanel.get(nextSection);
+		    //plugin.getLogger().info("DEBUG: opening next cp "+nextSection);
+		    player.openInventory(next);
+		    event.setCancelled(true);
+		    return;
+		}
+	
+	    }
+	}
 	if (inventory.getName().equals(miniShop.getName())) { // The inventory is our custom Inventory
 	    String message = "";
 	    //plugin.getLogger().info("You clicked on slot " + slot);
@@ -88,7 +183,7 @@ public class ControlPanel implements Listener {
 	    if (store.containsKey(slot)) {
 		// We have a winner!
 		MiniShopItem item = store.get(slot);
-		if (clicked.equals(item.getItem())) {
+		if (clicked.equals(item.getItem())) { 
 		    // Check they can afford it
 		    if (!VaultHelper.econ.has(player, player.getWorld().getName(), item.getPrice())) {
 			message = "You cannot afford that item!";
