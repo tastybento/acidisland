@@ -431,6 +431,22 @@ challenges:
       repeatRewardText: '1 gold ingot, 1 mooshroom spawn egg, 1 emerald'
       repeatMoneyReward: 20
       repeatExpReward: 20
+    beaconator:
+      description: 'Build a beacon and let it shine!'
+      level: 'Advanced'
+      type: island
+      requiredItems: 'BEACON:1'
+      takeItems: false
+      itemReward: 'SMOOTH_BRICK:20 SMOOTH_BRICK:1:20 SMOOTH_BRICK:2:20 SMOOTH_BRICK:3:20'
+      rewardText: '20 blocks of every kind of stone brick'
+      moneyReward: 300
+      expReward: 300
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
     acidduke:
       description: 'Achieve an island level of 1000'
       level: 'Advanced'
