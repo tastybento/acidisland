@@ -3,6 +3,8 @@
  */
 package com.wasteofplastic.acidisland;
 
+import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -22,29 +24,24 @@ public class CPItem {
     /**
      * @param item
      * @param material
-     * @param description
+     * @param name
      * @param command
      * @param nextSection
      */
-    public CPItem(Material material, String description, String command, String nextSection) {
+    public CPItem(Material material, String name, String command, String nextSection) {
 	this.command = command;
 	this.nextSection = nextSection;
 	item = new ItemStack(material);
 	ItemMeta meta = item.getItemMeta();
-	meta.setDisplayName(description);
-	/*
-	ArrayList<String> Lore = new ArrayList<String>();
-	// Split up description into lines
-	int endIndex = 0;
-	for (int beginIndex = 0; endIndex <= description.length(); beginIndex+=20) {
-	    endIndex = Math.min(beginIndex+20, description.length());
-	    Lore.add(description.substring(beginIndex, endIndex));
-	}
-	meta.setLore(Lore);
-	*/
+	meta.setDisplayName(name);
 	item.setItemMeta(meta);
     }
 
+    public void setLore(List<String> lore) {
+	ItemMeta meta = item.getItemMeta();
+	meta.setLore(lore);
+	item.setItemMeta(meta);
+    }
 
     /**
      * @return the command

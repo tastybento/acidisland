@@ -133,11 +133,11 @@ challenges:
       type: level
       requiredItems: 10
       takeItems: false
-      itemReward: 'IRON_PICKAXE:1 DIRT:5'
-      rewardText: '1 iron pickaxe, 5 dirt and ability to add 1 Welcome Warp Sign'
+      itemReward: 'IRON_PICKAXE:1 DIRT:5 SPONGE:1'
+      rewardText: '1 iron pickaxe, 5 dirt and a Sponge'
       moneyReward: 50
       expReward: 50
-      permissionReward: 'acidisland.island.addwarp'
+      permissionReward: ''
       repeatable: false
       repeatItemReward: ''
       repeatRewardText: ''

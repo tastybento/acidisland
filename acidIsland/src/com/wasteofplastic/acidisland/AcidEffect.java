@@ -43,7 +43,7 @@ public class AcidEffect implements Listener {
 	burningPlayers.remove((Player) e.getEntity());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent e) {
 	final Player player = e.getPlayer();
 	// Fast checks
@@ -55,6 +55,10 @@ public class AcidEffect implements Listener {
 	    return;
 	}
 	// If the player is an op in Creative mode, acid does not hurt
+	if (player.isOp() && !Settings.damageOps) {
+	    return;
+	}
+	
 	if (player.getGameMode().equals(GameMode.CREATIVE)) {
 	    return;
 	}

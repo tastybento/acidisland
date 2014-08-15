@@ -62,5 +62,6 @@ public class Settings {
     public static double netherSpawnRadius;
     public static List<PotionEffectType> acidDamageType = new ArrayList<PotionEffectType>();
     public static boolean resetMoney;
+    public static boolean damageOps;
     
 }

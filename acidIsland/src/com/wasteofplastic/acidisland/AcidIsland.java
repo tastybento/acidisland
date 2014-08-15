@@ -753,6 +753,8 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.resetWait < 0) {
 	    Settings.resetWait = 0;
 	}
+	
+	Settings.damageOps = getConfig().getBoolean("general.damageops", false);
 
 	// The island's center is actually 5 below sea level
 	Settings.sea_level = getConfig().getInt("general.sealevel", 50) - 5;
@@ -1160,6 +1162,7 @@ public class AcidIsland extends JavaPlugin {
 			if ((current.getLocation().getBlock().getType() == Material.WATER)
 				|| (current.getLocation().getBlock().getType() == Material.STATIONARY_WATER)) {
 			    ((Monster) current).damage(10d);
+			    //getLogger().info("Killing monster");
 			}
 		    }
 		}
@@ -1487,8 +1490,19 @@ public class AcidIsland extends JavaPlugin {
     // Non-Static Functions
     public void enableSponge(Block spongeBlock) {
 	// Check for water or Lava
+	// if the block is at y=0 or y=255, then we should not look into negative space
+	// The up/down limits are determined by the sponge radius
+	int ymin = spongeAreaDownLimit;
+	int ymax = spongeAreaUpLimit;
+	int blockheight = spongeBlock.getLocation().getBlockY();
+	if ((blockheight + ymin) < 0) {
+	    ymin = -blockheight;
+	}
+	if ((blockheight + ymax) > 255) {
+	    ymax = 255-blockheight;
+	}
 	for (int x = spongeAreaDownLimit; x < spongeAreaUpLimit; x++) {
-	    for (int y = spongeAreaDownLimit; y < spongeAreaUpLimit; y++) {
+	    for (int y = ymin; y < ymax; y++) {
 		for (int z = spongeAreaDownLimit; z < spongeAreaUpLimit; z++) {
 		    if (debug) {
 			getLogger().info("DEBUG Checking: " + x + ", " + y + ", " + z);
@@ -1518,8 +1532,19 @@ public class AcidIsland extends JavaPlugin {
 	// Mark blocks
 	LinkedList<Block> markedBlocks = new LinkedList<Block>();
 	// Loop around the sponge block
+	// if the block is at y=0 or y=255, then we should not look into negative space
+	// The up/down limits are determined by the sponge radius
+	int ymin = spongeAreaDownLimit;
+	int ymax = spongeAreaUpLimit;
+	int blockheight = theSponge.getLocation().getBlockY();
+	if ((blockheight + ymin) < 0) {
+	    ymin = -blockheight;
+	}
+	if ((blockheight + ymax) > 255) {
+	    ymax = 255-blockheight;
+	}
 	for (int x = spongeAreaDownLimit; x < spongeAreaUpLimit; x++) {
-	    for (int y = spongeAreaDownLimit; y < spongeAreaUpLimit; y++) {
+	    for (int y = ymin; y < ymax; y++) {
 		for (int z = spongeAreaDownLimit; z < spongeAreaUpLimit; z++) {
 		    final Block currentBlock = theSponge.getRelative(x, y, z);
 		    removeFromSpongeAreas(getBlockCoords(currentBlock));

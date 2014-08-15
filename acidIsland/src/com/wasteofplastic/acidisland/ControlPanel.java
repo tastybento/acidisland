@@ -90,17 +90,19 @@ public class ControlPanel implements Listener {
 	panels.clear();
 	// Map of panel inventories by name
 	controlPanel.clear();
+	
+	
 	cpFile = AcidIsland.loadYamlFile("controlpanel.yml");
 	ConfigurationSection controlPanels = cpFile.getRoot();
 	if (controlPanels == null) {
 	    plugin.getLogger().severe("Controlpanel.yml is corrupted! Delete so it can be regenerated or fix!");
 	    return;
-	}
+	}	
 	// Go through the yml file and create inventories and panel maps
 	for (String panel : controlPanels.getKeys(false)) {
 	    ConfigurationSection panelConf = cpFile.getConfigurationSection(panel);
 	    // New panel map
-	    HashMap<Integer, CPItem> cp = new HashMap<Integer,CPItem>();
+	    HashMap<Integer,CPItem> cp = new HashMap<Integer,CPItem>();
 	    String panelName = panelConf.getString("panelname", "Commands");
 	    //plugin.getLogger().info("DEBUG: Panel section " + panelName);
 	    // New inventory
@@ -141,6 +143,7 @@ public class ControlPanel implements Listener {
 	}	
     }
 
+    
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
 	Player player = (Player) event.getWhoClicked(); // The player that clicked the item
