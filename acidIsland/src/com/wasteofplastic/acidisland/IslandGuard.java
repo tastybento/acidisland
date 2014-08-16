@@ -4,10 +4,13 @@ package com.wasteofplastic.acidisland;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Squid;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -89,7 +92,7 @@ public class IslandGuard implements Listener {
 	    //plugin.getLogger().info("Damager is " + ((Player)e.getDamager()).getName());
 	    // If the target is not a player check if mobs can be hurt
 	    if (!(e.getEntity() instanceof Player)) {
-		if (e.getEntity() instanceof Monster) {
+		if (e.getEntity() instanceof Monster || e.getEntity() instanceof Slime || e.getEntity() instanceof Squid) {
 		    //plugin.getLogger().info("Entity is a monster - ok to hurt"); 
 		    return;
 		} else {
@@ -139,10 +142,10 @@ public class IslandGuard implements Listener {
 			return;
 		    } 
 		} else {
-		    if (!(e.getEntity() instanceof Monster)) {
+		    if (!(e.getEntity() instanceof Monster) && !(e.getEntity() instanceof Slime) && !(e.getEntity() instanceof Squid)) {
 			//plugin.getLogger().info("Entity is a non-monster - check if ok to hurt"); 
 			if (!Settings.allowHurtMobs) {
-			    if (!plugin.playerIsOnIsland((Player)e.getDamager())) {
+			    if (!plugin.playerIsOnIsland((Player)arrow.getShooter())) {
 				shooter.sendMessage(ChatColor.RED + Locale.islandProtected);
 				e.setCancelled(true);
 				return;

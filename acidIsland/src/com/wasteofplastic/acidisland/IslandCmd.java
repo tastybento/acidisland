@@ -759,6 +759,10 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    }
 	case 1:
+	    if (split[0].equalsIgnoreCase("about")) {
+		player.sendMessage(ChatColor.GOLD + "AcidIsland (c) 2014 by TastyBento");
+	    }
+	    
 	    if (split[0].equalsIgnoreCase("controlpanel") || split[0].equalsIgnoreCase("cp")) {
 		if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 		    if (VaultHelper.checkPerm(player, "acidisland.island.controlpanel")) {
