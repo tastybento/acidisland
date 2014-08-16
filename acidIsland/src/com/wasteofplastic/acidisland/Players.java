@@ -410,16 +410,6 @@ public class Players {
     }
 
     /**
-     * Sets the members array to the list newMembers
-     * 
-     * @param newMembers
-     *            a String List
-     */
-    public void setMembers(final List<UUID> newMembers) {
-	members = newMembers;
-    }
-
-    /**
      * @param l
      *            a Bukkit Location of the team island
      */

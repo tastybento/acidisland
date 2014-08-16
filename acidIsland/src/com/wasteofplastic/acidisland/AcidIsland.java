@@ -1433,9 +1433,6 @@ public class AcidIsland extends JavaPlugin {
      * @return
      */
     public boolean transferIsland(final UUID playerOne, final UUID playerTwo) {
-	if (!plugin.getServer().getPlayer(playerOne).isOnline() || !plugin.getServer().getPlayer(playerTwo).isOnline()) {
-	    return false;
-	}
 	if (players.hasIsland(playerOne)) {
 	    players.setHasIsland(playerTwo, true);
 	    players.setIslandLocation(playerTwo, players.getIslandLocation(playerOne));

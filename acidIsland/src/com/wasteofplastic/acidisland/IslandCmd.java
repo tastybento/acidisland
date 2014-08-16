@@ -78,10 +78,11 @@ public class IslandCmd implements CommandExecutor {
      */
     public boolean addPlayertoTeam(final UUID playerUUID, final UUID teamLeader) {
 	// Only add online players
+	/*
 	if (!plugin.getServer().getPlayer(playerUUID).isOnline() || !plugin.getServer().getPlayer(teamLeader).isOnline()) {
 	    plugin.getLogger().info("Can only add player to a team if both player and leader are online.");
 	    return false;
-	}
+	}*/
 	plugin.getLogger().info("Adding player: " + playerUUID + " to team with leader: " + teamLeader);
 	plugin.getLogger().info("The team island location is: " + players.getIslandLocation(teamLeader));
 	plugin.getLogger().info("The leader's home location is: " + players.getHomeLocation(teamLeader) + " (may be different or null)");
@@ -1288,7 +1289,7 @@ public class IslandCmd implements CommandExecutor {
 			    plugin.setMessage(targetPlayer, ChatColor.RED + Locale.kicknameRemovedYou.replace("[name]", player.getName()));
 			}
 			// Remove any warps
-			plugin.removeWarp(target.getUniqueId());
+			plugin.removeWarp(targetPlayer);
 			// Tell leader they removed the player
 			sender.sendMessage(ChatColor.RED + Locale.kicknameRemoved.replace("[name]", split[1]));
 			removePlayerFromTeam(targetPlayer, teamLeader);
@@ -1307,7 +1308,7 @@ public class IslandCmd implements CommandExecutor {
 		if (VaultHelper.checkPerm(player, "acidisland.team.makeleader")) {
 		    targetPlayer = players.getUUID(split[1]);
 		    if (targetPlayer == null) {
-			player.sendMessage(ChatColor.RED + Locale.makeLeadererrorPlayerMustBeOnline);
+			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    }
 		    if (!players.inTeam(player.getUniqueId())) {
@@ -1324,10 +1325,15 @@ public class IslandCmd implements CommandExecutor {
 		    if (players.inTeam(player.getUniqueId())) {
 			if (teamLeader.equals(player.getUniqueId())) {
 			    if (teamMembers.contains(targetPlayer)) {
+				
+				// Check if online
 				if (plugin.getServer().getPlayer(targetPlayer) != null) {
 				    plugin.getServer().getPlayer(targetPlayer).sendMessage(ChatColor.GREEN + Locale.makeLeaderyouAreNowTheOwner);
+				} else {
+				    plugin.setMessage(targetPlayer, Locale.makeLeaderyouAreNowTheOwner);
+				    //.makeLeadererrorPlayerMustBeOnline
 				}
-				player.sendMessage(ChatColor.GREEN + Locale.makeLeadernameIsNowTheOwner.replace("[name]", Bukkit.getPlayer(targetPlayer).getName()));
+				player.sendMessage(ChatColor.GREEN + Locale.makeLeadernameIsNowTheOwner.replace("[name]", players.getName(targetPlayer)));
 				// targetPlayer is the new leader
 				// Remove the target player from the team
 				removePlayerFromTeam(targetPlayer, teamLeader);
@@ -1338,8 +1344,6 @@ public class IslandCmd implements CommandExecutor {
 				// Create a new team with 			
 				addPlayertoTeam(player.getUniqueId(), targetPlayer);
 				addPlayertoTeam(targetPlayer, targetPlayer);
-
-
 				return true;
 			    }
 			    player.sendMessage(ChatColor.RED + Locale.makeLeadererrorThatPlayerIsNotInTeam);
