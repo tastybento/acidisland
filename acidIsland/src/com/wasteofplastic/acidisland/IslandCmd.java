@@ -30,12 +30,16 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.Vector;
 
 public class IslandCmd implements CommandExecutor {
     public boolean busyFlag = true;
@@ -762,6 +766,10 @@ public class IslandCmd implements CommandExecutor {
 	case 1:
 	    if (split[0].equalsIgnoreCase("about")) {
 		player.sendMessage(ChatColor.GOLD + "AcidIsland (c) 2014 by TastyBento");
+		//Spawn enderman
+		Enderman enderman = (Enderman) player.getWorld().spawnEntity(player.getLocation().add(new Vector(5,0,5)), EntityType.ENDERMAN);
+		enderman.setCustomName("TastyBento's Ghost");
+		enderman.setCarriedMaterial(new MaterialData(Material.GRASS));
 	    }
 	    
 	    if (split[0].equalsIgnoreCase("controlpanel") || split[0].equalsIgnoreCase("cp")) {

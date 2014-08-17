@@ -171,4 +171,12 @@ island:
    allowgateuse: false
    # Allow friendly mobs to be hurt (cows etc.)
    allowhurtmobs: true
+   # Allow Enderman Griefing (default is to allow, see next setting)
+   allowendermangriefing: true
+   # Make enderman drop the block he is holding if he dies (recommended)
+   endermandeathdrop: true
+   # Allow creeper explosion damage to block (explosion still hurts)
+   allowcreeperdamage: true
+   # Allow TNT damage to blocks (stops players using TNT to destroy other's islands)
+   allowtntdamage: false
    

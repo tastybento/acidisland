@@ -54,7 +54,7 @@ public class Challenges implements CommandExecutor {
 	case 0:
 	    // User typed /c or /challenge
 	    // Display panel
-	    player.openInventory(challengePanel(player));
+	    //player.openInventory(challengePanel(player));
 	    int levelDone = 0;
 	    sender.sendMessage(ChatColor.GOLD + Settings.challengeLevels.get(0) + ": " + getChallengesByLevel(player, Settings.challengeLevels.get(0)));
 	    for (int i = 1; i < Settings.challengeLevels.size(); i++) {

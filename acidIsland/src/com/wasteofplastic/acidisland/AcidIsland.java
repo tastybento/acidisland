@@ -844,7 +844,11 @@ public class AcidIsland extends JavaPlugin {
 	Settings.allowBrewing = getConfig().getBoolean("island.allowbrewing", false);
 	Settings.allowGateUse = getConfig().getBoolean("island.allowgateuse", false);
 	Settings.allowHurtMobs = getConfig().getBoolean("island.allowhurtmobs", true);
-
+	Settings.endermanDeathDrop = getConfig().getBoolean("island.endermandeathdrop", true);
+	Settings.allowEndermanGriefing = getConfig().getBoolean("island.allowendermangriefing", true);
+	Settings.allowCreeperDamage = getConfig().getBoolean("island.allowcreeperdamage", true);
+	Settings.allowTNTDamage = getConfig().getBoolean("island.allowtntdamage", false);
+	
 	Settings.absorbLava = getConfig().getBoolean("sponge.absorbLava", false);
 	Settings.absorbFire = getConfig().getBoolean("sponge.absorbFire", false);
 	Settings.restoreWater = getConfig().getBoolean("sponge.restoreWater", true);

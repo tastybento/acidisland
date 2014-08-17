@@ -4,6 +4,8 @@ package com.wasteofplastic.acidisland;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Monster;
@@ -16,13 +18,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 import org.bukkit.potion.Potion;
 
 
@@ -37,12 +44,87 @@ public class IslandGuard implements Listener {
 	this.plugin = plugin;
 
     }
+    
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
+    public void onExplosion(final EntityExplodeEvent e) {
+	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    return;
+	}
+	// Find out what is exploding
+	EntityType exploding = e.getEntityType();
+	switch (exploding) {
+	case CREEPER:
+	    if (!Settings.allowCreeperDamage) {
+		//plugin.getLogger().info("Creeper block damage prevented");
+		e.blockList().clear();
+	    }
+	    break;
+	case PRIMED_TNT:
+	case MINECART_TNT:
+	    if (!Settings.allowTNTDamage) {
+		//plugin.getLogger().info("TNT block damage prevented");
+		e.blockList().clear();
+	    }	    
+	    break;
+	default:
+	    break;
+	}
+   }
+  
+    
+    
+    
+    /**
+     * Allows or prevents enderman griefing
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
+    public void onEndermanGrief(final EntityChangeBlockEvent e) {
+	if (Settings.allowEndermanGriefing)
+	    return;
+	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    return;
+	}
+	if (!(e.getEntity() instanceof Enderman)) {
+	    return;
+	}
+	// Stop the Enderman from griefing
+	//plugin.getLogger().info("Enderman stopped from griefing");
+	e.setCancelled(true);
+    }
+   
+    
+    
+    /**
+     * Drops the Enderman's block when he dies if he has one
+     * @param e
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
+    public void onEndermanDeath(final EntityDeathEvent e) {
+	if (!Settings.endermanDeathDrop)
+	    return;
+	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    return;
+	}
+	if (!(e.getEntity() instanceof Enderman)) {
+	    //plugin.getLogger().info("Not an Enderman!");
+	    return;
+	}
+	// Get the block the enderman is holding
+	Enderman ender = (Enderman)e.getEntity();
+	MaterialData m = ender.getCarriedMaterial();
+	if (m != null && !m.getItemType().equals(Material.AIR)) {
+	    // Drop the item
+	    //plugin.getLogger().info("Dropping item " + m.toString());
+	    e.getEntity().getWorld().dropItemNaturally(e.getEntity().getLocation(), m.toItemStack(1));
+	}
+    }
+    
 
     /**
      * Prevents blocks from being broken
      * @param e
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled=true)
     public void onBlockBreak(final BlockBreakEvent e) {
 	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    if (!Settings.allowBreakBlocks) {
@@ -58,7 +140,7 @@ public class IslandGuard implements Listener {
      * This method protects players from PVP if it is not allowed and from arrows fired by other players
      * @param e
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDamage(final EntityDamageByEntityEvent e) {
 	// Check world
 	if (!Settings.worldName.equalsIgnoreCase(e.getEntity().getWorld().getName())) {
