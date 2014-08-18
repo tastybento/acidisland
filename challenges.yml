@@ -17,6 +17,7 @@ challenges:
   challengeList:
     glassmaker:
       description: 'Create 64 panes of glass (not blocks)'
+      icon: THIN_GLASS
       level: 'Novice'
       type: inventory
       requiredItems: 'THIN_GLASS:64'
@@ -33,6 +34,7 @@ challenges:
       repeatExpReward: 10
     breadmaker:
       description: 'Bake 21 loaves of bread'
+      icon: BREAD
       level: 'Novice'
       type: inventory
       requiredItems: 'BREAD:21'
@@ -49,6 +51,7 @@ challenges:
       repeatExpReward: 10
     dyemaker:
       description: 'Craft 32 cactus green dyes'
+      icon: INK_SACK:2
       level: 'Novice'
       type: inventory
       requiredItems: 'INK_SACK:2:32'
@@ -65,6 +68,7 @@ challenges:
       repeatExpReward: 10
     papermaker:
       description: 'Create 21 pages of paper'
+      icon: PAPER
       level: 'Novice'
       type: inventory
       requiredItems: 'PAPER:21'
@@ -81,6 +85,7 @@ challenges:
       repeatExpReward: 10
     cobblemaker:
       description: 'Create a cobblestone generator and mine 64 cobblestone.'
+      icon: COBBLESTONE
       level: 'Novice'
       type: inventory
       requiredItems: 'COBBLESTONE:64'
@@ -97,6 +102,7 @@ challenges:
       repeatExpReward: 10
     seedbank:
       description: 'Collect 64 melon seeds, 64 pumpkin seeds and 64 wheat seeds'
+      icon: PUMPKIN_SEEDS
       level: 'Novice'
       type: inventory
       requiredItems: 'MELON_SEEDS:64 PUMPKIN_SEEDS:64 SEEDS:64'
@@ -113,6 +119,7 @@ challenges:
       repeatExpReward: 10
     stewmaker:
       description: 'Cook up 18 bowls of mushroom stew'
+      icon: MUSHROOM_SOUP
       level: 'Novice'
       type: inventory
       requiredItems: 'MUSHROOM_SOUP:18'
@@ -129,6 +136,7 @@ challenges:
       repeatExpReward: 10
     builder:
       description: 'Reach island level 10 (/island level).'
+      icon: WOOD
       level: 'Novice'
       type: level
       requiredItems: 10
@@ -145,6 +153,7 @@ challenges:
       repeatExpReward: 0
     grinder:
       description: 'Kill monsters and collect 64 rotten flesh, 32 skeleton bones, 32 string, 32 arrows, 16 gunpowder, 5 spider eyes'
+      icon: BONE
       level: 'Competent'
       type: inventory
       requiredItems: 'ROTTEN_FLESH:64 STRING:32 SULPHUR:16 ARROW:32 BONE:32 SPIDER_EYE:5'
@@ -161,6 +170,7 @@ challenges:
       repeatExpReward: 15
     farmer:
       description: 'Harvest 64 units of the following: wheat, sugar, melon, carrots, potatoes, pumpkin'
+      icon: WHEAT
       level: 'Competent'
       type: inventory
       requiredItems: 'WHEAT:64 SUGAR:64 MELON:64 CARROT_ITEM:64 POTATO_ITEM:64 PUMPKIN:64'
@@ -177,6 +187,7 @@ challenges:
       repeatExpReward: 20
     angler:
       description: 'Catch and cook 10 standard fish (no salmon)'
+      icon: COOKED_FISH
       level: 'Competent'
       type: inventory
       requiredItems: 'COOKED_FISH:10'
@@ -193,6 +204,7 @@ challenges:
       repeatExpReward: 15
     treecutter:
       description: 'Create a tree farm and collect 16 oak, birch, jungle, and spruce logs'
+      icon: LOG
       level: 'Competent'
       type: inventory
       requiredItems: 'LOG:0:16 LOG:1:16 LOG:2:16 LOG:3:16'
@@ -209,6 +221,7 @@ challenges:
       repeatExpReward: 15
     cookiemaker:
       description: 'Make 128 cookies and a bucket of milk'
+      icon: COOKIE
       level: 'Competent'
       type: inventory
       requiredItems: 'MILK_BUCKET:1 COOKIE:128'
@@ -225,6 +238,7 @@ challenges:
       repeatExpReward: 15
     craftsman:
       description: 'Reach island level 75 (/island level).'
+      icon: IRON_BLOCK
       level: 'Competent'
       type: level
       requiredItems: 75
@@ -241,6 +255,7 @@ challenges:
       repeatExpReward: 0
     homestead:
       description: 'Build a house that contains at least 1 wooden door, bed, bookshelf, crafting table, furnace, glass-block window, and torch.'
+      icon: BED
       level: 'Competent'
       type: island
       requiredItems: 'BED_BLOCK:1 WORKBENCH:1 GLASS:1 WOODEN_DOOR:1 FURNACE:1 BOOKSHELF:1 TORCH:1'
@@ -257,6 +272,7 @@ challenges:
       repeatExpReward: 0
     nether:
       description: 'Build a nether portal on your island and activate it.'
+      icon: NETHERRACK
       level: 'Expert'
       type: island
       requiredItems: 'OBSIDIAN:10 PORTAL:1'
@@ -273,6 +289,7 @@ challenges:
       repeatExpReward: 0
     enderpearls:
       description: 'Collect 15 enderpearls from endermen'
+      icon: ENDER_PEARL
       level: 'Expert'
       type: inventory
       requiredItems: 'ENDER_PEARL:15'
@@ -289,6 +306,7 @@ challenges:
       repeatExpReward: 15
     slimeballfarmer:
       description: 'Collect 40 slimeballs from slimes'
+      icon: SLIME_BALL
       level: 'Expert'
       type: inventory
       requiredItems: 'SLIME_BALL:40'
@@ -305,6 +323,7 @@ challenges:
       repeatExpReward: 15
     baker:
       description: 'Bake 5 cakes and 5 pumpkin pies'
+      icon: CAKE
       level: 'Expert'
       type: inventory
       requiredItems: 'CAKE:5 PUMPKIN_PIE:5'
@@ -321,6 +340,7 @@ challenges:
       repeatExpReward: 15
     pioneer:
       description: 'Make 1 map and use it, a compass, a clock and collect 64 netherrack, 16 soulsand, and 1 ghast tear'
+      icon: MAP
       level: 'Expert'
       type: inventory
       requiredItems: 'NETHERRACK:64 SOUL_SAND:16 GHAST_TEAR:1 MAP:1 COMPASS:1 WATCH:1'
@@ -337,6 +357,7 @@ challenges:
       repeatExpReward: 20
     mason:
       description: 'Reach island level 250 (/island level).'
+      icon: GOLD_BLOCK
       level: 'Expert'
       type: level
       requiredItems: 250
@@ -353,6 +374,7 @@ challenges:
       repeatExpReward: 0
     shepherd:
       description: 'Collect 5 of every color of wool'
+      icon: WOOL:2
       level: 'Advanced'
       type: inventory
       requiredItems: 'WOOL:0:5 WOOL:1:5 WOOL:2:5 WOOL:3:5 WOOL:4:5 WOOL:5:5 WOOL:6:5 WOOL:7:5 WOOL:8:5 WOOL:9:5 WOOL:10:5 WOOL:11:5 WOOL:12:5 WOOL:13:5 WOOL:14:5 WOOL:15:5' 
@@ -369,6 +391,7 @@ challenges:
       repeatExpReward: 20
     alchemist:
       description: 'Brew 1 potion of Fire Resistance, Slowness, Swiftness, Healing, Harming, Invisibility, Strength and Regeneration'
+      icon: BREWING_STAND_ITEM
       level: 'Advanced'
       type: inventory
       requiredItems: 'POTION:8195:1 POTION:8202:1 POTION:8194:1 POTION:8197:1 POTION:8204:1 POTION:8206:1 POTION:8201:1 POTION:8193:1'
@@ -385,6 +408,7 @@ challenges:
       repeatExpReward: 20
     dj:
       description: 'Craft a jukebox and collect all music discs'
+      icon: RECORD_5
       level: 'Advanced'
       type: inventory
       requiredItems: 'GOLD_RECORD:1 GREEN_RECORD:1 RECORD_3:1 RECORD_4:1 RECORD_5:1 RECORD_6:1 RECORD_7:1 RECORD_8:1 RECORD_9:1 RECORD_10:1 RECORD_11:1 RECORD_12:1 JUKEBOX:1' 
@@ -401,6 +425,7 @@ challenges:
       repeatExpReward: 20
     gemcollector:
       description: 'Collect 50 emeralds'
+      icon: EMERALD
       level: 'Advanced'
       type: inventory
       requiredItems: 'EMERALD:50' 
@@ -417,6 +442,7 @@ challenges:
       repeatExpReward: 20
     culinaryartist:
       description: 'Collect 1 of every kind of cooked or crafted edible food (no raw food, zombie flesh, or super golden apples)'
+      icon: GOLDEN_APPLE
       level: 'Advanced'
       type: inventory
       requiredItems: 'BAKED_POTATO:1 BREAD:1 CAKE:1 COOKED_CHICKEN:1 COOKED_FISH:1 GRILLED_PORK:1 COOKIE:1 GOLDEN_APPLE:0:1 GOLDEN_CARROT:1 MUSHROOM_SOUP:1 PUMPKIN_PIE:1 COOKED_BEEF:1' 
@@ -433,6 +459,7 @@ challenges:
       repeatExpReward: 20
     beaconator:
       description: 'Build a beacon and let it shine!'
+      icon: BEACON
       level: 'Advanced'
       type: island
       requiredItems: 'BEACON:1'
@@ -449,6 +476,7 @@ challenges:
       repeatExpReward: 0
     acidduke:
       description: 'Achieve an island level of 1000'
+      icon: DIAMOND_BLOCK
       level: 'Advanced'
       type: level
       requiredItems: 1000

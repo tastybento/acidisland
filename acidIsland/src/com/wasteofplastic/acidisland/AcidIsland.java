@@ -61,8 +61,9 @@ public class AcidIsland extends JavaPlugin {
     public YamlConfiguration playerFile;
     public File playersFolder;
     // Where challenges are stored
-    private FileConfiguration challenges = null;
+    private FileConfiguration challengeFile = null;
     private File challengeConfigFile = null;
+    public Challenges challenges;
     // Localization Strings
     private FileConfiguration locale = null;
     private File localeFile = null;
@@ -944,6 +945,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.challengeserrorNotCloseEnough = locale.getString("challenges.errorNotCloseEnough","You must be standing within 10 blocks of all required items.");
 	Locale.challengeserrorItemsNotThere = locale.getString("challenges.errorItemsNotThere","All required items must be close to you on your island!");
 	Locale.challengeserrorIslandLevel = locale.getString("challenges.errorIslandLevel","Your island must be level [level] to complete this challenge!");
+	Locale.challengesguiTitle = locale.getString("challenges.guititle", "Challenges");
 	Locale.islandteleport = locale.getString("island.teleport","Teleporting you to your island. (/island help for more info)");
 	Locale.islandnew = locale.getString("island.new","Creating a new island for you...");
 	Locale.islanderrorCouldNotCreateIsland = locale.getString("island.errorCouldNotCreateIsland","Could not create your Island. Please contact a server moderator.");
@@ -1110,9 +1112,10 @@ public class AcidIsland extends JavaPlugin {
 	    playersFolder.mkdir();
 	}
 	players = new PlayerCache(this);
+	challenges = new Challenges(this,players);
 	// Set up commands for this plugin
 	getCommand("island").setExecutor(new IslandCmd(this,players));
-	getCommand("challenges").setExecutor(new Challenges(this,players));
+	getCommand("challenges").setExecutor(challenges);
 	getCommand("acid").setExecutor(new AdminCmd(this,players));
 	// Register events that this plugin uses
 	registerEvents();
@@ -1150,7 +1153,7 @@ public class AcidIsland extends JavaPlugin {
 		}
 		final PluginManager m = getServer().getPluginManager();
 		// Minishop
-		m.registerEvents(new ControlPanel(), plugin);
+		m.registerEvents(new ControlPanel(plugin), plugin);
 
 	    }
 	});
@@ -1803,7 +1806,7 @@ public class AcidIsland extends JavaPlugin {
 	if (challengeConfigFile == null) {
 	    challengeConfigFile = new File(getDataFolder(), "challenges.yml");
 	}
-	challenges = YamlConfiguration.loadConfiguration(challengeConfigFile);
+	challengeFile = YamlConfiguration.loadConfiguration(challengeConfigFile);
 
 	// Look for defaults in the jar
 
@@ -1811,7 +1814,7 @@ public class AcidIsland extends JavaPlugin {
 	if (defConfigStream != null) {
 	    @SuppressWarnings("deprecation")
 	    YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
-	    challenges.setDefaults(defConfig);
+	    challengeFile.setDefaults(defConfig);
 	}
     }
 
@@ -1819,17 +1822,17 @@ public class AcidIsland extends JavaPlugin {
      * @return challenges FileConfiguration object
      */
     public FileConfiguration getChallengeConfig() {
-	if (challenges == null) {
+	if (challengeFile == null) {
 	    reloadChallengeConfig();
 	}
-	return challenges;
+	return challengeFile;
     }
 
     /**
      * Saves challenges.yml
      */
     public void saveChallengeConfig() {
-	if (challenges == null || challengeConfigFile == null) {
+	if (challengeFile == null || challengeConfigFile == null) {
 	    return;
 	}
 	try {

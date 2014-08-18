@@ -281,10 +281,11 @@ public class Locale {
     // Nether
     public static String netherSpawnIsProtected;
     
-    // Minishop & Control Panel
+    // Minishop & other Control Panels
     public static String islandhelpMiniShop;
     public static String islandMiniShopTitle;
     public static String controlPanelTitle;
+    public static String challengesguiTitle;
     
 
    

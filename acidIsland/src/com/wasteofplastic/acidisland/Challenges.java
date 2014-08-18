@@ -54,7 +54,8 @@ public class Challenges implements CommandExecutor {
 	case 0:
 	    // User typed /c or /challenge
 	    // Display panel
-	    //player.openInventory(challengePanel(player));
+	    player.openInventory(challengePanel(player));
+	    /*
 	    int levelDone = 0;
 	    sender.sendMessage(ChatColor.GOLD + Settings.challengeLevels.get(0) + ": " + getChallengesByLevel(player, Settings.challengeLevels.get(0)));
 	    for (int i = 1; i < Settings.challengeLevels.size(); i++) {
@@ -69,6 +70,7 @@ public class Challenges implements CommandExecutor {
 	    }
 	    sender.sendMessage(ChatColor.GOLD + Locale.challengeshelp1);
 	    sender.sendMessage(ChatColor.GOLD + Locale.challengeshelp2);
+	     */
 	    return true;
 	case 1:
 	    if (cmd[0].equalsIgnoreCase("help") || cmd[0].equalsIgnoreCase("complete") || cmd[0].equalsIgnoreCase("c")) {
@@ -135,8 +137,8 @@ public class Challenges implements CommandExecutor {
 	    if (cmd[0].equalsIgnoreCase("complete") || cmd[0].equalsIgnoreCase("c")) {
 		if (checkIfCanCompleteChallenge(player, cmd[1].toLowerCase())) {
 		    giveReward(player, cmd[1].toLowerCase());
-		    return true;
 		}
+		return true;
 	    }
 	default:
 	    return false;
@@ -589,7 +591,29 @@ public class Challenges implements CommandExecutor {
 	//sender.sendMessage(ChatColor.GOLD + Settings.challengeLevels.get(0) + ": " + getChallengesByLevel(player, Settings.challengeLevels.get(0)));
 	// Loop through challenges for this player for first level
 	for (String challengeName : challengeList.get(Settings.challengeLevels.get(0))) {
-	    CPItem item = new CPItem(Material.LAVA, challengeName, "aichallenge c " + challengeName, null);
+	    // Get the icon
+	    ItemStack icon = null;
+	    String iconName = plugin.getChallengeConfig().getString("challenges.challengeList." + challengeName + ".icon", "");
+	    if (!iconName.isEmpty()) {
+		try {
+		    // Split if required
+		    String[] split = iconName.split(":");
+		    if (split.length == 1) {
+			icon = new ItemStack(Material.valueOf(iconName));
+		    } else if (split.length == 2) {
+			icon = new ItemStack(Material.valueOf(split[0]));
+			icon.setDurability(Integer.valueOf(split[1]).shortValue());
+		    }
+		} catch (Exception e) {
+		    // Icon was not well formatted
+		    plugin.getLogger().warning("Error in challenges.yml - icon format is incorrect for " + challengeName + ":" + iconName);
+		    plugin.getLogger().warning("Format should be 'icon: MaterialType:Damage' where Damage is optional");
+		}
+	    }
+	    if (icon == null) {
+		icon = new ItemStack(Material.PAPER);
+	    }
+	    CPItem item = new CPItem(icon, ChatColor.GREEN + challengeName.substring(0, 1).toUpperCase() + challengeName.substring(1), "aichallenge c " + challengeName, null);
 	    List<String> lore = challengeDescription(challengeName, player);
 	    item.setLore(lore);
 	    cp.add(item);
@@ -601,7 +625,29 @@ public class Challenges implements CommandExecutor {
 	    if (levelDone <= 0) {
 		// Loop through challenges for this player
 		for (String challengeName : challengeList.get(Settings.challengeLevels.get(i))) {
-		    CPItem item = new CPItem(Material.LAVA, challengeName, "aichallenge c " + challengeName, null);
+		    // Get the icon
+		    ItemStack icon = null;
+		    String iconName = plugin.getChallengeConfig().getString("challenges.challengeList." + challengeName + ".icon", "");
+		    if (!iconName.isEmpty()) {
+			try {
+			    // Split if required
+			    String[] split = iconName.split(":");
+			    if (split.length == 1) {
+				icon = new ItemStack(Material.valueOf(iconName));
+			    } else if (split.length == 2) {
+				icon = new ItemStack(Material.valueOf(split[0]));
+				icon.setDurability(Integer.valueOf(split[1]).shortValue());
+			    }
+			} catch (Exception e) {
+			    // Icon was not well formatted
+			    plugin.getLogger().warning("Error in challenges.yml - icon format is incorrect for " + challengeName + ":" + iconName);
+			    plugin.getLogger().warning("Format should be 'icon: MaterialType:Damage' where Damage is optional");
+			}
+		    }
+		    if (icon == null) {
+			icon = new ItemStack(Material.PAPER);
+		    }
+		    CPItem item = new CPItem(icon, ChatColor.GREEN + challengeName.substring(0, 1).toUpperCase() + challengeName.substring(1), "aichallenge c " + challengeName, null);
 		    List<String> lore = challengeDescription(challengeName, player);
 		    item.setLore(lore);
 		    cp.add(item);
@@ -611,7 +657,7 @@ public class Challenges implements CommandExecutor {
 		CPItem item = new CPItem(Material.WATER, ChatColor.GOLD + Settings.challengeLevels.get(i), null, null);
 		List<String> lore = new ArrayList<String>();
 		// Add the level
-		lore = chop(Locale.challengestoComplete.replace("[challengesToDo]", String.valueOf(levelDone)).replace("[thisLevel]",Settings.challengeLevels.get(i-1)),15);
+		lore = chop(ChatColor.WHITE,Locale.challengestoComplete.replace("[challengesToDo]", String.valueOf(levelDone)).replace("[thisLevel]",Settings.challengeLevels.get(i-1)),25);
 		// TODO Add other info here..
 		item.setLore(lore);
 		cp.add(item);
@@ -621,7 +667,7 @@ public class Challenges implements CommandExecutor {
 	    // Make sure size is a multiple of 9
 	    int size = cp.size() +8;
 	    size -= (size % 9);
-	    Inventory newPanel = Bukkit.createInventory(null, size, "Challenges");
+	    Inventory newPanel = Bukkit.createInventory(null, size, Locale.challengesguiTitle);
 	    // Store the panel details for retrieval later
 	    playerChallengeGUI.put(player.getUniqueId(), cp);
 	    // Fill the inventory and return
@@ -637,34 +683,55 @@ public class Challenges implements CommandExecutor {
 	return playerChallengeGUI.get(player.getUniqueId());
     }
 
-    private List<String> chop(String longLine, int length) {
+    private List<String> chop(ChatColor color, String longLine, int length) {
 	List<String> result = new ArrayList<String>();
-	int multiples = longLine.length() / length;
-	for (int i = 0; i< (multiples*length); i += length) {
-	    result.add(longLine.substring(i, i+ length));
+	//int multiples = longLine.length() / length;
+	int i = 0;
+	for (i = 0; i< longLine.length(); i += length) {
+	    //for (int i = 0; i< (multiples*length); i += length) {
+	    int endIndex = Math.min(i + length, longLine.length());
+	    String line = longLine.substring(i, endIndex);
+	    // Do the following only if i+length is not the end of the string
+	    if (endIndex < longLine.length()) {
+		// Check if last character in this string is not a space
+		if (!line.substring(line.length()-1).equals(" ")) {
+		    // If it is not a space, check to see if the next character in long line is a space.
+		    if (!longLine.substring(endIndex,endIndex+1).equals(" ")) {
+			// If it is not, then we are cutting a word in two and need to backtrack to the last space if possible
+			int lastSpace = line.lastIndexOf(" ");
+			if (lastSpace < line.length()) {
+			    line = line.substring(0, lastSpace);
+			    i -= (length - lastSpace -1);
+			}
+		    }
+		} 
+	    }
+	    //}
+	    result.add(color + line);
 	}
-	result.add(longLine.substring(multiples * length, longLine.length()));
+	//result.add(color + longLine.substring(i, longLine.length()));
 	return result;
     }
 
     private List<String> challengeDescription(String challenge, Player player) {
 	List<String> result = new ArrayList<String>();
-	plugin.getLogger().info("DEBUG: challenge is '"+challenge+"'");
-	plugin.getLogger().info("challenges.challengeList." + challenge + ".level");
-	plugin.getLogger().info(plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level"));
-	result.addAll(chop(ChatColor.WHITE + Locale.challengeslevel +": " + ChatColor.GOLD + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level",""),15));
-	result.addAll(chop(ChatColor.GOLD + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".description",""),15));
+	final int length = 25;
+	//plugin.getLogger().info("DEBUG: challenge is '"+challenge+"'");
+	//plugin.getLogger().info("challenges.challengeList." + challenge + ".level");
+	//plugin.getLogger().info(plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level"));
+	result.addAll(chop(ChatColor.WHITE, Locale.challengeslevel +": " + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level",""),length));
+	result.addAll(chop(ChatColor.GOLD, plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".description",""),length));
 	final String type = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type","").toLowerCase();
 	if (type.equals("inventory")) {
 	    if (plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge.toLowerCase() + ".takeItems")) {
-		result.addAll(chop(ChatColor.RED + Locale.challengesitemTakeWarning,15));
+		result.addAll(chop(ChatColor.RED, Locale.challengesitemTakeWarning,length));
 	    }
 	} else if (type.equals("island")) {
-	    result.addAll(chop(ChatColor.RED + Locale.challengeserrorItemsNotThere,15));
+	    result.addAll(chop(ChatColor.RED, Locale.challengeserrorItemsNotThere,length));
 	}
 	if (players.checkChallenge(player.getUniqueId(),challenge)
 		&& (!type.equals("inventory") || !plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge + ".repeatable", false))) {
-	    result.addAll(chop(ChatColor.RED + Locale.challengesnotRepeatable,15));
+	    result.addAll(chop(ChatColor.RED, Locale.challengesnotRepeatable,length));
 	    return result;
 	}
 	int moneyReward = 0;
@@ -676,21 +743,21 @@ public class Challenges implements CommandExecutor {
 	    moneyReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge.toLowerCase() + ".moneyReward", 0);
 	    rewardText = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge.toLowerCase() + ".rewardText", "Goodies!").replace('&', '§');
 	    expReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge + ".xpReward", 0);
-	    result.addAll(chop(ChatColor.GOLD + Locale.challengesfirstTimeRewards,15));
+	    result.addAll(chop(ChatColor.GOLD, Locale.challengesfirstTimeRewards,length));
 	} else {
 	    // Repeat challenge
 	    moneyReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge.toLowerCase() + ".repeatMoneyReward", 0);
 	    rewardText = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge.toLowerCase() + ".repeatRewardText", "Goodies!").replace('&', '§');
 	    expReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge + ".repeatExpReward", 0);
-	    result.addAll(chop(ChatColor.GOLD + Locale.challengesrepeatRewards,15));
+	    result.addAll(chop(ChatColor.GOLD,  Locale.challengesrepeatRewards,length));
 
 	}	
-	result.addAll(chop(ChatColor.WHITE + rewardText,15));
+	result.addAll(chop(ChatColor.WHITE, rewardText,length));
 	if (expReward > 0) {
-	    result.addAll(chop(ChatColor.GOLD + Locale.challengesexpReward + ": " + ChatColor.WHITE + expReward,15));
+	    result.addAll(chop(ChatColor.GOLD, Locale.challengesexpReward + ": " + ChatColor.WHITE + expReward,length));
 	}
 	if (moneyReward > 0) { 
-	    result.addAll(chop(ChatColor.GOLD + Locale.challengesmoneyReward + ": " + ChatColor.WHITE + VaultHelper.econ.format(moneyReward),15));
+	    result.addAll(chop(ChatColor.GOLD, Locale.challengesmoneyReward + ": " + ChatColor.WHITE + VaultHelper.econ.format(moneyReward),length));
 	}
 	return result;	
     }

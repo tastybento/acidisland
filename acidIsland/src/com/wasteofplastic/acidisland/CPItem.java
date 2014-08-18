@@ -8,6 +8,7 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 
 /**
  * @author ben
@@ -32,6 +33,15 @@ public class CPItem {
 	this.command = command;
 	this.nextSection = nextSection;
 	item = new ItemStack(material);
+	ItemMeta meta = item.getItemMeta();
+	meta.setDisplayName(name);
+	item.setItemMeta(meta);
+    }
+    
+    public CPItem(ItemStack itemStack, String name, String command, String nextSection) {
+	this.command = command;
+	this.nextSection = nextSection;
+	this.item = itemStack;
 	ItemMeta meta = item.getItemMeta();
 	meta.setDisplayName(name);
 	item.setItemMeta(meta);

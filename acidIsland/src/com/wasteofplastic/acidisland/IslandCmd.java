@@ -767,18 +767,18 @@ public class IslandCmd implements CommandExecutor {
 	    if (split[0].equalsIgnoreCase("about")) {
 		player.sendMessage(ChatColor.GOLD + "AcidIsland (c) 2014 by TastyBento");
 		//Spawn enderman
-		Enderman enderman = (Enderman) player.getWorld().spawnEntity(player.getLocation().add(new Vector(5,0,5)), EntityType.ENDERMAN);
-		enderman.setCustomName("TastyBento's Ghost");
-		enderman.setCarriedMaterial(new MaterialData(Material.GRASS));
+		//Enderman enderman = (Enderman) player.getWorld().spawnEntity(player.getLocation().add(new Vector(5,0,5)), EntityType.ENDERMAN);
+		//enderman.setCustomName("TastyBento's Ghost");
+		//enderman.setCarriedMaterial(new MaterialData(Material.GRASS));
 	    }
 	    
 	    if (split[0].equalsIgnoreCase("controlpanel") || split[0].equalsIgnoreCase("cp")) {
-		if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+		//if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 		    if (VaultHelper.checkPerm(player, "acidisland.island.controlpanel")) {
 			player.openInventory(ControlPanel.controlPanel.get("AcidIsland"));
 			return true;
 		    }
-		}
+		//}
 	    }
 
 	    if (split[0].equalsIgnoreCase("minishop") || split[0].equalsIgnoreCase("ms")) {

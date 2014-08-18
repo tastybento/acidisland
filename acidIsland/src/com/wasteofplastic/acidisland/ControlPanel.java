@@ -1,6 +1,7 @@
 package com.wasteofplastic.acidisland;
 
 import java.util.HashMap;
+import java.util.List;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
@@ -25,6 +26,19 @@ public class ControlPanel implements Listener {
     private static YamlConfiguration miniShopFile;
     private static HashMap<Integer, MiniShopItem> store = new HashMap<Integer,MiniShopItem>();
     private static YamlConfiguration cpFile;
+    private AcidIsland plugin;
+
+
+
+    /**
+     * @param plugin
+     */
+    public ControlPanel(AcidIsland plugin) {
+	this.plugin = plugin;
+	loadShop();
+	loadControlPanel();
+    }
+
 
     /**
      * Map of panel contents by name
@@ -42,10 +56,6 @@ public class ControlPanel implements Listener {
     //The second parameter, is the slots in a inventory. Must be a multiple of 9. Can be up to 54.
     //The third parameter, is the inventory name. This will accept chat colors.
 
-    static {
-	loadShop();
-	loadControlPanel();
-    }
 
     public static void loadShop() {
 	//The first parameter is the Material, then the durability (if wanted), slot, descriptions
@@ -90,8 +100,8 @@ public class ControlPanel implements Listener {
 	panels.clear();
 	// Map of panel inventories by name
 	controlPanel.clear();
-	
-	
+
+
 	cpFile = AcidIsland.loadYamlFile("controlpanel.yml");
 	ConfigurationSection controlPanels = cpFile.getRoot();
 	if (controlPanels == null) {
@@ -143,7 +153,7 @@ public class ControlPanel implements Listener {
 	}	
     }
 
-    
+
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
 	Player player = (Player) event.getWhoClicked(); // The player that clicked the item
@@ -156,8 +166,13 @@ public class ControlPanel implements Listener {
 	    if (inventory.getName().equals(panelName)) {
 		//plugin.getLogger().info("DEBUG: panels length " + panels.size());
 		//plugin.getLogger().info("DEBUG: panel name " + panelName);
+		if (slot == -999) {
+		    player.closeInventory();
+		    event.setCancelled(true);
+		    return;
+		}
 		HashMap<Integer, CPItem> thisPanel = panels.get(panelName);
-		if (slot < thisPanel.size()) {
+		if (slot >= 0 && slot < thisPanel.size()) {
 		    //plugin.getLogger().info("DEBUG: slot is " + slot);
 		    // Do something
 		    String command = thisPanel.get(slot).getCommand();
@@ -180,10 +195,35 @@ public class ControlPanel implements Listener {
 		}
 	    }
 	}
+	if (inventory.getName().equals(Locale.challengesguiTitle)) {
+	    event.setCancelled(true);
+	    if (slot == -999) {
+		player.closeInventory();
+		return;
+	    }
+
+	    // Get the list of items in this inventory
+	    //plugin.getLogger().info("You clicked on slot " + slot);
+	    List<CPItem> challenges = plugin.challenges.getCP(player);
+	    if (slot >=0 && slot < challenges.size()) {
+		CPItem item = challenges.get(slot);
+		// Check that it is the top items that are bing clicked on
+		if (clicked.equals(item.getItem())) {
+		    plugin.getLogger().info("You clicked on a challenge item");
+		    plugin.getLogger().info("performing  /" + item.getCommand());
+		    player.performCommand(item.getCommand());
+		    player.closeInventory();
+		}
+	    }
+	}
 	if (inventory.getName().equals(miniShop.getName())) { // The inventory is our custom Inventory
 	    String message = "";
 	    //plugin.getLogger().info("You clicked on slot " + slot);
 	    event.setCancelled(true); // Don't let them pick it up
+	    if (slot == -999) {
+		player.closeInventory();
+		return;
+	    }
 	    if (store.containsKey(slot)) {
 		// We have a winner!
 		MiniShopItem item = store.get(slot);
