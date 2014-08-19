@@ -321,4 +321,6 @@ news:
 nether:
    spawnisprotected: "The Nether spawn area is protected."
 
-
+# Ultra safe boats
+boats:
+   warning: "It's unsafe to exit the boat right now..."

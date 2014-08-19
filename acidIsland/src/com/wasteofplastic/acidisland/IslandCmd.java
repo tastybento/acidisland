@@ -30,16 +30,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Boat;
-import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.util.Vector;
 
 public class IslandCmd implements CommandExecutor {
     public boolean busyFlag = true;
@@ -87,9 +83,9 @@ public class IslandCmd implements CommandExecutor {
 	    plugin.getLogger().info("Can only add player to a team if both player and leader are online.");
 	    return false;
 	}*/
-	plugin.getLogger().info("Adding player: " + playerUUID + " to team with leader: " + teamLeader);
-	plugin.getLogger().info("The team island location is: " + players.getIslandLocation(teamLeader));
-	plugin.getLogger().info("The leader's home location is: " + players.getHomeLocation(teamLeader) + " (may be different or null)");
+	//plugin.getLogger().info("Adding player: " + playerUUID + " to team with leader: " + teamLeader);
+	//plugin.getLogger().info("The team island location is: " + players.getIslandLocation(teamLeader));
+	//plugin.getLogger().info("The leader's home location is: " + players.getHomeLocation(teamLeader) + " (may be different or null)");
 
 	// Set the player's team giving the team leader's name and the team's island
 	// location
@@ -770,6 +766,17 @@ public class IslandCmd implements CommandExecutor {
 		//Enderman enderman = (Enderman) player.getWorld().spawnEntity(player.getLocation().add(new Vector(5,0,5)), EntityType.ENDERMAN);
 		//enderman.setCustomName("TastyBento's Ghost");
 		//enderman.setCarriedMaterial(new MaterialData(Material.GRASS));
+		/*
+		final Hologram h = new Hologram(plugin, ChatColor.GOLD + "" + ChatColor.BOLD + "AcidIsland", "(c)2014 TastyBento");
+		h.show(player.getLocation());
+		plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+
+		    @Override
+		    public void run() {
+			h.destroy();
+		    }}, 40L);
+		*/
+
 	    }
 	    
 	    if (split[0].equalsIgnoreCase("controlpanel") || split[0].equalsIgnoreCase("cp")) {

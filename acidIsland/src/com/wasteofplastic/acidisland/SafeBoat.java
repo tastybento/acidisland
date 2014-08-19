@@ -6,6 +6,7 @@ package com.wasteofplastic.acidisland;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -20,6 +21,7 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 /**
@@ -35,6 +37,7 @@ public class SafeBoat implements Listener {
     // HashMap<Player,Long>();
     // private static HashMap<Player,Integer> hitBoat = new
     // HashMap<Player,Integer>();
+    private boolean debounce = false;
     private final AcidIsland plugin;
 
     public SafeBoat(AcidIsland acidIsland) {
@@ -160,7 +163,7 @@ public class SafeBoat implements Listener {
 	}
 	// Okay, so a player is getting out of a boat in the the right world.
 	// Now...
-	// plugin.getLogger().info("Player just exited a boat");
+	//plugin.getLogger().info("Player just exited a boat");
 	// Find a safe place for the player to land
 	int radius = 0;
 	while (radius++ < 2) {
@@ -170,11 +173,10 @@ public class SafeBoat implements Listener {
 			// The safe location to tp to is actually +0.5 to x and
 			// z.
 			final Location loc = new Location(player.getWorld(), (double) (x + 0.5), (double) y, (double) (z + 0.5));
-			// plugin.getLogger().info("XYZ is " + x + " " + y + " "
-			// + z);
+			//plugin.getLogger().info("XYZ is " + x + " " + y + " " + z);
 			// Make sure the location is safe
 			if (AcidIsland.isSafeLocation(loc)) {
-			    // plugin.getLogger().info("Safe!");
+			    //plugin.getLogger().info("Safe!");
 			    Bukkit.getServer().getScheduler().runTask(plugin, new Runnable() {
 				@Override
 				public void run() {
@@ -192,6 +194,24 @@ public class SafeBoat implements Listener {
 		    }
 		}
 	    }
+	}
+	// Oops, the exit was not safe cancel the exit
+	//plugin.getLogger().info("Unsafe!");
+	if (Settings.ultraSafeBoats) {
+	if (!player.hasPotionEffect(PotionEffectType.WATER_BREATHING) && !(player.isOp() && !Settings.damageOps)) {
+	    e.setCancelled(true);
+	    if (!debounce) {
+		player.sendMessage(ChatColor.RED + Locale.boatWarningItIsUnsafe);
+		debounce = true;
+		Bukkit.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+
+		    @Override
+		    public void run() {
+			debounce = false;			
+		    }
+		},20L);
+	    }
+	}
 	}
     }
 

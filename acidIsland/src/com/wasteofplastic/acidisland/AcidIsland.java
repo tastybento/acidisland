@@ -756,6 +756,7 @@ public class AcidIsland extends JavaPlugin {
 	}
 	
 	Settings.damageOps = getConfig().getBoolean("general.damageops", false);
+	Settings.ultraSafeBoats = getConfig().getBoolean("general.ultrasafeboats", true);
 
 	// The island's center is actually 5 below sea level
 	Settings.sea_level = getConfig().getInt("general.sealevel", 50) - 5;
@@ -871,8 +872,7 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.waiverAmount < 0) {
 	    Settings.waiverAmount = 0;
 	}
-
-	// Control Panel / Mini Shop
+	
 
 
 	// Localization
@@ -1055,6 +1055,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.netherSpawnIsProtected = locale.getString("nether.spawnisprotected", "The Nether spawn area is protected.");
 	Locale.islandhelpMiniShop = locale.getString("minishop.islandhelpMiniShop","Opens the MiniShop" );
 	Locale.islandMiniShopTitle = locale.getString("minishop.title","MiniShop" );
+	Locale.boatWarningItIsUnsafe = locale.getString("boats.warning", "It's unsafe to exit the boat right now...");
     }
 
     /*

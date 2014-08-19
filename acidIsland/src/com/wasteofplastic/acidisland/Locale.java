@@ -4,6 +4,7 @@ package com.wasteofplastic.acidisland;
 
 
 
+
 /**
  * @author ben
  * All the text strings in the game sent to players
@@ -286,11 +287,8 @@ public class Locale {
     public static String islandMiniShopTitle;
     public static String controlPanelTitle;
     public static String challengesguiTitle;
-    
-
-   
-    
-    
+    // Ultra safe boats
+    public static String boatWarningItIsUnsafe;
     
     
 }
