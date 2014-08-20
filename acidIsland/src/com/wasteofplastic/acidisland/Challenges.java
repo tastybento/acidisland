@@ -410,14 +410,59 @@ public class Challenges implements CommandExecutor {
 		final String[] part = s.split(":");
 		if (part.length == 2) {
 		    try {
+			
 			reqItem = Material.getMaterial(part[0]);
 			reqAmount = Integer.parseInt(part[1]);
 			ItemStack item = new ItemStack(reqItem);
-			if (!player.getInventory().containsAtLeast(item,reqAmount)){
+			//plugin.getLogger().info("DEBUG: required item = " + reqItem.toString());
+			//plugin.getLogger().info("DEBUG: item amount = " + reqAmount);
+			
+			if (!player.getInventory().contains(reqItem)) {
 			    return false;
+			} else {
+			    // check amount
+			    int amount = 0;
+			    for (ItemStack i : player.getInventory().all(reqItem).values()) {
+				// #1 item stack qty + amount is less than required items - take all i
+				// #2 item stack qty + amount = required item - take all
+				// #3 item stack qty + amount > req items - take portion of i
+				amount += i.getAmount();
+				if (amount <= reqAmount) {
+				    // Remove all of this item stack - clone otherwise it will keep a reference to the original
+				    toBeRemoved.add(i.clone());
+				    //plugin.getLogger().info("DEBUG: amount is <= req Remove " + i.toString() + ":" + i.getDurability() + " x " + i.getAmount());
+
+				} else {
+				    // Remove a portion of this item
+				    //plugin.getLogger().info("DEBUG: amount is > req Remove " + i.toString() + ":" + i.getDurability() + " x " + i.getAmount());
+
+				    item.setAmount(reqAmount);
+				    item.setDurability(i.getDurability());
+				    toBeRemoved.add(item);  
+				}
+			    }
+			    //plugin.getLogger().info("DEBUG: amount "+ amount);
+			    if (amount < reqAmount) {
+				return false;
+			    }
 			}
-			item.setAmount(reqAmount);
-			toBeRemoved.add(item);
+			
+			/*
+			if (!player.getInventory().containsAtLeast(item,reqAmount)){
+			    // MAP is a special case - the durability increments with every one
+			    plugin.getLogger().info("DEBUG: not enough in inventory");
+			    
+			    for (ItemStack i : player.getInventory().getContents()) {
+				if (i != null) {
+				    plugin.getLogger().info("DEBUG: material "+ i.getType());
+				    plugin.getLogger().info("DEBUG: amount "+ i.getAmount());
+				    plugin.getLogger().info("DEBUG: durability "+ i.getDurability());
+				}
+			    }
+			    return false;
+			}*/
+			//item.setAmount(reqAmount);
+			//toBeRemoved.add(item);
 		    } catch (Exception e) {
 			plugin.getLogger().severe("Problem with " + s + " in challenges.yml!");
 			return false;
@@ -428,7 +473,7 @@ public class Challenges implements CommandExecutor {
 			int reqDurability = Integer.parseInt(part[1]);
 			reqAmount = Integer.parseInt(part[2]);
 			int count = reqAmount;
-			//plugin.getLogger().info("DEBUG: " + reqItem.toString() + ":" + reqDurability + " x " + reqAmount);
+			//plugin.getLogger().info("DEBUG: 3 part " + reqItem.toString() + ":" + reqDurability + " x " + reqAmount);
 			ItemStack item = new ItemStack(reqItem);
 			// Check for potions
 			if (reqItem.equals(Material.POTION)) {
@@ -438,7 +483,7 @@ public class Challenges implements CommandExecutor {
 				if (i != null && i.getType().equals(Material.POTION)) {
 				    //plugin.getLogger().info("Potion found, durability = "+ i.getDurability());
 				    if (i.getDurability() == reqDurability) {
-					plugin.getLogger().info("Matched! ");
+					//plugin.getLogger().info("Matched! ");
 					count--;
 					item = new ItemStack(i);
 					//plugin.getLogger().info("DEBUG: Found " + item.toString() + ":" + item.getDurability() + " x " + item.getAmount());
@@ -477,11 +522,13 @@ public class Challenges implements CommandExecutor {
 	    // REPLACE THIS FUNCTION BELOW
 	    if (plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge + ".takeItems")) {
 		//checkChallengeItems(player, challenge);
-
+		int qty = 0;
 		for (ItemStack i : toBeRemoved) {
-		    // plugin.getLogger().info("DEBUG: Remove " + i.toString() + ":" + i.getDurability() + " x " + i.getAmount());
+		    qty += i.getAmount();
+		    //plugin.getLogger().info("DEBUG: Remove " + i.toString() + ":" + i.getDurability() + " x " + i.getAmount());
 		    player.getInventory().removeItem(i);
 		}
+		//plugin.getLogger().info("DEBUG: total = " + qty);
 	    }
 	    return true;
 	}
