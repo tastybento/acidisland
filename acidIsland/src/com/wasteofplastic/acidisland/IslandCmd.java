@@ -29,12 +29,8 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.help.HelpTopic;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -747,19 +743,7 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    } else {
 		// Teleport home
-		// Check if player is in a boat
-		if (player.isInsideVehicle()) {
-		    Entity boat = player.getVehicle();
-		    if (boat instanceof Boat) {
-			// Remove the boat so they don't lie around everywhere
-			plugin.homeTeleport(player);
-			boat.remove();
-			player.getInventory().addItem(new ItemStack(Material.BOAT, 1));
-			player.updateInventory();
-		    }
-		} else {
-		    plugin.homeTeleport(player);
-		}
+		plugin.homeTeleport(player);
 		return true;
 	    }
 	case 1:
@@ -778,16 +762,16 @@ public class IslandCmd implements CommandExecutor {
 		    public void run() {
 			h.destroy();
 		    }}, 40L);
-		*/
+		 */
 
 	    }
-	    
+
 	    if (split[0].equalsIgnoreCase("controlpanel") || split[0].equalsIgnoreCase("cp")) {
 		//if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
-		    if (VaultHelper.checkPerm(player, "acidisland.island.controlpanel")) {
-			player.openInventory(ControlPanel.controlPanel.get("AcidIsland"));
-			return true;
-		    }
+		if (VaultHelper.checkPerm(player, "acidisland.island.controlpanel")) {
+		    player.openInventory(ControlPanel.controlPanel.get("AcidIsland"));
+		    return true;
+		}
 		//}
 	    }
 
@@ -1343,7 +1327,7 @@ public class IslandCmd implements CommandExecutor {
 		    if (players.inTeam(player.getUniqueId())) {
 			if (teamLeader.equals(player.getUniqueId())) {
 			    if (teamMembers.contains(targetPlayer)) {
-				
+
 				// Check if online
 				if (plugin.getServer().getPlayer(targetPlayer) != null) {
 				    plugin.getServer().getPlayer(targetPlayer).sendMessage(ChatColor.GREEN + Locale.makeLeaderyouAreNowTheOwner);

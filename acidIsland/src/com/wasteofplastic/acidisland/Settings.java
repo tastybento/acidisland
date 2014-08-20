@@ -67,6 +67,6 @@ public class Settings {
     public static boolean allowEndermanGriefing;
     public static boolean allowCreeperDamage;
     public static boolean allowTNTDamage;
-    public static boolean ultraSafeBoats;
+    //public static boolean ultraSafeBoats;
     
 }

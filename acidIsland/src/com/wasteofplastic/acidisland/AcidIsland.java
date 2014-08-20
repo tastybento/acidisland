@@ -315,7 +315,17 @@ public class AcidIsland extends JavaPlugin {
     public boolean homeTeleport(final Player player) {
 	Location home = null;
 	home = getSafeHomeLocation(player.getUniqueId());
-
+	// Check if the player is a passenger in a boat
+	if (player.isInsideVehicle()) {
+	    Entity boat = player.getVehicle();
+	    if (boat instanceof Boat) {
+		player.leaveVehicle();
+		// Remove the boat so they don't lie around everywhere
+		boat.remove();
+		player.getInventory().addItem(new ItemStack(Material.BOAT, 1));
+		player.updateInventory();
+	    }
+	}
 	if (home == null) {
 	    if (!player.performCommand("spawn")) {
 		player.teleport(player.getWorld().getSpawnLocation());
@@ -754,9 +764,9 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.resetWait < 0) {
 	    Settings.resetWait = 0;
 	}
-	
+
 	Settings.damageOps = getConfig().getBoolean("general.damageops", false);
-	Settings.ultraSafeBoats = getConfig().getBoolean("general.ultrasafeboats", true);
+	//Settings.ultraSafeBoats = getConfig().getBoolean("general.ultrasafeboats", true);
 
 	// The island's center is actually 5 below sea level
 	Settings.sea_level = getConfig().getInt("general.sealevel", 50) - 5;
@@ -850,7 +860,7 @@ public class AcidIsland extends JavaPlugin {
 	Settings.allowEndermanGriefing = getConfig().getBoolean("island.allowendermangriefing", true);
 	Settings.allowCreeperDamage = getConfig().getBoolean("island.allowcreeperdamage", true);
 	Settings.allowTNTDamage = getConfig().getBoolean("island.allowtntdamage", false);
-	
+
 	Settings.absorbLava = getConfig().getBoolean("sponge.absorbLava", false);
 	Settings.absorbFire = getConfig().getBoolean("sponge.absorbFire", false);
 	Settings.restoreWater = getConfig().getBoolean("sponge.restoreWater", true);
@@ -872,7 +882,7 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.waiverAmount < 0) {
 	    Settings.waiverAmount = 0;
 	}
-	
+
 
 
 	// Localization
@@ -1115,7 +1125,7 @@ public class AcidIsland extends JavaPlugin {
 	players = new PlayerCache(this);
 	challenges = new Challenges(this,players);
 	// Set up commands for this plugin
-	
+
 	getCommand("ai").setExecutor(new IslandCmd(this,players));
 	getCommand("aic").setExecutor(challenges);
 	getCommand("acid").setExecutor(new AdminCmd(this,players));
@@ -1992,6 +2002,4 @@ public class AcidIsland extends JavaPlugin {
 	    return false;
 	}
     }
-
-
 }

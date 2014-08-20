@@ -87,9 +87,9 @@ public class AcidEffect implements Listener {
 	    // This is needed because safeboat.java cannot teleport the player
 	    // for 1 tick
 	    // Don't remove this!!
-	    if (SafeBoat.exitedBoat(player)) {
-		return;
-	    }
+	   // if (SafeBoat.exitedBoat(player)) {
+	//	return;
+	    //}
 	    // Check if player is in a boat
 	    Entity playersVehicle = player.getVehicle();
 	    if (playersVehicle != null) {
