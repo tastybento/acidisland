@@ -209,10 +209,12 @@ public class ControlPanel implements Listener {
 		CPItem item = challenges.get(slot);
 		// Check that it is the top items that are bing clicked on
 		if (clicked.equals(item.getItem())) {
-		    plugin.getLogger().info("You clicked on a challenge item");
-		    plugin.getLogger().info("performing  /" + item.getCommand());
-		    player.performCommand(item.getCommand());
-		    player.closeInventory();
+		    //plugin.getLogger().info("You clicked on a challenge item");
+		    //plugin.getLogger().info("performing  /" + item.getCommand());
+		    if (item.getCommand() != null) {
+			player.performCommand(item.getCommand());
+			player.closeInventory();
+		    }
 		}
 	    }
 	}
