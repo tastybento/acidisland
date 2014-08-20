@@ -6,7 +6,7 @@ author: Tastybento
 depend: [Vault]
 loadbefore: [Multiverse-Core]
 commands:
-    island:
+    ai:
         description: Main player command
         aliases: [is, island, ai]
         usage:  |
@@ -15,11 +15,11 @@ commands:
         description: Admin commands
         usage:  |
             /acid
-    challenges:
+    aic:
         description: Game challenges
         aliases: [c, challenge, aic, aichallenge]
         usage:  |  
-            /challenges help
+            /challenge
 permissions:    
   acidisland.*:
     children:

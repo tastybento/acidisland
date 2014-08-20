@@ -29,10 +29,12 @@ import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.help.HelpTopic;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -704,6 +706,7 @@ public class IslandCmd implements CommandExecutor {
      * , org.bukkit.command.Command, java.lang.String, java.lang.String[])
      */
     @SuppressWarnings("deprecation")
+    @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] split) {
 	if (!(sender instanceof Player)) {
 	    return false;

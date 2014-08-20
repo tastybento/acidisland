@@ -1115,8 +1115,9 @@ public class AcidIsland extends JavaPlugin {
 	players = new PlayerCache(this);
 	challenges = new Challenges(this,players);
 	// Set up commands for this plugin
-	getCommand("island").setExecutor(new IslandCmd(this,players));
-	getCommand("challenges").setExecutor(challenges);
+	
+	getCommand("ai").setExecutor(new IslandCmd(this,players));
+	getCommand("aic").setExecutor(challenges);
 	getCommand("acid").setExecutor(new AdminCmd(this,players));
 	// Register events that this plugin uses
 	registerEvents();
