@@ -100,7 +100,7 @@ challenges:
    rewards: "Reward(s)"
    youHaveNotUnlocked: "You have not unlocked this challenge yet!"
    unknownChallenge: "Unknown challenge name (check spelling)!"
-   errorNotEnoughItems: "You do not have enough of the required item(s)"
+   errorNotEnoughItems: "You do not have enough required item(s)"
    errorNotOnIsland: "You must be on your island to do that!"
    errorNotCloseEnough: "You must be standing within 10 blocks of all required items."
    errorItemsNotThere: "All required items must be close to you on your island!"

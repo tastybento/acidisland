@@ -77,6 +77,9 @@ permissions:
           acidisland.mod.challenges:
             description: Let a moderator access challenge commands 
             default: op
+          acidisland.mod.noburn:
+            description: Gives mod immunity to acid
+            default: false
       acidisland.admin.*:
         children:
           acidisland.admin.reload:
@@ -90,3 +93,7 @@ permissions:
             default: op
           acidisland.admin.purge:
             description: Let a player purge old islands.
+            default: op
+          acidisland.admin.noburn:
+            description: Gives admin immunity to acid
+            default: false

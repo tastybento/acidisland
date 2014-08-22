@@ -58,6 +58,10 @@ public class AcidEffect implements Listener {
 	if (player.isOp() && !Settings.damageOps) {
 	    return;
 	}
+	// Check no burn permissions
+	if (VaultHelper.checkPerm(player, "acidisland.mod.noburn") || VaultHelper.checkPerm(player, "acidisland.admin.noburn")) {
+	    return;
+	}
 	
 	if (player.getGameMode().equals(GameMode.CREATIVE)) {
 	    return;
@@ -127,7 +131,7 @@ public class AcidEffect implements Listener {
 			//plugin.getLogger().info("Damage to player = " + (Settings.general_acidDamage - Settings.general_acidDamage * getDamageReduced(player)));
 			//plugin.getLogger().info("Player health is " + player.getHealth());
 			// Apply additional potion effects
-			plugin.getLogger().info("Potion damage " + Settings.acidDamageType.toString());
+			//plugin.getLogger().info("Potion damage " + Settings.acidDamageType.toString());
 			if (!Settings.acidDamageType.isEmpty()) {
 			    for (PotionEffectType t: Settings.acidDamageType) {
 				//plugin.getLogger().info("Applying " + t.toString());
