@@ -410,13 +410,13 @@ public class Challenges implements CommandExecutor {
 		final String[] part = s.split(":");
 		if (part.length == 2) {
 		    try {
-			
+
 			reqItem = Material.getMaterial(part[0]);
 			reqAmount = Integer.parseInt(part[1]);
 			ItemStack item = new ItemStack(reqItem);
 			//plugin.getLogger().info("DEBUG: required item = " + reqItem.toString());
 			//plugin.getLogger().info("DEBUG: item amount = " + reqAmount);
-			
+
 			if (!player.getInventory().contains(reqItem)) {
 			    return false;
 			} else {
@@ -446,12 +446,12 @@ public class Challenges implements CommandExecutor {
 				return false;
 			    }
 			}
-			
+
 			/*
 			if (!player.getInventory().containsAtLeast(item,reqAmount)){
 			    // MAP is a special case - the durability increments with every one
 			    plugin.getLogger().info("DEBUG: not enough in inventory");
-			    
+
 			    for (ItemStack i : player.getInventory().getContents()) {
 				if (i != null) {
 				    plugin.getLogger().info("DEBUG: material "+ i.getType());
@@ -630,6 +630,11 @@ public class Challenges implements CommandExecutor {
 	return false;
     }
 
+    /**
+     * Dynamically creates an inventory of challenges for the player
+     * @param player
+     * @return
+     */
     public Inventory challengePanel(Player player) {
 	// Create the challenges control panel
 	// New panel map
@@ -760,6 +765,12 @@ public class Challenges implements CommandExecutor {
 	return result;
     }
 
+    /**
+     * Creates the challenge description for the "item" in the inventory
+     * @param challenge
+     * @param player
+     * @return
+     */
     private List<String> challengeDescription(String challenge, Player player) {
 	List<String> result = new ArrayList<String>();
 	final int length = 25;
@@ -767,17 +778,30 @@ public class Challenges implements CommandExecutor {
 	//plugin.getLogger().info("challenges.challengeList." + challenge + ".level");
 	//plugin.getLogger().info(plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level"));
 	result.addAll(chop(ChatColor.WHITE, Locale.challengeslevel +": " + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level",""),length));
-	result.addAll(chop(ChatColor.GOLD, plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".description",""),length));
-	final String type = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type","").toLowerCase();
-	if (type.equals("inventory")) {
-	    if (plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge.toLowerCase() + ".takeItems")) {
-		result.addAll(chop(ChatColor.RED, Locale.challengesitemTakeWarning,length));
-	    }
-	} else if (type.equals("island")) {
-	    result.addAll(chop(ChatColor.RED, Locale.challengeserrorItemsNotThere,length));
+	// Check if completed or not
+	boolean complete = false;
+	if (players.checkChallenge(player.getUniqueId(),challenge)) {
+	    // Complete!
+	    result.add(ChatColor.AQUA + Locale.challengescomplete);
+	    complete = true;
 	}
-	if (players.checkChallenge(player.getUniqueId(),challenge)
-		&& (!type.equals("inventory") || !plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge + ".repeatable", false))) {
+	boolean repeatable = false;
+	if (plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge + ".repeatable", false)) {
+	    // Repeatable
+	    repeatable = true;
+	}
+	final String type = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type","").toLowerCase();
+	if (!complete || (complete && repeatable)) {
+	    result.addAll(chop(ChatColor.GOLD, plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".description",""),length));	    
+	    if (type.equals("inventory")) {
+		if (plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge.toLowerCase() + ".takeItems")) {
+		    result.addAll(chop(ChatColor.RED, Locale.challengesitemTakeWarning,length));
+		}
+	    } else if (type.equals("island")) {
+		result.addAll(chop(ChatColor.RED, Locale.challengeserrorItemsNotThere,length));
+	    }
+	}
+	if (complete && (!type.equals("inventory") || !repeatable)) {
 	    result.addAll(chop(ChatColor.RED, Locale.challengesnotRepeatable,length));
 	    return result;
 	}

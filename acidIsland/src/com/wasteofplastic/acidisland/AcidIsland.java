@@ -143,8 +143,9 @@ public class AcidIsland extends JavaPlugin {
     }
 
     /**
+     * Delete Island
      * Called when an island is restarted or reset
-     * 
+     * Uses NMS fast delete if possible
      * @param player - player name String
      */
     public void deletePlayerIsland(final UUID player) {
