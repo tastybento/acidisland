@@ -15,6 +15,7 @@ import org.bukkit.entity.Squid;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
@@ -22,6 +23,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
@@ -42,7 +44,7 @@ public class IslandGuard implements Listener {
 	this.plugin = plugin;
 
     }
-    
+
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
     public void onExplosion(final EntityExplodeEvent e) {
 	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
@@ -67,11 +69,11 @@ public class IslandGuard implements Listener {
 	default:
 	    break;
 	}
-   }
-  
-    
-    
-    
+    }
+
+
+
+
     /**
      * Allows or prevents enderman griefing
      */
@@ -89,9 +91,9 @@ public class IslandGuard implements Listener {
 	//plugin.getLogger().info("Enderman stopped from griefing");
 	e.setCancelled(true);
     }
-   
-    
-    
+
+
+
     /**
      * Drops the Enderman's block when he dies if he has one
      * @param e
@@ -116,7 +118,7 @@ public class IslandGuard implements Listener {
 	    e.getEntity().getWorld().dropItemNaturally(e.getEntity().getLocation(), m.toItemStack(1));
 	}
     }
-    
+
 
     /**
      * Prevents blocks from being broken
@@ -520,5 +522,43 @@ public class IslandGuard implements Listener {
 	    // Everything else is okay
 	}
     }
+
+
+    /**
+     * Prevents crafting of EnderChest unless the player has permission
+     * @param event
+     */
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onCraft(CraftItemEvent event) {
+	Player player = (Player) event.getWhoClicked();
+	if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName) || 
+		player.getWorld().getName().equalsIgnoreCase(Settings.worldName + "_nether")) {
+	    if(event.getRecipe().getResult().getType() == Material.ENDER_CHEST) {
+		if(!(player.hasPermission("acidisland.craft.enderchest"))) {
+		    event.setCancelled(true);
+		}
+	    }
+	}
+    }
+
+    /**
+     * Prevents usage of an Ender Chest
+     * @param event
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    void PlayerInteractEvent(PlayerInteractEvent event){
+	Player player = (Player) event.getPlayer();
+	if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName) || 
+		player.getWorld().getName().equalsIgnoreCase(Settings.worldName + "_nether")) {
+	    if (event.getAction() == Action.RIGHT_CLICK_BLOCK ){
+		if (event.getClickedBlock().getType() == Material.ENDER_CHEST){
+		    if(!(event.getPlayer().hasPermission("acidisland.craft.enderchest"))) {
+			event.setCancelled(true);
+		    }
+		}
+	    }
+	}
+    }
 }
+
 

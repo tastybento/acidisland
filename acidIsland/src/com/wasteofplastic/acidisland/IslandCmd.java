@@ -168,14 +168,6 @@ public class IslandCmd implements CommandExecutor {
 	// Teleport the player to a safe place
 	//plugin.homeTeleport(player);
 	players.save(playerUUID);
-	/***************
-	 * NOTE: Important section - make sure this is applied any time an
-	 * island is reset!
-	 */
-	resetPlayer(player);
-	if (Settings.resetMoney) {
-	    resetMoney(player);
-	}
 	// Remove any mobs if they just so happen to be around in the
 	// vicinity
 	/*
@@ -263,9 +255,11 @@ public class IslandCmd implements CommandExecutor {
 	player.getInventory().setBoots(null);
 	player.getEquipment().clear();
 	player.setGameMode(GameMode.SURVIVAL);
-	// Clear any Enderchest contents
-	final ItemStack[] items = new ItemStack[player.getEnderChest().getContents().length];
-	player.getEnderChest().setContents(items);
+	if (Settings.resetEnderChest) {
+	    // Clear any Enderchest contents
+	    final ItemStack[] items = new ItemStack[player.getEnderChest().getContents().length];
+	    player.getEnderChest().setContents(items);
+	}
 	// Clear any potion effects
 	for (PotionEffect effect : player.getActivePotionEffects())
 	    player.removePotionEffect(effect.getType());	
@@ -732,6 +726,11 @@ public class IslandCmd implements CommandExecutor {
 		player.sendMessage(ChatColor.GREEN + Locale.islandnew);
 		final Location cowSpot = newIsland(sender);
 		plugin.homeTeleport(player);
+		resetPlayer(player);
+		if (Settings.resetMoney) {
+		    resetMoney(player);
+		}
+
 		Bukkit.getScheduler().runTaskLater(plugin, new Runnable () {
 		    @Override
 		    public void run() {
@@ -860,6 +859,10 @@ public class IslandCmd implements CommandExecutor {
 		    final Location cowSpot = newIsland(sender);
 		    players.setHomeLocation(player.getUniqueId(), null);
 		    plugin.homeTeleport(player);
+		    resetPlayer(player);
+		    if (Settings.resetMoney) {
+			resetMoney(player);
+		    }
 		    Bukkit.getScheduler().runTaskLater(plugin, new Runnable () {
 			@Override
 			public void run() {

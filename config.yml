@@ -35,6 +35,9 @@ general:
    # Remove mobs when /island
    islandremovemobs: false
 
+   # Reset Enderchests - this is a potential exploit - if a player can make an
+   # 
+
    # Sets the limit for number of monsters that can spawn in a chunk in this world. 
    # Note: If set to a negative number the world will use the server-wide spawn limit instead.
    # Max is 100

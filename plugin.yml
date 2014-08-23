@@ -1,6 +1,6 @@
 name: AcidIsland
 main: com.wasteofplastic.acidisland.AcidIsland
-version: 0.9h
+version: 0.9i
 description: Acid Island
 author: Tastybento
 depend: [Vault]
@@ -66,6 +66,11 @@ permissions:
           acidisland.team.join:
             description: Let a player join another player's team
             default: true
+      acidisland.craft.*:
+        children:
+          acidisland.craft.enderchest:
+            description: Allow crafting and use of enderchests in AcidIsland
+            default: false
       acidisland.mod.*:
         children:
           acidisland.mod.topten:
