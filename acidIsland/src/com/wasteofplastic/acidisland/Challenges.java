@@ -410,7 +410,6 @@ public class Challenges implements CommandExecutor {
 		final String[] part = s.split(":");
 		if (part.length == 2) {
 		    try {
-
 			reqItem = Material.getMaterial(part[0]);
 			reqAmount = Integer.parseInt(part[1]);
 			ItemStack item = new ItemStack(reqItem);
@@ -422,23 +421,30 @@ public class Challenges implements CommandExecutor {
 			} else {
 			    // check amount
 			    int amount = 0;
+			    // Go through all the inventory and try to find enough required items
 			    for (ItemStack i : player.getInventory().all(reqItem).values()) {
 				// #1 item stack qty + amount is less than required items - take all i
 				// #2 item stack qty + amount = required item - take all
 				// #3 item stack qty + amount > req items - take portion of i
-				amount += i.getAmount();
-				if (amount <= reqAmount) {
+				//amount += i.getAmount();
+				if ((amount + i.getAmount()) < reqAmount) {
 				    // Remove all of this item stack - clone otherwise it will keep a reference to the original
 				    toBeRemoved.add(i.clone());
+				    amount += i.getAmount();
 				    //plugin.getLogger().info("DEBUG: amount is <= req Remove " + i.toString() + ":" + i.getDurability() + " x " + i.getAmount());
-
+				} else if ((amount + i.getAmount()) == reqAmount) {
+				    toBeRemoved.add(i.clone());
+				    amount += i.getAmount();
+				    break;
 				} else {
 				    // Remove a portion of this item
 				    //plugin.getLogger().info("DEBUG: amount is > req Remove " + i.toString() + ":" + i.getDurability() + " x " + i.getAmount());
 
-				    item.setAmount(reqAmount);
+				    item.setAmount(reqAmount-amount);
 				    item.setDurability(i.getDurability());
-				    toBeRemoved.add(item);  
+				    toBeRemoved.add(item); 
+				    amount += i.getAmount();
+				    break;
 				}
 			    }
 			    //plugin.getLogger().info("DEBUG: amount "+ amount);
@@ -518,13 +524,12 @@ public class Challenges implements CommandExecutor {
 		    }
 		}
 	    }
-	    // TODO: Build up the items in the inventory and remove them if they are all there.
-	    // REPLACE THIS FUNCTION BELOW
+	    // Build up the items in the inventory and remove them if they are all there.
 	    if (plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge + ".takeItems")) {
 		//checkChallengeItems(player, challenge);
-		int qty = 0;
+		//int qty = 0;
 		for (ItemStack i : toBeRemoved) {
-		    qty += i.getAmount();
+		    //qty += i.getAmount();
 		    //plugin.getLogger().info("DEBUG: Remove " + i.toString() + ":" + i.getDurability() + " x " + i.getAmount());
 		    player.getInventory().removeItem(i);
 		}

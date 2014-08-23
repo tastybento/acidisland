@@ -334,8 +334,6 @@ public class AcidIsland extends JavaPlugin {
 	    player.sendMessage(ChatColor.RED + Locale.setHomeerrorNoIsland);
 	    return true;
 	}
-
-	removeMobs(home);
 	player.teleport(home);
 	player.sendMessage(ChatColor.GREEN + Locale.islandteleport);
 	return true;
@@ -1322,8 +1320,7 @@ public class AcidIsland extends JavaPlugin {
     }
 
     /**
-     * Removes monsters around location l if removeCreaturesByTeleport = true in
-     * config.yml
+     * Removes monsters around location l 
      * 
      * @param l
      */
