@@ -744,6 +744,9 @@ public class IslandCmd implements CommandExecutor {
 	    } else {
 		// Teleport home
 		plugin.homeTeleport(player);
+		if (Settings.islandRemoveMobs) {
+		    plugin.removeMobs(player.getLocation());
+		}
 		return true;
 	    }
 	case 1:

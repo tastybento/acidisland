@@ -766,7 +766,8 @@ public class AcidIsland extends JavaPlugin {
 
 	Settings.damageOps = getConfig().getBoolean("general.damageops", false);
 	//Settings.ultraSafeBoats = getConfig().getBoolean("general.ultrasafeboats", true);
-
+	Settings.logInRemoveMobs = getConfig().getBoolean("general.loginremovemobs", true);
+	Settings.islandRemoveMobs = getConfig().getBoolean("general.islandremovemobs", false);
 	// The island's center is actually 5 below sea level
 	Settings.sea_level = getConfig().getInt("general.sealevel", 50) - 5;
 	if (Settings.sea_level < 25) {

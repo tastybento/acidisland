@@ -33,7 +33,9 @@ public class JoinLeaveEvents implements Listener {
 	// Set the player's name (it may have changed)
 	players.setPlayerName(playerUUID, event.getPlayer().getName());
 	players.save(playerUUID);
-	plugin.removeMobs(event.getPlayer().getLocation());
+	if (Settings.logInRemoveMobs) {
+	    plugin.removeMobs(event.getPlayer().getLocation());
+	}
 	//plugin.getLogger().info("Cached " + event.getPlayer().getName());
 	// Load any messages for the player
 	final List<String> messages = plugin.getMessages(playerUUID);

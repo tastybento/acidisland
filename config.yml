@@ -26,11 +26,11 @@ general:
    damagetype:
    - confusion
 
-   # Removing mobs - this kills all monsters in the vicinity. Pro is that it helps
+   # Removing mobs - this kills all monsters in the vicinity. Benefit is that it helps
    # players return to their island if the island has been overrun by monsters
    # Con is that it kills any mob grinders 
    # Remove mobs when logging in
-   loginremovemobs: false
+   loginremovemobs: true
 
    # Remove mobs when /island
    islandremovemobs: false

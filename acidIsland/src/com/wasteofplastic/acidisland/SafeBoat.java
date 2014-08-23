@@ -32,13 +32,7 @@ import org.bukkit.util.Vector;
 public class SafeBoat implements Listener {
     // Flags to indicate if a player has exited a boat recently or not
     private static HashMap<UUID, Entity> exitedBoat = new HashMap<UUID, Entity>();
-    // private static HashMap<Player,Long> hitterTime = new
-    // HashMap<Player,Long>();
-    // private static HashMap<Player,Integer> hitBoat = new
-    // HashMap<Player,Integer>();
-    //private boolean debounce = false;
     private final AcidIsland plugin;
-
 
     public SafeBoat(AcidIsland acidIsland) {
 	plugin = acidIsland;
@@ -72,23 +66,6 @@ public class SafeBoat implements Listener {
 	if (!boat.isEmpty()) {
 	    return;
 	}
-	// Unless there is sufficient damage, return
-	// TODO: if the damage is just 1, then the boat is being hit by a hand
-	// or block
-	// There has to be a way to detect if it has been done rapidly and then
-	// step in and remove the boat
-	// It will have to be player specific and track timing somehow.
-	/*
-	 * if (e.getDamage() < 2) { // Did this player hit the boat already if
-	 * (hitBoat.containsKey(p)) { if
-	 * (hitBoat.get(p).equals(boat.getEntityId())) { // It's the same boat
-	 * did they hit it recently? if ((System.currentTimeMillis() -
-	 * hitterTime.get(p)) < 500) { // Less than 500ms
-	 * 
-	 * } } } // Log that the player hit the boat and what boat it was
-	 * hitBoat.put(p, boat.getEntityId()); hitterTime.put(p,
-	 * System.currentTimeMillis()); e.setCancelled(true); return; } else {
-	 */
 	// Try to remove the boat and throw it at the player
 	Location boatSpot = new Location(boat.getWorld(), boat.getLocation().getX(), boat.getLocation().getY() + 2, boat.getLocation().getZ());
 	Location throwTo = new Location(boat.getWorld(), p.getLocation().getX(), p.getLocation().getY() + 1, p.getLocation().getZ());
@@ -100,17 +77,6 @@ public class SafeBoat implements Listener {
 	newB.setVelocity(dir);
 	boat.remove();
 	e.setCancelled(true);
-	// Move the boat to the player inventory and remove the boat
-	/*
-	 * 
-	 * HashMap<Integer, ItemStack> check =
-	 * p.getInventory().addItem(newBoat); if (check.isEmpty()) {
-	 * plugin.getLogger().info("Stored boat in inventory"); // Object
-	 * successfully stored in the player's inventory boat.remove();
-	 * e.setCancelled(true);
-	 * 
-	 * }
-	 */
     }
 
     /**
@@ -138,17 +104,11 @@ public class SafeBoat implements Listener {
 	}
     }
 
-
     @EventHandler(priority = EventPriority.HIGH)
     public void onTeleport(final PlayerTeleportEvent e) {
 	//
-	plugin.getLogger().info("DEBUG: Teleport called");
+	// plugin.getLogger().info("DEBUG: Teleport called");
 	Player player = e.getPlayer();
-	//if (player.isInsideVehicle()) {
-	//    plugin.getLogger().info("DEBUG: player did teleport from a vehicle");
-	//    return;
-	//}
-	//plugin.getLogger().info("DEBUG Teleport reason : " + e.getCause().toString());
 	// If the player is not teleporting due to boat exit, return
 	if (!exitedBoat.containsKey(player.getUniqueId())) {
 	    return;
@@ -156,15 +116,6 @@ public class SafeBoat implements Listener {
 	Entity boat = exitedBoat.get(player.getUniqueId());
 	// Reset the flag
 	exitedBoat.remove(player.getUniqueId());
-	// If the teleport was due to a command then return e.g. spawn
-	//if (e.getCause().equals(TeleportCause.COMMAND)) {
-	//	   return;
-	//}
-	//if (!e.getCause().equals(TeleportCause.UNKNOWN)) {
-	//    return;
-	//}
-	
-	
 	// Okay, so a player is getting out of a boat in the the right world.
 	// Now...
 	plugin.getLogger().info("Player just exited a boat");
@@ -177,63 +128,20 @@ public class SafeBoat implements Listener {
 			// The safe location to tp to is actually +0.5 to x and
 			// z.
 			final Location loc = new Location(player.getWorld(), (double) (x + 0.5), (double) y, (double) (z + 0.5));
-			//plugin.getLogger().info("XYZ is " + x + " " + y + " " + z);
+			// plugin.getLogger().info("XYZ is " + x + " " + y + " "
+			// + z);
 			// Make sure the location is safe
 			if (AcidIsland.isSafeLocation(loc)) {
-			    //plugin.getLogger().info("Safe!");
+			    // plugin.getLogger().info("Safe!");
 			    e.setTo(loc);
-			    /*
-			    Bukkit.getServer().getScheduler().runTask(plugin, new Runnable() {
-				@Override
-				public void run() {
-				    // plugin.getLogger().info("Teleporting to "
-				    // + loc.toString());
-				    player.teleport(loc);
-				    exitedBoat.put(player, false);
-				}
-			    });
-			     */
-			    // This prevents the player from being acid attacked
-			    // during the tick when they may be in the water
-			    //exitedBoat.put(player, true);
 			    return;
 			}
 		    }
 		}
 	    }
 	}
-	// Oops, the exit was not safe cancel the exit
-	//plugin.getLogger().info("Unsafe!");
-	//boat.setPassenger(player);
-	/*
-	if (Settings.ultraSafeBoats) {
-	    if (!player.hasPotionEffect(PotionEffectType.WATER_BREATHING) && !(player.isOp() && !Settings.damageOps)) {
-		if (boat != null) {
-		    // put player back in boat
-		    e.setTo(boat.getLocation());
-		    boat.setPassenger(player);
-		    player.sendMessage(ChatColor.RED + Locale.boatWarningItIsUnsafe);
-		}
-	    }
-	}*/
     }
-    /*
-	    e.setCancelled(true);
-	    if (!debounce) {
-		player.sendMessage(ChatColor.RED + Locale.boatWarningItIsUnsafe);
-		debounce = true;
-		Bukkit.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
 
-		    @Override
-		    public void run() {
-			debounce = false;			
-		    }
-		},20L);
-	    }
-	}
-	}
-
-    }*/
     /**
      * @param e
      *            This event aims to put the player in a safe place when they
@@ -259,7 +167,7 @@ public class SafeBoat implements Listener {
 	}
 
 	// Set the boat exit flag for this player
-	//midTeleport.add(player.getUniqueId());
+	// midTeleport.add(player.getUniqueId());
 	if (exitedBoat.containsKey(player.getUniqueId())) {
 	    // Debounce
 	    e.setCancelled(true);
@@ -268,85 +176,4 @@ public class SafeBoat implements Listener {
 	}
 	return;
     }
-
-
-
-    /*
-	// Check if the player has just teleported
-	if (midTeleport.get(player.getUniqueId())) {
-	    plugin.getLogger().info("DEBUG: teleport flag is true");
-	    return;
-	} else {
-	    plugin.getLogger().info("DEBUG: teleport flag is false");
-	}
-	// Okay, so a player is getting out of a boat in the the right world.
-	// Now...
-	//plugin.getLogger().info("Player just exited a boat");
-	// Find a safe place for the player to land
-	int radius = 0;
-	while (radius++ < 2) {
-	    for (int x = player.getLocation().getBlockX() - radius; x < player.getLocation().getBlockX() + radius; x++) {
-		for (int z = player.getLocation().getBlockZ() - radius; z < player.getLocation().getBlockZ() + radius; z++) {
-		    for (int y = player.getLocation().getBlockY(); y < player.getLocation().getBlockY() + 2; y++) {
-			// The safe location to tp to is actually +0.5 to x and
-			// z.
-			final Location loc = new Location(player.getWorld(), (double) (x + 0.5), (double) y, (double) (z + 0.5));
-			//plugin.getLogger().info("XYZ is " + x + " " + y + " " + z);
-			// Make sure the location is safe
-			if (AcidIsland.isSafeLocation(loc)) {
-			    //plugin.getLogger().info("Safe!");
-			    Bukkit.getServer().getScheduler().runTask(plugin, new Runnable() {
-				@Override
-				public void run() {
-				    // plugin.getLogger().info("Teleporting to "
-				    // + loc.toString());
-				    player.teleport(loc);
-				    exitedBoat.put(player, false);
-				}
-			    });
-			    // This prevents the player from being acid attacked
-			    // during the tick when they may be in the water
-			    exitedBoat.put(player, true);
-			    return;
-			}
-		    }
-		}
-	    }
-	}
-	// Oops, the exit was not safe cancel the exit
-	//plugin.getLogger().info("Unsafe!");
-	if (Settings.ultraSafeBoats) {
-	if (!player.hasPotionEffect(PotionEffectType.WATER_BREATHING) && !(player.isOp() && !Settings.damageOps)) {
-	    e.setCancelled(true);
-	    if (!debounce) {
-		player.sendMessage(ChatColor.RED + Locale.boatWarningItIsUnsafe);
-		debounce = true;
-		Bukkit.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
-
-		    @Override
-		    public void run() {
-			debounce = false;			
-		    }
-		},20L);
-	    }
-	}
-	}
-    }*/
-
-    /**
-     * @param player
-     * @return true if the player just exited a boat and false otherwise Resets
-     *         the exited boat flag when it is called
-     */
-    /*
-    public static boolean exitedBoat(Player player) {
-	if (exitedBoat.containsKey(player)) {
-	    boolean status = exitedBoat.get(player);
-	    // plugin.getLogger().info("Status is " + status);
-	    // And reset to false
-	    exitedBoat.put(player, false);
-	    return status;
-	}
-	return false;
-    }*/
 }
