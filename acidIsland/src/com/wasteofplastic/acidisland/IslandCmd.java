@@ -149,7 +149,7 @@ public class IslandCmd implements CommandExecutor {
 	//final Players p = players.get(player.getName());
 	// Island building is done in tasks
 	// Get the location of the last island generated
-	final Location last = new Location(AcidIsland.getIslandWorld(), 0D, Settings.sea_level, 0D);
+	final Location last = new Location(AcidIsland.getIslandWorld(), 0D, Settings.island_level, 0D);
 	// Find the next free spot
 	Location next;
 	next = nextGridLocation(last);
@@ -221,6 +221,7 @@ public class IslandCmd implements CommandExecutor {
 		    } else {
 			plugin.getLogger().warning(
 				"Problem trying to withdraw " + playerBalance + " from " + player.getName() + "'s account when they typed /island!");
+			plugin.getLogger().warning("Error from economy was: " + response.errorMessage);
 		    }
 		} else {
 		    Double difference = Settings.startingMoney - playerBalance;
@@ -231,6 +232,7 @@ public class IslandCmd implements CommandExecutor {
 		    } else {
 			plugin.getLogger().warning(
 				"Problem trying to deposit " + playerBalance + " from " + player.getName() + "'s account when they typed /island!");
+			plugin.getLogger().warning("Error from economy was: " + response.errorMessage);
 		    }
 
 		}
@@ -255,11 +257,12 @@ public class IslandCmd implements CommandExecutor {
 	player.getInventory().setBoots(null);
 	player.getEquipment().clear();
 	player.setGameMode(GameMode.SURVIVAL);
+	/*
 	if (Settings.resetEnderChest) {
 	    // Clear any Enderchest contents
 	    final ItemStack[] items = new ItemStack[player.getEnderChest().getContents().length];
 	    player.getEnderChest().setContents(items);
-	}
+	}*/
 	// Clear any potion effects
 	for (PotionEffect effect : player.getActivePotionEffects())
 	    player.removePotionEffect(effect.getType());	
@@ -283,7 +286,7 @@ public class IslandCmd implements CommandExecutor {
 
 	    try {
 		island = Schematic.loadSchematic(schematicFile);
-		Location islandLoc = new Location(world,x,Settings.sea_level,z);
+		Location islandLoc = new Location(world,x,Settings.island_level,z);
 		cowSpot = Schematic.pasteSchematic(world, islandLoc, island, player);
 	    } catch (IOException e) {
 		// TODO Auto-generated catch block
@@ -302,11 +305,11 @@ public class IslandCmd implements CommandExecutor {
 		b.setType(Material.BEDROCK);
 	    }
 	}
-	for (y = 1; y < Settings.sea_level + 5; y++) {
+	for (y = 1; y < Settings.island_level + 5; y++) {
 	    for (int x_space = x - 4; x_space <= x + 4; x_space++) {
 		for (int z_space = z - 4; z_space <= z + 4; z_space++) {
 		    final Block b = world.getBlockAt(x_space, y, z_space);
-		    if (y < (Settings.sea_level / 2)) {
+		    if (y < (Settings.island_level / 2)) {
 			b.setType(Material.SANDSTONE);
 		    } else {
 			b.setType(Material.SAND);
@@ -315,7 +318,7 @@ public class IslandCmd implements CommandExecutor {
 	    }
 	}
 	// Then cut off the corners to make it round-ish
-	for (y = 0; y < Settings.sea_level + 5; y++) {
+	for (y = 0; y < Settings.island_level + 5; y++) {
 	    for (int x_space = x - 4; x_space <= x + 4; x_space += 8) {
 		for (int z_space = z - 4; z_space <= z + 4; z_space += 8) {
 		    final Block b = world.getBlockAt(x_space, y, z_space);
@@ -324,7 +327,7 @@ public class IslandCmd implements CommandExecutor {
 	    }
 	}
 	// Add some grass
-	for (y = Settings.sea_level + 4; y < Settings.sea_level + 5; y++) {
+	for (y = Settings.island_level + 4; y < Settings.island_level + 5; y++) {
 	    for (int x_space = x - 2; x_space <= x + 2; x_space++) {
 		for (int z_space = z - 2; z_space <= z + 2; z_space++) {
 		    final Block blockToChange = world.getBlockAt(x_space, y, z_space);
@@ -333,10 +336,10 @@ public class IslandCmd implements CommandExecutor {
 	    }
 	}
 	// Place bedrock - MUST be there (ensures island are not overwritten
-	Block b = world.getBlockAt(x, Settings.sea_level, z);
+	Block b = world.getBlockAt(x, Settings.island_level, z);
 	b.setType(Material.BEDROCK);
 	// Then add some more dirt in the classic shape
-	y = Settings.sea_level + 3;
+	y = Settings.island_level + 3;
 	for (int x_space = x - 2; x_space <= x + 2; x_space++) {
 	    for (int z_space = z - 2; z_space <= z + 2; z_space++) {
 		b = world.getBlockAt(x_space, y, z_space);
@@ -351,7 +354,7 @@ public class IslandCmd implements CommandExecutor {
 	b.setType(Material.DIRT);
 	b = world.getBlockAt(x, y, z + 3);
 	b.setType(Material.DIRT);
-	y = Settings.sea_level + 2;
+	y = Settings.island_level + 2;
 	for (int x_space = x - 1; x_space <= x + 1; x_space++) {
 	    for (int z_space = z - 1; z_space <= z + 1; z_space++) {
 		b = world.getBlockAt(x_space, y, z_space);
@@ -366,7 +369,7 @@ public class IslandCmd implements CommandExecutor {
 	b.setType(Material.DIRT);
 	b = world.getBlockAt(x, y, z + 2);
 	b.setType(Material.DIRT);
-	y = Settings.sea_level + 1;
+	y = Settings.island_level + 1;
 	b = world.getBlockAt(x - 1, y, z);
 	b.setType(Material.DIRT);
 	b = world.getBlockAt(x + 1, y, z);
@@ -377,15 +380,15 @@ public class IslandCmd implements CommandExecutor {
 	b.setType(Material.DIRT);
 
 	// Add island items
-	y = Settings.sea_level;
+	y = Settings.island_level;
 	// Add tree (natural)
 	final Location treeLoc = new Location(world,x,y + 5D, z);
 	world.generateTree(treeLoc, TreeType.ACACIA);
 	// Place the cow
-	cowSpot = new Location(world, x, (Settings.sea_level+5), z-2);
+	cowSpot = new Location(world, x, (Settings.island_level+5), z-2);
 
 	// Place a helpful sign in front of player
-	Block blockToChange = world.getBlockAt(x, Settings.sea_level + 5, z + 3);
+	Block blockToChange = world.getBlockAt(x, Settings.island_level + 5, z + 3);
 	blockToChange.setType(Material.SIGN_POST);
 	Sign sign = (Sign) blockToChange.getState();
 	sign.setLine(0, ChatColor.BLUE + "[Acid Island]");
@@ -399,7 +402,7 @@ public class IslandCmd implements CommandExecutor {
 	sign.update();
 	// Place the chest - no need to use the safe spawn function because we
 	// know what this island looks like
-	blockToChange = world.getBlockAt(x, Settings.sea_level + 5, z + 1);
+	blockToChange = world.getBlockAt(x, Settings.island_level + 5, z + 1);
 	blockToChange.setType(Material.CHEST);
 	// Fill the chest
 	final Chest chest = (Chest) blockToChange.getState();
@@ -447,35 +450,35 @@ public class IslandCmd implements CommandExecutor {
 
     /**
      * Calculates the island level
-     * @param player - Player object of player who is asking
-     * @param islandPlayer - UUID of the player's island that is being requested
+     * @param asker - Player object of player who is asking
+     * @param targetPlayer - UUID of the player's island that is being requested
      * @return - true if successful.
      */
-    public boolean calculateIslandLevel(final Player player, final UUID islandPlayer) {
+    public boolean calculateIslandLevel(final Player asker, final UUID targetPlayer) {
 	if (!busyFlag) {
-	    player.sendMessage(ChatColor.RED + Locale.islanderrorLevelNotReady);
-	    plugin.getLogger().info(player.getName() + " tried to use /island info but someone else used it first!");
+	    asker.sendMessage(ChatColor.RED + Locale.islanderrorLevelNotReady);
+	    plugin.getLogger().info(asker.getName() + " tried to use /island info but someone else used it first!");
 	    return false;
 	}
 	busyFlag = false;
-	if (!players.hasIsland(islandPlayer) && !players.inTeam(islandPlayer)) {
-	    player.sendMessage(ChatColor.RED + Locale.islanderrorInvalidPlayer);
+	if (!players.hasIsland(targetPlayer) && !players.inTeam(targetPlayer)) {
+	    asker.sendMessage(ChatColor.RED + Locale.islanderrorInvalidPlayer);
 	    busyFlag = true;
 	    return false;
 	}
 	plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
 	    public void run() {
 		plugin.getLogger().info("Calculating island level");
-		int oldLevel = players.getIslandLevel(islandPlayer);
+		int oldLevel = players.getIslandLevel(targetPlayer);
 		try {
 		    Location l;
-		    if (players.inTeam(islandPlayer)) {
-			l = players.getTeamIslandLocation(islandPlayer);
+		    if (players.inTeam(targetPlayer)) {
+			l = players.getTeamIslandLocation(targetPlayer);
 		    } else {
-			l = players.getIslandLocation(islandPlayer);
+			l = players.getIslandLocation(targetPlayer);
 		    }
 		    int blockcount = 0;
-		    if (player.getUniqueId().equals(islandPlayer)) {
+		    if (asker.getUniqueId().equals(targetPlayer) || asker.isOp()) {
 			int cobblecount = 0;
 			final int px = l.getBlockX();
 			final int py = l.getBlockY();
@@ -634,15 +637,12 @@ public class IslandCmd implements CommandExecutor {
 				}
 			    }
 			}
-		    }
-
-		    if (player.getUniqueId().equals(islandPlayer)) {
-			players.setIslandLevel(islandPlayer, blockcount / 100);
-			players.save(islandPlayer);
-			plugin.updateTopTen();
+			players.setIslandLevel(targetPlayer, blockcount / 100);
+			players.save(targetPlayer);
+			//plugin.updateTopTen();
 			// Tell offline team members the island level increased.
-			if (players.getIslandLevel(islandPlayer) > oldLevel) {
-			    plugin.tellOfflineTeam(islandPlayer, ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(islandPlayer));
+			if (players.getIslandLevel(targetPlayer) > oldLevel) {
+			    plugin.tellOfflineTeam(targetPlayer, ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(targetPlayer));
 			}
 		    }
 		} catch (final Exception e) {
@@ -650,23 +650,24 @@ public class IslandCmd implements CommandExecutor {
 		    busyFlag = true;
 		}
 
-		plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+		plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
 		    public void run() {
 			busyFlag = true;
-			if (player.isOnline()) {
-			    if (player.getUniqueId().equals(islandPlayer)) {
-				player.sendMessage(
-					ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(islandPlayer));
+			plugin.updateTopTen();
+			if (asker.isOnline()) {
+			    if (asker.getUniqueId().equals(targetPlayer)) {
+				asker.sendMessage(
+					ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(targetPlayer));
 			    } else {
-				if (players.isAKnownPlayer(islandPlayer)) {
-				    player.sendMessage(ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(islandPlayer));
+				if (players.isAKnownPlayer(targetPlayer)) {
+				    asker.sendMessage(ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(targetPlayer));
 				} else {
-				    player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
+				    asker.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 				}
 			    }
 			}
 		    }
-		});
+		}, 20L);
 	    }
 	});
 	return true;

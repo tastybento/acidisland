@@ -93,6 +93,7 @@ public class Locale {
     public static String challengeserrorNotCloseEnough;
     public static String challengeserrorItemsNotThere;
     public static String challengeserrorIslandLevel;
+    public static String challengeserrorYouAreMissing;
 
     ///island
     public static String islandteleport;
@@ -289,6 +290,7 @@ public class Locale {
     public static String challengesguiTitle;
     // Ultra safe boats
     public static String boatWarningItIsUnsafe;
+    
     
     
 }

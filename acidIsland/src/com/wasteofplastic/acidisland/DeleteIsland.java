@@ -166,7 +166,7 @@ public class DeleteIsland extends BukkitRunnable {
 			break;
 		    }
 		    // Split depending on below or above water line
-		    if (y < Settings.sea_level + 5) {
+		    if (y < Settings.sea_level) {
 			if (!bt.equals(Material.STATIONARY_WATER))
 			    nms.setBlockSuperFast(b, Material.STATIONARY_WATER);
 			//b.setType(Material.STATIONARY_WATER);

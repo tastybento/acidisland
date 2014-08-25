@@ -254,6 +254,9 @@ public class AcidIsland extends JavaPlugin {
 	// location
 	if (players.inTeam(p)) {
 	    l = players.getTeamIslandLocation(p);
+		if (isSafeLocation(l)) {
+		    return l;
+		}
 	} else {
 	    l = players.getIslandLocation(p);
 	}
@@ -261,13 +264,13 @@ public class AcidIsland extends JavaPlugin {
 	    return l;
 	}
 	if (l == null) {
-	    getLogger().warning("This player has no island!");
+	    getLogger().warning(players.getName(p) + " player has no island!");
 	    return null;
 	}
 	//getLogger().info("DEVUG: If these island locations are not safe, then we need to get creative");
 	// If these island locations are not safe, then we need to get creative
 	// Try the default location
-	l = new Location(l.getWorld(), l.getBlockX() + 0.5, l.getBlockY() + 5, l.getBlockZ() + 2.5, 0F, 30F);
+	l = new Location(l.getWorld(), l.getX() + 0.5D, l.getY() + 5D, l.getZ() + 2.5D, 0F, 30F);
 	if (isSafeLocation(l)) {
 	    return l;
 	}
@@ -328,10 +331,11 @@ public class AcidIsland extends JavaPlugin {
 	    }
 	}
 	if (home == null) {
+	    // The home is not safe
 	    if (!player.performCommand("spawn")) {
 		player.teleport(player.getWorld().getSpawnLocation());
 	    }
-	    player.sendMessage(ChatColor.RED + Locale.setHomeerrorNoIsland);
+	    player.sendMessage(ChatColor.RED + Locale.warpserrorNotSafe);
 	    return true;
 	}
 	player.teleport(home);
@@ -769,11 +773,15 @@ public class AcidIsland extends JavaPlugin {
 	Settings.logInRemoveMobs = getConfig().getBoolean("general.loginremovemobs", true);
 	Settings.islandRemoveMobs = getConfig().getBoolean("general.islandremovemobs", false);
 	// The island's center is actually 5 below sea level
-	Settings.sea_level = getConfig().getInt("general.sealevel", 50) - 5;
-	if (Settings.sea_level < 25) {
-	    Settings.sea_level = 25;
+	Settings.sea_level = getConfig().getInt("general.sealevel", 50);
+	if (Settings.sea_level < 0) {
+	    Settings.sea_level = 0;
 	}
-
+	Settings.island_level = getConfig().getInt("general.islandlevel", 50) - 5;
+	if (Settings.island_level < 0) {
+	    Settings.island_level = 0;
+	}
+	getLogger().info("DEBUG: island level is " + Settings.island_level);
 	// Get chest items
 	final String[] chestItemString = getConfig().getString("island.chestItems").split(" ");
 	final ItemStack[] tempChest = new ItemStack[chestItemString.length];
@@ -956,6 +964,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.challengeserrorItemsNotThere = locale.getString("challenges.errorItemsNotThere","All required items must be close to you on your island!");
 	Locale.challengeserrorIslandLevel = locale.getString("challenges.errorIslandLevel","Your island must be level [level] to complete this challenge!");
 	Locale.challengesguiTitle = locale.getString("challenges.guititle", "Challenges");
+	Locale.challengeserrorYouAreMissing = locale.getString("challenges.erroryouaremissing", "You are missing");
 	Locale.islandteleport = locale.getString("island.teleport","Teleporting you to your island. (/island help for more info)");
 	Locale.islandnew = locale.getString("island.new","Creating a new island for you...");
 	Locale.islanderrorCouldNotCreateIsland = locale.getString("island.errorCouldNotCreateIsland","Could not create your Island. Please contact a server moderator.");
@@ -2001,4 +2010,35 @@ public class AcidIsland extends JavaPlugin {
 	    return false;
 	}
     }
+    
+    /**
+     * Converts a name like IRON_INGOT into Iron Ingot to improve readability
+     * 
+     * @param ugly
+     *            The string such as IRON_INGOT
+     * @return A nicer version, such as Iron Ingot
+     * 
+     *         Credits to mikenon on GitHub!
+     */
+    public static String prettifyText(String ugly) {
+	if (!ugly.contains("_") && (!ugly.equals(ugly.toUpperCase())))
+	    return ugly;
+	String fin = "";
+	ugly = ugly.toLowerCase();
+	if (ugly.contains("_")) {
+	    String[] splt = ugly.split("_");
+	    int i = 0;
+	    for (String s : splt) {
+		i += 1;
+		fin += Character.toUpperCase(s.charAt(0)) + s.substring(1);
+		if (i < splt.length)
+		    fin += " ";
+	    }
+	} else {
+	    fin += Character.toUpperCase(ugly.charAt(0)) + ugly.substring(1);
+	}
+	return fin;
+    }
+
+ 
 }

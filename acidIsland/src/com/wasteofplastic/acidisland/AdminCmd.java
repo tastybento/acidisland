@@ -302,8 +302,8 @@ public class AdminCmd implements CommandExecutor {
 		    sender.sendMessage(ChatColor.GREEN + Locale.levelislandLevel + players.getIslandLevel(playerUUID));
 		    // Last login
 		    try {
-			Date d = new Date(plugin.getServer().getOfflinePlayer(playerUUID).getLastPlayed() * 1000);
-			sender.sendMessage(ChatColor.WHITE + "Last login:" + d.toString());
+			Date d = new Date(plugin.getServer().getOfflinePlayer(playerUUID).getLastPlayed());
+			sender.sendMessage(ChatColor.WHITE + "Last login: " + d.toString());
 		    } catch (Exception e) {}
 
 		    // Completed challenges

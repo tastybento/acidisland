@@ -18,16 +18,19 @@ public class AcidChunkGenerator extends ChunkGenerator {
     public byte[][] generateBlockSections(World world, Random random, int chunkX, int chunkZ, BiomeGrid biomeGrid)
     {
         byte[][] result = new byte[world.getMaxHeight() / 16][];
-
+        if (Settings.sea_level == 0) {
+            return result;
+        }
+        /*
 	for (int x = 0; x < 16; x++) {
 	    for (int z = 0; z < 16; z++) {
-		for (int y = 0; y < Settings.sea_level + 5; y++) {
+		for (int y = 0; y < Settings.sea_level; y++) {
 		    setBlock(result,x,y,z, (byte) Material.STATIONARY_WATER.getId()); // Stationary Water
 		    // Allows stuff to fall through into oblivion, thus keeping lag to a minimum
 		}
 	    }
 	}
- 
+ */
         return result;
     }
     /*

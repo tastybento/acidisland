@@ -1,12 +1,16 @@
-# Challenges - these are similar to skyblock challenges - replace with your own
-# Rewards and required items have to be described using Bukkit Materials and be exactly correct
-# Do not use Type Id's - they will not work
-# Like skyblock, it's possible to give a permission as a reward.
-# Challenges can be one of three types - inventory, island or level.
-# inventory - means the player must have the items on them
-# island - means the items have to be on the island and within 10 blocks of the player
-# level - means the island level has to be over this amount
-# Challenges can be repeatable only if they are inventory challenges
+##################################################################################################
+# Challenges                                                                                     #
+# Rewards and required items have to be described using Bukkit Materials and be exactly correct  #
+# Do not use Type Id's - they will not work                                                      #
+# Challenges can be one of three types - inventory, island or level.                             #
+# inventory - means the player must have the items on them                                       #
+# island - means the items have to be on the island and within 10 blocks of the player           #
+#          entities are also supported, e.g., COW.                                               #
+# level - means the island level has to be equal or over this amount                             #
+# Challenges can be repeatable only if they are inventory challenges                             #
+# permissions can be given as a reward                                                           #
+##################################################################################################
+
 challenges:
   # Challenge levels - list as many as you like
   levels: 'Novice Competent Expert Advanced'
@@ -466,6 +470,57 @@ challenges:
       takeItems: false
       itemReward: 'SMOOTH_BRICK:20 SMOOTH_BRICK:1:20 SMOOTH_BRICK:2:20 SMOOTH_BRICK:3:20'
       rewardText: '20 blocks of every kind of stone brick'
+      moneyReward: 300
+      expReward: 300
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
+    ittakesavillage:
+      description: 'Hold a village meeting with 10 villagers!'
+      icon: STONE
+      level: 'Advanced'
+      type: island
+      requiredItems: 'VILLAGER:10'
+      takeItems: false
+      itemReward: 'HOPPER:4'
+      rewardText: '4 hoppers'
+      moneyReward: 300
+      expReward: 300
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
+    myprecious:
+      description: 'Build an iron golem'
+      icon: NAME_TAG
+      level: 'Advanced'
+      type: island
+      requiredItems: 'IRON_GOLEM:1'
+      takeItems: false
+      itemReward: 'NAME_TAG:1 ANVIL:1'
+      rewardText: 'A name tag and an anvil'
+      moneyReward: 300
+      expReward: 300
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
+    snowplay:
+      description: 'Build a snow golem'
+      icon: SNOW_BALL
+      level: 'Advanced'
+      type: island
+      requiredItems: 'SNOWMAN:1'
+      takeItems: false
+      itemReward: 'DIAMOND_SPADE:1'
+      rewardText: 'A diamond spade - get shoveling!'
       moneyReward: 300
       expReward: 300
       permissionReward: ''

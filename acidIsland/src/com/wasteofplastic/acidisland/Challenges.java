@@ -2,6 +2,7 @@ package com.wasteofplastic.acidisland;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,8 @@ import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -394,7 +397,7 @@ public class Challenges implements CommandExecutor {
      * @param type
      * @return true if the player has everything required
      */
-    @SuppressWarnings("deprecation")
+    //@SuppressWarnings("deprecation")
     public boolean hasRequired(final Player player, final String challenge, final String type) {
 	final String[] reqList = plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".requiredItems").split(" ");
 	// The format of the requiredItems is as follows:
@@ -539,16 +542,45 @@ public class Challenges implements CommandExecutor {
 	}
 	if (type.equalsIgnoreCase("island")) {
 	    final HashMap<Material, Integer> neededItem = new HashMap<Material, Integer>();
+	    final HashMap<EntityType, Integer> neededEntities = new HashMap<EntityType, Integer>();
 	    for (int i = 0; i < reqList.length; i++) {
 		final String[] sPart = reqList[i].split(":");
-		plugin.getLogger().info("Needed item is " + Integer.parseInt(sPart[1]) + " x " + Material.getMaterial(sPart[0]).toString());
+		// Parse the qty required first
+		try {
+		    final int qty = Integer.parseInt(sPart[1]);
+		    // Find out if the needed item is a Material or an Entity
+		    Material item = Material.getMaterial(sPart[0]);
+		    if (item != null) {
+			neededItem.put(item, qty);
+			plugin.getLogger().info("DEBUG: Needed item is " + Integer.parseInt(sPart[1]) + " x " + Material.getMaterial(sPart[0]).toString());
+
+		    } else {
+			plugin.getLogger().info("DEBUG: Not a material, trying entities");
+			// Not a material, try an Entity
+			EntityType entityType = EntityType.valueOf(sPart[0].toUpperCase());
+			if (entityType != null) {
+			    neededEntities.put(entityType, qty);
+			    plugin.getLogger().info("DEBUG: Needed entity is " + Integer.parseInt(sPart[1]) + " x " + EntityType.valueOf(sPart[0].toUpperCase()).toString());
+			} else {
+			    plugin.getLogger().warning("Problem parsing required item for challenge " + challenge + " in challenges.yml!");
+			    return false;
+			}
+		    }
+		} catch (Exception intEx) {
+		    plugin.getLogger().warning("Problem parsing required items for challenge " + challenge + " in challenges.yml - skipping");
+		    return false;
+		}
+
 	    }
+	    // We now have two sets of required items or entities
+	    // Check the items first
 	    final Location l = player.getLocation();
+	    //if (!neededItem.isEmpty()) {
 	    final int px = l.getBlockX();
 	    final int py = l.getBlockY();
 	    final int pz = l.getBlockZ();
 	    for (int x = -10; x <= 10; x++) {
-		for (int y = -3; y <= 10; y++) {
+		for (int y = -10; y <= 10; y++) {
 		    for (int z = -10; z <= 10; z++) {
 			final Material b = new Location(l.getWorld(), px + x, py + y, pz + z).getBlock().getType();
 			if (neededItem.containsKey(b)) {
@@ -562,12 +594,40 @@ public class Challenges implements CommandExecutor {
 		    }
 		}
 	    }
+	    //}
 	    // Check if all the needed items have been amassed
-	    if (neededItem.isEmpty()) {
-		// getLogger().info("All done!");
-		return true;
-	    } else {
+	    if (!neededItem.isEmpty()) {
+		plugin.getLogger().info("DEBUG: Insufficient items around");
+		for (Material missing : neededItem.keySet()) {
+		    player.sendMessage(ChatColor.RED + Locale.challengeserrorYouAreMissing + " " + neededItem.get(missing) + " " + AcidIsland.prettifyText(missing.toString()));
+		}
 		return false;
+	    } else {
+		plugin.getLogger().info("DEBUG: Items are there");
+		// Check for needed entities
+		for (Entity entity : player.getNearbyEntities(10, 10, 10)) {
+		    plugin.getLogger().info("DEBUG: Entity found:" + entity.getType().toString());
+		    if (neededEntities.containsKey(entity.getType())) {
+			plugin.getLogger().info("DEBUG: Entity in list");
+			if (neededEntities.get(entity.getType()) == 1) {
+			    neededEntities.remove(entity.getType());
+			    plugin.getLogger().info("DEBUG: Entity qty satisfied");
+			} else {
+			    neededEntities.put(entity.getType(), neededEntities.get(entity.getType()) -1);
+			    plugin.getLogger().info("DEBUG: Entity qty reduced by 1");
+			}
+		    } else {
+			plugin.getLogger().info("DEBUG: Entity not in list");
+		    }
+		}
+		if (neededEntities.isEmpty()) {
+		    return true;
+		} else {
+		    for (EntityType missing : neededEntities.keySet()) {
+			player.sendMessage(ChatColor.RED + Locale.challengeserrorYouAreMissing + " " + neededEntities.get(missing) + " " + AcidIsland.prettifyText(missing.toString()));
+		    }
+		    return false;
+		}
 	    }
 	}
 
@@ -813,7 +873,6 @@ public class Challenges implements CommandExecutor {
 	int moneyReward = 0;
 	int expReward = 0;
 	String rewardText = "";
-
 	if (!players.checkChallenge(player.getUniqueId(),challenge)) {
 	    // First time
 	    moneyReward = plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge.toLowerCase() + ".moneyReward", 0);

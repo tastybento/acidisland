@@ -95,7 +95,7 @@ public class MiniShopItem {
 	}
 	// If there's no description, then set it.
 	if (description == null) {
-	    this.description = prettifyText(getDataName(item));
+	    this.description = AcidIsland.prettifyText(getDataName(item));
 	}
 
     }
@@ -200,36 +200,7 @@ public class MiniShopItem {
     public void setExtra(String extra) {
 	this.extra = extra;
     }
-    /**
-     * Converts a name like IRON_INGOT into Iron Ingot to improve readability
-     * 
-     * @param ugly
-     *            The string such as IRON_INGOT
-     * @return A nicer version, such as Iron Ingot
-     * 
-     *         Credits to mikenon on GitHub!
-     */
-    public static String prettifyText(String ugly) {
-	if (!ugly.contains("_") && (!ugly.equals(ugly.toUpperCase())))
-	    return ugly;
-	String fin = "";
-	ugly = ugly.toLowerCase();
-	if (ugly.contains("_")) {
-	    String[] splt = ugly.split("_");
-	    int i = 0;
-	    for (String s : splt) {
-		i += 1;
-		fin += Character.toUpperCase(s.charAt(0)) + s.substring(1);
-		if (i < splt.length)
-		    fin += " ";
-	    }
-	} else {
-	    fin += Character.toUpperCase(ugly.charAt(0)) + ugly.substring(1);
-	}
-	return fin;
-    }
-
-    /**
+   /**
      * Converts a given ItemStack into a pretty string
      * 
      * @param item

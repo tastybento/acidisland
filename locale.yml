@@ -106,7 +106,7 @@ challenges:
    errorItemsNotThere: "All required items must be close to you on your island!"
    errorIslandLevel: "Your island must be level [level] to complete this challenge!"
    guititle: "Challenges"
-
+   erroryouaremissing: "You are missing"
 #/island
 island:
    teleport: "Teleporting you to your island. (/island help for more info)"
