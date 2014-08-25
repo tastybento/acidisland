@@ -2040,5 +2040,48 @@ public class AcidIsland extends JavaPlugin {
 	return fin;
     }
 
+    /**
+     * Converts block face direction to radial degrees. Returns 0 if block face is not radial.
+     * @param face
+     * @return degrees
+     */
+    public static float blockFaceToFloat(BlockFace face) {
+	switch (face) {
+	case EAST:
+	    return 90F;
+	case EAST_NORTH_EAST:
+	    return 67.5F;
+	case EAST_SOUTH_EAST:
+	    return 0F;
+	case NORTH:
+	    return 0F;
+	case NORTH_EAST:
+	    return 45F;
+	case NORTH_NORTH_EAST:
+	    return 22.5F;
+	case NORTH_NORTH_WEST:
+	    return 337.5F;
+	case NORTH_WEST:
+	    return 315F;
+	case SOUTH:
+	    return 180F;
+	case SOUTH_EAST:
+	    return 135F;
+	case SOUTH_SOUTH_EAST:
+	    return 157.5F;
+	case SOUTH_SOUTH_WEST:
+	    return 202.5F;
+	case SOUTH_WEST:
+	    return 225F;
+	case WEST:
+	    return 270F;
+	case WEST_NORTH_WEST:
+	    return 292.5F;
+	case WEST_SOUTH_WEST:
+	    return 247.5F;
+	default:
+	    return 0F;	
+	}
+    }
  
 }

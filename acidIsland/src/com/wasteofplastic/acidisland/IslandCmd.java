@@ -1118,6 +1118,24 @@ public class IslandCmd implements CommandExecutor {
 				plugin.getLogger().warning("Null warp found, owned by " + players.getName(foundWarp));
 				return true;
 			    }
+			    // Find out which direction the warp is facing
+				Block b = player.getWorld().getBlockAt(warpSpot);
+				if (b.getType().equals(Material.SIGN_POST)) {
+				    Sign sign = (Sign) b.getState();
+				    org.bukkit.material.Sign s = (org.bukkit.material.Sign)sign.getData();
+				    BlockFace directionFacing = s.getFacing();
+				    Location inFront = b.getRelative(directionFacing).getLocation();
+				    if ((AcidIsland.isSafeLocation(inFront))) {
+					// convert blockface to angle
+					float yaw = AcidIsland.blockFaceToFloat(directionFacing);
+					final Location actualWarp = new Location(inFront.getWorld(), inFront.getBlockX() + 0.5D, inFront.getBlockY(),
+						inFront.getBlockZ() + 0.5D, yaw, 30F);
+					player.teleport(actualWarp);
+					player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
+					return true;
+				    }
+
+				}
 			    if (!(AcidIsland.isSafeLocation(warpSpot))) {
 				player.sendMessage(ChatColor.RED + Locale.warpserrorNotSafe);
 				plugin.getLogger().warning("Unsafe warp found at " + warpSpot.toString() + " owned by " + players.getName(foundWarp));
