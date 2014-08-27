@@ -597,34 +597,34 @@ public class Challenges implements CommandExecutor {
 	    //}
 	    // Check if all the needed items have been amassed
 	    if (!neededItem.isEmpty()) {
-		plugin.getLogger().info("DEBUG: Insufficient items around");
+		//plugin.getLogger().info("DEBUG: Insufficient items around");
 		for (Material missing : neededItem.keySet()) {
-		    player.sendMessage(ChatColor.RED + Locale.challengeserrorYouAreMissing + " " + neededItem.get(missing) + " " + AcidIsland.prettifyText(missing.toString()));
+		    player.sendMessage(ChatColor.RED + Locale.challengeserrorYouAreMissing + " " + neededItem.get(missing) + " x " + AcidIsland.prettifyText(missing.toString()));
 		}
 		return false;
 	    } else {
-		plugin.getLogger().info("DEBUG: Items are there");
+		//plugin.getLogger().info("DEBUG: Items are there");
 		// Check for needed entities
 		for (Entity entity : player.getNearbyEntities(10, 10, 10)) {
-		    plugin.getLogger().info("DEBUG: Entity found:" + entity.getType().toString());
+		    //plugin.getLogger().info("DEBUG: Entity found:" + entity.getType().toString());
 		    if (neededEntities.containsKey(entity.getType())) {
-			plugin.getLogger().info("DEBUG: Entity in list");
+			//plugin.getLogger().info("DEBUG: Entity in list");
 			if (neededEntities.get(entity.getType()) == 1) {
 			    neededEntities.remove(entity.getType());
-			    plugin.getLogger().info("DEBUG: Entity qty satisfied");
+			    //plugin.getLogger().info("DEBUG: Entity qty satisfied");
 			} else {
 			    neededEntities.put(entity.getType(), neededEntities.get(entity.getType()) -1);
-			    plugin.getLogger().info("DEBUG: Entity qty reduced by 1");
+			    //plugin.getLogger().info("DEBUG: Entity qty reduced by 1");
 			}
 		    } else {
-			plugin.getLogger().info("DEBUG: Entity not in list");
+			//plugin.getLogger().info("DEBUG: Entity not in list");
 		    }
 		}
 		if (neededEntities.isEmpty()) {
 		    return true;
 		} else {
 		    for (EntityType missing : neededEntities.keySet()) {
-			player.sendMessage(ChatColor.RED + Locale.challengeserrorYouAreMissing + " " + neededEntities.get(missing) + " " + AcidIsland.prettifyText(missing.toString()));
+			player.sendMessage(ChatColor.RED + Locale.challengeserrorYouAreMissing + " " + neededEntities.get(missing) + " x " + AcidIsland.prettifyText(missing.toString()));
 		    }
 		    return false;
 		}

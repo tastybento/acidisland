@@ -13,7 +13,7 @@
 
 challenges:
   # Challenge levels - list as many as you like
-  levels: 'Novice Competent Expert Advanced'
+  levels: 'Novice Competent Expert Advanced Elite'
   # The number of undone tasks that can be left on a level before revealing next level
   waiveramount: 1
   # Challenge list
@@ -529,10 +529,44 @@ challenges:
       repeatRewardText: ''
       repeatMoneyReward: 0
       repeatExpReward: 0
+    itsaparty:
+      description: 'Have a party!'
+      icon: PUMPKIN_PIE
+      level: 'Advanced'
+      type: island
+      requiredItems: 'PLAYER:5'
+      takeItems: false
+      itemReward: 'EMERALD:6 PUMPKIN_PIE:6'
+      rewardText: '6 Emeralds, 6 pumpkin pies'
+      moneyReward: 200
+      expReward: 200
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
+    itsamonsterparty:
+      description: 'Have a party - all monsters invited!'
+      icon: SKULL_ITEM
+      level: 'Advanced'
+      type: island
+      requiredItems: 'SKELETON:1 ZOMBIE:1 SPIDER:1 CREEPER:1 ENDERMAN:1'
+      takeItems: false
+      itemReward: 'SKULL_ITEM:0:2 SKULL_ITEM:2:2 SKULL_ITEM:3:2'
+      rewardText: 'Skulls!'
+      moneyReward: 200
+      expReward: 400
+      permissionReward: ''
+      repeatable: false
+      repeatItemReward: ''
+      repeatRewardText: ''
+      repeatMoneyReward: 0
+      repeatExpReward: 0
     acidduke:
       description: 'Achieve an island level of 1000'
       icon: DIAMOND_BLOCK
-      level: 'Advanced'
+      level: 'Elite'
       type: level
       requiredItems: 1000
       takeItems: false

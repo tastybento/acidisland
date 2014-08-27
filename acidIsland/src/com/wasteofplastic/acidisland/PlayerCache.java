@@ -348,6 +348,6 @@ public class PlayerCache {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).getTeamIslandLocation();
     }
-
+    
 }
 

@@ -190,7 +190,7 @@ reject:
 
 #leave
 leave:
-  errorYouAreTheLeader: "You are the leader, use /island remove <player> instead."
+  errorYouAreTheLeader: "You cannot leave because you are the leader, use /island makeleader <player> to transfer the island first."
   youHaveLeftTheIsland: "You have left the island and returned to the player spawn."
   nameHasLeftYourIsland: "[name] has left your island!"
   errorYouCannotLeaveIsland: "You can't leave your island if you are the only person. Try using /island restart if you want a new one!"

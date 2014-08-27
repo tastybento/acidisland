@@ -1,7 +1,11 @@
-# Config for Version 0.9c or later
+# Config for AcidIsland
 general:
    # Sea level height (don't changes this mid-game unless you delete the world)
    # Minimum is 0, which means you are playing sky block!
+   # If you really want to make it sky block, use a sky block schematic and set
+   # acid damage to zero. This mode is NOT supported.
+   # Another interesting sea-level is 38 or so. <40 means slimes can spawn on islands
+   # easily.
    sealevel: 50
 
    # Island level - the height of the island.

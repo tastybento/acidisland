@@ -84,7 +84,6 @@ public class IslandCmd implements CommandExecutor {
 	//plugin.getLogger().info("Adding player: " + playerUUID + " to team with leader: " + teamLeader);
 	//plugin.getLogger().info("The team island location is: " + players.getIslandLocation(teamLeader));
 	//plugin.getLogger().info("The leader's home location is: " + players.getHomeLocation(teamLeader) + " (may be different or null)");
-
 	// Set the player's team giving the team leader's name and the team's island
 	// location
 	players.setJoinTeam(playerUUID, teamLeader, players.getIslandLocation(teamLeader));
