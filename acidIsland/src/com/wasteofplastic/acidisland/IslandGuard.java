@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Enderman;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Monster;
@@ -47,11 +48,19 @@ public class IslandGuard implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
     public void onExplosion(final EntityExplodeEvent e) {
+	// Find out what is exploding
+	Entity expl = e.getEntity();
+	if (expl == null) {
+	    return;
+	}
 	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    return;
 	}
 	// Find out what is exploding
 	EntityType exploding = e.getEntityType();
+	if (exploding == null) {
+	    return;
+	}
 	switch (exploding) {
 	case CREEPER:
 	    if (!Settings.allowCreeperDamage) {
