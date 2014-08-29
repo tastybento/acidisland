@@ -70,5 +70,6 @@ public class Settings {
     //public static boolean ultraSafeBoats;
     public static boolean logInRemoveMobs;
     public static boolean islandRemoveMobs;
-    public static int island_level;   
+    public static int island_level;
+    public static boolean resetChallenges;   
 }

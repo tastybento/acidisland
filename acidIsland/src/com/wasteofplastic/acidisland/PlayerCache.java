@@ -62,7 +62,7 @@ public class PlayerCache {
 	if (playerCache.containsKey(player)) {
 	    playerCache.get(player).save();
 	    playerCache.remove(player);
-	    plugin.getLogger().info("Removing player from cache: " + player);
+	    //plugin.getLogger().info("Removing player from cache: " + player);
 	}
     }
     
@@ -159,7 +159,9 @@ public class PlayerCache {
 	playerCache.get(playerUUID).setHasIsland(false);
 	playerCache.get(playerUUID).setHomeLocation(null);
 	playerCache.get(playerUUID).setIslandLocation(null);
+	playerCache.get(playerUUID).setIslandLevel(0);
 	playerCache.get(playerUUID).save(); // Needed?
+	plugin.updateTopTen();
     }
 
     public void setHomeLocation(UUID playerUUID, Location location) {

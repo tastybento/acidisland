@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -44,6 +45,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.Potion;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
@@ -754,7 +756,9 @@ public class AcidIsland extends JavaPlugin {
 	} else if (Settings.island_protectionRange < 0) {
 	    Settings.island_protectionRange = 0;
 	}
+	Settings.resetChallenges = getConfig().getBoolean("general.resetchallenges", true);
 	Settings.resetMoney = getConfig().getBoolean("general.resetmoney", true);
+	
 	Settings.startingMoney = getConfig().getDouble("general.startingmoney", 0D);
 	// Nether spawn protection radius
 	Settings.netherSpawnRadius = getConfig().getInt("general.netherspawnradius",25);
@@ -2098,5 +2102,40 @@ public class AcidIsland extends JavaPlugin {
 	    return 0F;	
 	}
     }
- 
+    
+    /**
+     * Resets a player's inventory, armor slots, equipment, enderchest and potion effects
+     * @param player
+     */
+    public void resetPlayer(Player player) {
+	// Clear their inventory and equipment and set them as survival
+	player.getInventory().clear(); // Javadocs are wrong - this does not
+	// clear armor slots! So...
+	player.getInventory().setHelmet(null);
+	player.getInventory().setChestplate(null);
+	player.getInventory().setLeggings(null);
+	player.getInventory().setBoots(null);
+	player.getEquipment().clear();
+	player.setGameMode(GameMode.SURVIVAL);
+	if (Settings.resetChallenges) {
+	    // Reset the player's challenge status
+	    players.resetAllChallenges(player.getUniqueId());
+	}
+	// Reset the island level
+	players.setIslandLevel(player.getUniqueId(), 0);
+	players.save(player.getUniqueId());
+	updateTopTen();
+	// Update the inventory
+	player.updateInventory();
+	/*
+	if (Settings.resetEnderChest) {
+	    // Clear any Enderchest contents
+	    final ItemStack[] items = new ItemStack[player.getEnderChest().getContents().length];
+	    player.getEnderChest().setContents(items);
+	}*/
+	// Clear any potion effects
+	for (PotionEffect effect : player.getActivePotionEffects())
+	    player.removePotionEffect(effect.getType());	
+    }
+
 }

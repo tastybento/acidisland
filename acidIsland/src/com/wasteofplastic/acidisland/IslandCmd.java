@@ -242,30 +242,6 @@ public class IslandCmd implements CommandExecutor {
 	}
 
     }
-    /**
-     * Resets a player's inventory, armor slots, equipment, enderchest and potion effects
-     * @param player
-     */
-    private void resetPlayer(Player player) {
-	// Clear their inventory and equipment and set them as survival
-	player.getInventory().clear(); // Javadocs are wrong - this does not
-	// clear armor slots! So...
-	player.getInventory().setHelmet(null);
-	player.getInventory().setChestplate(null);
-	player.getInventory().setLeggings(null);
-	player.getInventory().setBoots(null);
-	player.getEquipment().clear();
-	player.setGameMode(GameMode.SURVIVAL);
-	/*
-	if (Settings.resetEnderChest) {
-	    // Clear any Enderchest contents
-	    final ItemStack[] items = new ItemStack[player.getEnderChest().getContents().length];
-	    player.getEnderChest().setContents(items);
-	}*/
-	// Clear any potion effects
-	for (PotionEffect effect : player.getActivePotionEffects())
-	    player.removePotionEffect(effect.getType());	
-    }
 
     /**
      * Creates an island block by block
@@ -726,12 +702,12 @@ public class IslandCmd implements CommandExecutor {
 		player.sendMessage(ChatColor.GREEN + Locale.islandnew);
 		final Location cowSpot = newIsland(sender);
 		plugin.homeTeleport(player);
-		resetPlayer(player);
+		plugin.resetPlayer(player);
 		if (Settings.resetMoney) {
 		    resetMoney(player);
 		}
 
-		Bukkit.getScheduler().runTaskLater(plugin, new Runnable () {
+		plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable () {
 		    @Override
 		    public void run() {
 			player.getWorld().spawnEntity(cowSpot, EntityType.COW);
@@ -837,7 +813,7 @@ public class IslandCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.RED + Locale.islandresetConfirm);
 		    if (!confirm.containsKey(playerUUID) || !confirm.get(playerUUID)) {
 			confirm.put(playerUUID, true);
-			Bukkit.getScheduler().runTaskLater(plugin, new Runnable () {
+			plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable () {
 			    @Override
 			    public void run() {
 				confirm.put(playerUUID,false);
@@ -850,6 +826,7 @@ public class IslandCmd implements CommandExecutor {
 		}
 		return true;
 	    } else if (split[0].equalsIgnoreCase("confirm")) {
+		// This is where the actual reset is done
 		if (confirm.containsKey(playerUUID) && confirm.get(playerUUID)) {
 		    // Actually RESET the island
 		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetPleaseWait);
@@ -859,11 +836,12 @@ public class IslandCmd implements CommandExecutor {
 		    final Location cowSpot = newIsland(sender);
 		    players.setHomeLocation(player.getUniqueId(), null);
 		    plugin.homeTeleport(player);
-		    resetPlayer(player);
+		    plugin.resetPlayer(player);
 		    if (Settings.resetMoney) {
 			resetMoney(player);
 		    }
-		    Bukkit.getScheduler().runTaskLater(plugin, new Runnable () {
+		    
+		    plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable () {
 			@Override
 			public void run() {
 			    player.getWorld().spawnEntity(cowSpot, EntityType.COW);
@@ -969,7 +947,7 @@ public class IslandCmd implements CommandExecutor {
 			if (players.hasIsland(playerUUID)) {
 			    plugin.getLogger().info(player.getName() + "'s island will be deleted because they joined a party.");
 			    // Delete the island next tick
-			    Bukkit.getScheduler().runTask(plugin, new Runnable() {
+			    plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
 				@Override
 				public void run() {
 				    plugin.deletePlayerIsland(playerUUID);
@@ -987,7 +965,7 @@ public class IslandCmd implements CommandExecutor {
 			setResetWaitTime(player);
 
 			plugin.homeTeleport(player);
-			resetPlayer(player);
+			plugin.resetPlayer(player);
 			player.sendMessage(ChatColor.GREEN + Locale.inviteyouHaveJoinedAnIsland);
 			if (Bukkit.getPlayer(inviteList.get(playerUUID)) != null) {
 			    Bukkit.getPlayer(inviteList.get(playerUUID)).sendMessage(ChatColor.GREEN + Locale.invitehasJoinedYourIsland.replace("[name]", player.getName()));
@@ -1025,7 +1003,7 @@ public class IslandCmd implements CommandExecutor {
 				player.sendMessage(ChatColor.YELLOW + Locale.leaveerrorYouAreTheLeader);
 				return true;
 			    }
-			    resetPlayer(player);
+			    plugin.resetPlayer(player);
 			    if (!player.performCommand("spawn")) {
 				player.teleport(player.getWorld().getSpawnLocation());
 			    }
@@ -1304,7 +1282,7 @@ public class IslandCmd implements CommandExecutor {
 					} catch (Exception e) {}
 				    }
 				}
-				resetPlayer(target);
+				plugin.resetPlayer(target);
 			    }
 			    if (!target.performCommand("spawn")) {
 				target.teleport(AcidIsland.getIslandWorld().getSpawnLocation());
