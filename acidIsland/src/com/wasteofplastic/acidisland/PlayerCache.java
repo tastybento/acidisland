@@ -39,18 +39,18 @@ public class PlayerCache {
 	    }
 	}
     }
-    
+
     /*
      * Cache control methods
      */
-        
+
     public void addPlayer(final UUID playerUUID) {
 	if (!playerCache.containsKey(playerUUID)) {
 	    final Players player = new Players(plugin, playerUUID);
 	    playerCache.put(playerUUID,player);
 	}
     }
-    
+
     /**
      * Stores the player's info to a file and removes the player from the list
      * of currently online players
@@ -65,7 +65,7 @@ public class PlayerCache {
 	    //plugin.getLogger().info("Removing player from cache: " + player);
 	}
     }
-    
+
     /**
      * Removes all players on the server now from cache and saves their info
      */
@@ -123,7 +123,7 @@ public class PlayerCache {
 	// Not found, sorry.
 	return false;
     }
-    
+
     /**
      * Returns the player object for the named player
      * @param playerUUID - String name of player
@@ -144,8 +144,8 @@ public class PlayerCache {
 	return playerCache.get(playerUUID).hasIsland();
     }
 
-     /**
-      * Checks if player is in a Team from cache if available
+    /**
+     * Checks if player is in a Team from cache if available
      * @param playerUUID
      * @return
      */
@@ -177,7 +177,7 @@ public class PlayerCache {
     public Location getHomeLocation(UUID playerUUID) {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).getHomeLocation();
-   }
+    }
 
     public Location getIslandLocation(UUID playerUUID) {
 	addPlayer(playerUUID);
@@ -187,7 +187,7 @@ public class PlayerCache {
     public void setHasIsland(UUID playerUUID, boolean b) {
 	addPlayer(playerUUID);
 	playerCache.get(playerUUID).setHasIsland(b);
-   }
+    }
 
     public void setIslandLocation(UUID playerUUID, Location islandLocation) {
 	addPlayer(playerUUID);
@@ -219,7 +219,7 @@ public class PlayerCache {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).checkChallenge(challenge);
     }
-    
+
     /**
      * Provides the status of all challenges for this player
      * @param playerUUID
@@ -229,7 +229,7 @@ public class PlayerCache {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).getChallengeStatus();	
     }
-     
+
 
     public void resetChallenge(UUID playerUUID, String challenge) {
 	addPlayer(playerUUID);
@@ -280,7 +280,7 @@ public class PlayerCache {
     public UUID getTeamLeader(UUID playerUUID) {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).getTeamLeader();
-   }
+    }
 
     /**
      * Saves the player's info to the file system
@@ -298,7 +298,7 @@ public class PlayerCache {
     public boolean challengeExists(UUID playerUUID, String challenge) {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).challengeExists(challenge);	
-   }
+    }
 
     /**
      * Attempts to return a UUID for a given player's name
@@ -350,7 +350,7 @@ public class PlayerCache {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).getTeamIslandLocation();
     }
-    
+
     /**
      * Reverse lookup - returns the owner of an island from the location
      * @param loc
@@ -359,13 +359,40 @@ public class PlayerCache {
     public UUID getPlayerFromIslandLocation(Location loc) {
 	if (loc == null)
 	    return null;
+	// Check the cache first
 	for (UUID uuid: playerCache.keySet()) {
-	    if (playerCache.get(uuid).getIslandLocation().equals(loc)) {
-		return uuid;
+	    // Check for block equiv
+	    Location check = playerCache.get(uuid).getIslandLocation();
+	    if (check != null) {
+		if (check.getBlockX() == loc.getBlockX()
+			&& check.getBlockZ() == loc.getBlockZ()) {
+		    return uuid;
+		}
 	    }
 	}
+	// Look in the file system
+	for (final File f : plugin.playersFolder.listFiles()) {
+	    // Need to remove the .yml suffix
+	    String fileName = f.getName();
+	    if (fileName.endsWith(".yml")) {
+		try {
+		    UUID uuid = UUID.fromString(fileName.substring(0, fileName.length() - 4));
+		    addPlayer(uuid);
+		    Location check = playerCache.get(uuid).getIslandLocation();
+		    if (check != null) {
+			//plugin.getLogger().info("DEBUG: checking " + check.toString());
+			if (check.getBlockX() == loc.getBlockX()
+				&& check.getBlockZ() == loc.getBlockZ()) {
+			    return uuid;
+			}	
+		    }
+		} catch (Exception e) {
+		}
+	    }
+	}
+
 	return null;
     }
-    
+
 }
 

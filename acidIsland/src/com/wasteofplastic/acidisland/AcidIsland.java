@@ -786,7 +786,7 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.island_level < 0) {
 	    Settings.island_level = 0;
 	}
-	getLogger().info("DEBUG: island level is " + Settings.island_level);
+	//getLogger().info("DEBUG: island level is " + Settings.island_level);
 	// Get chest items
 	final String[] chestItemString = getConfig().getString("island.chestItems").split(" ");
 	final ItemStack[] tempChest = new ItemStack[chestItemString.length];

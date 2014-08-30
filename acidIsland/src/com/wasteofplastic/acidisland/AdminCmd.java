@@ -160,6 +160,7 @@ public class AdminCmd implements CommandExecutor {
 		    return true;
 		}
 		// Find out whose island this is
+		plugin.getLogger().info("DEBUG: closest bedrock: " + closestBedRock.toString());
 		UUID target = plugin.players.getPlayerFromIslandLocation(closestBedRock);
 		if (target == null) {
 		    sender.sendMessage(ChatColor.RED + "This island is not owned by anyone right now.");
