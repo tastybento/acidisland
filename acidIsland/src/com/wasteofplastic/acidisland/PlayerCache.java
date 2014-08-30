@@ -351,5 +351,21 @@ public class PlayerCache {
 	return playerCache.get(playerUUID).getTeamIslandLocation();
     }
     
+    /**
+     * Reverse lookup - returns the owner of an island from the location
+     * @param loc
+     * @return
+     */
+    public UUID getPlayerFromIslandLocation(Location loc) {
+	if (loc == null)
+	    return null;
+	for (UUID uuid: playerCache.keySet()) {
+	    if (playerCache.get(uuid).getIslandLocation().equals(loc)) {
+		return uuid;
+	    }
+	}
+	return null;
+    }
+    
 }
 

@@ -251,7 +251,9 @@ adminHelp:
    #/acid purge [TimeInDays]:
    purge: "delete inactive islands older than [TimeInDays]."
    #/acid info <player>:
-   info: "check the team information for the given player."
+   info: "info for the given player."
+   #/acid info
+   infoisland: "provide info on the nearest island."
 
 #acid reload
 reload:

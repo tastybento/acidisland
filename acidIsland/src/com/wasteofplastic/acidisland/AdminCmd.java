@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.server.v1_7_R3.World;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -49,6 +51,7 @@ public class AdminCmd implements CommandExecutor {
 	    sender.sendMessage(ChatColor.YELLOW + "/acid resetallchallenges <player>:" + ChatColor.WHITE + " " + Locale.adminHelpresetAllChallenges);
 	    sender.sendMessage(ChatColor.YELLOW + "/acid purge [TimeInDays]:" + ChatColor.WHITE + " " + Locale.adminHelppurge);
 	    sender.sendMessage(ChatColor.YELLOW + "/acid info <player>:" + ChatColor.WHITE + " " + Locale.adminHelpinfo);
+	    sender.sendMessage(ChatColor.YELLOW + "/acid info:" + ChatColor.WHITE + " " + Locale.adminHelpinfoIsland);
 	} else {
 	    // Only give help if the player has permissions
 	    // Permissions are split into admin permissions and mod permissions
@@ -123,7 +126,48 @@ public class AdminCmd implements CommandExecutor {
 	    help(sender);
 	    return true;
 	case 1:
-	    if (split[0].equalsIgnoreCase("reload")) {
+	    if (split[0].equalsIgnoreCase("info")) {
+		// Find the closest island
+		if (!(sender instanceof Player)) {
+		    sender.sendMessage(ChatColor.RED + "This command must be used in-game.");
+		    return true;
+		}
+		Player p = (Player)sender;
+		Location closestBedRock = null;
+		double distance = 0;
+		for (int x = -Settings.islandDistance; x< Settings.islandDistance; x++) {
+		    for (int z = -Settings.islandDistance; z< Settings.islandDistance; z++) {
+			
+			Location blockLoc = new Location(p.getWorld(),x + p.getLocation().getBlockX(),Settings.island_level,z + p.getLocation().getBlockZ());
+			if (blockLoc.getBlock().getType().equals(Material.BEDROCK)) {
+			    if (closestBedRock == null) {
+				closestBedRock = blockLoc.clone();
+				distance = closestBedRock.distanceSquared(p.getLocation());
+			    } else {
+				// Find out if this is closer to the player
+				
+				double newDist = blockLoc.distanceSquared(p.getLocation());
+				if (distance > newDist) {
+				    closestBedRock = blockLoc.clone();
+				    distance = newDist;
+				    }
+			    }
+			}
+		    }
+		}
+		if (closestBedRock == null) {
+		    sender.sendMessage(ChatColor.RED + "Sorry, could not find an island. Move closer?");
+		    return true;
+		}
+		// Find out whose island this is
+		UUID target = plugin.players.getPlayerFromIslandLocation(closestBedRock);
+		if (target == null) {
+		    sender.sendMessage(ChatColor.RED + "This island is not owned by anyone right now.");
+		    return true;
+		}
+		showInfo(target, sender);
+		return true;
+	    } else if (split[0].equalsIgnoreCase("reload")) {
 		plugin.reloadConfig();
 		plugin.loadPluginConfig();
 		plugin.reloadChallengeConfig();
@@ -300,46 +344,8 @@ public class AdminCmd implements CommandExecutor {
 		if (!players.isAKnownPlayer(playerUUID)) {
 		    sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 		    return true;
-		} else {	
-		    sender.sendMessage(ChatColor.GREEN + players.getName(playerUUID));
-		    sender.sendMessage(ChatColor.WHITE + "UUID:" + playerUUID.toString());
-		    // Display island level
-		    sender.sendMessage(ChatColor.GREEN + Locale.levelislandLevel + players.getIslandLevel(playerUUID));
-		    // Last login
-		    try {
-			Date d = new Date(plugin.getServer().getOfflinePlayer(playerUUID).getLastPlayed());
-			sender.sendMessage(ChatColor.WHITE + "Last login: " + d.toString());
-		    } catch (Exception e) {}
-
-		    // Completed challenges
-		    sender.sendMessage(ChatColor.WHITE + "Completed challenges:");
-		    HashMap<String,Boolean> challenges = players.getChallengeStatus(playerUUID);
-		    for (String c: challenges.keySet()) {
-			sender.sendMessage(c + ": " + ((challenges.get(c)) ? Locale.challengescomplete :Locale.challengesincomplete));
-		    }
-		    // Teams
-		    if (players.inTeam(playerUUID)) {
-			final UUID leader = players.getTeamLeader(playerUUID);
-			final List<UUID> pList = players.getMembers(leader);
-			sender.sendMessage(ChatColor.GREEN + players.getName(leader) );
-			for (UUID member: pList) {
-			    sender.sendMessage(ChatColor.WHITE + " - " + players.getName(member));
-			}
-			sender.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + players.getTeamIslandLocation(playerUUID).getBlockX() + ","
-				+ players.getTeamIslandLocation(playerUUID).getBlockY() + "," + players.getTeamIslandLocation(playerUUID).getBlockZ() + ")");
-		    } else {
-			sender.sendMessage(ChatColor.YELLOW + Locale.errorNoTeam);
-			if (players.hasIsland(playerUUID)) {
-			    sender.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + players.getIslandLocation(playerUUID).getBlockX() + ","
-				    + players.getIslandLocation(playerUUID).getBlockY() + "," + players.getIslandLocation(playerUUID).getBlockZ() + ")");
-			}
-			if (!(players.getTeamLeader(playerUUID) == null)) {
-			    sender.sendMessage(ChatColor.RED + Locale.adminInfoerrorNullTeamLeader);
-			}
-			if (!players.getMembers(playerUUID).isEmpty()) {
-			    sender.sendMessage(ChatColor.RED + Locale.adminInfoerrorTeamMembersExist);
-			}
-		    }
+		} else {
+		    showInfo(playerUUID, sender);
 		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("resetallchallenges")) {
@@ -391,6 +397,49 @@ public class AdminCmd implements CommandExecutor {
 	default:
 	    return false;
 	}
+    }
+
+    private void showInfo(UUID playerUUID, CommandSender sender) {
+	    sender.sendMessage(ChatColor.GREEN + players.getName(playerUUID));
+	    sender.sendMessage(ChatColor.WHITE + "UUID: " + playerUUID.toString());
+	    // Display island level
+	    sender.sendMessage(ChatColor.GREEN + Locale.levelislandLevel + ": " + players.getIslandLevel(playerUUID));
+	    // Last login
+	    try {
+		Date d = new Date(plugin.getServer().getOfflinePlayer(playerUUID).getLastPlayed());
+		sender.sendMessage(ChatColor.GOLD + "Last login: " + d.toString());
+	    } catch (Exception e) {}
+
+	    // Completed challenges
+	    sender.sendMessage(ChatColor.WHITE + "Challenges:");
+	    HashMap<String,Boolean> challenges = players.getChallengeStatus(playerUUID);
+	    for (String c: challenges.keySet()) {
+		sender.sendMessage(c + ": " + ((challenges.get(c)) ? ChatColor.GREEN + Locale.challengescomplete :ChatColor.AQUA + Locale.challengesincomplete));
+	    }
+	    // Teams
+	    if (players.inTeam(playerUUID)) {
+		final UUID leader = players.getTeamLeader(playerUUID);
+		final List<UUID> pList = players.getMembers(leader);
+		sender.sendMessage(ChatColor.GREEN + players.getName(leader) );
+		for (UUID member: pList) {
+		    sender.sendMessage(ChatColor.WHITE + " - " + players.getName(member));
+		}
+		sender.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + players.getTeamIslandLocation(playerUUID).getBlockX() + ","
+			+ players.getTeamIslandLocation(playerUUID).getBlockY() + "," + players.getTeamIslandLocation(playerUUID).getBlockZ() + ")");
+	    } else {
+		sender.sendMessage(ChatColor.YELLOW + Locale.errorNoTeam);
+		if (players.hasIsland(playerUUID)) {
+		    sender.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + players.getIslandLocation(playerUUID).getBlockX() + ","
+			    + players.getIslandLocation(playerUUID).getBlockY() + "," + players.getIslandLocation(playerUUID).getBlockZ() + ")");
+		}
+		if (!(players.getTeamLeader(playerUUID) == null)) {
+		    sender.sendMessage(ChatColor.RED + Locale.adminInfoerrorNullTeamLeader);
+		}
+		if (!players.getMembers(playerUUID).isEmpty()) {
+		    sender.sendMessage(ChatColor.RED + Locale.adminInfoerrorTeamMembersExist);
+		}
+	    }
+	
     }
 
     private boolean checkAdminPerms(Player player2, String[] split) {
