@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import net.minecraft.server.v1_7_R3.World;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
