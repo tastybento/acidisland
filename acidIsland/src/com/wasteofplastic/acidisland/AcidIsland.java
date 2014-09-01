@@ -258,9 +258,9 @@ public class AcidIsland extends JavaPlugin {
 	// location
 	if (players.inTeam(p)) {
 	    l = players.getTeamIslandLocation(p);
-		if (isSafeLocation(l)) {
-		    return l;
-		}
+	    if (isSafeLocation(l)) {
+		return l;
+	    }
 	} else {
 	    l = players.getIslandLocation(p);
 	}
@@ -348,7 +348,7 @@ public class AcidIsland extends JavaPlugin {
     }
 
     /**
-     * Determines if an island is at a location in a 5 x 5 x 5 cube around the
+     * Determines if an island is at a location in this area
      * location. Also checks if the spawn island is in this area.
      * 
      * @param loc
@@ -363,17 +363,17 @@ public class AcidIsland extends JavaPlugin {
 	if (loc.getBlock().getType().equals(Material.BEDROCK)) {
 	    return true;
 	}
+	// Near spawn?
+	if ((spawn.getSpawnLoc() != null && loc.distanceSquared(spawn.getSpawnLoc()) < (double)((double)Settings.islandDistance) * Settings.islandDistance)) {
+	    return true;
+	}
 	// Look around
 	final int px = loc.getBlockX();
-	final int py = loc.getBlockY();
 	final int pz = loc.getBlockZ();
-	for (int x = -2; x <= 2; x++) {
-	    for (int y = -2; y <= 2; y++) {
-		for (int z = -2; z <= 2; z++) {
-		    final Block b = new Location(loc.getWorld(), px + x, py + y, pz + z).getBlock();
-		    // Check if there is a bedrock block there already, if not
-		    // then it's free
-		    if (b.getType().equals(Material.BEDROCK) || (spawn != null && spawn.equals(b.getLocation()))) {
+	for (int x = -5; x <= 5; x++) {
+	    for (int y = 0; y <= 255; y++) {
+		for (int z = -5; z <= 5; z++) {
+		    if (loc.getWorld().getBlockAt(x + px, y, z + pz).getType().equals(Material.BEDROCK)) {
 			return true;
 		    }
 		}
@@ -759,7 +759,7 @@ public class AcidIsland extends JavaPlugin {
 	}
 	Settings.resetChallenges = getConfig().getBoolean("general.resetchallenges", true);
 	Settings.resetMoney = getConfig().getBoolean("general.resetmoney", true);
-	
+
 	Settings.startingMoney = getConfig().getDouble("general.startingmoney", 0D);
 	// Nether spawn protection radius
 	Settings.netherSpawnRadius = getConfig().getInt("general.netherspawnradius",25);
@@ -2035,7 +2035,7 @@ public class AcidIsland extends JavaPlugin {
 	    return false;
 	}
     }
-    
+
     /**
      * Converts a name like IRON_INGOT into Iron Ingot to improve readability
      * 
@@ -2108,7 +2108,7 @@ public class AcidIsland extends JavaPlugin {
 	    return 0F;	
 	}
     }
-    
+
     /**
      * Resets a player's inventory, armor slots, equipment, enderchest and potion effects
      * @param player
@@ -2148,7 +2148,7 @@ public class AcidIsland extends JavaPlugin {
      * @return the spawn
      */
     public Spawn getSpawn() {
-        return spawn;
+	return spawn;
     }
 
 }

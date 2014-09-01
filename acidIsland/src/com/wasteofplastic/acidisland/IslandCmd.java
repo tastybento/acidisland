@@ -150,8 +150,6 @@ public class IslandCmd implements CommandExecutor {
 	// Find the next free spot
 	Location next;
 	next = nextGridLocation(last);
-	// Don't allow islands at spawn if it exists
-	Location spawn = plugin.getSpawn().getSpawnLoc();
 	while (plugin.islandAtLocation(next)) {
 	    next = nextGridLocation(next);
 	}
