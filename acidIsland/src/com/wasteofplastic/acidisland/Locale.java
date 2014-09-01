@@ -6,6 +6,8 @@ package com.wasteofplastic.acidisland;
 
 
 
+
+
 /**
  * @author ben
  * All the text strings in the game sent to players
@@ -145,7 +147,8 @@ public class Locale {
     public static String islanderrorLevelNotReady;
     public static String islanderrorInvalidPlayer;
     public static String islandislandLevelis;
-
+    // Spawn
+    public static String islandhelpSpawn;
 
     //////////////////////////////////////
     ///island commands //
@@ -264,6 +267,7 @@ public class Locale {
     public static String adminInfoerrorNullTeamLeader;
     public static String adminInfoerrorTeamMembersExist;
     public static String adminHelpinfoIsland;
+    public static String adminHelpSetSpawn;
 
     //resetallchallenges
     public static String resetChallengessuccess;
@@ -292,6 +296,8 @@ public class Locale {
     public static String challengesguiTitle;
     // Ultra safe boats
     public static String boatWarningItIsUnsafe;
+
+    
     
     
     

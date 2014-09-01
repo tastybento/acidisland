@@ -71,5 +71,15 @@ public class Settings {
     public static boolean logInRemoveMobs;
     public static boolean islandRemoveMobs;
     public static int island_level;
-    public static boolean resetChallenges;   
+    public static boolean resetChallenges;
+    // Spawn fields
+    public static boolean allowSpawnDoorUse;
+    public static boolean allowSpawnLeverButtonUse;
+    public static boolean allowSpawnChestAccess;
+    public static boolean allowSpawnFurnaceUse;
+    public static boolean allowSpawnRedStone;
+    public static boolean allowSpawnMusic;
+    public static boolean allowSpawnCrafting;
+    public static boolean allowSpawnBrewing;
+    public static boolean allowSpawnGateUse;   
 }

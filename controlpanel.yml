@@ -37,3 +37,8 @@ default:
       description: List warps available
       command: 'ai warps'
       nextsection:
+    7:
+      material: BEDROCK
+      description: Go to AcidIsland spawn
+      command: 'ai spawn'
+      nextsection:

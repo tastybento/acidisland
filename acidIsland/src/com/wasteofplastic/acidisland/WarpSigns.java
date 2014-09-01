@@ -36,39 +36,41 @@ public class WarpSigns implements Listener {
     public void onSignPopped(BlockPhysicsEvent e) {
 	// Block b = e.getBlock().getRelative(BlockFace.UP);
 	Block b = e.getBlock();
+	if (!(b.getState() instanceof Sign)) {
+	    return;
+	}
 	if (!(b.getWorld()).getName().equals(Settings.worldName)) {
 	    // Wrong world
 	    return;
 	}
-	//if (plugin.isNewIsland())
-	    //return;
-	// plugin.getLogger().info("Block type " + b.getType().toString());
-	if (plugin.checkWarp(b.getLocation())) {
-	    //plugin.getLogger().info("Known warp location!");
-	    // This is the sign block - check to see if it is still a sign
-	    if (b.getType().equals(Material.SIGN_POST)) {
-		// Check to see if it is still attached
-		MaterialData m = b.getState().getData();
-		BlockFace face = BlockFace.DOWN; // Most of the time it's going
-		// to be down
-		if (m instanceof Attachable) {
-		    face = ((Attachable) m).getAttachedFace();
-		}
-		if (b.getRelative(face).getType().isSolid()) {
-		    //plugin.getLogger().info("Attached to some solid block");
-		} else {
-		    /*
-		     * } MaterialData m = b.getState().getData(); BlockFace face
-		     * = BlockFace.DOWN; if (m instanceof Attachable) { face =
-		     * ((Attachable) m).getAttachedFace(); }
-		     */
-		    // b.getRelative(face);
-		    //plugin.getLogger().info("Not attached!");
-		    plugin.removeWarp(b.getLocation());
-		    //plugin.getLogger().info("Warp removed");
-		}
-	    }
+	if (!plugin.checkWarp(b.getLocation())) {
+	    return;
 	}
+	//plugin.getLogger().info("DEBUG: Known warp location! " + b.getLocation().toString());
+	// This is the sign block - check to see if it is still a sign
+	//if (b.getType().equals(Material.SIGN_POST)) {
+	// Check to see if it is still attached
+	MaterialData m = b.getState().getData();
+	BlockFace face = BlockFace.DOWN; // Most of the time it's going
+	// to be down
+	if (m instanceof Attachable) {
+	    face = ((Attachable) m).getAttachedFace();
+	}
+	if (b.getRelative(face).getType().isSolid()) {
+	    //plugin.getLogger().info("Attached to some solid block");
+	} else {
+	    /*
+	     * } MaterialData m = b.getState().getData(); BlockFace face
+	     * = BlockFace.DOWN; if (m instanceof Attachable) { face =
+	     * ((Attachable) m).getAttachedFace(); }
+	     */
+	    // b.getRelative(face);
+	    //plugin.getLogger().info("Not attached!");
+	    plugin.removeWarp(b.getLocation());
+	    //plugin.getLogger().info("Warp removed");
+	}
+	//}
+
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)

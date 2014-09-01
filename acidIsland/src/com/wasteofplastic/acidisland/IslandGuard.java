@@ -19,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -47,6 +48,28 @@ public class IslandGuard implements Listener {
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
+    public void onMobSpawn(final CreatureSpawnEvent e) {
+	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    return;
+	}
+	//plugin.getLogger().info("DEBUG: mob spawn");
+	// prevent at spawn
+	/*
+	if (plugin.getSpawn().getBedrock() != null) {
+	    plugin.getLogger().info("DEBUG: spawn loc exists");
+	plugin.getLogger().info("DEBUG: distance sq = " + e.getLocation().distanceSquared(plugin.getSpawn().getBedrock()));
+	plugin.getLogger().info("DEBUG: range sq = " + (plugin.getSpawn().getRange()*plugin.getSpawn().getRange()));
+	} else {
+	    plugin.getLogger().info("DEBUG: spawn loc does not exist");
+	}*/
+	if (plugin.getSpawn().getBedrock() != null && 
+		(e.getLocation().distanceSquared(plugin.getSpawn().getBedrock()) < (double)((double)plugin.getSpawn().getRange()*plugin.getSpawn().getRange()))) {
+	    //plugin.getLogger().info("DEBUG: prevented mob spawn at spawn");
+	    e.setCancelled(true);
+	}
+    }
+    
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
     public void onExplosion(final EntityExplodeEvent e) {
 	// Find out what is exploding
 	Entity expl = e.getEntity();
@@ -55,6 +78,11 @@ public class IslandGuard implements Listener {
 	}
 	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    return;
+	}
+	// prevent at spawn
+	if (plugin.getSpawn().getBedrock() != null && 
+		(e.getLocation().distanceSquared(plugin.getSpawn().getBedrock()) < plugin.getSpawn().getRange()*plugin.getSpawn().getRange())) {
+	    e.setCancelled(true);
 	}
 	// Find out what is exploding
 	EntityType exploding = e.getEntityType();
@@ -88,11 +116,16 @@ public class IslandGuard implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
     public void onEndermanGrief(final EntityChangeBlockEvent e) {
-	if (Settings.allowEndermanGriefing)
-	    return;
 	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    return;
 	}
+	// prevent at spawn
+	if (plugin.getSpawn().getBedrock() != null && 
+		(e.getEntity().getLocation().distanceSquared(plugin.getSpawn().getBedrock()) < plugin.getSpawn().getRange()*plugin.getSpawn().getRange())) {
+	    e.setCancelled(true);
+	}
+	if (Settings.allowEndermanGriefing)
+	    return;
 	if (!(e.getEntity() instanceof Enderman)) {
 	    return;
 	}
@@ -387,6 +420,14 @@ public class IslandGuard implements Listener {
 	    return;
 	}
 	// Player is off island
+	// Check if player is at spawn
+	// prevent at spawn
+	boolean playerAtSpawn = false;
+	if (plugin.getSpawn().getBedrock() != null && 
+		(e.getPlayer().getLocation().distanceSquared(plugin.getSpawn().getBedrock()) < plugin.getSpawn().getRange()*plugin.getSpawn().getRange())) {
+	    playerAtSpawn = true;
+	}
+
 	// Check for disallowed clicked blocks
 	if (e.getClickedBlock() != null) {
 	    //plugin.getLogger().info("DEBUG: clicked block " + e.getClickedBlock());
@@ -395,14 +436,14 @@ public class IslandGuard implements Listener {
 	    switch (e.getClickedBlock().getType()) {
 	    case WOODEN_DOOR:
 	    case TRAP_DOOR:
-		if (!Settings.allowDoorUse) {
+		if (!Settings.allowDoorUse && !(playerAtSpawn && Settings.allowSpawnDoorUse)) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
 		}
 		break;
 	    case FENCE_GATE:
-		if (!Settings.allowGateUse) {
+		if (!Settings.allowGateUse && !(playerAtSpawn && Settings.allowSpawnGateUse)) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return;  
@@ -416,7 +457,7 @@ public class IslandGuard implements Listener {
 	    case HOPPER:
 	    case HOPPER_MINECART:
 	    case STORAGE_MINECART:
-		if (!Settings.allowChestAccess) {
+		if (!Settings.allowChestAccess && !(playerAtSpawn && Settings.allowSpawnChestAccess)) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
@@ -431,7 +472,7 @@ public class IslandGuard implements Listener {
 		break;
 	    case BREWING_STAND:
 	    case CAULDRON:
-		if (!Settings.allowBrewing) {
+		if (!Settings.allowBrewing && !(playerAtSpawn && Settings.allowSpawnBrewing)) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
@@ -444,7 +485,7 @@ public class IslandGuard implements Listener {
 	    case DIODE_BLOCK_ON:
 	    case REDSTONE_COMPARATOR_ON:
 	    case REDSTONE_COMPARATOR_OFF:
-		if (!Settings.allowRedStone) {
+		if (!Settings.allowRedStone && !(playerAtSpawn && Settings.allowSpawnRedStone)) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
@@ -454,7 +495,7 @@ public class IslandGuard implements Listener {
 		break;
 	    case FURNACE:
 	    case BURNING_FURNACE:
-		if (!Settings.allowFurnaceUse) {
+		if (!Settings.allowFurnaceUse && !(playerAtSpawn && Settings.allowSpawnFurnaceUse)) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
@@ -466,7 +507,7 @@ public class IslandGuard implements Listener {
 		break;
 	    case JUKEBOX:
 	    case NOTE_BLOCK:
-		if (!Settings.allowMusic) {
+		if (!Settings.allowMusic && !(playerAtSpawn && Settings.allowSpawnMusic)) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
@@ -477,7 +518,7 @@ public class IslandGuard implements Listener {
 	    case STONE_BUTTON:
 	    case WOOD_BUTTON:
 	    case LEVER:
-		if (!Settings.allowLeverButtonUse) {
+		if (!Settings.allowLeverButtonUse && !(playerAtSpawn && Settings.allowSpawnLeverButtonUse)) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 
@@ -486,7 +527,7 @@ public class IslandGuard implements Listener {
 	    case TNT:
 		break;
 	    case WORKBENCH:
-		if (!Settings.allowCrafting) {
+		if (!Settings.allowCrafting && !(playerAtSpawn && Settings.allowSpawnCrafting)) {
 		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
 		    e.setCancelled(true);
 		    return; 

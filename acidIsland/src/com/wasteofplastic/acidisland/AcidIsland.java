@@ -83,7 +83,8 @@ public class AcidIsland extends JavaPlugin {
     private Listener spongeListener;
     private Listener warpSignsListener;
     private Listener lavaListener;
-
+    // Spawn object
+    Spawn spawn;
     /**
      * A database of where the sponges are stored a serialized location and
      * integer
@@ -202,7 +203,7 @@ public class AcidIsland extends JavaPlugin {
     }
 
     /**
-     * Converts a serialized location to a Location
+     * Converts a serialized location to a Location. Returns null if string is empty
      * @param s - serialized location in format "world:x:y:z"
      * @return Location
      */
@@ -223,7 +224,7 @@ public class AcidIsland extends JavaPlugin {
 
     /**
      * Converts a location to a simple string representation
-     * 
+     * If location is null, returns empty string
      * @param l
      * @return
      */
@@ -348,7 +349,7 @@ public class AcidIsland extends JavaPlugin {
 
     /**
      * Determines if an island is at a location in a 5 x 5 x 5 cube around the
-     * location
+     * location. Also checks if the spawn island is in this area.
      * 
      * @param loc
      * @return
@@ -372,7 +373,7 @@ public class AcidIsland extends JavaPlugin {
 		    final Block b = new Location(loc.getWorld(), px + x, py + y, pz + z).getBlock();
 		    // Check if there is a bedrock block there already, if not
 		    // then it's free
-		    if (b.getType().equals(Material.BEDROCK)) {
+		    if (b.getType().equals(Material.BEDROCK) || (spawn != null && spawn.equals(b.getLocation()))) {
 			return true;
 		    }
 		}
@@ -980,6 +981,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.islandresetWait = locale.getString("island.resetWait","You have to wait [time] seconds before you can do that again.");
 	Locale.islandresetConfirm = locale.getString("island.resetConfirm", "Type /island confirm within 10 seconds to delete your island and restart!");
 	Locale.islandhelpIsland = locale.getString("island.helpIsland","start an island, or teleport to your island.");
+	Locale.islandhelpSpawn = locale.getString("island.helpIslandSpawn","go to AcidIsland spawn.");
 	Locale.islandhelpControlPanel = locale.getString("island.helpControlPanel","open the island GUI.");
 	Locale.islandhelpRestart = locale.getString("island.helpRestart","restart your island and remove the old one.");
 	Locale.islandDeletedLifeboats = locale.getString("island.islandDeletedLifeboats","Island deleted! Head to the lifeboats!");
@@ -1049,6 +1051,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.adminHelpresetAllChallenges = locale.getString("adminHelp.resetAllChallenges","resets all of the player's challenges");
 	Locale.adminHelppurge = locale.getString("adminHelp.purge","delete inactive islands older than [TimeInDays].");
 	Locale.adminHelpinfo = locale.getString("adminHelp.info","check information on the given player.");
+	Locale.adminHelpSetSpawn = locale.getString("adminHelp.setspawn","opens the spawn GUI for AcidIsland world.");
 	Locale.adminHelpinfoIsland = locale.getString("adminHelp.infoisland","provide info on the nearest island.");
 	Locale.reloadconfigReloaded = locale.getString("reload.configReloaded","Configuration reloaded from file.");
 	Locale.adminTopTengenerating = locale.getString("adminTopTen.generating","Generating the Top Ten list");
@@ -1110,6 +1113,7 @@ public class AcidIsland extends JavaPlugin {
 	    //saveConfig();
 	    saveWarpList();
 	    saveMessages();
+	    spawn.save();
 	} catch (final Exception e) {
 	    plugin.getLogger().severe("Something went wrong saving files!");
 	    e.printStackTrace();
@@ -1128,6 +1132,7 @@ public class AcidIsland extends JavaPlugin {
 	saveDefaultConfig();
 	saveDefaultChallengeConfig();
 	saveDefaultLocale();
+	spawn = new Spawn(this);
 	// Metrics
 	try {
 	    final Metrics metrics = new Metrics(this);
@@ -2137,6 +2142,13 @@ public class AcidIsland extends JavaPlugin {
 	// Clear any potion effects
 	for (PotionEffect effect : player.getActivePotionEffects())
 	    player.removePotionEffect(effect.getType());	
+    }
+
+    /**
+     * @return the spawn
+     */
+    public Spawn getSpawn() {
+        return spawn;
     }
 
 }

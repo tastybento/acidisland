@@ -192,6 +192,9 @@ public class ControlPanel implements Listener {
 			event.setCancelled(true);
 			return;
 		    }
+		    player.closeInventory(); // Closes the inventory
+		    event.setCancelled(true);
+		    return;
 		}
 	    }
 	}
