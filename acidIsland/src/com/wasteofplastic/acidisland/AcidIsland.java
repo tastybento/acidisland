@@ -693,11 +693,18 @@ public class AcidIsland extends JavaPlugin {
 	    getLogger().info("Setting minimum island distance to 50");
 	}
 	Settings.acidDamage = getConfig().getDouble("general.aciddamage", 5);
-	if (Settings.acidDamage > 100) {
-	    Settings.acidDamage = 100;
-	} else if (Settings.acidDamage < 0) {
-	    Settings.acidDamage = 0;
+	if (Settings.acidDamage > 100D) {
+	    Settings.acidDamage = 100D;
+	} else if (Settings.acidDamage < 0D) {
+	    Settings.acidDamage = 0D;
 	}
+	Settings.mobAcidDamage = getConfig().getDouble("general.mobaciddamage", 10);
+	if (Settings.acidDamage > 100D) {
+	    Settings.acidDamage = 100D;
+	} else if (Settings.acidDamage < 0D) {
+	    Settings.acidDamage = 0D;
+	}
+
 	// Damage Type
 	List<String> acidDamageType = getConfig().getStringList("general.damagetype");
 	Settings.acidDamageType.clear();
@@ -1214,7 +1221,7 @@ public class AcidIsland extends JavaPlugin {
 		    if (current instanceof Monster) {
 			if ((current.getLocation().getBlock().getType() == Material.WATER)
 				|| (current.getLocation().getBlock().getType() == Material.STATIONARY_WATER)) {
-			    ((Monster) current).damage(10d);
+			    ((Monster) current).damage(Settings.mobAcidDamage);
 			    //getLogger().info("Killing monster");
 			}
 		    }

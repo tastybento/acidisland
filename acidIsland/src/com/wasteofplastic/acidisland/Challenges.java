@@ -318,25 +318,31 @@ public class Challenges implements CommandExecutor {
      * @return true if player can complete otherwise false
      */
     public boolean checkIfCanCompleteChallenge(final Player player, final String challenge) {
+	// Check if this challenge level is available
 	if (!isLevelAvailable(player, plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".level"))) {
 	    player.sendMessage(ChatColor.RED + Locale.challengesyouHaveNotUnlocked);
 	    return false;
 	}
+	// Check if the challenge exists
 	if (!players.challengeExists(player.getUniqueId(),challenge)) {
 	    player.sendMessage(ChatColor.RED + Locale.challengesunknownChallenge);
 	    return false;
 	}
+	// Check if it is repeatable
 	if (players.checkChallenge(player.getUniqueId(),challenge)
 		&& !plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challenge + ".repeatable")) {
 	    player.sendMessage(ChatColor.RED + Locale.challengesnotRepeatable);
 	    return false;
 	}
+	// If the challenge is an island type and already done, then this too is not repeatable
 	if (players.checkChallenge(player.getUniqueId(),challenge)
 		&& plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type").equalsIgnoreCase("island")) {
 	    player.sendMessage(ChatColor.RED + Locale.challengesnotRepeatable);
 	    return false;
 	}
+	// Check if this is an inventory challenge
 	if (plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type").equalsIgnoreCase("inventory")) {
+	    // Check if the player has the required items
 	    if (!hasRequired(player, challenge, "inventory")) {
 		player.sendMessage(ChatColor.RED + Locale.challengeserrorNotEnoughItems);
 		player.sendMessage(ChatColor.RED + plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".description"));
@@ -344,9 +350,11 @@ public class Challenges implements CommandExecutor {
 	    }
 	    return true;
 	}
+	// Check if this is an island-based challenge
 	if (plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type").equalsIgnoreCase("island")) {
-	    if (!plugin.playerIsOnIsland(player)) {
+	    if (!plugin.playerIsOnIsland(player)) {		
 		player.sendMessage(ChatColor.RED + Locale.challengeserrorNotOnIsland);
+		return false;
 	    }
 	    if (!hasRequired(player, challenge, "island")) {
 		player.sendMessage(ChatColor.RED + Locale.challengeserrorNotCloseEnough);
@@ -356,6 +364,7 @@ public class Challenges implements CommandExecutor {
 	    }
 	    return true;
 	}
+	// Island level check
 	if (plugin.getChallengeConfig().getString("challenges.challengeList." + challenge + ".type").equalsIgnoreCase("level")) {
 	    if (players.getIslandLevel(player.getUniqueId()) >= plugin.getChallengeConfig().getInt("challenges.challengeList." + challenge + ".requiredItems")) {
 		return true;

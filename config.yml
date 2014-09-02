@@ -28,6 +28,8 @@ general:
    # so the default will give players about 3 seconds to get out the acid
    # 0 = no damage, 10 = default damage, 20 = instant death
    aciddamage: 10
+   # Damage that monsters will experience.
+   mobaciddamage: 10
 
    # Damage type to apply in addition to acid damage
    # Types can be : SLOW, SLOW_DIGGING, CONFUSION,BLINDNESS, HUNGER, WEAKNESS and POISON

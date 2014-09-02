@@ -16,6 +16,7 @@ public class Settings {
     public static int waiverAmount;
     public static List<String> challengeLevels;
     public static double acidDamage;
+    public static double mobAcidDamage;   
     public static int resetWait;
     public static int maxTeamSize;
     public static String worldName;
@@ -81,5 +82,6 @@ public class Settings {
     public static boolean allowSpawnMusic;
     public static boolean allowSpawnCrafting;
     public static boolean allowSpawnBrewing;
-    public static boolean allowSpawnGateUse;   
+    public static boolean allowSpawnGateUse;
+   
 }
