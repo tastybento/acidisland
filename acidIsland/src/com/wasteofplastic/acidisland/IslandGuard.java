@@ -47,9 +47,16 @@ public class IslandGuard implements Listener {
 
     }
 
+    /**
+     * Prevents mobs spawning at spawn
+     * @param e
+     */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
     public void onMobSpawn(final CreatureSpawnEvent e) {
 	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    return;
+	}
+	if (Settings.allowSpawnMobSpawn) {
 	    return;
 	}
 	//plugin.getLogger().info("DEBUG: mob spawn");

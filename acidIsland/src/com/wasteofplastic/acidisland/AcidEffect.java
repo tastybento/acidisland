@@ -68,7 +68,7 @@ public class AcidEffect implements Listener {
 	}
 
 	// Slow checks
-	final Location playerLoc = player.getLocation();
+	final Location playerLoc = player.getLocation();	
 	final Block block = playerLoc.getBlock();
 	// If they are not in liquid, then return
 	if (!block.isLiquid()) {
@@ -84,7 +84,20 @@ public class AcidEffect implements Listener {
 	if (burningPlayers.contains(player)) {
 	    return;
 	}
-
+	// Check if they are in spawn and therefore water above sea-level is not acid
+	if (Settings.allowSpawnNoAcidWater) {
+	    //plugin.getLogger().info("DEBUG: no acid water is true");
+	    // Check if the player is above sealevel because the sea is always acid
+	    if (playerLoc.getBlockY() > Settings.sea_level) {
+		//plugin.getLogger().info("DEBUG: player is above sea level");
+		if (plugin.getSpawn().isAtSpawn(playerLoc)) {
+		    //plugin.getLogger().info("DEBUG: player is at spawn");
+		    return;
+		}
+	    }
+	}
+	//plugin.getLogger().info("DEBUG: no acid water is false");
+	// Check if they are in water
 	if (block.getType().equals(Material.STATIONARY_WATER) || block.getType().equals(Material.WATER)) {
 	    // Check if player has just exited a boat - in which case, they are
 	    // immune for 1 tick

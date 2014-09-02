@@ -83,5 +83,7 @@ public class Settings {
     public static boolean allowSpawnCrafting;
     public static boolean allowSpawnBrewing;
     public static boolean allowSpawnGateUse;
+    public static boolean allowSpawnMobSpawn;
+    public static boolean allowSpawnNoAcidWater;
    
 }

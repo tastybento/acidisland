@@ -897,9 +897,9 @@ public class IslandCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.YELLOW + "/" + label + " makeleader <player>: " + ChatColor.WHITE + Locale.islandhelpMakeLeader);
 		}
 		return true;
-	    } else if (split[0].equalsIgnoreCase("spawn") && plugin.spawn.getSpawnLoc() != null) {
+	    } else if (split[0].equalsIgnoreCase("spawn") && plugin.getSpawn().getSpawnLoc() != null) {
 		// go to spawn
-		player.teleport(plugin.spawn.getSpawnLoc());
+		player.teleport(plugin.getSpawn().getSpawnLoc());
 		return true;
 	    } else if (split[0].equalsIgnoreCase("top")) {
 		if (VaultHelper.checkPerm(player, "acidisland.island.topten")) {

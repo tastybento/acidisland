@@ -30,6 +30,8 @@ public class Spawn {
 	Settings.allowSpawnCrafting = spawn.getBoolean("allowcrafting", true);
 	Settings.allowSpawnBrewing = spawn.getBoolean("allowbrewing", true);
 	Settings.allowSpawnGateUse = spawn.getBoolean("allowgateuse", true);	
+	Settings.allowSpawnMobSpawn = spawn.getBoolean("allowmobspawn", false);
+	Settings.allowSpawnNoAcidWater = spawn.getBoolean("allowspawnnoacidwater", false);
 	this.spawnLoc = AcidIsland.getLocationString(spawn.getString("location",""));
 	this.bedrock = AcidIsland.getLocationString(spawn.getString("bedrock",""));
 	this.range = spawn.getInt("range",100);
@@ -82,6 +84,21 @@ public class Spawn {
         return bedrock;
     }
 
+    /**
+     * Returns true if this location is within the spawn area
+     * @param loc
+     * @return
+     */
+    public boolean isAtSpawn(Location loc) {
+	//plugin.getLogger().info("DEBUG: location is " + loc.toString());
+	//plugin.getLogger().info("DEBUG spawnLoc is " + spawnLoc.toString());
+	//plugin.getLogger().info("DEBUG: range = " + range);
+	if (loc.distanceSquared(spawnLoc) < range * range) {
+	    //plugin.getLogger().info("DEBUG: within range");
+	    return true;
+	}
+	return false;
+    }
 
 
 }
