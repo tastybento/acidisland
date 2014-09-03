@@ -94,7 +94,7 @@ public class ControlPanel implements Listener {
 	}	
     }
 
-    private static void loadControlPanel() {
+    public static void loadControlPanel() {
 	AcidIsland plugin = AcidIsland.getPlugin();
 	// Map of known panel contents by name
 	panels.clear();

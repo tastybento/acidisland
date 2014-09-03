@@ -394,5 +394,25 @@ public class PlayerCache {
 	return null;
     }
 
+    /**
+     * Gets how many island resets the player has left
+     * @param playerUUID
+     * @return
+     */
+    public int getResetsLeft(UUID playerUUID) {
+	addPlayer(playerUUID);
+	return playerCache.get(playerUUID).getResetsLeft();
+    }
+    
+    /**
+     * Sets how many resets the player has left
+     * @param playerUUID
+     * @param resets
+     */
+    public void setResetsLeft(UUID playerUUID, int resets) {
+	addPlayer(playerUUID);
+	playerCache.get(playerUUID).setResetsLeft(resets);
+    }
+
 }
 

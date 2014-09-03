@@ -8,6 +8,7 @@ package com.wasteofplastic.acidisland;
 
 
 
+
 /**
  * @author ben
  * All the text strings in the game sent to players
@@ -109,6 +110,8 @@ public class Locale {
     public static String islandresetMustRemovePlayers;
     public static String islandresetPleaseWait;
     public static String islandresetConfirm;
+    public static String resetYouHave;
+    public static String islandResetNoMore;
     //Cool down warning - [time] is number of seconds left
     public static String islandresetWait;
     ///island help
@@ -232,6 +235,7 @@ public class Locale {
     public static String adminHelppurge;
     ///acid info <player>;
     public static String adminHelpinfo;
+    public static String adminHelpclearReset;
 
     //acid reload
     public static String reloadconfigReloaded;
@@ -296,6 +300,9 @@ public class Locale {
     public static String challengesguiTitle;
     // Ultra safe boats
     public static String boatWarningItIsUnsafe;
+    public static String clearedResetLimit;
+
+    
 
     
     

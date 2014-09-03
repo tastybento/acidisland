@@ -50,6 +50,7 @@ public class AdminCmd implements CommandExecutor {
 	    sender.sendMessage(ChatColor.YELLOW + "/acid purge [TimeInDays]:" + ChatColor.WHITE + " " + Locale.adminHelppurge);
 	    sender.sendMessage(ChatColor.YELLOW + "/acid info <player>:" + ChatColor.WHITE + " " + Locale.adminHelpinfo);
 	    sender.sendMessage(ChatColor.YELLOW + "/acid info:" + ChatColor.WHITE + " " + Locale.adminHelpinfoIsland);
+	    sender.sendMessage(ChatColor.YELLOW + "/acid clearreset <player>:" + ChatColor.WHITE + " " + Locale.adminHelpclearReset);
 	} else {
 	    // Only give help if the player has permissions
 	    // Permissions are split into admin permissions and mod permissions
@@ -73,17 +74,16 @@ public class AdminCmd implements CommandExecutor {
 	    if (VaultHelper.checkPerm(player, "acidisland.mod.challenges") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid completechallenge <challengename> <player>:" + ChatColor.WHITE
 			+ " " + Locale.adminHelpcompleteChallenge);
-	    }
-	    if (VaultHelper.checkPerm(player, "acidisland.mod.challenges") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid resetchallenge <challengename> <player>:" + ChatColor.WHITE
 			+ " " + Locale.adminHelpresetChallenge);
-	    }
-	    if (VaultHelper.checkPerm(player, "acidisland.mod.challenges") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid resetallchallenges <player>:" + ChatColor.WHITE + " " + Locale.adminHelpresetAllChallenges);
 	    }
 	    if (VaultHelper.checkPerm(player, "acidisland.mod.info") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid info <player>:" + ChatColor.WHITE + " " + Locale.adminHelpinfo);
 	    }
+	    if (VaultHelper.checkPerm(player, "acidisland.mod.clearreset") || player.isOp()) {
+		player.sendMessage(ChatColor.YELLOW + "/acid clearreset <player>:" + ChatColor.WHITE + " " + Locale.adminHelpclearReset);
+	    }	    
 	    if (VaultHelper.checkPerm(player, "acidisland.admin.spawn") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/acid setspawn:" + ChatColor.WHITE + " " + Locale.adminHelpSetSpawn);
 	    }
@@ -234,6 +234,7 @@ public class AdminCmd implements CommandExecutor {
 		plugin.loadPluginConfig();
 		plugin.reloadChallengeConfig();
 		ControlPanel.loadShop();
+		ControlPanel.loadControlPanel();
 		sender.sendMessage(ChatColor.YELLOW + Locale.reloadconfigReloaded);
 		return true;
 	    } else if (split[0].equalsIgnoreCase("topten")) {
@@ -360,6 +361,17 @@ public class AdminCmd implements CommandExecutor {
 		    }
 		});
 		return true;
+	    } else if (split[0].equalsIgnoreCase("clearreset")) {
+		// Convert name to a UUID
+		final UUID playerUUID = players.getUUID(split[1]);
+		if (!players.isAKnownPlayer(playerUUID)) {
+		    sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
+		    return true;
+		} else {
+		    players.setResetsLeft(playerUUID, Settings.resetLimit);
+		    sender.sendMessage(ChatColor.YELLOW + Locale.clearedResetLimit + " [" + Settings.resetLimit + "]");
+		    return true;
+		}
 	    } else if (split[0].equalsIgnoreCase("delete")) {
 		// Convert name to a UUID
 		final UUID playerUUID = players.getUUID(split[1]);

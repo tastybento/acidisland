@@ -19,6 +19,10 @@ general:
 
    #How long a player must wait before they can reset their island again
    resetwait: 300
+   #How many resets a player is allowed (override with /acid clearreset <player>
+   #Value of -1 means unlimited, 0 means hardcore - no resets.
+   #Example, 2 resets means they get 2 resets or 3 islands lifetime
+   resetlimit: 2
 
    # Ops receive damage from acid (Set to true if you want Ops to play properly)
    damageops: false

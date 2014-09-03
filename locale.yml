@@ -121,6 +121,10 @@ island:
    resetWait: "You have to wait [time] seconds before you can do that again."
    #Confirm
    resetConfirm: "Type /island confirm within 10 seconds to delete your island and restart!"
+   resetYouHave: "You have [number] resets left."
+   resetNoMore: "No more resets are allowed for your island!"
+   resetTo: "Cleared reset limit"
+
    #/island help
    #/island
    helpIsland: "start an island, or teleport to your island."
@@ -255,6 +259,8 @@ adminHelp:
    info: "info for the given player."
    #/acid info
    infoisland: "provide info on the nearest island."
+   #/acid clear reset
+   clearreset: "resets the island reset limit for player."
 
 #acid reload
 reload:

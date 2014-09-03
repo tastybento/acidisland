@@ -18,6 +18,7 @@ public class Settings {
     public static double acidDamage;
     public static double mobAcidDamage;   
     public static int resetWait;
+    public static int resetLimit;
     public static int maxTeamSize;
     public static String worldName;
     public static int monsterSpawnLimit;
@@ -85,5 +86,6 @@ public class Settings {
     public static boolean allowSpawnGateUse;
     public static boolean allowSpawnMobSpawn;
     public static boolean allowSpawnNoAcidWater;
+    
    
 }

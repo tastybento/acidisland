@@ -806,6 +806,14 @@ public class IslandCmd implements CommandExecutor {
 		    }
 		    return true;
 		}
+		// Check if the player has used up all their resets
+		if (players.getResetsLeft(playerUUID) == 0) {
+		    player.sendMessage(ChatColor.RED + Locale.islandResetNoMore);
+		    return true;
+		}
+		if (players.getResetsLeft(playerUUID) > 0) {
+		    player.sendMessage(ChatColor.RED + Locale.resetYouHave.replace("[number]", String.valueOf(players.getResetsLeft(playerUUID))));
+		}
 		if (!onRestartWaitTime(player) || Settings.resetWait == 0 || player.isOp()) {
 		    // Kick off the confirmation
 		    player.sendMessage(ChatColor.RED + Locale.islandresetConfirm);
@@ -828,6 +836,13 @@ public class IslandCmd implements CommandExecutor {
 		if (confirm.containsKey(playerUUID) && confirm.get(playerUUID)) {
 		    // Actually RESET the island
 		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetPleaseWait);
+		    players.setResetsLeft(playerUUID, players.getResetsLeft(playerUUID) -1);
+		    if (players.getResetsLeft(playerUUID) == 0) {
+			player.sendMessage(ChatColor.YELLOW + Locale.islandResetNoMore);
+		    }
+		    if (players.getResetsLeft(playerUUID) > 0) {
+			player.sendMessage(ChatColor.YELLOW + Locale.resetYouHave.replace("[number]", String.valueOf(players.getResetsLeft(playerUUID))));
+		    }
 		    //plugin.getLogger().info("DEBUG Reset command issued!");
 		    final Location oldIsland = plugin.players.getIslandLocation(playerUUID);
 		    plugin.unregisterEvents();		
@@ -899,6 +914,8 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    } else if (split[0].equalsIgnoreCase("spawn") && plugin.getSpawn().getSpawnLoc() != null) {
 		// go to spawn
+		plugin.getLogger().info("Debug: getSpawn" + plugin.getSpawn().toString() );
+		plugin.getLogger().info("Debug: getSpawn loc" + plugin.getSpawn().getSpawnLoc().toString() );
 		player.teleport(plugin.getSpawn().getSpawnLoc());
 		return true;
 	    } else if (split[0].equalsIgnoreCase("top")) {

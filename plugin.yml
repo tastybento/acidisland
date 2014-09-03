@@ -85,6 +85,9 @@ permissions:
           acidisland.mod.noburn:
             description: Gives mod immunity to acid
             default: false
+          acidisland.mod.clearreset:
+            description: Allow clearing of island reset limit
+            default: false
       acidisland.admin.*:
         children:
           acidisland.admin.reload:

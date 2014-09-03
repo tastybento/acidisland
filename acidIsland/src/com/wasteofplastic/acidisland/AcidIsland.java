@@ -780,7 +780,10 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.resetWait < 0) {
 	    Settings.resetWait = 0;
 	}
-
+	Settings.resetLimit = getConfig().getInt("general.resetlimit", 0);
+	if (Settings.resetWait < 0) {
+	    Settings.resetWait = -1;
+	}
 	Settings.damageOps = getConfig().getBoolean("general.damageops", false);
 	//Settings.ultraSafeBoats = getConfig().getBoolean("general.ultrasafeboats", true);
 	Settings.logInRemoveMobs = getConfig().getBoolean("general.loginremovemobs", true);
@@ -1105,6 +1108,10 @@ public class AcidIsland extends JavaPlugin {
 	Locale.islandhelpMiniShop = locale.getString("minishop.islandhelpMiniShop","Opens the MiniShop" );
 	Locale.islandMiniShopTitle = locale.getString("minishop.title","MiniShop" );
 	Locale.boatWarningItIsUnsafe = locale.getString("boats.warning", "It's unsafe to exit the boat right now...");
+	Locale.adminHelpclearReset = locale.getString("general.clearreset", "resets the island reset limit for player.");
+	Locale.resetYouHave = locale.getString("island.resetYouHave","You have [number] resets left.");
+	Locale.islandResetNoMore = locale.getString("island.resetNoMore", "No more resets are allowed for your island!");
+	Locale.clearedResetLimit = locale.getString("resetTo", "Cleared reset limit");
     }
 
     /*
@@ -1139,7 +1146,6 @@ public class AcidIsland extends JavaPlugin {
 	saveDefaultConfig();
 	saveDefaultChallengeConfig();
 	saveDefaultLocale();
-	spawn = new Spawn(this);
 	// Metrics
 	try {
 	    final Metrics metrics = new Metrics(this);
@@ -1207,7 +1213,8 @@ public class AcidIsland extends JavaPlugin {
 		final PluginManager m = getServer().getPluginManager();
 		// Minishop
 		m.registerEvents(new ControlPanel(plugin), plugin);
-
+		// Load spawn
+		spawn = new Spawn(plugin);
 	    }
 	});
 

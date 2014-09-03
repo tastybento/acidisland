@@ -29,6 +29,7 @@ public class Players {
     private UUID teamLeader;
     private UUID uuid;
     private String playerName;
+    private int resetsLeft;
 
     /**
      * @param uuid
@@ -48,6 +49,7 @@ public class Players {
 	this.challengeList = new HashMap<String, Boolean>();
 	this.islandLevel = 0;
 	this.playerName = "";
+	this.resetsLeft = Settings.resetLimit;
 	load(uuid);
     }
 
@@ -94,6 +96,8 @@ public class Players {
 	    // If they are in the list, then use the value, otherwise use false
 	    challengeList.put(challenge, playerInfo.getBoolean("challenges.status." + challenge, false));
 	}
+	// Load reset limit
+	this.resetsLeft = playerInfo.getInt("resetsLeft", Settings.resetLimit);
     }
 
     /**
@@ -125,6 +129,7 @@ public class Players {
 	    playerInfo.set("challenges.status." + challenge, challengeList.get(challenge));
 	}
 	AcidIsland.saveYamlFile(playerInfo, "players/" + uuid.toString() + ".yml");
+	playerInfo.set("resetsLeft", this.resetsLeft);
     }
 
     /**
@@ -316,6 +321,20 @@ public class Players {
 	    return "";
 	}
 	return l.getWorld().getName() + ":" + l.getBlockX() + ":" + l.getBlockY() + ":" + l.getBlockZ();
+    }
+
+    /**
+     * @return the resetsLeft
+     */
+    public int getResetsLeft() {
+        return resetsLeft;
+    }
+
+    /**
+     * @param resetsLeft the resetsLeft to set
+     */
+    public void setResetsLeft(int resetsLeft) {
+        this.resetsLeft = resetsLeft;
     }
 
     /**
