@@ -3,6 +3,8 @@ package com.wasteofplastic.acidisland;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -11,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 
@@ -74,7 +77,7 @@ public class NetherPortals implements Listener {
 	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName + "_nether")) {
 	    //plugin.getLogger().info("Block break in acid island nether");
 	    if (!awayFromSpawn(e.getPlayer()) && !e.getPlayer().isOp()) {
-		
+
 		e.setCancelled(true);
 	    }
 	}
@@ -146,6 +149,21 @@ public class NetherPortals implements Listener {
 	return;
     }
 
-
+    /**
+     * Prevent the Nether spawn from being blown up
+     * @param e
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
+    public void onExplosion(final EntityExplodeEvent e) {
+	// Check world
+	if (!e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName + "_nether")) {
+	    return;
+	}
+	Location spawn = e.getLocation().getWorld().getSpawnLocation();
+	Location loc = e.getLocation();
+	if (spawn.distance(loc) < Settings.netherSpawnRadius) {
+	    e.blockList().clear();
+	}
+    }
 
 }

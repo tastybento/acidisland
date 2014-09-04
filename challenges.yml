@@ -446,7 +446,7 @@ challenges:
       repeatExpReward: 20
     culinaryartist:
       description: 'Collect 1 of every kind of cooked or crafted edible food (no raw food, zombie flesh, or super golden apples)'
-      icon: GOLDEN_APPLE
+      icon: GOLDEN_APPLEZZ
       level: 'Advanced'
       type: inventory
       requiredItems: 'BAKED_POTATO:1 BREAD:1 CAKE:1 COOKED_CHICKEN:1 COOKED_FISH:1 GRILLED_PORK:1 COOKIE:1 GOLDEN_APPLE:0:1 GOLDEN_CARROT:1 MUSHROOM_SOUP:1 PUMPKIN_PIE:1 COOKED_BEEF:1' 
@@ -454,7 +454,7 @@ challenges:
       itemReward: 'DIAMOND:2 GREEN_RECORD:1 RECORD_3:1 RECORD_5:1 MONSTER_EGG:96:1 EMERALD:5'
       rewardText: '2 diamonds, 3 music discs, 1 mooshroom spawn egg, and 5 emeralds'
       moneyReward: 200
-      expReward: 200
+      expReward: 200a	AA
       permissionReward: ''
       repeatable: true
       repeatItemReward: 'GOLD_INGOT:1 MONSTER_EGG:96:1 EMERALD:1'
