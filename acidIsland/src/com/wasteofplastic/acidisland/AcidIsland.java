@@ -1147,8 +1147,6 @@ public class AcidIsland extends JavaPlugin {
 	    //saveConfig();
 	    saveWarpList();
 	    saveMessages();
-	    if (spawn != null)
-		spawn.save();
 	} catch (final Exception e) {
 	    plugin.getLogger().severe("Something went wrong saving files!");
 	    e.printStackTrace();

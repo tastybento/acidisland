@@ -184,6 +184,7 @@ public class AdminCmd implements CommandExecutor {
 		sender.sendMessage(ChatColor.GREEN + "Converted island to spawn. (to undo, use /acid register <playername>");
 		sender.sendMessage(ChatColor.GREEN + "Settings are in spawn.yml");
 		sender.sendMessage(ChatColor.GREEN + "Set spawn location.");
+		plugin.getSpawn().save();
 		return true;
 	    } else if (split[0].equalsIgnoreCase("info")) {
 		// Find the closest island
