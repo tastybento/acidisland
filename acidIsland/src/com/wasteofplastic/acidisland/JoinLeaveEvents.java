@@ -14,9 +14,9 @@ public class JoinLeaveEvents implements Listener {
     private AcidIsland plugin;
     private PlayerCache players;
 
-    public JoinLeaveEvents(AcidIsland acidIsland, PlayerCache onlinePlayers) {
+    public JoinLeaveEvents(AcidIsland acidIsland) {
 	this.plugin = acidIsland;
-	this.players = onlinePlayers;
+	this.players = plugin.getPlayers();
     }
 
     /**
@@ -25,6 +25,9 @@ public class JoinLeaveEvents implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(final PlayerJoinEvent event) {
 	final UUID playerUUID = event.getPlayer().getUniqueId();
+	if (players == null) {
+	    plugin.getLogger().severe("players is NULL");
+	}
 	if (players.inTeam(playerUUID) && players.getTeamIslandLocation(playerUUID) == null) {
 	    final UUID leader = players.getTeamLeader(playerUUID);
 	    players.setTeamIslandLocation(playerUUID, players.getIslandLocation(leader));

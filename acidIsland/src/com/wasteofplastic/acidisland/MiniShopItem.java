@@ -88,6 +88,7 @@ public class MiniShopItem {
 	} catch (Exception ex) {
 	    AcidIsland.getPlugin().getLogger().severe("Problem parsing shop item from minishop.yml so skipping it: " + material);
 	    AcidIsland.getPlugin().getLogger().severe("Error is : " + ex.getMessage());
+	    ex.printStackTrace();
 	    AcidIsland.getPlugin().getLogger().info("Potential potion types are: ");
 	    for (PotionType c : PotionType.values())
 		AcidIsland.getPlugin().getLogger().info(c.name());

@@ -44,7 +44,7 @@ public class IslandCmd implements CommandExecutor {
      * Invite list - invited player name string (key), inviter name string (value)
      */
     private final HashMap<UUID, UUID> inviteList = new HashMap<UUID, UUID>();
-    private PlayerCache players;
+    //private PlayerCache players;
     // The time a player has to wait until they can reset their island again
     private HashMap<UUID, Long> resetWaitTime = new HashMap<UUID, Long>();
 
@@ -54,11 +54,10 @@ public class IslandCmd implements CommandExecutor {
      * @param acidIsland
      * @param players 
      */
-    public IslandCmd(AcidIsland acidIsland, PlayerCache players) {
+    public IslandCmd(AcidIsland acidIsland) {
 
 	// Plugin instance
 	this.plugin = acidIsland;
-	this.players = players;
     }
 
     /*
@@ -80,32 +79,32 @@ public class IslandCmd implements CommandExecutor {
 	    return false;
 	}*/
 	//plugin.getLogger().info("Adding player: " + playerUUID + " to team with leader: " + teamLeader);
-	//plugin.getLogger().info("The team island location is: " + players.getIslandLocation(teamLeader));
-	//plugin.getLogger().info("The leader's home location is: " + players.getHomeLocation(teamLeader) + " (may be different or null)");
+	//plugin.getLogger().info("The team island location is: " + plugin.getPlayers().getIslandLocation(teamLeader));
+	//plugin.getLogger().info("The leader's home location is: " + plugin.getPlayers().getHomeLocation(teamLeader) + " (may be different or null)");
 	// Set the player's team giving the team leader's name and the team's island
 	// location
-	players.setJoinTeam(playerUUID, teamLeader, players.getIslandLocation(teamLeader));
+	plugin.getPlayers().setJoinTeam(playerUUID, teamLeader, plugin.getPlayers().getIslandLocation(teamLeader));
 	// If the player's name and the team leader are NOT the same when this
 	// method is called then set the player's home location to the leader's
 	// home location
 	// if it exists, and if not set to the island location
 	if (!playerUUID.equals(teamLeader)) {
-	    if (players.getHomeLocation(teamLeader) != null) {
-		players.setHomeLocation(playerUUID,players.getHomeLocation(teamLeader));
+	    if (plugin.getPlayers().getHomeLocation(teamLeader) != null) {
+		plugin.getPlayers().setHomeLocation(playerUUID,plugin.getPlayers().getHomeLocation(teamLeader));
 		plugin.getLogger().info("Setting player's home to the leader's home location");		
 	    } else {
 		//TODO - concerned this may be a bug
-		players.setHomeLocation(playerUUID, players.getIslandLocation(teamLeader));
+		plugin.getPlayers().setHomeLocation(playerUUID, plugin.getPlayers().getIslandLocation(teamLeader));
 		plugin.getLogger().info("Setting player's home to the team island location");
 	    }
 	    // If the leader's member list does not contain player then add it
-	    if (!players.getMembers(teamLeader).contains(playerUUID)) {
-		players.addTeamMember(teamLeader,playerUUID);
+	    if (!plugin.getPlayers().getMembers(teamLeader).contains(playerUUID)) {
+		plugin.getPlayers().addTeamMember(teamLeader,playerUUID);
 	    }
 	    // If the leader's member list does not contain their own name then
 	    // add it
-	    if (!players.getMembers(teamLeader).contains(teamLeader)) {
-		players.addTeamMember(teamLeader, teamLeader);
+	    if (!plugin.getPlayers().getMembers(teamLeader).contains(teamLeader)) {
+		plugin.getPlayers().addTeamMember(teamLeader, teamLeader);
 	    }
 	}
 	return true;
@@ -119,16 +118,16 @@ public class IslandCmd implements CommandExecutor {
      */
     public void removePlayerFromTeam(final UUID player, final UUID teamleader) {
 	// Remove player from the team
-	players.removeMember(teamleader,player);
+	plugin.getPlayers().removeMember(teamleader,player);
 	// If player is online
 	// If player is not the leader of their own team
 	if (!player.equals(teamleader)) {
-	    players.setLeaveTeam(player);
-	    players.setHomeLocation(player, null);
-	    players.setIslandLocation(player, null);
+	    plugin.getPlayers().setLeaveTeam(player);
+	    plugin.getPlayers().setHomeLocation(player, null);
+	    plugin.getPlayers().setIslandLocation(player, null);
 	} else {
 	    // Ex-Leaders keeps their island, but the rest of the team items are removed
-	    players.setLeaveTeam(player);	    
+	    plugin.getPlayers().setLeaveTeam(player);	    
 	}
     }
 
@@ -143,7 +142,7 @@ public class IslandCmd implements CommandExecutor {
 	// Player who is issuing the command
 	final Player player = (Player) sender;
 	final UUID playerUUID = player.getUniqueId();
-	//final Players p = players.get(player.getName());
+	//final Players p = plugin.getPlayers().get(player.getName());
 	// Island building is done in tasks
 	// Get the location of the last island generated
 	final Location last = new Location(AcidIsland.getIslandWorld(), 0D, Settings.island_level, 0D);
@@ -157,14 +156,14 @@ public class IslandCmd implements CommandExecutor {
 	Location cowSpot = generateIslandBlocks(next.getBlockX(), next.getBlockZ(), player, AcidIsland.getIslandWorld());
 	plugin.setNewIsland(false);
 	//plugin.getLogger().info("DEBUG: player ID is: " + playerUUID.toString());
-	players.setHasIsland(playerUUID,true);
-	//plugin.getLogger().info("DEBUG: Set island to true - actually is " + players.hasIsland(playerUUID));
+	plugin.getPlayers().setHasIsland(playerUUID,true);
+	//plugin.getLogger().info("DEBUG: Set island to true - actually is " + plugin.getPlayers().hasIsland(playerUUID));
 
-	players.setIslandLocation(playerUUID,next);
-	//plugin.getLogger().info("DEBUG: player island location is " + players.getIslandLocation(playerUUID).toString());
+	plugin.getPlayers().setIslandLocation(playerUUID,next);
+	//plugin.getLogger().info("DEBUG: player island location is " + plugin.getPlayers().getIslandLocation(playerUUID).toString());
 	// Teleport the player to a safe place
 	//plugin.homeTeleport(player);
-	players.save(playerUUID);
+	plugin.getPlayers().save(playerUUID);
 	// Remove any mobs if they just so happen to be around in the
 	// vicinity
 	/*
@@ -434,7 +433,7 @@ public class IslandCmd implements CommandExecutor {
 	    return false;
 	}
 	busyFlag = false;
-	if (!players.hasIsland(targetPlayer) && !players.inTeam(targetPlayer)) {
+	if (!plugin.getPlayers().hasIsland(targetPlayer) && !plugin.getPlayers().inTeam(targetPlayer)) {
 	    asker.sendMessage(ChatColor.RED + Locale.islanderrorInvalidPlayer);
 	    busyFlag = true;
 	    return false;
@@ -442,13 +441,13 @@ public class IslandCmd implements CommandExecutor {
 	plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
 	    public void run() {
 		plugin.getLogger().info("Calculating island level");
-		int oldLevel = players.getIslandLevel(targetPlayer);
+		int oldLevel = plugin.getPlayers().getIslandLevel(targetPlayer);
 		try {
 		    Location l;
-		    if (players.inTeam(targetPlayer)) {
-			l = players.getTeamIslandLocation(targetPlayer);
+		    if (plugin.getPlayers().inTeam(targetPlayer)) {
+			l = plugin.getPlayers().getTeamIslandLocation(targetPlayer);
 		    } else {
-			l = players.getIslandLocation(targetPlayer);
+			l = plugin.getPlayers().getIslandLocation(targetPlayer);
 		    }
 		    int blockcount = 0;
 		    if (asker.getUniqueId().equals(targetPlayer) || asker.isOp()) {
@@ -610,12 +609,12 @@ public class IslandCmd implements CommandExecutor {
 				}
 			    }
 			}
-			players.setIslandLevel(targetPlayer, blockcount / 100);
-			players.save(targetPlayer);
+			plugin.getPlayers().setIslandLevel(targetPlayer, blockcount / 100);
+			plugin.getPlayers().save(targetPlayer);
 			//plugin.updateTopTen();
 			// Tell offline team members the island level increased.
-			if (players.getIslandLevel(targetPlayer) > oldLevel) {
-			    plugin.tellOfflineTeam(targetPlayer, ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(targetPlayer));
+			if (plugin.getPlayers().getIslandLevel(targetPlayer) > oldLevel) {
+			    plugin.tellOfflineTeam(targetPlayer, ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + plugin.getPlayers().getIslandLevel(targetPlayer));
 			}
 		    }
 		} catch (final Exception e) {
@@ -630,10 +629,10 @@ public class IslandCmd implements CommandExecutor {
 			if (asker.isOnline()) {
 			    if (asker.getUniqueId().equals(targetPlayer)) {
 				asker.sendMessage(
-					ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(targetPlayer));
+					ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + plugin.getPlayers().getIslandLevel(targetPlayer));
 			    } else {
-				if (players.isAKnownPlayer(targetPlayer)) {
-				    asker.sendMessage(ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + players.getIslandLevel(targetPlayer));
+				if (plugin.getPlayers().isAKnownPlayer(targetPlayer)) {
+				    asker.sendMessage(ChatColor.GREEN + Locale.islandislandLevelis + " " + ChatColor.WHITE + plugin.getPlayers().getIslandLevel(targetPlayer));
 				} else {
 				    asker.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 				}
@@ -686,8 +685,8 @@ public class IslandCmd implements CommandExecutor {
 	 * playerUUID is the unique ID of the player who issued the command
 	 */
 	final UUID playerUUID = player.getUniqueId();
-	final UUID teamLeader = players.getTeamLeader(playerUUID);
-	final List<UUID> teamMembers = players.getMembers(playerUUID);
+	final UUID teamLeader = plugin.getPlayers().getTeamLeader(playerUUID);
+	final List<UUID> teamMembers = plugin.getPlayers().getMembers(playerUUID);
 	// The target player's UUID
 	UUID targetPlayer = null;
 	// Check if a player has an island or is in a team
@@ -695,7 +694,7 @@ public class IslandCmd implements CommandExecutor {
 	// /island command by itself
 	case 0:
 	    // New island
-	    if (players.getIslandLocation(playerUUID) == null && !players.inTeam(playerUUID)) {
+	    if (plugin.getPlayers().getIslandLocation(playerUUID) == null && !plugin.getPlayers().inTeam(playerUUID)) {
 		// Create new island for player
 		player.sendMessage(ChatColor.GREEN + Locale.islandnew);
 		final Location cowSpot = newIsland(sender);
@@ -780,9 +779,9 @@ public class IslandCmd implements CommandExecutor {
 			String wlist = "";
 			for (UUID w : warpList) {
 			    if (wlist.isEmpty()) {
-				wlist = players.getName(w);
+				wlist = plugin.getPlayers().getName(w);
 			    } else {
-				wlist += ", " + players.getName(w);
+				wlist += ", " + plugin.getPlayers().getName(w);
 			    }
 			    if (w.equals(playerUUID)) {
 				hasWarp = true;
@@ -796,8 +795,8 @@ public class IslandCmd implements CommandExecutor {
 		    }
 		}
 	    } else if (split[0].equalsIgnoreCase("restart") || split[0].equalsIgnoreCase("reset")) {
-		if (players.inTeam(playerUUID)) {
-		    if (!players.getTeamLeader(playerUUID).equals(playerUUID)) {
+		if (plugin.getPlayers().inTeam(playerUUID)) {
+		    if (!plugin.getPlayers().getTeamLeader(playerUUID).equals(playerUUID)) {
 			player.sendMessage(ChatColor.RED
 				+ Locale.islandresetOnlyOwner);
 		    } else {
@@ -807,12 +806,12 @@ public class IslandCmd implements CommandExecutor {
 		    return true;
 		}
 		// Check if the player has used up all their resets
-		if (players.getResetsLeft(playerUUID) == 0) {
+		if (plugin.getPlayers().getResetsLeft(playerUUID) == 0) {
 		    player.sendMessage(ChatColor.RED + Locale.islandResetNoMore);
 		    return true;
 		}
-		if (players.getResetsLeft(playerUUID) > 0) {
-		    player.sendMessage(ChatColor.RED + Locale.resetYouHave.replace("[number]", String.valueOf(players.getResetsLeft(playerUUID))));
+		if (plugin.getPlayers().getResetsLeft(playerUUID) > 0) {
+		    player.sendMessage(ChatColor.RED + Locale.resetYouHave.replace("[number]", String.valueOf(plugin.getPlayers().getResetsLeft(playerUUID))));
 		}
 		if (!onRestartWaitTime(player) || Settings.resetWait == 0 || player.isOp()) {
 		    // Kick off the confirmation
@@ -836,18 +835,18 @@ public class IslandCmd implements CommandExecutor {
 		if (confirm.containsKey(playerUUID) && confirm.get(playerUUID)) {
 		    // Actually RESET the island
 		    player.sendMessage(ChatColor.YELLOW + Locale.islandresetPleaseWait);
-		    players.setResetsLeft(playerUUID, players.getResetsLeft(playerUUID) -1);
-		    if (players.getResetsLeft(playerUUID) == 0) {
+		    plugin.getPlayers().setResetsLeft(playerUUID, plugin.getPlayers().getResetsLeft(playerUUID) -1);
+		    if (plugin.getPlayers().getResetsLeft(playerUUID) == 0) {
 			player.sendMessage(ChatColor.YELLOW + Locale.islandResetNoMore);
 		    }
-		    if (players.getResetsLeft(playerUUID) > 0) {
-			player.sendMessage(ChatColor.YELLOW + Locale.resetYouHave.replace("[number]", String.valueOf(players.getResetsLeft(playerUUID))));
+		    if (plugin.getPlayers().getResetsLeft(playerUUID) > 0) {
+			player.sendMessage(ChatColor.YELLOW + Locale.resetYouHave.replace("[number]", String.valueOf(plugin.getPlayers().getResetsLeft(playerUUID))));
 		    }
 		    //plugin.getLogger().info("DEBUG Reset command issued!");
-		    final Location oldIsland = plugin.players.getIslandLocation(playerUUID);
+		    final Location oldIsland = plugin.getPlayers().getIslandLocation(playerUUID);
 		    plugin.unregisterEvents();		
 		    final Location cowSpot = newIsland(sender);
-		    players.setHomeLocation(player.getUniqueId(), null);
+		    plugin.getPlayers().setHomeLocation(player.getUniqueId(), null);
 		    plugin.homeTeleport(player);
 		    plugin.resetPlayer(player);
 		    if (Settings.resetMoney) {
@@ -926,7 +925,7 @@ public class IslandCmd implements CommandExecutor {
 		return false;
 	    } else if (split[0].equalsIgnoreCase("level")) {
 		if (plugin.playerIsOnIsland(player)) {
-		    if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
+		    if (!plugin.getPlayers().inTeam(playerUUID) && !plugin.getPlayers().hasIsland(playerUUID)) {
 			player.sendMessage(ChatColor.RED + Locale.errorNoIsland);
 		    } else {
 			calculateIslandLevel(player, playerUUID);
@@ -941,7 +940,7 @@ public class IslandCmd implements CommandExecutor {
 		    player.sendMessage(ChatColor.YELLOW + "Use" + ChatColor.WHITE + " /" + label + " invite <playername> " + ChatColor.YELLOW
 			    + Locale.islandhelpInvite);
 		    // If the player who is doing the inviting has a team
-		    if (players.inTeam(playerUUID)) {
+		    if (plugin.getPlayers().inTeam(playerUUID)) {
 			// Check to see if the player is the leader
 			if (teamLeader.equals(playerUUID)) {
 			    // Check to see if the team is already full
@@ -964,9 +963,9 @@ public class IslandCmd implements CommandExecutor {
 		// Accept an invite command
 		if (VaultHelper.checkPerm(player, "acidisland.team.join")) {
 		    // If player is not in a team but has been invited to join one
-		    if (!players.inTeam(playerUUID) && inviteList.containsKey(playerUUID)) {
+		    if (!plugin.getPlayers().inTeam(playerUUID) && inviteList.containsKey(playerUUID)) {
 			// If the invitee has an island of their own
-			if (players.hasIsland(playerUUID)) {
+			if (plugin.getPlayers().hasIsland(playerUUID)) {
 			    plugin.getLogger().info(player.getName() + "'s island will be deleted because they joined a party.");
 			    // Delete the island next tick
 			    plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
@@ -980,7 +979,7 @@ public class IslandCmd implements CommandExecutor {
 			// Add the player to the team
 			addPlayertoTeam(playerUUID, inviteList.get(playerUUID));
 			// If the leader who did the invite does not yet have a team (leader is not in a team yet)
-			if (!players.inTeam(inviteList.get(playerUUID))) {
+			if (!plugin.getPlayers().inTeam(inviteList.get(playerUUID))) {
 			    // Add the leader to their own team
 			    addPlayertoTeam(inviteList.get(playerUUID), inviteList.get(playerUUID));
 			} 
@@ -1020,8 +1019,8 @@ public class IslandCmd implements CommandExecutor {
 		// Leave team command
 		if (VaultHelper.checkPerm(player, "acidisland.team.join")) {
 		    if (player.getWorld().getName().equalsIgnoreCase(AcidIsland.getIslandWorld().getName())) {
-			if (players.inTeam(playerUUID)) {
-			    if (players.getTeamLeader(playerUUID).equals(playerUUID)) {
+			if (plugin.getPlayers().inTeam(playerUUID)) {
+			    if (plugin.getPlayers().getTeamLeader(playerUUID).equals(playerUUID)) {
 				player.sendMessage(ChatColor.YELLOW + Locale.leaveerrorYouAreTheLeader);
 				return true;
 			    }
@@ -1058,7 +1057,7 @@ public class IslandCmd implements CommandExecutor {
 		}
 		return false;
 	    } else if (split[0].equalsIgnoreCase("team")) {
-		if (players.inTeam(playerUUID)) {
+		if (plugin.getPlayers().inTeam(playerUUID)) {
 		    if (teamLeader.equals(playerUUID)) {
 			if (teamMembers.size() < Settings.maxTeamSize) {
 			    player.sendMessage(ChatColor.GREEN + Locale.inviteyouCanInvite.replace("[number]", String.valueOf(Settings.maxTeamSize - teamMembers.size())));
@@ -1069,12 +1068,12 @@ public class IslandCmd implements CommandExecutor {
 
 		    player.sendMessage(ChatColor.YELLOW + Locale.teamlistingMembers + ":");
 		    // Display members in the list
-		    for (UUID m : players.getMembers(teamLeader)) {
-			player.sendMessage(ChatColor.WHITE + players.getName(m));
+		    for (UUID m : plugin.getPlayers().getMembers(teamLeader)) {
+			player.sendMessage(ChatColor.WHITE + plugin.getPlayers().getName(m));
 		    }
 		} else if (inviteList.containsKey(playerUUID)) {
 		    // TODO: Worried about this next line...
-		    player.sendMessage(ChatColor.YELLOW + Locale.invitenameHasInvitedYou.replace("[name]", players.getName(inviteList.get(playerUUID))));
+		    player.sendMessage(ChatColor.YELLOW + Locale.invitenameHasInvitedYou.replace("[name]", plugin.getPlayers().getName(inviteList.get(playerUUID))));
 		    player.sendMessage(ChatColor.WHITE + "/" + label + " [accept/reject]" + ChatColor.YELLOW + Locale.invitetoAcceptOrReject);
 		} else {
 		    player.sendMessage(ChatColor.RED + Locale.kickerrorNoTeam);
@@ -1100,7 +1099,7 @@ public class IslandCmd implements CommandExecutor {
 			// Check if this is part of a name
 			UUID foundWarp = null;
 			for (UUID warp : warpList) {
-			    if (players.getName(warp).toLowerCase().startsWith(split[1].toLowerCase())) {
+			    if (plugin.getPlayers().getName(warp).toLowerCase().startsWith(split[1].toLowerCase())) {
 				foundWarp = warp;
 				break;
 			    }
@@ -1114,7 +1113,7 @@ public class IslandCmd implements CommandExecutor {
 			    // Check if the warp spot is safe
 			    if (warpSpot == null) {
 				player.sendMessage(ChatColor.RED + Locale.warpserrorNotReadyYet);
-				plugin.getLogger().warning("Null warp found, owned by " + players.getName(foundWarp));
+				plugin.getLogger().warning("Null warp found, owned by " + plugin.getPlayers().getName(foundWarp));
 				return true;
 			    }
 			    // Find out which direction the warp is facing
@@ -1137,7 +1136,7 @@ public class IslandCmd implements CommandExecutor {
 			    }
 			    if (!(AcidIsland.isSafeLocation(warpSpot))) {
 				player.sendMessage(ChatColor.RED + Locale.warpserrorNotSafe);
-				plugin.getLogger().warning("Unsafe warp found at " + warpSpot.toString() + " owned by " + players.getName(foundWarp));
+				plugin.getLogger().warning("Unsafe warp found at " + warpSpot.toString() + " owned by " + plugin.getPlayers().getName(foundWarp));
 				return true;
 			    } else {
 				final Location actualWarp = new Location(warpSpot.getWorld(), warpSpot.getBlockX() + 0.5D, warpSpot.getBlockY(),
@@ -1153,17 +1152,17 @@ public class IslandCmd implements CommandExecutor {
 	    } else if (split[0].equalsIgnoreCase("level")) {
 		// island level command
 		if (VaultHelper.checkPerm(player, "acidisland.island.info")) {
-		    if (!players.inTeam(playerUUID) && !players.hasIsland(playerUUID)) {
+		    if (!plugin.getPlayers().inTeam(playerUUID) && !plugin.getPlayers().hasIsland(playerUUID)) {
 			player.sendMessage(ChatColor.RED + Locale.errorNoIsland);
 		    } else {
 			// May return null if not known
-			final UUID invitedPlayerUUID = players.getUUID(split[1]);
+			final UUID invitedPlayerUUID = plugin.getPlayers().getUUID(split[1]);
 			// Invited player must be known
 			if (invitedPlayerUUID == null) {
 			    player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			    return true;
 			}
-			calculateIslandLevel(player, players.getUUID(split[1]));
+			calculateIslandLevel(player, plugin.getPlayers().getUUID(split[1]));
 		    }
 		    return true;
 		}
@@ -1172,7 +1171,7 @@ public class IslandCmd implements CommandExecutor {
 		// Team invite a player command
 		if (VaultHelper.checkPerm(player, "acidisland.team.create")) {
 		    // May return null if not known
-		    final UUID invitedPlayerUUID = players.getUUID(split[1]);
+		    final UUID invitedPlayerUUID = plugin.getPlayers().getUUID(split[1]);
 		    // Invited player must be known
 		    if (invitedPlayerUUID == null) {
 			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
@@ -1185,7 +1184,7 @@ public class IslandCmd implements CommandExecutor {
 			return true;
 		    }
 		    // Player issuing the command must have an island
-		    if (!players.hasIsland(player.getUniqueId())) {
+		    if (!plugin.getPlayers().hasIsland(player.getUniqueId())) {
 			player.sendMessage(ChatColor.RED + Locale.inviteerrorYouMustHaveIslandToInvite);
 			return true;
 		    }
@@ -1195,11 +1194,11 @@ public class IslandCmd implements CommandExecutor {
 			return true;
 		    }
 		    // If the player already has a team then check that they are the leader, etc
-		    if (players.inTeam(player.getUniqueId())) {
+		    if (plugin.getPlayers().inTeam(player.getUniqueId())) {
 			// Leader?
 			if (teamLeader.equals(player.getUniqueId())) {
 			    // Invited player is free and not in a team
-			    if (!players.inTeam(invitedPlayerUUID)) {
+			    if (!plugin.getPlayers().inTeam(invitedPlayerUUID)) {
 				// Player has space in their team
 				if (teamMembers.size() < Settings.maxTeamSize) {
 				    // If that player already has an invite out then retract it.
@@ -1229,7 +1228,7 @@ public class IslandCmd implements CommandExecutor {
 		    } else {
 			// First-time invite player does not have a team
 			// Check if invitee is in a team or not
-			if (!players.inTeam(invitedPlayerUUID)) {
+			if (!plugin.getPlayers().inTeam(invitedPlayerUUID)) {
 			    // If the inviter already has an invite out, remove it
 			    if (inviteList.containsValue(playerUUID)) {
 				inviteList.remove(getKeyByValue(inviteList, player.getUniqueId()));
@@ -1243,7 +1242,7 @@ public class IslandCmd implements CommandExecutor {
 			    Bukkit.getPlayer(invitedPlayerUUID).sendMessage(
 				    ChatColor.WHITE + "/" + label + " [accept/reject]" + ChatColor.YELLOW + " " + Locale.invitetoAcceptOrReject);
 			    // Check if the player has an island and warn accordingly
-			    if (players.hasIsland(invitedPlayerUUID)) {
+			    if (plugin.getPlayers().hasIsland(invitedPlayerUUID)) {
 				Bukkit.getPlayer(invitedPlayerUUID).sendMessage(ChatColor.RED + Locale.invitewarningYouWillLoseIsland);
 			    }
 			} else {
@@ -1256,7 +1255,7 @@ public class IslandCmd implements CommandExecutor {
 	    } else if (split[0].equalsIgnoreCase("kick") || split[0].equalsIgnoreCase("remove")) {
 		// Island remove command with a player name, or island kick command
 		if (VaultHelper.checkPerm(player, "acidisland.team.kick")) {
-		    if (!players.inTeam(playerUUID)) {
+		    if (!plugin.getPlayers().inTeam(playerUUID)) {
 			player.sendMessage(ChatColor.RED + Locale.kickerrorNoTeam);
 			return true;
 		    }
@@ -1268,7 +1267,7 @@ public class IslandCmd implements CommandExecutor {
 		    // The main thing to do is check if the player name to kick is in the list of players in the team.
 		    targetPlayer = null;
 		    for (UUID member : teamMembers) {
-			if (players.getName(member).equalsIgnoreCase(split[1])) {
+			if (plugin.getPlayers().getName(member).equalsIgnoreCase(split[1])) {
 			    targetPlayer = member;
 			}
 		    }
@@ -1324,7 +1323,7 @@ public class IslandCmd implements CommandExecutor {
 			    removePlayerFromTeam(player.getUniqueId(), teamLeader);
 			}				
 		    } else {
-			plugin.getLogger().warning("Player " + player.getName() + " failed to remove " + players.getName(targetPlayer));
+			plugin.getLogger().warning("Player " + player.getName() + " failed to remove " + plugin.getPlayers().getName(targetPlayer));
 			player.sendMessage(ChatColor.RED + Locale.kickerrorNotPartOfTeam);
 		    }
 		    return true;
@@ -1332,23 +1331,23 @@ public class IslandCmd implements CommandExecutor {
 		return false;
 	    } else if (split[0].equalsIgnoreCase("makeleader")) {
 		if (VaultHelper.checkPerm(player, "acidisland.team.makeleader")) {
-		    targetPlayer = players.getUUID(split[1]);
+		    targetPlayer = plugin.getPlayers().getUUID(split[1]);
 		    if (targetPlayer == null) {
 			player.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    }
-		    if (!players.inTeam(player.getUniqueId())) {
+		    if (!plugin.getPlayers().inTeam(player.getUniqueId())) {
 			player.sendMessage(ChatColor.RED + Locale.makeLeadererrorYouMustBeInTeam);
 			return true;
 		    }
 
-		    if (players.getMembers(player.getUniqueId()).size() > 2) {
+		    if (plugin.getPlayers().getMembers(player.getUniqueId()).size() > 2) {
 			player.sendMessage(ChatColor.RED + Locale.makeLeadererrorRemoveAllPlayersFirst);
 			plugin.getLogger().info(player.getName() + " tried to transfer his island, but failed because >2 people in a team");
 			return true;
 		    }
 
-		    if (players.inTeam(player.getUniqueId())) {
+		    if (plugin.getPlayers().inTeam(player.getUniqueId())) {
 			if (teamLeader.equals(player.getUniqueId())) {
 			    if (teamMembers.contains(targetPlayer)) {
 
@@ -1359,7 +1358,7 @@ public class IslandCmd implements CommandExecutor {
 				    plugin.setMessage(targetPlayer, Locale.makeLeaderyouAreNowTheOwner);
 				    //.makeLeadererrorPlayerMustBeOnline
 				}
-				player.sendMessage(ChatColor.GREEN + Locale.makeLeadernameIsNowTheOwner.replace("[name]", players.getName(targetPlayer)));
+				player.sendMessage(ChatColor.GREEN + Locale.makeLeadernameIsNowTheOwner.replace("[name]", plugin.getPlayers().getName(targetPlayer)));
 				// targetPlayer is the new leader
 				// Remove the target player from the team
 				removePlayerFromTeam(targetPlayer, teamLeader);

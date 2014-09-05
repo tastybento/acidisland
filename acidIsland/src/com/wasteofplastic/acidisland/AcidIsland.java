@@ -65,7 +65,7 @@ public class AcidIsland extends JavaPlugin {
     // Where challenges are stored
     private FileConfiguration challengeFile = null;
     private File challengeConfigFile = null;
-    public Challenges challenges;
+    private Challenges challenges;
     // Localization Strings
     private FileConfiguration locale = null;
     private File localeFile = null;
@@ -76,7 +76,7 @@ public class AcidIsland extends JavaPlugin {
     // Top ten list of players
     private Map<UUID, Integer> topTenList;
     // Players object
-    public PlayerCache players;
+    private PlayerCache players;
     // Acid Damage Potion
     PotionEffectType acidPotion;
     // Listeners
@@ -120,6 +120,26 @@ public class AcidIsland extends JavaPlugin {
      */
     public static AcidIsland getPlugin() {
 	return plugin;
+    }
+
+    /**
+     * @return the challenges
+     */
+    public Challenges getChallenges() {
+	if (challenges == null) {
+	    challenges = new Challenges(this, getPlayers());
+	}
+	return challenges;
+    }
+
+    /**
+     * @return the players
+     */
+    public PlayerCache getPlayers() {
+	if (players == null) {
+	    players = new PlayerCache(this);
+	}
+	return players;
     }
 
     /**
@@ -1127,7 +1147,8 @@ public class AcidIsland extends JavaPlugin {
 	    //saveConfig();
 	    saveWarpList();
 	    saveMessages();
-	    spawn.save();
+	    if (spawn != null)
+		spawn.save();
 	} catch (final Exception e) {
 	    plugin.getLogger().severe("Something went wrong saving files!");
 	    e.printStackTrace();
@@ -1146,16 +1167,14 @@ public class AcidIsland extends JavaPlugin {
 	saveDefaultConfig();
 	saveDefaultChallengeConfig();
 	saveDefaultLocale();
-	// Metrics
-	try {
-	    final Metrics metrics = new Metrics(this);
-	    metrics.start();
-	} catch (final IOException localIOException) {
-	}
 	if (!VaultHelper.setupEconomy()) {
 	    getLogger().severe("Could not set up economy!");
 	    getServer().getPluginManager().disablePlugin(this);
 	}
+	if (!VaultHelper.setupPermissions()) {
+	    getLogger().severe("Cannot link with Vault for permissions! Disabling plugin!");
+	    getServer().getPluginManager().disablePlugin(this);
+	} 
 	loadPluginConfig();
 	getIslandWorld();
 	// SPONGE
@@ -1169,52 +1188,45 @@ public class AcidIsland extends JavaPlugin {
 	if (!playersFolder.exists()) {
 	    playersFolder.mkdir();
 	}
-	players = new PlayerCache(this);
-	challenges = new Challenges(this,players);
 	// Set up commands for this plugin
 
-	getCommand("ai").setExecutor(new IslandCmd(this,players));
+	getCommand("ai").setExecutor(new IslandCmd(this));
 	getCommand("aic").setExecutor(challenges);
-	getCommand("acid").setExecutor(new AdminCmd(this,players));
+	getCommand("acid").setExecutor(new AdminCmd(this));
 	// Register events that this plugin uses
-	registerEvents();
+	//registerEvents();
 	// Load warps
 	loadWarpList();
 	// Load messages
 	loadMessages();
-
+	// Register events
+	registerEvents();
+	// Metrics
+	try {
+	    final Metrics metrics = new Metrics(this);
+	    metrics.start();
+	} catch (final IOException localIOException) {
+	}
 	// Kick off a few tasks on the next tick
 	// By calling getIslandWorld(), if there is no island
 	// world, it will be created
 	getServer().getScheduler().runTask(this, new Runnable() {
 	    @Override
 	    public void run() {
-		final PluginManager manager = Bukkit.getServer().getPluginManager();
-		if (manager.isPluginEnabled("Vault")) {
-		    AcidIsland.getPlugin().getLogger().info("Trying to use Vault for permissions...");
-		    if (!VaultHelper.setupPermissions()) {
-			getLogger().severe("Cannot link with Vault for permissions! Disabling plugin!");
-			manager.disablePlugin(AcidIsland.getPlugin());
-		    } else {
-			getLogger().info("Success!");
-		    };
-		    // update the list
-		    updateTopTen();
-		}
-		if (manager.isPluginEnabled("Multiverse-Core")) {
+		// update the list
+		//updateTopTen();
+		// Minishop - must wait for economy to load before we can use econ 
+		getServer().getPluginManager().registerEvents(new ControlPanel(plugin), plugin);
+		if (getServer().getPluginManager().isPluginEnabled("Multiverse-Core")) {
 		    getLogger().info("Trying to register generator with Multiverse ");
 		    try {
 			getServer().dispatchCommand(getServer().getConsoleSender(), "mv modify set generator AcidIsland " + Settings.worldName);
 		    } catch (Exception e) {
-			getLogger().info("Not successfull");
+			getLogger().info("Not successfull! Disabling AcidIsland!");
 			e.printStackTrace();
+			getServer().getPluginManager().disablePlugin(plugin);
 		    }
 		}
-		final PluginManager m = getServer().getPluginManager();
-		// Minishop
-		m.registerEvents(new ControlPanel(plugin), plugin);
-		// Load spawn
-		spawn = new Spawn(plugin);
 	    }
 	});
 
@@ -1236,6 +1248,7 @@ public class AcidIsland extends JavaPlugin {
 	    }
 	}, 0L, 20L);
     }
+
 
     @SuppressWarnings("unchecked")
     private ConcurrentHashMap<String, Integer> loadSpongeData() {
@@ -1318,7 +1331,7 @@ public class AcidIsland extends JavaPlugin {
 	// Island Protection events
 	manager.registerEvents(new IslandGuard(this), this);
 	// Events for when a player joins or leaves the server
-	manager.registerEvents(new JoinLeaveEvents(this, players), this);
+	manager.registerEvents(new JoinLeaveEvents(this), this);
 	// Ensures Lava flows correctly in AcidIsland world
 	lavaListener = new LavaCheck(this);
 	manager.registerEvents(lavaListener, this);
@@ -2162,6 +2175,9 @@ public class AcidIsland extends JavaPlugin {
      * @return the spawn
      */
     public Spawn getSpawn() {
+	if (spawn == null) {
+	    spawn = new Spawn(this);
+	}
 	return spawn;
     }
 

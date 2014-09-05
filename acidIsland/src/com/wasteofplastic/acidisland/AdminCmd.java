@@ -26,15 +26,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class AdminCmd implements CommandExecutor {
     private AcidIsland plugin;
     private List<UUID> removeList = new ArrayList<UUID>();
-    private PlayerCache players; 
     private boolean purgeFlag = false;
     private boolean confirmReq = false;
     private boolean confirmOK = false;
     private int confirmTimer = 0;
 
-    public AdminCmd(AcidIsland acidIsland, PlayerCache players) {
+    public AdminCmd(AcidIsland acidIsland) {
 	this.plugin = acidIsland;
-	this.players = players;
     }
 
     private void help(CommandSender sender) {
@@ -161,12 +159,12 @@ public class AdminCmd implements CommandExecutor {
 		}
 		// Find out whose island this is
 		//plugin.getLogger().info("DEBUG: closest bedrock: " + closestBedRock.toString());
-		UUID target = players.getPlayerFromIslandLocation(closestBedRock);
+		UUID target = plugin.getPlayers().getPlayerFromIslandLocation(closestBedRock);
 		if (target == null) {
 		    sender.sendMessage(ChatColor.GREEN + "This island is not owned by anyone right now.");
 		} else {
-		    sender.sendMessage(ChatColor.GREEN + "This island was owned by " + players.getName(target));
-		    if (players.inTeam(target)) {
+		    sender.sendMessage(ChatColor.GREEN + "This island was owned by " + plugin.getPlayers().getName(target));
+		    if (plugin.getPlayers().inTeam(target)) {
 			sender.sendMessage(ChatColor.RED + "That is a team island. Remove the team members first!");
 			return true;
 		    }
@@ -177,11 +175,11 @@ public class AdminCmd implements CommandExecutor {
 		closestBedRock.getWorld().setSpawnLocation(((Player)sender).getLocation().getBlockX(),closestBedRock.getBlockY(),closestBedRock.getBlockZ());
 		// Remove player's ownership and set them to having no island
 		if (target != null) {
-		    players.setIslandLevel(target, 0);
-		    players.setHasIsland(target, false);
-		    players.setHomeLocation(target, null);
-		    players.setIslandLocation(target, null);
-		    players.save(target);
+		    plugin.getPlayers().setIslandLevel(target, 0);
+		    plugin.getPlayers().setHasIsland(target, false);
+		    plugin.getPlayers().setHomeLocation(target, null);
+		    plugin.getPlayers().setIslandLocation(target, null);
+		    plugin.getPlayers().save(target);
 		}
 		sender.sendMessage(ChatColor.GREEN + "Converted island to spawn. (to undo, use /acid register <playername>");
 		sender.sendMessage(ChatColor.GREEN + "Settings are in spawn.yml");
@@ -222,7 +220,7 @@ public class AdminCmd implements CommandExecutor {
 		}
 		// Find out whose island this is
 		plugin.getLogger().info("DEBUG: closest bedrock: " + closestBedRock.toString());
-		UUID target = plugin.players.getPlayerFromIslandLocation(closestBedRock);
+		UUID target = plugin.getPlayers().getPlayerFromIslandLocation(closestBedRock);
 		if (target == null) {
 		    sender.sendMessage(ChatColor.RED + "This island is not owned by anyone right now.");
 		    return true;
@@ -295,11 +293,11 @@ public class AdminCmd implements CommandExecutor {
 				    // been offline
 				    offlineTime = (System.currentTimeMillis() - offlineTime) / 3600000L;
 				    if (offlineTime > time) {
-					if (players.hasIsland(playerUUID)) {
+					if (plugin.getPlayers().hasIsland(playerUUID)) {
 					    // If the player is in a team then ignore
-					    if (!players.inTeam(playerUUID)) {
-						if (players.getIslandLevel(playerUUID) < Settings.abandonedIslandLevel) {
-						    //player.sendMessage("Island level for " + players.getName(playerUUID) + " is " + players.getIslandLevel(playerUUID));
+					    if (!plugin.getPlayers().inTeam(playerUUID)) {
+						if (plugin.getPlayers().getIslandLevel(playerUUID) < Settings.abandonedIslandLevel) {
+						    //player.sendMessage("Island level for " + plugin.getPlayers().getName(playerUUID) + " is " + plugin.getPlayers().getIslandLevel(playerUUID));
 						    removeList.add(playerUUID);
 						}
 					    }
@@ -346,7 +344,7 @@ public class AdminCmd implements CommandExecutor {
 
 					    if (removeList.size() > 0 && purgeFlag) {
 						plugin.deletePlayerIsland(removeList.get(0));
-						sender.sendMessage(ChatColor.YELLOW + Locale.purgeremovingName.replace("[name]", players.getName(removeList.get(0))));
+						sender.sendMessage(ChatColor.YELLOW + Locale.purgeremovingName.replace("[name]", plugin.getPlayers().getName(removeList.get(0))));
 						removeList.remove(0);
 					    }
 
@@ -363,23 +361,23 @@ public class AdminCmd implements CommandExecutor {
 		return true;
 	    } else if (split[0].equalsIgnoreCase("clearreset")) {
 		// Convert name to a UUID
-		final UUID playerUUID = players.getUUID(split[1]);
-		if (!players.isAKnownPlayer(playerUUID)) {
+		final UUID playerUUID = plugin.getPlayers().getUUID(split[1]);
+		if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
 		    sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 		    return true;
 		} else {
-		    players.setResetsLeft(playerUUID, Settings.resetLimit);
+		    plugin.getPlayers().setResetsLeft(playerUUID, Settings.resetLimit);
 		    sender.sendMessage(ChatColor.YELLOW + Locale.clearedResetLimit + " [" + Settings.resetLimit + "]");
 		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("delete")) {
 		// Convert name to a UUID
-		final UUID playerUUID = players.getUUID(split[1]);
-		if (!players.isAKnownPlayer(playerUUID)) {
+		final UUID playerUUID = plugin.getPlayers().getUUID(split[1]);
+		if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
 		    sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 		    return true;
 		} else {
-		    if (players.getIslandLocation(playerUUID) != null) {
+		    if (plugin.getPlayers().getIslandLocation(playerUUID) != null) {
 			sender.sendMessage(ChatColor.YELLOW + Locale.deleteremoving.replace("[name]", split[1]));
 			plugin.deletePlayerIsland(playerUUID);
 			// If they are online and in AcidIsland then delete their stuff too
@@ -395,8 +393,8 @@ public class AdminCmd implements CommandExecutor {
 	    } else if (split[0].equalsIgnoreCase("register")) {
 		if (sender instanceof Player) {
 		    // Convert name to a UUID
-		    final UUID playerUUID = players.getUUID(split[1]);
-		    if (!players.isAKnownPlayer(playerUUID)) {
+		    final UUID playerUUID = plugin.getPlayers().getUUID(split[1]);
+		    if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
 			sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 			return true;
 		    } else {
@@ -413,9 +411,9 @@ public class AdminCmd implements CommandExecutor {
 		return true;
 	    } else if (split[0].equalsIgnoreCase("info")) {
 		// Convert name to a UUID
-		final UUID playerUUID = players.getUUID(split[1]);
+		final UUID playerUUID = plugin.getPlayers().getUUID(split[1]);
 		//plugin.getLogger().info("DEBUG: console player info UUID = " + playerUUID);
-		if (!players.isAKnownPlayer(playerUUID)) {
+		if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
 		    sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 		    return true;
 		} else {
@@ -424,12 +422,12 @@ public class AdminCmd implements CommandExecutor {
 		}
 	    } else if (split[0].equalsIgnoreCase("resetallchallenges")) {
 		// Convert name to a UUID
-		final UUID playerUUID = players.getUUID(split[1]);
-		if (!players.isAKnownPlayer(playerUUID)) {
+		final UUID playerUUID = plugin.getPlayers().getUUID(split[1]);
+		if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
 		    sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 		    return true;
 		}
-		players.resetAllChallenges(playerUUID);
+		plugin.getPlayers().resetAllChallenges(playerUUID);
 		sender.sendMessage(ChatColor.YELLOW + Locale.resetChallengessuccess.replace("[name]", split[1]));
 		return true;
 	    }  else {
@@ -438,31 +436,31 @@ public class AdminCmd implements CommandExecutor {
 	case 3:
 	    if (split[0].equalsIgnoreCase("completechallenge")) {
 		// Convert name to a UUID
-		final UUID playerUUID = players.getUUID(split[2]);
-		if (!players.isAKnownPlayer(playerUUID)) {
+		final UUID playerUUID = plugin.getPlayers().getUUID(split[2]);
+		if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
 		    sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 		    return true;
 		}
-		if (players.checkChallenge(playerUUID,split[1].toLowerCase()) || !players.get(playerUUID).challengeExists(split[1].toLowerCase())) {
+		if (plugin.getPlayers().checkChallenge(playerUUID,split[1].toLowerCase()) || !plugin.getPlayers().get(playerUUID).challengeExists(split[1].toLowerCase())) {
 		    sender.sendMessage(ChatColor.RED + Locale.completeChallengeerrorChallengeDoesNotExist);
 		    return true;
 		}
-		players.get(playerUUID).completeChallenge(split[1].toLowerCase());
+		plugin.getPlayers().get(playerUUID).completeChallenge(split[1].toLowerCase());
 		sender.sendMessage(ChatColor.YELLOW + Locale.completeChallengechallangeCompleted.replace("[challengename]", split[1].toLowerCase()).replace("[name]", split[2]));
 		return true;
 	    } else if (split[0].equalsIgnoreCase("resetchallenge")) {
 		// Convert name to a UUID
-		final UUID playerUUID = players.getUUID(split[2]);
-		if (!players.isAKnownPlayer(playerUUID)) {
+		final UUID playerUUID = plugin.getPlayers().getUUID(split[2]);
+		if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
 		    sender.sendMessage(ChatColor.RED + Locale.errorUnknownPlayer);
 		    return true;
 		}
-		if (!players.checkChallenge(playerUUID,split[1].toLowerCase())
-			|| !players.get(playerUUID).challengeExists(split[1].toLowerCase())) {
+		if (!plugin.getPlayers().checkChallenge(playerUUID,split[1].toLowerCase())
+			|| !plugin.getPlayers().get(playerUUID).challengeExists(split[1].toLowerCase())) {
 		    sender.sendMessage(ChatColor.RED + Locale.resetChallengeerrorChallengeDoesNotExist);
 		    return true;
 		}
-		players.resetChallenge(playerUUID,split[1].toLowerCase());
+		plugin.getPlayers().resetChallenge(playerUUID,split[1].toLowerCase());
 		sender.sendMessage(ChatColor.YELLOW +  Locale.resetChallengechallengeReset.replace("[challengename]", split[1].toLowerCase()).replace("[name]",split[2]));
 		return true;
 	    } else {
@@ -474,10 +472,10 @@ public class AdminCmd implements CommandExecutor {
     }
 
     private void showInfo(UUID playerUUID, CommandSender sender) {
-	sender.sendMessage(ChatColor.GREEN + players.getName(playerUUID));
+	sender.sendMessage(ChatColor.GREEN + plugin.getPlayers().getName(playerUUID));
 	sender.sendMessage(ChatColor.WHITE + "UUID: " + playerUUID.toString());
 	// Display island level
-	sender.sendMessage(ChatColor.GREEN + Locale.levelislandLevel + ": " + players.getIslandLevel(playerUUID));
+	sender.sendMessage(ChatColor.GREEN + Locale.levelislandLevel + ": " + plugin.getPlayers().getIslandLevel(playerUUID));
 	// Last login
 	try {
 	    Date d = new Date(plugin.getServer().getOfflinePlayer(playerUUID).getLastPlayed());
@@ -486,30 +484,30 @@ public class AdminCmd implements CommandExecutor {
 
 	// Completed challenges
 	sender.sendMessage(ChatColor.WHITE + "Challenges:");
-	HashMap<String,Boolean> challenges = players.getChallengeStatus(playerUUID);
+	HashMap<String,Boolean> challenges = plugin.getPlayers().getChallengeStatus(playerUUID);
 	for (String c: challenges.keySet()) {
 	    sender.sendMessage(c + ": " + ((challenges.get(c)) ? ChatColor.GREEN + Locale.challengescomplete :ChatColor.AQUA + Locale.challengesincomplete));
 	}
 	// Teams
-	if (players.inTeam(playerUUID)) {
-	    final UUID leader = players.getTeamLeader(playerUUID);
-	    final List<UUID> pList = players.getMembers(leader);
-	    sender.sendMessage(ChatColor.GREEN + players.getName(leader) );
+	if (plugin.getPlayers().inTeam(playerUUID)) {
+	    final UUID leader = plugin.getPlayers().getTeamLeader(playerUUID);
+	    final List<UUID> pList = plugin.getPlayers().getMembers(leader);
+	    sender.sendMessage(ChatColor.GREEN + plugin.getPlayers().getName(leader) );
 	    for (UUID member: pList) {
-		sender.sendMessage(ChatColor.WHITE + " - " + players.getName(member));
+		sender.sendMessage(ChatColor.WHITE + " - " + plugin.getPlayers().getName(member));
 	    }
-	    sender.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + players.getTeamIslandLocation(playerUUID).getBlockX() + ","
-		    + players.getTeamIslandLocation(playerUUID).getBlockY() + "," + players.getTeamIslandLocation(playerUUID).getBlockZ() + ")");
+	    sender.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + plugin.getPlayers().getTeamIslandLocation(playerUUID).getBlockX() + ","
+		    + plugin.getPlayers().getTeamIslandLocation(playerUUID).getBlockY() + "," + plugin.getPlayers().getTeamIslandLocation(playerUUID).getBlockZ() + ")");
 	} else {
 	    sender.sendMessage(ChatColor.YELLOW + Locale.errorNoTeam);
-	    if (players.hasIsland(playerUUID)) {
-		sender.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + players.getIslandLocation(playerUUID).getBlockX() + ","
-			+ players.getIslandLocation(playerUUID).getBlockY() + "," + players.getIslandLocation(playerUUID).getBlockZ() + ")");
+	    if (plugin.getPlayers().hasIsland(playerUUID)) {
+		sender.sendMessage(ChatColor.YELLOW + Locale.adminInfoislandLocation + ":" + ChatColor.WHITE + " (" + plugin.getPlayers().getIslandLocation(playerUUID).getBlockX() + ","
+			+ plugin.getPlayers().getIslandLocation(playerUUID).getBlockY() + "," + plugin.getPlayers().getIslandLocation(playerUUID).getBlockZ() + ")");
 	    }
-	    if (!(players.getTeamLeader(playerUUID) == null)) {
+	    if (!(plugin.getPlayers().getTeamLeader(playerUUID) == null)) {
 		sender.sendMessage(ChatColor.RED + Locale.adminInfoerrorNullTeamLeader);
 	    }
-	    if (!players.getMembers(playerUUID).isEmpty()) {
+	    if (!plugin.getPlayers().getMembers(playerUUID).isEmpty()) {
 		sender.sendMessage(ChatColor.RED + Locale.adminInfoerrorTeamMembersExist);
 	    }
 	}
@@ -570,9 +568,9 @@ public class AdminCmd implements CommandExecutor {
 		for (int z = -10; z <= 10; z++) {
 		    final Block b = new Location(l.getWorld(), px + x, py + y, pz + z).getBlock();
 		    if (b.getType().equals(Material.BEDROCK)) {
-			players.setHomeLocation(player,new Location(l.getWorld(), px + x, py + y + 3, pz + z));
-			players.setHasIsland(player,true);
-			players.setIslandLocation(player, b.getLocation());
+			plugin.getPlayers().setHomeLocation(player,new Location(l.getWorld(), px + x, py + y + 3, pz + z));
+			plugin.getPlayers().setHasIsland(player,true);
+			plugin.getPlayers().setIslandLocation(player, b.getLocation());
 			return true;
 		    }
 		}

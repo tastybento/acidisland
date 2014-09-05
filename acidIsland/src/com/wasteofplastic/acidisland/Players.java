@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 /**
  * Tracks the following info on the player
@@ -239,7 +240,8 @@ public class Players {
 
     public Location getHomeLocation() {
 	// return homeLoc.getLocation();
-	return getLocationString(homeLocation);
+	Location home = getLocationString(homeLocation).add(new Vector(0.5D,0D,0.5D));
+	return home;
     }
 
     /**
@@ -285,7 +287,8 @@ public class Players {
 
     public Location getTeamIslandLocation() {
 	// return teamIslandLoc.getLocation();
-	return getLocationString(teamIslandLocation);
+	Location l = getLocationString(teamIslandLocation).add(new Vector(0.5D,0D,0.5D));
+	return l;
     }
 
     public UUID getTeamLeader() {

@@ -207,7 +207,7 @@ public class ControlPanel implements Listener {
 
 	    // Get the list of items in this inventory
 	    //plugin.getLogger().info("You clicked on slot " + slot);
-	    List<CPItem> challenges = plugin.challenges.getCP(player);
+	    List<CPItem> challenges = plugin.getChallenges().getCP(player);
 	    if (slot >=0 && slot < challenges.size()) {
 		CPItem item = challenges.get(slot);
 		// Check that it is the top items that are bing clicked on
