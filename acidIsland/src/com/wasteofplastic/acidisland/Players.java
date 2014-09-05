@@ -239,6 +239,9 @@ public class Players {
     }
 
     public Location getHomeLocation() {
+	if (homeLocation.isEmpty()) {
+	    return null;
+	}
 	// return homeLoc.getLocation();
 	Location home = getLocationString(homeLocation).add(new Vector(0.5D,0D,0.5D));
 	return home;
@@ -287,6 +290,9 @@ public class Players {
 
     public Location getTeamIslandLocation() {
 	// return teamIslandLoc.getLocation();
+	if (teamIslandLocation.isEmpty()) {
+	    return null;
+	}
 	Location l = getLocationString(teamIslandLocation).add(new Vector(0.5D,0D,0.5D));
 	return l;
     }

@@ -795,6 +795,12 @@ public class IslandCmd implements CommandExecutor {
 		    }
 		}
 	    } else if (split[0].equalsIgnoreCase("restart") || split[0].equalsIgnoreCase("reset")) {
+		// Check this player has an island
+		if (!plugin.getPlayers().hasIsland(playerUUID)) {
+		    // No so just start and island
+		    player.performCommand("ai");
+		    return true;
+		}
 		if (plugin.getPlayers().inTeam(playerUUID)) {
 		    if (!plugin.getPlayers().getTeamLeader(playerUUID).equals(playerUUID)) {
 			player.sendMessage(ChatColor.RED
@@ -863,9 +869,11 @@ public class IslandCmd implements CommandExecutor {
 		    //player.getWorld().spawnEntity(cowSpot, EntityType.COW);
 		    setResetWaitTime(player);
 		    plugin.removeWarp(playerUUID);
-		    plugin.removeIsland(oldIsland);
-		    DeleteIsland deleteIsland = new DeleteIsland(plugin,oldIsland);
-		    deleteIsland.runTaskTimer(plugin, 40L, 40L);
+		    if (oldIsland != null) {
+			plugin.removeIsland(oldIsland);
+			DeleteIsland deleteIsland = new DeleteIsland(plugin,oldIsland);
+			deleteIsland.runTaskTimer(plugin, 40L, 40L);
+		    }
 		    plugin.restartEvents();
 		} else {
 		    player.sendMessage(ChatColor.YELLOW + "/island restart: " + ChatColor.WHITE + Locale.islandhelpRestart);

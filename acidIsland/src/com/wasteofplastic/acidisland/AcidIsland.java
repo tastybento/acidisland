@@ -384,7 +384,7 @@ public class AcidIsland extends JavaPlugin {
 	    return true;
 	}
 	// Near spawn?
-	if ((spawn.getSpawnLoc() != null && loc.distanceSquared(spawn.getSpawnLoc()) < (double)((double)Settings.islandDistance) * Settings.islandDistance)) {
+	if ((getSpawn().getSpawnLoc() != null && loc.distanceSquared(getSpawn().getSpawnLoc()) < (double)((double)Settings.islandDistance) * Settings.islandDistance)) {
 	    return true;
 	}
 	// Look around

@@ -62,7 +62,8 @@ public class AcidEffect implements Listener {
 	if (VaultHelper.checkPerm(player, "acidisland.mod.noburn") || VaultHelper.checkPerm(player, "acidisland.admin.noburn")) {
 	    return;
 	}
-	
+
+
 	if (player.getGameMode().equals(GameMode.CREATIVE)) {
 	    return;
 	}
@@ -104,8 +105,8 @@ public class AcidEffect implements Listener {
 	    // This is needed because safeboat.java cannot teleport the player
 	    // for 1 tick
 	    // Don't remove this!!
-	   // if (SafeBoat.exitedBoat(player)) {
-	//	return;
+	    // if (SafeBoat.exitedBoat(player)) {
+	    //	return;
 	    //}
 	    // Check if player is in a boat
 	    Entity playersVehicle = player.getVehicle();
