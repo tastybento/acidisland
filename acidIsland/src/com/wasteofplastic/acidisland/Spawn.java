@@ -18,6 +18,10 @@ public class Spawn {
      */
     public Spawn(AcidIsland plugin) {
 	this.plugin = plugin;
+	reload();
+    }
+
+    public void reload() {
 	spawnConfig = AcidIsland.loadYamlFile("spawn.yml");
 	spawn = spawnConfig.getConfigurationSection("spawn");
 	// load the config items
@@ -35,9 +39,7 @@ public class Spawn {
 	this.spawnLoc = AcidIsland.getLocationString(spawn.getString("location",""));
 	this.bedrock = AcidIsland.getLocationString(spawn.getString("bedrock",""));
 	this.range = spawn.getInt("range",100);
-
     }
-
     public void save() {
 	// Save the spawn location
 	plugin.getLogger().info("Saving spawn.yml file");

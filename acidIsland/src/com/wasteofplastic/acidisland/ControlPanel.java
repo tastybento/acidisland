@@ -13,6 +13,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -27,6 +28,7 @@ public class ControlPanel implements Listener {
     private static HashMap<Integer, MiniShopItem> store = new HashMap<Integer,MiniShopItem>();
     private static YamlConfiguration cpFile;
     private AcidIsland plugin;
+    private static boolean allowSelling;
 
 
 
@@ -62,6 +64,7 @@ public class ControlPanel implements Listener {
 	// Minishop
 	store.clear();
 	miniShopFile = AcidIsland.loadYamlFile("minishop.yml");
+	allowSelling = miniShopFile.getBoolean("config.allowselling", false);
 	ConfigurationSection items = miniShopFile.getConfigurationSection("items");
 	AcidIsland plugin = AcidIsland.getPlugin();
 	//plugin.getLogger().info("DEBUG: loading the shop. items = " + items.toString());
@@ -232,17 +235,29 @@ public class ControlPanel implements Listener {
 	    if (store.containsKey(slot)) {
 		// We have a winner!
 		MiniShopItem item = store.get(slot);
-		if (clicked.equals(item.getItem())) { 
-		    // Check they can afford it
-		    if (!VaultHelper.econ.has(player, player.getWorld().getName(), item.getPrice())) {
-			message = "You cannot afford that item!";
-		    } else {
-			EconomyResponse r = VaultHelper.econ.withdrawPlayer(player, player.getWorld().getName(), item.getPrice());
-			if (r.transactionSuccess()) {
-			    message = "You bought " + item.getQuantity() + " " + item.getDescription() + " for " + VaultHelper.econ.format(item.getPrice());			
-			    player.getInventory().addItem(item.getItemClean());
+		if (clicked.equals(item.getItem())) {
+		    // Check what type of click - LEFT = BUY, RIGHT = sell
+		    if (event.getClick().equals(ClickType.LEFT)) {
+			// Check they can afford it
+			if (!VaultHelper.econ.has(player, player.getWorld().getName(), item.getPrice())) {
+			    message = "You cannot afford that item!";
 			} else {
-			    message = "There was a problem puchasing that item: " + r.errorMessage;
+			    EconomyResponse r = VaultHelper.econ.withdrawPlayer(player, player.getWorld().getName(), item.getPrice());
+			    if (r.transactionSuccess()) {
+				message = "You bought " + item.getQuantity() + " " + item.getDescription() + " for " + VaultHelper.econ.format(item.getPrice());			
+				player.getInventory().addItem(item.getItemClean());
+			    } else {
+				message = "There was a problem puchasing that item: " + r.errorMessage;
+			    }
+			}
+		    } else if (event.getClick().equals(ClickType.RIGHT) && allowSelling) {
+			// Check if they have the item
+			if (player.getInventory().containsAtLeast(item.getItemClean(),item.getQuantity())) {
+			    player.getInventory().removeItem(item.getItemClean());
+			    VaultHelper.econ.depositPlayer(player, item.getPrice());
+			    message = "You sold " + item.getQuantity() + " " + item.getDescription() + " for " + VaultHelper.econ.format(item.getPrice());			
+			} else {
+			    message = "You do not have enough of that item to sell it.";
 			}
 		    }
 		    player.closeInventory(); // Closes the inventory

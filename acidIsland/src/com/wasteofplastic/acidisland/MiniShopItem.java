@@ -109,6 +109,10 @@ public class MiniShopItem {
 	return item;
     }
 
+    /**
+     * Returns a clean version of this item with no meta data
+     * @return
+     */
     public ItemStack getItemClean() {
 	ItemStack temp = this.item.clone();
 	ItemMeta meta = temp.getItemMeta();

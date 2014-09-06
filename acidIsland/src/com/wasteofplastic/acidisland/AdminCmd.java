@@ -220,7 +220,7 @@ public class AdminCmd implements CommandExecutor {
 		    return true;
 		}
 		// Find out whose island this is
-		plugin.getLogger().info("DEBUG: closest bedrock: " + closestBedRock.toString());
+		//plugin.getLogger().info("DEBUG: closest bedrock: " + closestBedRock.toString());
 		UUID target = plugin.getPlayers().getPlayerFromIslandLocation(closestBedRock);
 		if (target == null) {
 		    sender.sendMessage(ChatColor.RED + "This island is not owned by anyone right now.");
@@ -234,6 +234,7 @@ public class AdminCmd implements CommandExecutor {
 		plugin.reloadChallengeConfig();
 		ControlPanel.loadShop();
 		ControlPanel.loadControlPanel();
+		plugin.getSpawn().reload();
 		sender.sendMessage(ChatColor.YELLOW + Locale.reloadconfigReloaded);
 		return true;
 	    } else if (split[0].equalsIgnoreCase("topten")) {
