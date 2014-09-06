@@ -29,7 +29,7 @@ public class ControlPanel implements Listener {
     private static YamlConfiguration cpFile;
     private AcidIsland plugin;
     private static boolean allowSelling;
-
+    private static String defaultPanelName;
 
 
     /**
@@ -53,7 +53,7 @@ public class ControlPanel implements Listener {
      */
     public static HashMap<String,Inventory> controlPanel = new HashMap<String,Inventory>();
 
-    public static final Inventory miniShop = Bukkit.createInventory(null, 9, ChatColor.YELLOW + Locale.islandMiniShopTitle);
+    public static final Inventory miniShop = Bukkit.createInventory(null, 9, ChatColor.translateAlternateColorCodes('&',Locale.islandMiniShopTitle));
     // The first parameter, is the inventory owner. I make it null to let everyone use it.
     //The second parameter, is the slots in a inventory. Must be a multiple of 9. Can be up to 54.
     //The third parameter, is the inventory name. This will accept chat colors.
@@ -103,8 +103,6 @@ public class ControlPanel implements Listener {
 	panels.clear();
 	// Map of panel inventories by name
 	controlPanel.clear();
-
-
 	cpFile = AcidIsland.loadYamlFile("controlpanel.yml");
 	ConfigurationSection controlPanels = cpFile.getRoot();
 	if (controlPanels == null) {
@@ -113,10 +111,14 @@ public class ControlPanel implements Listener {
 	}	
 	// Go through the yml file and create inventories and panel maps
 	for (String panel : controlPanels.getKeys(false)) {
+	    //plugin.getLogger().info("DEBUG: Panel " + panel);
 	    ConfigurationSection panelConf = cpFile.getConfigurationSection(panel);
 	    // New panel map
 	    HashMap<Integer,CPItem> cp = new HashMap<Integer,CPItem>();
-	    String panelName = panelConf.getString("panelname", "Commands");
+	    String panelName = ChatColor.translateAlternateColorCodes('&',panelConf.getString("panelname", "Commands"));
+	    if (panel.equalsIgnoreCase("default")) {
+		defaultPanelName = panelName;
+	    }
 	    //plugin.getLogger().info("DEBUG: Panel section " + panelName);
 	    // New inventory
 	    Inventory newPanel = Bukkit.createInventory(null, 9, panelName);
@@ -265,5 +267,12 @@ public class ControlPanel implements Listener {
 		}
 	    }
 	}
+    }
+
+    /**
+     * @return the defaultPanelName
+     */
+    public static String getDefaultPanelName() {
+        return defaultPanelName;
     }
 }

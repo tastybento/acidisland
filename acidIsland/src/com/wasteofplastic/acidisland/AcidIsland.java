@@ -190,8 +190,9 @@ public class AcidIsland extends JavaPlugin {
     public boolean showTopTen(final Player player) {
 	player.sendMessage(ChatColor.GOLD + Locale.topTenheader);
 	if (topTenList == null) {
-	    player.sendMessage(ChatColor.RED + Locale.topTenerrorNotReady);
-	    return false;
+	    updateTopTen();
+	    //player.sendMessage(ChatColor.RED + Locale.topTenerrorNotReady);
+	    //return true;
 	}
 	int i = 1;
 	for (Map.Entry<UUID, Integer> m : topTenList.entrySet()) {

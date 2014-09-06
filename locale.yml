@@ -229,7 +229,7 @@ makeleader:
 
 #minishop
 minishop:
-   title: "MiniShop"
+   title: "&EMiniShop"
    islandhelpMiniShop: "Opens the MiniShop"
 
 ################################

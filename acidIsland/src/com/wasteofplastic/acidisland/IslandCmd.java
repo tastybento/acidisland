@@ -744,7 +744,7 @@ public class IslandCmd implements CommandExecutor {
 	    if (split[0].equalsIgnoreCase("controlpanel") || split[0].equalsIgnoreCase("cp")) {
 		//if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 		if (VaultHelper.checkPerm(player, "acidisland.island.controlpanel")) {
-		    player.openInventory(ControlPanel.controlPanel.get("AcidIsland"));
+		    player.openInventory(ControlPanel.controlPanel.get(ControlPanel.getDefaultPanelName()));
 		    return true;
 		}
 		//}
