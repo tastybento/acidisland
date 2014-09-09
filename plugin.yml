@@ -1,6 +1,6 @@
 name: AcidIsland
 main: com.wasteofplastic.acidisland.AcidIsland
-version: 0.9k
+version: 1.0
 description: Acid Island
 author: Tastybento
 depend: [Vault]

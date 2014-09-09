@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -48,22 +49,25 @@ public class SafeBoat implements Listener {
 	// plugin.getLogger().info("Damage event " + e.getDamage());
 	// Find out what block is being clicked
 	Vehicle boat = e.getVehicle();
+	if (!(boat instanceof Boat)) {
+	    return;
+	}
+	if (!boat.isEmpty()) {
+	    return;
+	}
 	final World playerWorld = boat.getWorld();
 	if (!playerWorld.getName().equalsIgnoreCase(Settings.worldName)) {
 	    // Not the right world
 	    return;
 	}
-
-	// This triggers if you hit a boat a few times
-	if (!boat.getType().equals(EntityType.BOAT))
-	    return;
 	// plugin.getLogger().info("Boat ");
 	// Find out who is doing the clicking
-	Player p = (Player) e.getAttacker();
-	if (p == null) {
+	if (!(e.getAttacker() instanceof Player)) {
+	    // If a creeper blows up the boat, tough cookies!
 	    return;
 	}
-	if (!boat.isEmpty()) {
+	Player p = (Player) e.getAttacker();
+	if (p == null) {
 	    return;
 	}
 	// Try to remove the boat and throw it at the player
@@ -88,16 +92,13 @@ public class SafeBoat implements Listener {
     public void onBoatHit(VehicleDestroyEvent e) {
 	// plugin.getLogger().info("Vehicle destroyed event called");
 	final Entity boat = e.getVehicle();
-	if (!boat.getType().equals(EntityType.BOAT)) {
-	    // plugin.getLogger().info("Vehicle not a boat - it is a " +
-	    // boat.getType().toString());
+	if (!(boat instanceof Boat)) {
 	    return;
 	}
 	if (!boat.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    // Not the right world
 	    return;
 	}
-
 	if (!(e.getAttacker() instanceof Player)) {
 	    // plugin.getLogger().info("Attacker is not a player so cancel event");
 	    e.setCancelled(true);

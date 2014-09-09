@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,6 +20,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.util.BlockIterator;
 
 /**
  * @author ben
@@ -152,48 +155,57 @@ public class AcidInventory implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     public void onWaterBottleFill(final PlayerInteractEvent e) {
-	if (!e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName))
+	Player player = e.getPlayer();
+	if (!player.getWorld().getName().equalsIgnoreCase(Settings.worldName))
 	    return;
 	if (Settings.acidDamage == 0D)
 	    return;
-	//plugin.getLogger().info(e.getEventName() + " called");	
-	try {
-	    if ((e.getAction().equals(Action.RIGHT_CLICK_AIR) && e.getMaterial().equals(Material.GLASS_BOTTLE))
-		    || (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock().getType().equals(Material.CAULDRON))) {
-		// They *may* have filled a bottle with water
-		// Check inventory for POTIONS in a tick
-		plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
-		    @Override
-		    public void run() {
-			//plugin.getLogger().info("Checking inventory");
-			PlayerInventory inv = e.getPlayer().getInventory();
-			if (inv.contains(Material.POTION)) {
-			    //plugin.getLogger().info("POTION in inventory");
-			    //They have a POTION of some kind in inventory
-			    int i = 0;
-			    for (ItemStack item : inv.getContents()) {
-				if (item != null) {
-				    //plugin.getLogger().info(i + ":" + item.getType().toString());
-				    if (item.getType().equals(Material.POTION) && item.getDurability() == 0) {
-					//plugin.getLogger().info("Water bottle found!");
-					ItemMeta meta = item.getItemMeta();
-					meta.setDisplayName(Locale.acidBottle);
-					//ArrayList<String> lore = new ArrayList<String>(Arrays.asList("Poison", "Beware!", "Do not drink!"));
-					meta.setLore(lore);
-					item.setItemMeta(meta);
-					inv.setItem(i, item);
-				    }
+	if(!player.getItemInHand().getType().equals(Material.GLASS_BOTTLE)){
+	    return;
+	}	    
+	//plugin.getLogger().info(e.getEventName() + " called");
+	// Look at what the player was looking at
+	BlockIterator iter = new BlockIterator(player, 10);
+	Block lastBlock = iter.next();
+	while (iter.hasNext()) {
+	    lastBlock = iter.next();
+	    if (lastBlock.getType() == Material.AIR)
+		continue;
+	    break;
+	}
+	//plugin.getLogger().info(lastBlock.getType().toString());
+	if (lastBlock.getType().equals(Material.WATER) || lastBlock.getType().equals(Material.STATIONARY_WATER)
+		|| lastBlock.getType().equals(Material.CAULDRON)) {
+	    // They *may* have filled a bottle with water
+	    // Check inventory for POTIONS in a tick
+	    plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+		@Override
+		public void run() {
+		    //plugin.getLogger().info("Checking inventory");
+		    PlayerInventory inv = e.getPlayer().getInventory();
+		    if (inv.contains(Material.POTION)) {
+			//plugin.getLogger().info("POTION in inventory");
+			//They have a POTION of some kind in inventory
+			int i = 0;
+			for (ItemStack item : inv.getContents()) {
+			    if (item != null) {
+				//plugin.getLogger().info(i + ":" + item.getType().toString());
+				if (item.getType().equals(Material.POTION) && item.getDurability() == 0) {
+				    //plugin.getLogger().info("Water bottle found!");
+				    ItemMeta meta = item.getItemMeta();
+				    meta.setDisplayName(Locale.acidBottle);
+				    //ArrayList<String> lore = new ArrayList<String>(Arrays.asList("Poison", "Beware!", "Do not drink!"));
+				    meta.setLore(lore);
+				    item.setItemMeta(meta);
+				    inv.setItem(i, item);
 				}
-				i++;
 			    }
+			    i++;
 			}
 		    }
-		});
-	    }
-	    //plugin.getLogger().info("Action: " + e.getAction().name());
-	} catch (Exception c) {
-	    plugin.getLogger().info("Exception");
-	    c.printStackTrace();
+		}
+	    });
 	}
+
     }
 }
