@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.wasteofplastic.acidisland;
 
 import org.bukkit.Material;

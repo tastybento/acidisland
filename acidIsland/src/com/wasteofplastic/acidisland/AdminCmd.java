@@ -1,3 +1,20 @@
+/*******************************************************************************
+ * This file is part of AcidIsland.
+ *
+ *     AcidIsland is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     AcidIsland is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with AcidIsland.  If not, see <http://www.gnu.org/licenses/>.
+ *******************************************************************************/
+
 package com.wasteofplastic.acidisland;
 
 import java.io.File;
@@ -13,11 +30,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BlockIterator;
 
 /**
  * This class handles the /acid command for admins
@@ -192,29 +211,7 @@ public class AdminCmd implements CommandExecutor {
 		    sender.sendMessage(ChatColor.RED + "This command must be used in-game.");
 		    return true;
 		}
-		Player p = (Player)sender;
-		Location closestBedRock = null;
-		double distance = 0;
-		for (int x = -Settings.islandDistance; x< Settings.islandDistance; x++) {
-		    for (int z = -Settings.islandDistance; z< Settings.islandDistance; z++) {
-
-			Location blockLoc = new Location(p.getWorld(),x + p.getLocation().getBlockX(),Settings.island_level,z + p.getLocation().getBlockZ());
-			if (blockLoc.getBlock().getType().equals(Material.BEDROCK)) {
-			    if (closestBedRock == null) {
-				closestBedRock = blockLoc.clone();
-				distance = closestBedRock.distanceSquared(p.getLocation());
-			    } else {
-				// Find out if this is closer to the player
-
-				double newDist = blockLoc.distanceSquared(p.getLocation());
-				if (distance > newDist) {
-				    closestBedRock = blockLoc.clone();
-				    distance = newDist;
-				}
-			    }
-			}
-		    }
-		}
+		Location closestBedRock = getClosestIsland(((Player)sender).getLocation());
 		if (closestBedRock == null) {
 		    sender.sendMessage(ChatColor.RED + "Sorry, could not find an island. Move closer?");
 		    return true;
@@ -228,6 +225,62 @@ public class AdminCmd implements CommandExecutor {
 		}
 		showInfo(target, sender);
 		return true;
+	    } else if (split[0].equalsIgnoreCase("resetsign")) { 
+		// Find the closest island
+		if (!(sender instanceof Player)) {
+		    sender.sendMessage(ChatColor.RED + "This command must be used in-game.");
+		    return true;
+		}
+		Player p = (Player)sender;
+
+		// Find out whether the player is looking at a warp sign
+		// Look at what the player was looking at
+		BlockIterator iter = new BlockIterator(p, 10);
+		Block lastBlock = iter.next();
+		while (iter.hasNext()) {
+		    lastBlock = iter.next();
+		    if (lastBlock.getType() == Material.AIR)
+			continue;
+		    break;
+		}
+		if (!lastBlock.getType().equals(Material.SIGN_POST)) {
+		    sender.sendMessage(ChatColor.RED + "You must be looking at a Warp Sign to run this command. (not a sign post)");
+		    return true;  
+		}
+		// Check if it is a warp sign
+		Sign sign = (Sign)lastBlock.getState();
+		try {
+		    if (!sign.getLine(0).equalsIgnoreCase(ChatColor.GREEN + Locale.warpswelcomeLine) &&
+			    !sign.getLine(0).equalsIgnoreCase(ChatColor.RED + Locale.warpswelcomeLine)) {
+			sender.sendMessage(ChatColor.RED + "You must be looking at a Warp Sign to run this command. (wrong line)");
+			return true;  		    
+		    }
+		} catch (Exception e) {
+		    sender.sendMessage(ChatColor.RED + "You must be looking at a Warp Sign to run this command. (exception)");
+		    return true;  		    
+		}
+		sender.sendMessage(ChatColor.GREEN + "Warp sign found!");
+		Location closestBedRock = getClosestIsland(((Player)sender).getLocation());
+		if (closestBedRock == null) {
+		    sender.sendMessage(ChatColor.RED + "Sorry, could not find island bedrock. Move closer?");
+		    return true;
+		}
+		// Find out whose island this is
+		//plugin.getLogger().info("DEBUG: closest bedrock: " + closestBedRock.toString());
+		UUID target = plugin.getPlayers().getPlayerFromIslandLocation(closestBedRock);
+		if (target == null) {
+		    sender.sendMessage(ChatColor.RED + "This island is not owned by anyone right now - recommend that sign is removed.");
+		    return true;
+		}
+		if (plugin.addWarp(target, lastBlock.getLocation())) {
+		    sender.sendMessage(ChatColor.GREEN + "Warp rescued and assigned to " + plugin.getPlayers().getName(target));
+		    return true;	    
+		}
+		// Warp already exists
+		sender.sendMessage(ChatColor.RED + "That warp sign is already active and owned by " + plugin.getWarpOwner(lastBlock.getLocation()));
+		return true;
+
+
 	    } else if (split[0].equalsIgnoreCase("reload")) {
 		plugin.reloadConfig();
 		plugin.loadPluginConfig();
@@ -471,6 +524,32 @@ public class AdminCmd implements CommandExecutor {
 	default:
 	    return false;
 	}
+    }
+
+    private Location getClosestIsland(Location location) {
+	Location closestBedRock = null;
+	double distance = 0;
+	for (int x = -Settings.islandDistance; x< Settings.islandDistance; x++) {
+	    for (int z = -Settings.islandDistance; z< Settings.islandDistance; z++) {
+		Location blockLoc = new Location(location.getWorld(),x + location.getBlockX(),Settings.island_level,z + location.getBlockZ());
+		if (blockLoc.getBlock().getType().equals(Material.BEDROCK)) {
+		    if (closestBedRock == null) {
+			closestBedRock = blockLoc.clone();
+			distance = closestBedRock.distanceSquared(location);
+		    } else {
+			// Find out if this is closer to the player
+
+			double newDist = blockLoc.distanceSquared(location);
+			if (distance > newDist) {
+			    closestBedRock = blockLoc.clone();
+			    distance = newDist;
+			}
+		    }
+		}
+	    }
+	}
+	// TODO Auto-generated method stub
+	return closestBedRock;
     }
 
     private void showInfo(UUID playerUUID, CommandSender sender) {

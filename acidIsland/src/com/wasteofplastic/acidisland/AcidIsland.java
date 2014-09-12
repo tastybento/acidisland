@@ -1,3 +1,20 @@
+/*******************************************************************************
+ * This file is part of AcidIsland.
+ *
+ *     AcidIsland is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     AcidIsland is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with AcidIsland.  If not, see <http://www.gnu.org/licenses/>.
+ *******************************************************************************/
+
 package com.wasteofplastic.acidisland;
 
 import java.io.File;
@@ -574,14 +591,13 @@ public class AcidIsland extends JavaPlugin {
      */
     public boolean addWarp(UUID player, Location loc) {
 	final String locS = getStringLocation(loc);
-	// Remove the old warp if it existed
-	// All warps are stored as lower case
-	if (warpList.containsKey(player)) {
-	    warpList.remove(player);
-	}
 	// Do not allow warps to be in the same location
 	if (warpList.containsValue(locS)) {
 	    return false;
+	}
+	// Remove the old warp if it existed
+	if (warpList.containsKey(player)) {
+	    warpList.remove(player);
 	}
 	warpList.put(player, locS);
 	saveWarpList();
@@ -2178,6 +2194,20 @@ public class AcidIsland extends JavaPlugin {
 	    spawn = new Spawn(this);
 	}
 	return spawn;
+    }
+
+    /**
+     * @param location
+     * @return Name of warp owner
+     */
+    public String getWarpOwner(Location location) {
+	for (UUID playerUUID : warpList.keySet()) {
+	    Location l = getLocationString((String) warpList.get(playerUUID));
+	    if (l.equals(location)) {
+		return players.getName(playerUUID);
+	    }
+	}
+	return "a player";
     }
 
 }
