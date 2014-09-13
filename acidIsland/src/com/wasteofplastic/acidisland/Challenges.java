@@ -576,15 +576,15 @@ public class Challenges implements CommandExecutor {
 		    Material item = Material.getMaterial(sPart[0]);
 		    if (item != null) {
 			neededItem.put(item, qty);
-			plugin.getLogger().info("DEBUG: Needed item is " + Integer.parseInt(sPart[1]) + " x " + Material.getMaterial(sPart[0]).toString());
+			//plugin.getLogger().info("DEBUG: Needed item is " + Integer.parseInt(sPart[1]) + " x " + Material.getMaterial(sPart[0]).toString());
 
 		    } else {
-			plugin.getLogger().info("DEBUG: Not a material, trying entities");
+			//plugin.getLogger().info("DEBUG: Not a material, trying entities");
 			// Not a material, try an Entity
 			EntityType entityType = EntityType.valueOf(sPart[0].toUpperCase());
 			if (entityType != null) {
 			    neededEntities.put(entityType, qty);
-			    plugin.getLogger().info("DEBUG: Needed entity is " + Integer.parseInt(sPart[1]) + " x " + EntityType.valueOf(sPart[0].toUpperCase()).toString());
+			    //plugin.getLogger().info("DEBUG: Needed entity is " + Integer.parseInt(sPart[1]) + " x " + EntityType.valueOf(sPart[0].toUpperCase()).toString());
 			} else {
 			    plugin.getLogger().warning("Problem parsing required item for challenge " + challenge + " in challenges.yml!");
 			    return false;
@@ -754,7 +754,10 @@ public class Challenges implements CommandExecutor {
 	    if (icon == null) {
 		icon = new ItemStack(Material.PAPER);
 	    }
-	    CPItem item = new CPItem(icon, ChatColor.GREEN + challengeName.substring(0, 1).toUpperCase() + challengeName.substring(1), "aichallenge c " + challengeName, null);
+	    // Get the friendly description if it exists. If not, make one up.
+	    String description = ChatColor.GREEN + plugin.getChallengeConfig().getString("challenges.challengeList." + challengeName + ".friendlyname",
+		    challengeName.substring(0, 1).toUpperCase() + challengeName.substring(1));
+	    CPItem item = new CPItem(icon, description, "aichallenge c " + challengeName, null);
 	    List<String> lore = challengeDescription(challengeName, player);
 	    item.setLore(lore);
 	    cp.add(item);
@@ -788,7 +791,9 @@ public class Challenges implements CommandExecutor {
 		    if (icon == null) {
 			icon = new ItemStack(Material.PAPER);
 		    }
-		    CPItem item = new CPItem(icon, ChatColor.GREEN + challengeName.substring(0, 1).toUpperCase() + challengeName.substring(1), "aichallenge c " + challengeName, null);
+		    String description = ChatColor.GREEN + plugin.getChallengeConfig().getString("challenges.challengeList." + challengeName + ".friendlyname",
+			    challengeName.substring(0, 1).toUpperCase() + challengeName.substring(1));
+		    CPItem item = new CPItem(icon, description, "aichallenge c " + challengeName, null);
 		    List<String> lore = challengeDescription(challengeName, player);
 		    item.setLore(lore);
 		    cp.add(item);
