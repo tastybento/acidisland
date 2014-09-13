@@ -32,6 +32,7 @@ import org.bukkit.potion.PotionType;
 public class MiniShopItem {
     private int slot;
     private double price;
+    private double sellPrice;
     private int quantity;
     private Material material;
     private String extra;
@@ -42,11 +43,12 @@ public class MiniShopItem {
     /**
      * 
      */
-    public MiniShopItem(Material material, String extra, int slot, String description, int quantity, Double price) {
+    public MiniShopItem(Material material, String extra, int slot, String description, int quantity, Double price, Double sellPrice) {
 	this.slot = slot;
 	this.material = material;
 	this.description = description;
 	this.price = price;
+	this.sellPrice = sellPrice;
 	this.quantity = quantity;
 	// Make the item(s)
 	try {
@@ -59,7 +61,12 @@ public class MiniShopItem {
 	    ItemMeta meta = item.getItemMeta();
 	    meta.setDisplayName(description);
 	    ArrayList<String> Lore = new ArrayList<String>();
-	    Lore.add(quantity + " : " + VaultHelper.econ.format(price));
+	    if (sellPrice > 0D) {
+		Lore.add(Locale.minishopBuy + " " + quantity + " : " + VaultHelper.econ.format(price));
+		Lore.add(Locale.minishopSell + " " + quantity + " : " + VaultHelper.econ.format(sellPrice));
+	    } else {
+		Lore.add(quantity + " : " + VaultHelper.econ.format(price));
+	    }
 	    meta.setLore(Lore);
 	    item.setItemMeta(meta);
 	    // Deal with extras
@@ -148,6 +155,14 @@ public class MiniShopItem {
     public double getPrice() {
 	return price;
     }
+
+    /**
+     * @return the sellPrice
+     */
+    public double getSellPrice() {
+        return sellPrice;
+    }
+
 
     /**
      * @return the quantity

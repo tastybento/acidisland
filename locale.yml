@@ -231,6 +231,8 @@ makeleader:
 minishop:
    title: "&EMiniShop"
    islandhelpMiniShop: "Opens the MiniShop"
+   buy: "Buy"
+   sell: "Sell"
 
 ################################
 #Admin commands that use /acid #

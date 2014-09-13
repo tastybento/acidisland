@@ -304,9 +304,12 @@ public class Locale {
     public static String islandMiniShopTitle;
     public static String controlPanelTitle;
     public static String challengesguiTitle;
+    public static String minishopBuy;
+    public static String minishopSell;
     // Ultra safe boats
     public static String boatWarningItIsUnsafe;
     public static String clearedResetLimit;
+    
 
     
 

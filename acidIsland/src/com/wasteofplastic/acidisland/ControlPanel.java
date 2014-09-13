@@ -94,9 +94,10 @@ public class ControlPanel implements Listener {
 		    Material material = Material.matchMaterial(m);
 		    int quantity = items.getInt(item + ".quantity", 0);
 		    String extra = items.getString(item + ".extra", "");
-		    double price = items.getDouble(item + ".price");
+		    double price = items.getDouble(item + ".price",1D);
+		    double sellPrice = items.getDouble(item + ".sellprice",-1D);
 		    String description = items.getString(item + ".description");
-		    MiniShopItem shopItem = new MiniShopItem(material,extra,slot,description,quantity,price);
+		    MiniShopItem shopItem = new MiniShopItem(material,extra,slot,description,quantity,price,sellPrice);
 		    store.put(slot, shopItem);
 		    miniShop.setItem(slot, shopItem.getItem());
 		    slot++;
@@ -268,12 +269,12 @@ public class ControlPanel implements Listener {
 				message = "There was a problem puchasing that item: " + r.errorMessage;
 			    }
 			}
-		    } else if (event.getClick().equals(ClickType.RIGHT) && allowSelling) {
+		    } else if (event.getClick().equals(ClickType.RIGHT) && allowSelling && item.getSellPrice()>0D) {
 			// Check if they have the item
 			if (player.getInventory().containsAtLeast(item.getItemClean(),item.getQuantity())) {
 			    player.getInventory().removeItem(item.getItemClean());
-			    VaultHelper.econ.depositPlayer(player, item.getPrice());
-			    message = "You sold " + item.getQuantity() + " " + item.getDescription() + " for " + VaultHelper.econ.format(item.getPrice());			
+			    VaultHelper.econ.depositPlayer(player, item.getSellPrice());
+			    message = "You sold " + item.getQuantity() + " " + item.getDescription() + " for " + VaultHelper.econ.format(item.getSellPrice());			
 			} else {
 			    message = "You do not have enough of that item to sell it.";
 			}

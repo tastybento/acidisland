@@ -1144,6 +1144,8 @@ public class AcidIsland extends JavaPlugin {
 	Locale.netherSpawnIsProtected = locale.getString("nether.spawnisprotected", "The Nether spawn area is protected.");
 	Locale.islandhelpMiniShop = locale.getString("minishop.islandhelpMiniShop","Opens the MiniShop" );
 	Locale.islandMiniShopTitle = locale.getString("minishop.title","MiniShop" );
+	Locale.minishopBuy = locale.getString("minishop.buy","Buy");
+	Locale.minishopSell = locale.getString("minishop.sell","Sell");
 	Locale.boatWarningItIsUnsafe = locale.getString("boats.warning", "It's unsafe to exit the boat right now...");
 	Locale.adminHelpclearReset = locale.getString("general.clearreset", "resets the island reset limit for player.");
 	Locale.resetYouHave = locale.getString("island.resetYouHave","You have [number] resets left.");
