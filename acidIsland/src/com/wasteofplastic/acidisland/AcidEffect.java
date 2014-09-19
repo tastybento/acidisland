@@ -37,6 +37,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -50,6 +51,8 @@ import org.bukkit.util.Vector;
 public class AcidEffect implements Listener {
     private final AcidIsland plugin;
     private List<Player> burningPlayers = new ArrayList<Player>();
+    private boolean isRaining = false; 
+    private List<Player> wetPlayers = new ArrayList<Player>();
 
     public AcidEffect(final AcidIsland pluginI) {
 	plugin = pluginI;
@@ -58,6 +61,7 @@ public class AcidEffect implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
 	burningPlayers.remove((Player) e.getEntity());
+	wetPlayers.remove((Player) e.getEntity());
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -88,6 +92,107 @@ public class AcidEffect implements Listener {
 	// Slow checks
 	final Location playerLoc = player.getLocation();	
 	final Block block = playerLoc.getBlock();
+
+	// Check for acid rain
+	if (Settings.rainDamage > 0D && isRaining) {
+	    //plugin.getLogger().info("Rain damage = " + Settings.rainDamage);
+	    boolean hitByRain = true;
+	    // Check if all air above player
+	    for (int y = playerLoc.getBlockY(); y<playerLoc.getWorld().getMaxHeight(); y++) {
+		if (!playerLoc.getWorld().getBlockAt(playerLoc.getBlockX(), y, playerLoc.getBlockZ()).getType().equals(Material.AIR)) {
+		    hitByRain = false;
+		    break;
+		}
+	    }
+	    if (!hitByRain) {
+		//plugin.getLogger().info("DEBUG: not hit by rain");
+		wetPlayers.remove(player);
+	    } else {
+		//plugin.getLogger().info("DEBUG: hit by rain");
+		// Check if player has an active water potion or not
+		boolean acidPotion = false;
+		Collection<PotionEffect> activePotions = player.getActivePotionEffects();
+		for (PotionEffect s : activePotions) {
+		    // plugin.getLogger().info("Potion is : " +
+		    // s.getType().toString());
+		    if (s.getType().equals(PotionEffectType.WATER_BREATHING)) {
+			// Safe!
+			acidPotion = true;
+			// plugin.getLogger().info("Water breathing potion protection!");
+		    }
+		}
+		if (acidPotion) {
+		    //plugin.getLogger().info("DEBUG: Acid potion active");
+		    wetPlayers.remove(player); 
+		} else {
+		    //plugin.getLogger().info("DEBUG: no acid potion");
+		    if (!wetPlayers.contains(player)) {
+			//plugin.getLogger().info("DEBUG: Start hurting player");
+			// Start hurting them
+			// Add to the list
+			wetPlayers.add(player);
+			// This runnable continuously hurts the player even if they are not
+			// moving but are in acid rain.
+			new BukkitRunnable() {
+			    @Override
+			    public void run() {
+				// Check if it is still raining or player is dead
+				if (!isRaining || player.isDead()) {
+				    //plugin.getLogger().info("DEBUG: Player is dead or it has stopped raining");
+				    wetPlayers.remove(player);
+				    this.cancel();
+				    // Check they are still in this world
+				} else if (player.getLocation().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+				    // Check if they have drunk a potion
+				    // Check if player has an active water potion or not
+				    Collection<PotionEffect> activePotions = player.getActivePotionEffects();
+				    for (PotionEffect s : activePotions) {
+					// plugin.getLogger().info("Potion is : " +
+					// s.getType().toString());
+					if (s.getType().equals(PotionEffectType.WATER_BREATHING)) {
+					    // Safe!
+					    //plugin.getLogger().info("DEBUG: Acid potion active");
+					    wetPlayers.remove(player);
+					    this.cancel();
+					    return;
+					    // plugin.getLogger().info("Water breathing potion protection!");
+					}
+				    }
+				    // Check if they are still in rain
+				    // Check if all air above player
+				    for (int y = player.getLocation().getBlockY(); y<player.getLocation().getWorld().getMaxHeight(); y++) {
+					if (!player.getLocation().getWorld().getBlockAt(player.getLocation().getBlockX(), y, player.getLocation().getBlockZ()).getType().equals(Material.AIR)) {
+					 // Safe!
+					    wetPlayers.remove(player);
+					    this.cancel();
+					    return;
+					}
+				    }
+				    // Apply damage if there is any - no potion damage for rain
+				    if (Settings.rainDamage > 0D) {
+					double health = player.getHealth() - (Settings.rainDamage - Settings.rainDamage * getDamageReduced(player));
+					if (health < 0D) {
+					    health = 0D;
+					} else if (health > 20D) {
+					    health = 20D;
+					}
+					player.setHealth(health);
+					player.getWorld().playSound(playerLoc, Sound.FIZZ, 3F, 3F);
+				    }
+				} else {
+				    //plugin.getLogger().info("DEBUG: Player no longer in acid world");
+				    wetPlayers.remove(player);
+				    // plugin.getLogger().info("Cancelled!");
+				    this.cancel();
+				}
+			    }
+			}.runTaskTimer(plugin, 0L, 20L);
+		    }
+		}
+	    }
+	}
+
+
 	// If they are not in liquid, then return
 	if (!block.isLiquid()) {
 	    return;
@@ -305,4 +410,21 @@ public class AcidEffect implements Listener {
 	}
 	return red;
     }
+
+
+    /**
+     * Tracks weather changes and acid rain
+     * @param e
+     */
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onWeatherChange(final WeatherChangeEvent e) {
+	// Check that they are in the AcidIsland world
+	//plugin.getLogger().info("weather change noted");
+	if (!e.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    return;
+	}
+	this.isRaining = e.toWeatherState();
+	//plugin.getLogger().info("is raining = " + isRaining);
+    }
+
 }

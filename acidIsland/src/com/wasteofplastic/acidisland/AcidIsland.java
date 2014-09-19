@@ -729,19 +729,24 @@ public class AcidIsland extends JavaPlugin {
 	    Settings.islandDistance = 50;
 	    getLogger().info("Setting minimum island distance to 50");
 	}
-	Settings.acidDamage = getConfig().getDouble("general.aciddamage", 5);
+	Settings.acidDamage = getConfig().getDouble("general.aciddamage", 5D);
 	if (Settings.acidDamage > 100D) {
 	    Settings.acidDamage = 100D;
 	} else if (Settings.acidDamage < 0D) {
 	    Settings.acidDamage = 0D;
 	}
-	Settings.mobAcidDamage = getConfig().getDouble("general.mobaciddamage", 10);
+	Settings.mobAcidDamage = getConfig().getDouble("general.mobaciddamage", 10D);
 	if (Settings.acidDamage > 100D) {
 	    Settings.acidDamage = 100D;
 	} else if (Settings.acidDamage < 0D) {
 	    Settings.acidDamage = 0D;
 	}
-
+	Settings.rainDamage = getConfig().getDouble("general.raindamage", 0.5D);
+	if (Settings.rainDamage > 100D) {
+	    Settings.rainDamage = 100D;
+	} else if (Settings.rainDamage < 0D) {
+	    Settings.rainDamage = 0D;
+	}
 	// Damage Type
 	List<String> acidDamageType = getConfig().getStringList("general.damagetype");
 	Settings.acidDamageType.clear();
