@@ -41,6 +41,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -211,6 +212,7 @@ public class IslandGuard implements Listener {
 	if (!Settings.worldName.equalsIgnoreCase(e.getEntity().getWorld().getName())) {
 	    return;
 	}
+	plugin.getLogger().info(e.getEventName());
 	// Ops can do anything
 	if (e.getDamager() instanceof Player) {
 	    if (((Player)e.getDamager()).isOp()) {
@@ -219,13 +221,24 @@ public class IslandGuard implements Listener {
 	}
 	// Check to see if it's an item frame
 	if (e.getEntity() instanceof ItemFrame) {
+	    //plugin.getLogger().info("Item frame being dmaged");
 	    if (!Settings.allowBreakBlocks) {
+		// Try and protect against all player instigated damage
+		//plugin.getLogger().info("Damager is = " + e.getDamager().toString());
 		if (e.getDamager() instanceof Player) {
 		    if (!plugin.playerIsOnIsland((Player)e.getDamager())) {
 			((Player)e.getDamager()).sendMessage(ChatColor.RED + Locale.islandProtected);
 			e.setCancelled(true);
 		    }
-		}
+		} else if (e.getDamager() instanceof Projectile) {
+		    // Find out who threw the arrow
+		    Projectile p = (Projectile)e.getDamager();
+		    //plugin.getLogger().info("Shooter is " + p.getShooter().toString());
+		    if (p.getShooter() instanceof Player) {
+			((Player)p.getShooter()).sendMessage(ChatColor.RED + Locale.islandProtected);
+			e.setCancelled(true);
+		    }
+		} 
 	    }
 	}
 	// If the attacker is non-human and not an arrow then everything is okay
@@ -353,6 +366,7 @@ public class IslandGuard implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerBlockPlace(final BlockPlaceEvent e) {
+	//plugin.getLogger().info(e.getEventName());
 	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    if (!Settings.allowPlaceBlocks) {
 		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
@@ -363,6 +377,19 @@ public class IslandGuard implements Listener {
 	}
     }
 
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerBlockPlace(final HangingPlaceEvent e) {
+	//plugin.getLogger().info(e.getEventName());
+	if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    if (!Settings.allowPlaceBlocks) {
+		if (!plugin.playerIsOnIsland(e.getPlayer()) && !e.getPlayer().isOp()) {
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
+		    e.setCancelled(true);
+		}
+	    }
+	}
+    }
+ 
     // Prevent sleeping in other beds
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerBedEnter(final PlayerBedEnterEvent e) {
@@ -382,6 +409,7 @@ public class IslandGuard implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBreakHanging(final HangingBreakByEntityEvent e) {
+	//plugin.getLogger().info(e.getEventName());
 	if (e.getEntity().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    if (!Settings.allowBreakBlocks) {
 		if (e.getRemover() instanceof Player) {
