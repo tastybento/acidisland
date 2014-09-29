@@ -157,6 +157,13 @@ island:
    # The size of the protective region for each island. Must be less than distance
    protectionRange: 100
 
+   # Max team size
+   maxteamsize: 4
+   # VIP team size - set by permission askyblock.team.vip
+   vipteamsize: 8
+   # VIP2 team size - set by permission askyblock.team.vip2
+   vip2teamsize: 12
+
    # Items that will be in the chest when the player starts an island
    # Must be in Bukkit Materials format. Format is <Material>:<Qty>
    # or <Material>:<Damage>:<Qty>

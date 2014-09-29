@@ -1,6 +1,6 @@
 name: AcidIsland
 main: com.wasteofplastic.acidisland.AcidIsland
-version: 1.1pre
+version: 1.1
 description: Acid Island
 author: Tastybento
 depend: [Vault]
@@ -66,6 +66,13 @@ permissions:
           acidisland.team.join:
             description: Let a player join another player's team
             default: true
+          acidisland.team.vip:
+            description: Allows a bigger team size
+            default: false
+          acidisland.team.vip2:
+            description: Allows a bigger team size
+            default: false
+
       acidisland.craft.*:
         children:
           acidisland.craft.enderchest:

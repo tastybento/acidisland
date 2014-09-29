@@ -17,9 +17,11 @@
 package com.wasteofplastic.acidisland;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
@@ -37,6 +39,8 @@ public class Settings {
     public static int resetWait;
     public static int resetLimit;
     public static int maxTeamSize;
+    public static int maxTeamSizeVIP;
+    public static int maxTeamSizeVIP2;
     public static String worldName;
     public static int monsterSpawnLimit;
     public static int animalSpawnLimit;
@@ -103,7 +107,8 @@ public class Settings {
     public static boolean allowSpawnGateUse;
     public static boolean allowSpawnMobSpawn;
     public static boolean allowSpawnNoAcidWater;
-
-    
+    // Levels
+    public static HashMap<Material,Integer> blockLimits;
+    public static HashMap<Material,Integer> blockValues;
    
 }

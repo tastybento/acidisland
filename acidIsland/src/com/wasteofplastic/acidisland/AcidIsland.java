@@ -720,7 +720,11 @@ public class AcidIsland extends JavaPlugin {
 	getLocale();
 	// Assign settings
 	// This might be useful to change in the future
-	Settings.maxTeamSize = 4;
+	// Max team size
+	Settings.maxTeamSize = getConfig().getInt("island.maxteamsize",4);
+	Settings.maxTeamSizeVIP = getConfig().getInt("island.maxteamsizeVIP",8);
+	Settings.maxTeamSizeVIP2 = getConfig().getInt("island.maxteamsizeVIP2",12);
+
 	// Settings from config.yml
 	Settings.worldName = getConfig().getString("general.worldName");
 
@@ -949,6 +953,40 @@ public class AcidIsland extends JavaPlugin {
 	    Settings.waiverAmount = 0;
 	}
 
+	// Levels
+	// Get the blockvalues.yml file
+	YamlConfiguration blockValuesConfig = AcidIsland.loadYamlFile("blockvalues.yml");
+	Settings.blockLimits = new HashMap<Material,Integer>();
+	if (blockValuesConfig.isSet("limits")) {
+	    for (String material : blockValuesConfig.getConfigurationSection("limits").getKeys(false)) {
+		try {
+		    Material mat = Material.valueOf(material);
+		    Settings.blockLimits.put(mat, blockValuesConfig.getInt("limits." + material,0));
+		    if (debug) {
+			getLogger().info("Maximum number of " + mat.toString() + " will be " + Settings.blockLimits.get(mat));
+		    }
+		} catch (Exception e) {
+		    getLogger().warning("Unknown material ("+material +") in blockvalues.yml Limits section. Skipping...");
+		}
+	    }
+	}
+	Settings.blockValues = new HashMap<Material,Integer>();
+	if (blockValuesConfig.isSet("blocks")) {
+	    for (String material : blockValuesConfig.getConfigurationSection("blocks").getKeys(false)) {
+		try {
+		    Material mat = Material.valueOf(material);
+		    Settings.blockValues.put(mat, blockValuesConfig.getInt("blocks." + material,0));
+		    if (debug) {
+			getLogger().info(mat.toString() + " value is " + Settings.blockValues.get(mat));
+		    }
+		} catch (Exception e) {
+		    //e.printStackTrace();
+		    getLogger().warning("Unknown material ("+ material + ") in blockvalues.yml blocks section. Skipping...");
+		}
+	    }
+	} else {
+	    getLogger().severe("No block values in blockvalues.yml! All island levels will be zero!");
+	}
 
 
 	// Localization
