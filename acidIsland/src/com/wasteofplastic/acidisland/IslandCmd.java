@@ -380,7 +380,7 @@ public class IslandCmd implements CommandExecutor {
 	Block blockToChange = world.getBlockAt(x, Settings.island_level + 5, z + 3);
 	blockToChange.setType(Material.SIGN_POST);
 	Sign sign = (Sign) blockToChange.getState();
-	sign.setLine(0, ChatColor.BLUE + "[A SkyBlock]");
+	sign.setLine(0, ChatColor.BLUE + "[AcidIsland]");
 	sign.setLine(1, player.getName());
 	String[] lore = Locale.acidLore.split("\n");
 	if (lore.length >2) {
