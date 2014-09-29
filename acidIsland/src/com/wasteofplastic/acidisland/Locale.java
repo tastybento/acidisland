@@ -15,6 +15,9 @@
  *     along with AcidIsland.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 package com.wasteofplastic.acidisland;
+
+import org.bukkit.ChatColor;
+
 /**
  * @author ben
  * All the text strings in the game sent to players
@@ -242,7 +245,8 @@ public class Locale {
     ///acid info <player>;
     public static String adminHelpinfo;
     public static String adminHelpclearReset;
-
+    // acid tp <player>
+    public static String adminHelptp;
     //acid reload
     public static String reloadconfigReloaded;
     //topten
@@ -309,6 +313,7 @@ public class Locale {
     // Ultra safe boats
     public static String boatWarningItIsUnsafe;
     public static String clearedResetLimit;
+
     
 
     

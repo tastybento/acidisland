@@ -1086,6 +1086,7 @@ public class AcidIsland extends JavaPlugin {
 	Locale.islandhelpLeave = locale.getString("island.helpLeave","leave another player's island.");
 	Locale.islandhelpKick = locale.getString("island.helpKick","remove a player from your island.");
 	Locale.adminHelpHelp = locale.getString("adminHelp.help","Acid Admin Commands:");
+	Locale.adminHelptp = locale.getString("adminHelp.tp", "Teleport to a player's island.");
 	Locale.islandhelpAcceptReject = locale.getString("island.helpAcceptReject","accept or reject an invitation.");
 	Locale.islandhelpMakeLeader = locale.getString("island.helpMakeLeader","transfer the island to <player>.");
 	Locale.islanderrorLevelNotReady = locale.getString("island.errorLevelNotReady","Can't use that command right now! Try again in a few seconds.");

@@ -241,6 +241,8 @@ minishop:
 #Help
 adminHelp:
    help: "Acid Admin Commands:"
+   #/acid tp <player>
+   tp: "Teleport to a player's island"
    #/acid reload:
    reload: "reload configuration from file."
    #/acid top ten:
