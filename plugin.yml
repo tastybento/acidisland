@@ -72,7 +72,6 @@ permissions:
           acidisland.team.vip2:
             description: Allows a bigger team size
             default: false
-
       acidisland.craft.*:
         children:
           acidisland.craft.enderchest:
@@ -97,6 +96,9 @@ permissions:
             default: false
           acidisland.mod.tp:
             description: Allows teleporting to a players island
+            default: false
+          acidisland.mod.bypassprotect:
+            description: Bypasses island protection
             default: false
       acidisland.admin.*:
         children:
