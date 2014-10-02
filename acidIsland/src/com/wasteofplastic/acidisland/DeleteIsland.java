@@ -31,8 +31,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.wasteofplastic.acidisland.nms.NMSAbstraction;
-import com.wasteofplastic.askyblock.Settings;
-import com.wasteofplastic.askyblock.DeleteIsland.Pair;
 
 
 public class DeleteIsland extends BukkitRunnable {

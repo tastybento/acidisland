@@ -76,14 +76,15 @@ public class AcidEffect implements Listener {
 	    return;
 	}
 	// If the player is an op in Creative mode, acid does not hurt
-	if (player.isOp() && !Settings.damageOps) {
-	    return;
+	if (!Settings.damageOps) {
+	    if (player.isOp()) {
+		return;
+	    }
+	    // Check no burn permissions
+	    if (VaultHelper.checkPerm(player, "acidisland.mod.noburn") || VaultHelper.checkPerm(player, "acidisland.admin.noburn")) {
+		return;
+	    }
 	}
-	// Check no burn permissions
-	if (VaultHelper.checkPerm(player, "acidisland.mod.noburn") || VaultHelper.checkPerm(player, "acidisland.admin.noburn")) {
-	    return;
-	}
-
 
 	if (player.getGameMode().equals(GameMode.CREATIVE)) {
 	    return;
@@ -162,7 +163,7 @@ public class AcidEffect implements Listener {
 				    // Check if all air above player
 				    for (int y = player.getLocation().getBlockY(); y<player.getLocation().getWorld().getMaxHeight(); y++) {
 					if (!player.getLocation().getWorld().getBlockAt(player.getLocation().getBlockX(), y, player.getLocation().getBlockZ()).getType().equals(Material.AIR)) {
-					 // Safe!
+					    // Safe!
 					    wetPlayers.remove(player);
 					    this.cancel();
 					    return;
