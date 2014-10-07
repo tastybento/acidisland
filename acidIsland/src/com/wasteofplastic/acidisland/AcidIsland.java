@@ -817,6 +817,7 @@ public class AcidIsland extends JavaPlugin {
 	}
 	Settings.resetChallenges = getConfig().getBoolean("general.resetchallenges", true);
 	Settings.resetMoney = getConfig().getBoolean("general.resetmoney", true);
+	Settings.clearInventory = getConfig().getBoolean("general.resetinventory", true);
 
 	Settings.startingMoney = getConfig().getDouble("general.startingmoney", 0D);
 	// Nether spawn protection radius
@@ -2207,14 +2208,16 @@ public class AcidIsland extends JavaPlugin {
      * @param player
      */
     public void resetPlayer(Player player) {
-	// Clear their inventory and equipment and set them as survival
-	player.getInventory().clear(); // Javadocs are wrong - this does not
-	// clear armor slots! So...
-	player.getInventory().setHelmet(null);
-	player.getInventory().setChestplate(null);
-	player.getInventory().setLeggings(null);
-	player.getInventory().setBoots(null);
-	player.getEquipment().clear();
+	if (Settings.clearInventory) {
+	    // Clear their inventory and equipment and set them as survival
+	    player.getInventory().clear(); // Javadocs are wrong - this does not
+	    // clear armor slots! So...
+	    player.getInventory().setHelmet(null);
+	    player.getInventory().setChestplate(null);
+	    player.getInventory().setLeggings(null);
+	    player.getInventory().setBoots(null);
+	    player.getEquipment().clear();
+	}
 	player.setGameMode(GameMode.SURVIVAL);
 	if (Settings.resetChallenges) {
 	    // Reset the player's challenge status

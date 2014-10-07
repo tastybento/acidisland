@@ -123,15 +123,18 @@ public class AdminCmd implements CommandExecutor {
 	if (sender instanceof Player) {
 	    player = (Player)sender;
 	    if (split.length > 0) {
+		//plugin.getLogger().info("DEBUG: checking perms");
 		// Admin : reload, register, delete and purge
 		if (split[0].equalsIgnoreCase("reload") || split[0].equalsIgnoreCase("register")
 			|| split[0].equalsIgnoreCase("delete") || split[0].equalsIgnoreCase("purge")
-			|| split[0].equalsIgnoreCase("confirm")) {
+			|| split[0].equalsIgnoreCase("confirm") || split[0].equalsIgnoreCase("setspawn")) {
+		    //plugin.getLogger().info("DEBUG: checking admin perms");
 		    if (!checkAdminPerms(player, split)) {
 			player.sendMessage(ChatColor.RED + Locale.errorNoPermission);
 			return true;
 		    }
 		} else {
+		    //plugin.getLogger().info("DEBUG: checking mod perms");
 		    // Mod commands
 		    if (!checkModPerms(player, split)) {
 			player.sendMessage(ChatColor.RED + Locale.errorNoPermission);

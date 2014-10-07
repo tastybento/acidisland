@@ -111,5 +111,6 @@ public class Settings {
     // Levels
     public static HashMap<Material,Integer> blockLimits;
     public static HashMap<Material,Integer> blockValues;
+    public static boolean clearInventory;
    
 }

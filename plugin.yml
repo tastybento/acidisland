@@ -117,6 +117,6 @@ permissions:
           acidisland.admin.noburn:
             description: Gives admin immunity to acid
             default: false
-          acidisland.admin.spawn:
+          acidisland.admin.setspawn:
             description: Allows use of spawn tools
             default: op
