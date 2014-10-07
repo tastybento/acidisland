@@ -321,6 +321,11 @@ public class Locale {
     public static String minishopYouCannotAfford;
 
     
+    // Sign
+    public static String signLine1;
+    public static String signLine2;
+    public static String signLine3;
+    public static String signLine4;
 
     
     

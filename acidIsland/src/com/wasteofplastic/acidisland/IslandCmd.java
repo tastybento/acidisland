@@ -380,13 +380,10 @@ public class IslandCmd implements CommandExecutor {
 	Block blockToChange = world.getBlockAt(x, Settings.island_level + 5, z + 3);
 	blockToChange.setType(Material.SIGN_POST);
 	Sign sign = (Sign) blockToChange.getState();
-	sign.setLine(0, ChatColor.BLUE + "[AcidIsland]");
-	sign.setLine(1, player.getName());
-	String[] lore = Locale.acidLore.split("\n");
-	if (lore.length >2) {
-	    sign.setLine(2, lore[0] + " " + lore[1]);
-	    sign.setLine(3, lore[2]);
-	}
+	sign.setLine(0, ChatColor.translateAlternateColorCodes('&', Locale.signLine1.replace("[player]", player.getName())));
+	sign.setLine(1, ChatColor.translateAlternateColorCodes('&', Locale.signLine2.replace("[player]", player.getName())));
+	sign.setLine(2, ChatColor.translateAlternateColorCodes('&', Locale.signLine3.replace("[player]", player.getName())));
+	sign.setLine(3, ChatColor.translateAlternateColorCodes('&', Locale.signLine4.replace("[player]", player.getName())));
 	((org.bukkit.material.Sign) sign.getData()).setFacingDirection(BlockFace.NORTH);
 	sign.update();
 	// Place the chest - no need to use the safe spawn function because we
