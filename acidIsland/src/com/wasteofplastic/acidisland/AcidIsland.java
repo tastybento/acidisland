@@ -170,10 +170,12 @@ public class AcidIsland extends JavaPlugin {
 	    acidWorld = WorldCreator.name(Settings.worldName).type(WorldType.FLAT).environment(World.Environment.NORMAL)
 		    .generator(new AcidChunkGenerator()).createWorld();
 	    // Make the nether if it does not exist
-	    if (plugin.getServer().getWorld(Settings.worldName + "_nether") == null) {
-		Bukkit.getLogger().info("Creating AcidIsland's nether...");
-		WorldCreator.name(Settings.worldName + "_nether").type(WorldType.NORMAL).environment(World.Environment.NETHER).createWorld();
-	    }
+	    if (Settings.createNether) {
+		if (plugin.getServer().getWorld(Settings.worldName + "_nether") == null) {
+		    Bukkit.getLogger().info("Creating AcidIsland's nether...");
+		    WorldCreator.name(Settings.worldName + "_nether").type(WorldType.NORMAL).environment(World.Environment.NETHER).createWorld();
+		}
+	    } 
 	}
 	// Set world settings
 	acidWorld.setWaterAnimalSpawnLimit(Settings.waterAnimalSpawnLimit);
@@ -727,7 +729,10 @@ public class AcidIsland extends JavaPlugin {
 
 	// Settings from config.yml
 	Settings.worldName = getConfig().getString("general.worldName");
-
+	Settings.createNether = getConfig().getBoolean("general.createnether", true);
+	if (!Settings.createNether) {
+	    getLogger().info("The Nether is disabled");
+	}
 	Settings.islandDistance = getConfig().getInt("island.distance", 110);
 	if (Settings.islandDistance < 50) {
 	    Settings.islandDistance = 50;
@@ -1701,7 +1706,7 @@ public class AcidIsland extends JavaPlugin {
 		    if (debug) {
 			getLogger().info("AirSearching: " + x + ", " + y + ", " + z);
 		    }
-		    if (isAir(currentBlock)) {
+		    if (currentBlock.getType().equals(Material.AIR)) {
 			// currentBlock.setType(Material.PISTON_MOVING_PIECE);
 			// // Technical clear block
 			currentBlock.setType(Material.PISTON_MOVING_PIECE);

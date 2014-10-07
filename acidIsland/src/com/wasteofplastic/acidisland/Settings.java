@@ -42,6 +42,7 @@ public class Settings {
     public static int maxTeamSizeVIP;
     public static int maxTeamSizeVIP2;
     public static String worldName;
+    public static boolean createNether;
     public static int monsterSpawnLimit;
     public static int animalSpawnLimit;
     public static int waterAnimalSpawnLimit;

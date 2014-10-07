@@ -77,7 +77,8 @@ public class SpongeBaseListener implements Listener {
 	if (b.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    if (b.getType().equals(Material.SPONGE)) {
 		Block wasBlock = event.getBlock();
-		plugin.getLogger().info("Sponge destroyed!");
+		if (plugin.debug)
+		    plugin.getLogger().info("Sponge destroyed!");
 		SpongeFlowTimer flowTimer = new SpongeFlowTimer(plugin, plugin.disableSponge(wasBlock));
 		plugin.workerThreads.execute(flowTimer);
 		plugin.flowTimers.add(flowTimer);
