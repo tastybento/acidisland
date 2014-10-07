@@ -16,7 +16,6 @@
  *******************************************************************************/
 package com.wasteofplastic.acidisland;
 
-import org.bukkit.ChatColor;
 
 /**
  * @author ben
@@ -315,6 +314,11 @@ public class Locale {
     public static String clearedResetLimit;
 
     
+    public static String minishopYouBought;
+    public static String minishopSellProblem;
+    public static String minishopYouSold;
+    public static String minishopBuyProblem;
+    public static String minishopYouCannotAfford;
 
     
 
