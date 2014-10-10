@@ -43,7 +43,7 @@ general:
    # Damage that monsters will experience.
    mobaciddamage: 10
    # Damage that rain does
-   raindamage: 0.5
+   raindamage: 0
 
    # Damage type to apply in addition to acid damage
    # Types can be : SLOW, SLOW_DIGGING, CONFUSION,BLINDNESS, HUNGER, WEAKNESS and POISON

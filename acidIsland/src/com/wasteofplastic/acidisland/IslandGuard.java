@@ -216,7 +216,7 @@ public class IslandGuard implements Listener {
 	if (!Settings.worldName.equalsIgnoreCase(e.getEntity().getWorld().getName())) {
 	    return;
 	}
-	plugin.getLogger().info(e.getEventName());
+	//plugin.getLogger().info(e.getEventName());
 	// Ops can do anything
 	if (e.getDamager() instanceof Player) {
 	    if (((Player)e.getDamager()).isOp()) {
