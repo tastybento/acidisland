@@ -112,5 +112,9 @@ public class Settings {
     public static HashMap<Material,Integer> blockLimits;
     public static HashMap<Material,Integer> blockValues;
     public static boolean clearInventory;
+
+    // Challenge completion broadcast
+    public static boolean broadcastMessages;
+
    
 }

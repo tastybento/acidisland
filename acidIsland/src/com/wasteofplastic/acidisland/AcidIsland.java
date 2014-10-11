@@ -959,6 +959,8 @@ public class AcidIsland extends JavaPlugin {
 	if (Settings.waiverAmount < 0) {
 	    Settings.waiverAmount = 0;
 	}
+	// Challenge completion
+	Settings.broadcastMessages = getConfig().getBoolean("general.broadcastmessages",true);
 
 	// Levels
 	// Get the blockvalues.yml file
