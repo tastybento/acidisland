@@ -457,9 +457,17 @@ public class AcidIsland extends JavaPlugin {
 	if (ground.getType().equals(Material.AIR)) {
 	    return false;
 	}
-	// In Acid Island, any type of liquid is no good
+	// In Acid Island, any type of liquid is usually no good
 	if (ground.isLiquid() || space1.isLiquid() || space2.isLiquid()) {
-	    return false;
+	    // Check - if acid has no damage  it's okay
+	    if (Settings.acidDamage > 0D) {
+		return false;
+	    } else if (ground.getType().equals(Material.STATIONARY_LAVA) || ground.getType().equals(Material.LAVA)
+		    || space1.getType().equals(Material.STATIONARY_LAVA) || space1.getType().equals(Material.LAVA)
+		    || space2.getType().equals(Material.STATIONARY_LAVA) || space2.getType().equals(Material.LAVA)) {
+		// Lava check only
+		return false;
+	    }
 	}
 	if (ground.getType().equals(Material.CACTUS)) {
 	    return false;
