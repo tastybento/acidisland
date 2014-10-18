@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -573,7 +574,10 @@ public class IslandCmd implements CommandExecutor {
 	 */
 	final UUID playerUUID = player.getUniqueId();
 	final UUID teamLeader = plugin.getPlayers().getTeamLeader(playerUUID);
-	final List<UUID> teamMembers = plugin.getPlayers().getMembers(playerUUID);
+	List<UUID> teamMembers = new ArrayList<UUID>();
+	if (teamLeader != null) {
+	    teamMembers = plugin.getPlayers().getMembers(teamLeader);
+	}
 	// The target player's UUID
 	UUID targetPlayer = null;
 	// Check if a player has an island or is in a team
@@ -943,7 +947,8 @@ public class IslandCmd implements CommandExecutor {
 			    }
 			    // Check if the size of the team is now 1
 			    //teamMembers.remove(playerUUID);
-			    if (teamMembers.size() < 3) {
+			    
+			    if (teamMembers.size() < 2) {
 				plugin.getLogger().info("Party is less than 2 - removing leader from team");
 				removePlayerFromTeam(teamLeader, teamLeader);
 			    }

@@ -1424,12 +1424,16 @@ public class AcidIsland extends JavaPlugin {
 	// Events for when a player joins or leaves the server
 	manager.registerEvents(new JoinLeaveEvents(this), this);
 	// Ensures Lava flows correctly in AcidIsland world
-	lavaListener = new LavaCheck(this);
-	manager.registerEvents(lavaListener, this);
+	if (Settings.acidDamage > 0D) {
+	    lavaListener = new LavaCheck(this);
+	    manager.registerEvents(lavaListener, this);
+	}
 	// Ensures that water is acid
 	manager.registerEvents(new AcidEffect(this), this);
 	// Ensures that boats are safe in AcidIsland
-	manager.registerEvents(new SafeBoat(this), this);
+	if (Settings.acidDamage > 0D) {
+	    manager.registerEvents(new SafeBoat(this), this);
+	}
 	// Enables warp signs in AcidIsland
 	warpSignsListener = new WarpSigns(this);
 	manager.registerEvents(warpSignsListener, this);
