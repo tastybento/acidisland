@@ -98,6 +98,7 @@ public class Settings {
     public static boolean islandRemoveMobs;
     public static int island_level;
     public static boolean resetChallenges;
+    public static boolean allowSpawnEggs;
     // Spawn fields
     public static boolean allowSpawnDoorUse;
     public static boolean allowSpawnLeverButtonUse;
@@ -116,9 +117,5 @@ public class Settings {
     public static boolean clearInventory;
 
     // Challenge completion broadcast
-    public static boolean broadcastMessages;
-    
-    
-
-   
+    public static boolean broadcastMessages;  
 }
