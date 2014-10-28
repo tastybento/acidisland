@@ -731,7 +731,8 @@ public class AcidIsland extends JavaPlugin {
 	// Get the localization strings
 	getLocale();
 	// Assign settings
-	// This might be useful to change in the future
+	// Island reset commands
+	Settings.resetCommands = getConfig().getStringList("general.resetcommands");
 	// Max team size
 	Settings.maxTeamSize = getConfig().getInt("island.maxteamsize",4);
 	Settings.maxTeamSizeVIP = getConfig().getInt("island.maxteamsizeVIP",8);

@@ -67,7 +67,7 @@ public class Settings {
     public static boolean allowBrewing;
     public static boolean allowGateUse;
     public static boolean allowHurtMobs;
-    
+
     public static ItemStack[] chestItems;
     public static int islandDistance;
     public static int sea_level;
@@ -117,5 +117,8 @@ public class Settings {
     public static boolean clearInventory;
 
     // Challenge completion broadcast
-    public static boolean broadcastMessages;  
+    public static boolean broadcastMessages;
+
+    // Island reset commands
+    public static List<String> resetCommands;  
 }
