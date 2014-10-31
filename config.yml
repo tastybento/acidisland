@@ -246,4 +246,6 @@ island:
    allowtntdamage: false
    # Allow spawn egg use
    allowspawneggs: false
-   
+   # Allow animal breeding by visitors
+   allowbreeding: false
+  

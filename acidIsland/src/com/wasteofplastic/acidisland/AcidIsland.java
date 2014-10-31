@@ -956,7 +956,7 @@ public class AcidIsland extends JavaPlugin {
 	Settings.allowCreeperDamage = getConfig().getBoolean("island.allowcreeperdamage", true);
 	Settings.allowTNTDamage = getConfig().getBoolean("island.allowtntdamage", false);
 	Settings.allowSpawnEggs = getConfig().getBoolean("island.allowspawneggs", false);
-
+	Settings.allowBreeding = getConfig().getBoolean("island.allowbreeding", false);
 	Settings.absorbLava = getConfig().getBoolean("sponge.absorbLava", false);
 	Settings.absorbFire = getConfig().getBoolean("sponge.absorbFire", false);
 	Settings.restoreWater = getConfig().getBoolean("sponge.restoreWater", true);

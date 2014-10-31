@@ -19,6 +19,7 @@ package com.wasteofplastic.acidisland;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
@@ -46,6 +47,7 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.material.MaterialData;
@@ -700,6 +702,34 @@ public class IslandGuard implements Listener {
 			event.setCancelled(true);
 		    }
 		}
+	    }
+	}
+    }
+
+    /**
+     * This prevents breeding of animals off-island
+     * @param e
+     */
+    @EventHandler(priority = EventPriority.LOWEST)
+    void PlayerInteractEntityEvent(PlayerInteractEntityEvent e){
+	//plugin.getLogger().info(e.getEventName());
+	if (!e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+	    return;
+	}
+	if (plugin.playerIsOnIsland(e.getPlayer()) || e.getPlayer().isOp()) {
+	    // You can do anything on your island or if you are Op
+	    return;
+	}
+	// This permission bypasses protection
+	if (VaultHelper.checkPerm(e.getPlayer(), "askyblock.mod.bypassprotect")) {
+	    return;
+	}
+	if (!Settings.allowBreeding) {
+	    // Player is off island
+	    if (e.getRightClicked() instanceof Animals) {
+		//plugin.getLogger().info("You right clicked on an animal");
+		e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
+		e.setCancelled(true); 
 	    }
 	}
     }

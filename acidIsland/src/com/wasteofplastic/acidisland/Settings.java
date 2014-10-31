@@ -99,6 +99,7 @@ public class Settings {
     public static int island_level;
     public static boolean resetChallenges;
     public static boolean allowSpawnEggs;
+    public static boolean allowBreeding;  
     // Spawn fields
     public static boolean allowSpawnDoorUse;
     public static boolean allowSpawnLeverButtonUse;
@@ -120,5 +121,6 @@ public class Settings {
     public static boolean broadcastMessages;
 
     // Island reset commands
-    public static List<String> resetCommands;  
+    public static List<String> resetCommands;
+    
 }
