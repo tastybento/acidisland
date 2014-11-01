@@ -647,6 +647,12 @@ public class IslandGuard implements Listener {
 		    e.setCancelled(true);
 		}
 		return;
+	    } else if (e.getMaterial().equals(Material.FLINT_AND_STEEL)) {
+		if (!Settings.allowFire) {
+		    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
+		    e.setCancelled(true);
+		}
+		return;
 	    } else if (e.getMaterial().equals(Material.POTION) && e.getItem().getDurability() != 0) {
 		// Potion
 		//plugin.getLogger().info("DEBUG: potion");

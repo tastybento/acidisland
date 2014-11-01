@@ -248,4 +248,6 @@ island:
    allowspawneggs: false
    # Allow animal breeding by visitors
    allowbreeding: false
+   # Allow Flint & Steel use by visitors, i.e., fire starting
+   allowfire: false
   
