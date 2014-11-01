@@ -661,7 +661,7 @@ public class IslandCmd implements CommandExecutor {
 		    Set<UUID> warpList = plugin.listWarps();
 		    if (warpList.isEmpty()) {
 			player.sendMessage(ChatColor.YELLOW + Locale.warpserrorNoWarpsYet);
-			if (VaultHelper.checkPerm(player, "acidisland.island.addwarp")) {
+			if (VaultHelper.checkPerm(player, "acidisland.island.addwarp") && plugin.playerIsOnIsland(player)) {
 			    player.sendMessage(ChatColor.YELLOW + Locale.warpswarpTip);
 			}
 			return true;
