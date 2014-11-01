@@ -781,9 +781,10 @@ public class IslandCmd implements CommandExecutor {
 			    e.printStackTrace();
 			}
 		    }
-
+		    return true;
 		} else {
 		    player.sendMessage(ChatColor.YELLOW + "/island restart: " + ChatColor.WHITE + Locale.islandhelpRestart);
+		    return true;
 		}
 	    } else if (split[0].equalsIgnoreCase("sethome")) {
 		if (VaultHelper.checkPerm(player, "acidisland.island.sethome")) {

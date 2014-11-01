@@ -250,4 +250,5 @@ island:
    allowbreeding: false
    # Allow Flint & Steel use by visitors, i.e., fire starting
    allowfire: false
-  
+   # Allow chests to be blown up by creepers or TNT
+   allowchestdamage: false

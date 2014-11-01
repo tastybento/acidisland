@@ -19,6 +19,7 @@ package com.wasteofplastic.acidisland;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Enderman;
@@ -119,7 +120,22 @@ public class IslandGuard implements Listener {
 	case CREEPER:
 	    if (!Settings.allowCreeperDamage) {
 		//plugin.getLogger().info("Creeper block damage prevented");
-		e.blockList().clear();
+		    e.blockList().clear();
+	    } else {
+		if (!Settings.allowChestDamage) {
+		    for (Block b : e.blockList()) {
+			switch (b.getType()) {
+			case CHEST:
+			case ENDER_CHEST:
+			case STORAGE_MINECART:
+			case TRAPPED_CHEST:
+			    e.blockList().remove(b);
+			    break;
+			default:
+			    break;
+			}
+		    }
+		}
 	    }
 	    break;
 	case PRIMED_TNT:
@@ -127,7 +143,22 @@ public class IslandGuard implements Listener {
 	    if (!Settings.allowTNTDamage) {
 		//plugin.getLogger().info("TNT block damage prevented");
 		e.blockList().clear();
-	    }	    
+	    } else {
+		if (!Settings.allowChestDamage) {
+		    for (Block b : e.blockList()) {
+			switch (b.getType()) {
+			case CHEST:
+			case ENDER_CHEST:
+			case STORAGE_MINECART:
+			case TRAPPED_CHEST:
+			    e.blockList().remove(b);
+			    break;
+			default:
+			    break;
+			}
+		    }
+		}
+	    }  
 	    break;
 	default:
 	    break;
