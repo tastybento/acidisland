@@ -17,6 +17,9 @@
 package com.wasteofplastic.acidisland;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -120,20 +123,26 @@ public class IslandGuard implements Listener {
 	case CREEPER:
 	    if (!Settings.allowCreeperDamage) {
 		//plugin.getLogger().info("Creeper block damage prevented");
-		    e.blockList().clear();
+		e.blockList().clear();
 	    } else {
 		if (!Settings.allowChestDamage) {
+		    List<Block> toberemoved = new ArrayList<Block>();
+		    // Save the chest blocks in a list
 		    for (Block b : e.blockList()) {
 			switch (b.getType()) {
 			case CHEST:
 			case ENDER_CHEST:
 			case STORAGE_MINECART:
 			case TRAPPED_CHEST:
-			    e.blockList().remove(b);
+			    toberemoved.add(b);
 			    break;
 			default:
 			    break;
 			}
+		    }
+		    // Now delete them
+		    for (Block b : toberemoved) {
+			e.blockList().remove(b);
 		    }
 		}
 	    }
@@ -145,20 +154,26 @@ public class IslandGuard implements Listener {
 		e.blockList().clear();
 	    } else {
 		if (!Settings.allowChestDamage) {
+		    List<Block> toberemoved = new ArrayList<Block>();
+		    // Save the chest blocks in a list
 		    for (Block b : e.blockList()) {
 			switch (b.getType()) {
 			case CHEST:
 			case ENDER_CHEST:
 			case STORAGE_MINECART:
 			case TRAPPED_CHEST:
-			    e.blockList().remove(b);
+			    toberemoved.add(b);
 			    break;
 			default:
 			    break;
 			}
 		    }
+		    // Now delete them
+		    for (Block b : toberemoved) {
+			e.blockList().remove(b);
+		    }
 		}
-	    }  
+	    }
 	    break;
 	default:
 	    break;
