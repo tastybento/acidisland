@@ -32,11 +32,13 @@ import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -277,7 +279,7 @@ public class Challenges implements CommandExecutor {
 		}
 	    }
 	}
-	
+
 	// Run reward commands
 	if (!players.checkChallenge(player.getUniqueId(),challenge)) {
 	    // First time
@@ -773,43 +775,12 @@ public class Challenges implements CommandExecutor {
 	// New panel map
 	List<CPItem> cp = new ArrayList<CPItem>();
 	int levelDone = 0;
-	//sender.sendMessage(ChatColor.GOLD + Settings.challengeLevels.get(0) + ": " + getChallengesByLevel(player, Settings.challengeLevels.get(0)));
-	// Loop through challenges for this player for first level
-	for (String challengeName : challengeList.get(Settings.challengeLevels.get(0))) {
-	    // Get the icon
-	    ItemStack icon = null;
-	    String iconName = plugin.getChallengeConfig().getString("challenges.challengeList." + challengeName + ".icon", "");
-	    if (!iconName.isEmpty()) {
-		try {
-		    // Split if required
-		    String[] split = iconName.split(":");
-		    if (split.length == 1) {
-			icon = new ItemStack(Material.valueOf(iconName));
-		    } else if (split.length == 2) {
-			icon = new ItemStack(Material.valueOf(split[0]));
-			icon.setDurability(Integer.valueOf(split[1]).shortValue());
-		    }
-		} catch (Exception e) {
-		    // Icon was not well formatted
-		    plugin.getLogger().warning("Error in challenges.yml - icon format is incorrect for " + challengeName + ":" + iconName);
-		    plugin.getLogger().warning("Format should be 'icon: MaterialType:Damage' where Damage is optional");
-		}
+	for (int i = 0; i < Settings.challengeLevels.size(); i++) {
+	    if (i == 0) {
+		levelDone = 0;
+	    } else {
+		levelDone = checkLevelCompletion(player, Settings.challengeLevels.get(i - 1));
 	    }
-	    if (icon == null) {
-		icon = new ItemStack(Material.PAPER);
-	    }
-	    // Get the friendly description if it exists. If not, make one up.
-	    String description = ChatColor.GREEN + plugin.getChallengeConfig().getString("challenges.challengeList." + challengeName + ".friendlyname",
-		    challengeName.substring(0, 1).toUpperCase() + challengeName.substring(1));
-	    CPItem item = new CPItem(icon, description, "aichallenge c " + challengeName, null);
-	    List<String> lore = challengeDescription(challengeName, player);
-	    item.setLore(lore);
-	    cp.add(item);
-	}
-
-	// Loop through other levels
-	for (int i = 1; i < Settings.challengeLevels.size(); i++) {
-	    levelDone = checkLevelCompletion(player, Settings.challengeLevels.get(i-1));
 	    if (levelDone <= 0) {
 		// Loop through challenges for this player
 		for (String challengeName : challengeList.get(Settings.challengeLevels.get(i))) {
@@ -835,19 +806,44 @@ public class Challenges implements CommandExecutor {
 		    if (icon == null) {
 			icon = new ItemStack(Material.PAPER);
 		    }
-		    String description = ChatColor.GREEN + plugin.getChallengeConfig().getString("challenges.challengeList." + challengeName + ".friendlyname",
-			    challengeName.substring(0, 1).toUpperCase() + challengeName.substring(1));
-		    CPItem item = new CPItem(icon, description, "aichallenge c " + challengeName, null);
-		    List<String> lore = challengeDescription(challengeName, player);
-		    item.setLore(lore);
-		    cp.add(item);
+		    String description = ChatColor.GREEN
+			    + plugin.getChallengeConfig().getString("challenges.challengeList." + challengeName + ".friendlyname",
+				    challengeName.substring(0, 1).toUpperCase() + challengeName.substring(1));
+
+		    // Check if completed or not
+		    boolean complete = false;
+		    if (players.checkChallenge(player.getUniqueId(),challengeName)) {
+			// Complete! Make the icon glow
+			ItemMeta im = icon.getItemMeta();
+			im.addEnchant(Enchantment.ARROW_DAMAGE, 0, true);
+			icon.setItemMeta(im);
+			icon.removeEnchantment(Enchantment.ARROW_DAMAGE);
+			complete = true;
+		    }
+		    boolean repeatable = false;
+		    if (plugin.getChallengeConfig().getBoolean("challenges.challengeList." + challengeName + ".repeatable", false)) {
+			// Repeatable
+			repeatable = true;
+		    }
+		    // Only show this challenge if it is not done or repeatable
+		    if (!complete || (complete && repeatable)) {
+			// Store the challenge panel item and the command that will be called if it is activated.
+			CPItem item = new CPItem(icon, description, "asc c " + challengeName, null);
+			// Get the challenge description, that changes depending on whether the challenge is complete or not.
+			List<String> lore = challengeDescription(challengeName, player);
+			item.setLore(lore);
+			cp.add(item);
+		    }
 		}
 	    } else {
 		// Hint at what is to come
-		CPItem item = new CPItem(Material.WATER, ChatColor.GOLD + Settings.challengeLevels.get(i), null, null);
+		CPItem item = new CPItem(Material.BOOK, ChatColor.GOLD + Settings.challengeLevels.get(i), null, null);
 		List<String> lore = new ArrayList<String>();
 		// Add the level
-		lore = chop(ChatColor.WHITE,Locale.challengestoComplete.replace("[challengesToDo]", String.valueOf(levelDone)).replace("[thisLevel]",Settings.challengeLevels.get(i-1)),25);
+		lore = chop(
+			ChatColor.WHITE,
+			Locale.challengestoComplete.replace("[challengesToDo]", String.valueOf(levelDone)).replace("[thisLevel]",
+				Settings.challengeLevels.get(i - 1)), 25);
 		// TODO Add other info here..
 		item.setLore(lore);
 		cp.add(item);
@@ -855,7 +851,7 @@ public class Challenges implements CommandExecutor {
 	}
 	if (cp.size() > 0) {
 	    // Make sure size is a multiple of 9
-	    int size = cp.size() +8;
+	    int size = cp.size() + 8;
 	    size -= (size % 9);
 	    Inventory newPanel = Bukkit.createInventory(null, size, Locale.challengesguiTitle);
 	    // Store the panel details for retrieval later
@@ -868,6 +864,7 @@ public class Challenges implements CommandExecutor {
 	}
 	return null;
     }
+
 
     public List<CPItem> getCP(Player player) {
 	return playerChallengeGUI.get(player.getUniqueId());

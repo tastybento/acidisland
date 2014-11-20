@@ -384,6 +384,7 @@ public class AcidIsland extends JavaPlugin {
 	    player.sendMessage(ChatColor.RED + Locale.warpserrorNotSafe);
 	    return true;
 	}
+	home.getWorld().loadChunk(home.getChunk());
 	player.teleport(home);
 	player.sendMessage(ChatColor.GREEN + Locale.islandteleport);
 	return true;

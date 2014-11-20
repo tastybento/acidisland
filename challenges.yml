@@ -54,7 +54,7 @@ challenges:
       expReward: 30
       permissionReward: ''
       repeatable: true
-      repeatItemReward: 'SAPLING:0:1 SAPLING:1:1 SAPLING:2:1 SAPLING:3:1'
+      repeatItemReward: 'SAPLING:0:1 SAPLING:1:1 SAPLING:2:1 SAPLING:3:1 SAPLING:4:1 SAPLING:5:1'
       repeatRewardText: '1 of each kind of sapling'
       repeatMoneyReward: 5
       repeatExpReward: 10
@@ -397,8 +397,8 @@ challenges:
       expReward: 100
       permissionReward: ''
       repeatable: true
-      repeatItemReward: 'IRON_ORE:1'
-      repeatRewardText: '1 iron (ore)'
+      repeatItemReward: 'LAPIS_ORE:10'
+      repeatRewardText: '10 lapis lazuli ore blocks'
       repeatMoneyReward: 20
       repeatExpReward: 20
     mason:
