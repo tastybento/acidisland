@@ -28,6 +28,9 @@ public class SpongeSuperSpongeListener implements Listener {
 
     @EventHandler
     public void onBlockFromTo(BlockFromToEvent event) {
+	if (!event.getBlock().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+		return;
+	    }
 	if (plugin.isNewIsland())
 	    return;
 	if (plugin.debug) {
@@ -50,6 +53,9 @@ public class SpongeSuperSpongeListener implements Listener {
 
     @EventHandler
     public void onBlockIgnite(BlockIgniteEvent event) {
+	if (!event.getBlock().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+		return;
+	    }
 	if (plugin.debug) {
 	    plugin.getLogger().info("Fire incoming at: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ());
 	}
@@ -72,6 +78,9 @@ public class SpongeSuperSpongeListener implements Listener {
 
     @EventHandler
     public void onBlockBurn(BlockBurnEvent event) {
+	if (!event.getBlock().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+		return;
+	    }
 	if (plugin.debug) {
 	    plugin.getLogger().info("Block Burning at: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ());
 	}
@@ -89,6 +98,9 @@ public class SpongeSuperSpongeListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockFade(BlockFadeEvent event) {
+	if (!event.getBlock().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+		return;
+	    }
 	if (event.getBlock().getType() == Material.ICE && event.getBlock().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
 	    if (plugin.debug) {
 		plugin.getLogger().info("Ice melting at: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ());

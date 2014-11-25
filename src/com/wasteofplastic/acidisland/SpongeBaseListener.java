@@ -22,6 +22,9 @@ public class SpongeBaseListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPlace(BlockPlaceEvent event) {
 	if (!event.isCancelled()) {
+	    if (!event.getBlock().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+		return;
+	    }
 	    if (plugin.debug) {
 		plugin.getLogger().info(event.getPlayer().getName() + " placed a block...");
 	    }
@@ -50,6 +53,9 @@ public class SpongeBaseListener implements Listener {
     // Check if water is being dumped in the sponge's area
     @EventHandler
     public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
+	if (!event.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
+		return;
+	    }
 	Block involvedBlock = event.getBlockClicked().getRelative(event.getBlockFace());
 	String dumpLocation = plugin.getBlockCoords(involvedBlock);
 	Material bucketType = event.getBucket();
