@@ -14,3 +14,6 @@ spawn:
   allowgateuse: true
   allowmobspawn: false
   allowspawnnoacidwater: false
+  allowenchanting: true
+  allowanviluse: true
+  allowbeaconaccess: false

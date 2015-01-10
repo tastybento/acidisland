@@ -1,9 +1,10 @@
 name: AcidIsland
-main: com.wasteofplastic.acidisland.AcidIsland
-version: 1.4
-description: Acid Island
+main: com.wasteofplastic.acidisland.ASkyBlock
+version: 2.7.7
+description: AcidIsland
 author: Tastybento
 depend: [Vault]
+load: startup
 loadbefore: [Multiverse-Core]
 commands:
     ai:
@@ -52,6 +53,9 @@ permissions:
           acidisland.island.controlpanel:
             description: Allows usage of the island GUI
             default: true
+          acidisland.island.biomes:
+            description: Allows biome changing
+            default: false
       acidisland.team.*:
         children:
           acidisland.team.create:
@@ -72,6 +76,9 @@ permissions:
           acidisland.team.vip2:
             description: Allows a bigger team size
             default: false
+      acidisland.coop:
+        description: Allows player to use the coop command
+        default: false
       acidisland.craft.*:
         children:
           acidisland.craft.enderchest:
@@ -99,6 +106,9 @@ permissions:
             default: false
           acidisland.mod.bypassprotect:
             description: Bypasses island protection
+            default: false
+          acidisland.mod.setbiome:
+            description: Allows setting player island biomes
             default: false
       acidisland.admin.*:
         children:

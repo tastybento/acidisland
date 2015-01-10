@@ -20,13 +20,14 @@ error:
    offlinePlayer: "That player is offline or doesn't exist."
    unknownCommand: "Unknown command."
    noTeam: "Player is not in a team."
+   wrongWorld: "You cannot do that in this world."
 
 #AcidEffect
 changingObsidiantoLava: "Changing obsidian back into lava. Be careful!"
 
 #AcidInventory
 # The warning that goes on the acid bottles or buckets. Lines are split by \n
-acidLore: "Poison!\nBeware!\nDo not drink!"
+acidLore: "Do\nnot drink!\nBeware!\n"
 acidBucket: "Acid Bucket"
 acidBottle: "Acid Bottle"
 drankAcidAndDied: "just drank acid and died."
@@ -59,14 +60,15 @@ warps:
    warpToPlayersSign: "Warp to <player>'s welcome sign."
    errorNoWarpsYet: "There are no warps available yet!"
    warpsAvailable: "The following warps are available"
+   playerWarped: "[name] &2warped to your island!"
 
-#AcidIsland
 topTen:
    header: "These are the Top 10 islands:"
    errorNotReady: "Top ten list not generated yet!"
 level:
    islandLevel: "Island level"
    errornotYourIsland: "Only the leader can do that."
+   calculating: "Calculating island level. This will take a few seconds..."
    
 sethome:
    homeSet: "Your island home has been set to your current location."
@@ -110,6 +112,7 @@ challenges:
 #/island
 island:
    teleport: "Teleporting you to your island. (/island help for more info)"
+   cannotTeleport: "You cannot teleport when falling!"
    new: "Creating a new island for you..."
    errorCouldNotCreateIsland: "Could not create your Island. Please contact a server moderator."
    errorYouDoNotHavePermission: "You do not have permission to use that command!"
@@ -128,8 +131,9 @@ island:
    #/island help
    #/island
    helpIsland: "start an island, or teleport to your island."
-   helpIslandSpawn: "go to AcidIsland spawn."
-   helpContolPanel: "open the island GUI."
+   helpTeleport: "teleport to your island."
+   helpIslandSpawn: "go to spawn."
+   helpControlPanel: "open the island GUI."
    #/island restart
    helpRestart: "restart your island and remove the old one."
    islandDeletedLifeboats: "Island deleted! Head to the lifeboats!"
@@ -152,7 +156,7 @@ island:
    #/island leave:
    helpLeave: "leave another player's island."
    #/island kick <player>
-   helpKick: "remove a player from your island."
+   helpKick: "remove a team player from your island."
    #/island <accept/reject>
    helpAcceptReject: "accept or reject an invitation."
    #/island makeleader <player>
@@ -161,7 +165,8 @@ island:
    errorLevelNotReady: "Can't use that command right now! Try again in a few seconds."
    errorInvalidPlayer: "That player is invalid or does not have an island!"
    islandLevelis: "Island level is"
-
+   #/island expel <player>
+   helpExpel: "force a player from your island."
 
 ###################
 #/island commands #
@@ -186,6 +191,7 @@ invite:
    errorYourIslandIsFull: "Your island is full, you can't invite anyone else."
    #"That player is already with a group on an island."
    errorThatPlayerIsAlreadyInATeam: "That player is already in a team."
+   errorCoolDown: "You can invite that player again in [time] minutes"
 
 #reject
 reject:
@@ -195,12 +201,12 @@ reject:
 
 #leave
 leave:
-  errorYouAreTheLeader: "You cannot leave because you are the leader, use /island makeleader <player> to transfer the island first."
+  errorYouAreTheLeader: "You cannot leave because you are the leader. Make someone the leader first."
   youHaveLeftTheIsland: "You have left the island and returned to the player spawn."
   nameHasLeftYourIsland: "[name] has left your island!"
-  errorYouCannotLeaveIsland: "You can't leave your island if you are the only person. Try using /island restart if you want a new one!"
-  errorYouMustBeInWorld: "You must be in the AcidIsland world to leave your team!"
-  errorLeadersCannotLeave: "Leaders cannot leave an island. Make someone else the leader fist using /island makeleader <player>"
+  errorYouCannotLeaveIsland: "You can't leave your island if you are the only person. Try restart if you want a new one!"
+  errorYouMustBeInWorld: "You must be in the island world to leave your team!"
+  errorLeadersCannotLeave: "Leaders cannot leave an island. Make someone else the leader first."
 
 #team
 team:
@@ -246,9 +252,7 @@ minishop:
 
 #Help
 adminHelp:
-   help: "Acid Admin Commands:"
-   #/acid tp <player>
-   tp: "Teleport to a player's island"
+   help: "Admin Commands:"
    #/acid reload:
    reload: "reload configuration from file."
    #/acid top ten:
@@ -265,6 +269,7 @@ adminHelp:
    resetAllChallenges: "resets all of the player's challenges"
    #/acid purge [TimeInDays]:
    purge: "delete inactive islands older than [TimeInDays]."
+   purgeholes: "free up island holes for reuse."
    #/acid info <player>:
    info: "info for the given player."
    #/acid info
@@ -284,12 +289,12 @@ adminTopTen:
 purge:
    #"A purge is already running, please wait for it to finish!"
    alreadyRunning: "Purge is already running, please wait for it to finish!"
-   usage: "Usage: /acid purge [TimeInDays]"
+   usage: "Usage: /[label] purge [TimeInDays]"
    calculating: "Calculating which islands have been inactive for more than [time] days."
    noneFound: "No inactive islands to remove."
    thisWillRemove: "This will remove [number] inactive islands!"
    warning: "DANGER! Do not run this with players on the server! MAKE BACKUP OF WORLD!"
-   typeConfirm: "Type /acid confirm to proceed within 10 seconds"
+   typeConfirm: "Type /[label] confirm to proceed within 10 seconds"
    purgeCancelled: "Purge cancelled."
    finished: "Finished purging of inactive islands."
    removingName: "Purge: Removing [name]'s island"
@@ -304,7 +309,7 @@ delete:
 
 #register
 register:
-   settingIsland: "Set [name]'s island to the bedrock nearest you."
+   settingIsland: "Set [name]'s island to the nearest island."
    errorBedrockNotFound: "Bedrock not found: unable to set the island!"
 
 #info
@@ -325,14 +330,14 @@ checkteam:
 #completechallenge
 completechallenge:
    errorChallengeDoesNotExist: "Challenge doesn't exist or is already completed"
-   challangeCompleted: "Challange: [challengename] has been completed for [name]"
+   challangeCompleted: "Challenge: [challengename] has been completed for [name]"
 
 #resetchallenge
 resetchallenge:
    errorChallengeDoesNotExist: "Challenge doesn't exist or isn't yet completed"
-   challengeReset: "Challange: [challengename] has been reset for [name]"
+   challengeReset: "Challenge: [challengename] has been reset for [name]"
 
-#AcidIsland news
+#News
 news:
    headline: "[AcidIsland News] While you were offline..."
 
@@ -348,8 +353,35 @@ boats:
 # [player] is replaced with the player's name
 # ChatColors can be used with &
 sign:
-   line1: "&1[Acid Island]"
+   line1: "&1[AcidIsland]"
    line2: "[player]"
-   line3: "Poison! Beware!"
-   line4: "Do not drink!"
+   line3: "Water is acid!"
+   line4: "Beware!"
 
+biome:
+   set: "Island biome set to [biome]!"
+   help: "open the biomes GUI."
+   unknown: "Unknown biome!"
+   youbought: "Purchased for [cost]!"
+   paneltitle: "Select A Biome"
+   
+expel:
+   notonisland: "Player is not trespassing on your island!"
+   success: "You expelled [name]!"
+   expelled: "You were expelled from that island!"
+   fail: "[name] cannot be expelled!"
+   notyourself: "You cannot expel yourself!"
+
+moblimits:
+   error: "Island breeding limit of [number] reached!"
+
+coop:
+   help: "temporarily give a player full access to your island"
+   removed: "[name] remove your coop status!"
+   removesuccess: "[name] is no longer a coop player."
+   success: "[name] is now a coop player until they log out or you expel them."
+   madeyoucoopy: "[name] made you a coop player until you log out or they expel you."
+   onyourteam: "Player is already on your team!"
+   invited: "[name] made [player] a coop player!"
+   useexpel: "Use expel to remove."
+ 
