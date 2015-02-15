@@ -38,7 +38,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 /**
- * @author ben This file improves the safety of boats in Acid Island It enables
+ * @author tastybento This file improves the safety of boats in Acid Island It enables
  *         players to get out of boats without being dropped into the acid. It
  *         enables players to hit a boat and have it pop into their inventory
  *         immediately
@@ -127,7 +127,7 @@ public class SafeBoat implements Listener {
 	if (!exitedBoat.containsKey(player.getUniqueId())) {
 	    return;
 	}
-	Entity boat = exitedBoat.get(player.getUniqueId());
+	//Entity boat = exitedBoat.get(player.getUniqueId());
 	// Reset the flag
 	exitedBoat.remove(player.getUniqueId());
 	// Okay, so a player is getting out of a boat in the the right world.

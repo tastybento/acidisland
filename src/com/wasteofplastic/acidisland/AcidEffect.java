@@ -214,7 +214,7 @@ public class AcidEffect implements Listener {
 	    // Check if the player is above sealevel because the sea is always acid
 	    if (playerLoc.getBlockY() > Settings.sea_level) {
 		//plugin.getLogger().info("DEBUG: player is above sea level");
-		if (plugin.getSpawn().isAtSpawn(playerLoc)) {
+		if (plugin.getGrid().isAtSpawn(playerLoc)) {
 		    //plugin.getLogger().info("DEBUG: player is at spawn");
 		    return;
 		}
@@ -316,7 +316,7 @@ public class AcidEffect implements Listener {
      * @param e
      */
     // Deprecation is due to the updateinventory that still is required for some reason.
-    @SuppressWarnings("deprecation")
+    //@SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerInteract(final PlayerInteractEvent e) {
 	if (plugin.playerIsOnIsland(e.getPlayer())) {

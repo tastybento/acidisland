@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 /**
- * @author ben
+ * @author tastybento
  * This class is for a control panel button that has an icon, a command to run if pressed or a link to
  * another control panel.
  */
@@ -32,7 +32,6 @@ public class CPItem {
     private ItemStack item;
     private String command;
     private String nextSection;
-
 
     /**
      * @param item
@@ -82,6 +81,13 @@ public class CPItem {
     }
 
 
+    /**
+     * @param nextSection the nextSection to set
+     */
+    protected void setNextSection(String nextSection) {
+        this.nextSection = nextSection;
+    }
+    
     protected ItemStack getItem() {
 	return item;
     }

@@ -27,7 +27,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
 /**
- * @author ben
+ * @author tastybento
  * Where all the settings are
  */
 public class Settings {
@@ -37,10 +37,11 @@ public class Settings {
 	ASKYBLOCK, ACIDISLAND
 	}
     protected final static GameType GAMETYPE = GameType.ACIDISLAND;
-    
     // The spawn command (Essentials spawn for example)
     protected final static String SPAWNCOMMAND = "spawn";    
 
+    /* Acid Island
+     * */
     // Permission prefix
     protected final static String PERMPREFIX = "acidisland.";
     // The island command
@@ -99,7 +100,7 @@ public class Settings {
     protected static boolean allowEndermanGriefing;
     protected static boolean allowCreeperDamage;
     protected static boolean allowTNTDamage;
-    protected static boolean allowSpawnEggs;
+    protected static boolean allowMonsterEggs;
     protected static boolean allowBreeding;
     protected static boolean allowFire;
     protected static boolean allowChestDamage;
@@ -134,6 +135,9 @@ public class Settings {
     protected static boolean allowSpawnEnchanting;
     protected static boolean allowSpawnAnvilUse;
     protected static boolean allowSpawnBeaconAccess;
+    protected static boolean allowSpawnAnimalSpawn;
+    protected static boolean allowSpawnAnimalKilling;
+    protected static boolean allowSpawnMobKilling;
     
     // Levels
     protected static HashMap<Material,Integer> blockLimits;
@@ -177,9 +181,19 @@ public class Settings {
     // Wait between being invited to same team island
     protected static int inviteWait;
     
-    
-    
-    
+    // Use physics when pasting schematic blocks
+    protected static boolean usePhysics;
 
-  
+    // Falling blocked commands
+    protected static List<String> fallingCommandBlockList;
+    public static List<String> leaveCommands;
+    public static int levelWait;
+    public static long resetConfirmWait;
+    public static boolean allowSpawnMonsterEggs;
+    public static boolean loginLevel;
+    public static boolean allowSpawnBreakBlocks;
+    public static boolean allowSpawnPlaceBlocks;
+    public static boolean allowSpawnEggs;
+    public static boolean resetEnderChest;
+
 }
