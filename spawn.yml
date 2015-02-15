@@ -1,6 +1,7 @@
 # This file controls what is an is not allowed at spawn
 spawn:
-  # Range that spawn occupies
+  # Range that spawn occupies. Note this is the distance from the spawn location out
+  # So 50 makes spawn effectively a square 100x100 blocks big.
   range: 50
   # Protection options
   allowdooruse: true

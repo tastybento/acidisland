@@ -37,9 +37,9 @@ public class Settings {
 	ASKYBLOCK, ACIDISLAND
 	}
     protected final static GameType GAMETYPE = GameType.ACIDISLAND;
+    
     // The spawn command (Essentials spawn for example)
     protected final static String SPAWNCOMMAND = "spawn";    
-
 
     // Permission prefix
     protected final static String PERMPREFIX = "acidisland.";
