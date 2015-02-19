@@ -34,7 +34,7 @@ import org.bukkit.inventory.ItemStack;
 
 
 /**
- * @author ben
+ * @author tastybento
  * Provides protection to islands - handles newer events that may not exist in older servers
  */
 public class IslandGuardNew implements Listener {
@@ -79,6 +79,7 @@ public class IslandGuardNew implements Listener {
      * Handle V1.8 blocks that need special treatment
      * @param e
      */
+    @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInteract(final PlayerInteractEvent e) {
 	if (debug) {

@@ -1,8 +1,10 @@
 package com.wasteofplastic.acidisland;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
@@ -120,6 +122,21 @@ public class CoopPlay {
 	}
 	return new HashSet<Location>();
     }
+    
+    /**
+     * Gets a list of all the players that are currently coop on this island
+     * @param island
+     * @return List of UUID's of players that have coop rights to the island
+     */
+    protected List<UUID> getCoopPlayers(Location island) {
+	List<UUID> result = new ArrayList<UUID>();
+	for (UUID player : coopPlayers.keySet()) {
+	    if (coopPlayers.get(player).containsKey(island)) {
+		result.add(player);
+	    }
+	}
+	return result;
+    }
 
     /**
      * Removes the player from the coop list if they are on it
@@ -180,12 +197,13 @@ public class CoopPlay {
      * @param target
      */
     protected void clearMyInvitedCoops(Player clearer) {
+	/*
 	Location expellersIsland = null;
 	if (plugin.getPlayers().inTeam(clearer.getUniqueId())) {
 	    expellersIsland = plugin.getPlayers().getTeamIslandLocation(clearer.getUniqueId());
 	} else {
 	    expellersIsland = plugin.getPlayers().getIslandLocation(clearer.getUniqueId());
-	}
+	}*/
 	for (UUID players :coopPlayers.keySet()) {
 	    Iterator<Entry<Location,UUID>> en = coopPlayers.get(players).entrySet().iterator();
 	    while (en.hasNext()) {
