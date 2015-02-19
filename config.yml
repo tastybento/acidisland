@@ -101,7 +101,7 @@ general:
    # Damage that rain does.
    raindamage: 0
    # Damage that animals will experience in acid.
-   animal damage: 0
+   animaldamage: 0
    # Damage chickens in acid - true or false - chickens tend to go swimming...
    damagechickens: false
 

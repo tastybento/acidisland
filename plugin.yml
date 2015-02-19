@@ -56,6 +56,12 @@ permissions:
           acidisland.island.biomes:
             description: Allows biome changing
             default: false
+          acidisland.island.lock:
+            description: Allows island locking
+            default: false
+          acidisland.island.expel:
+            description: Allows expelling of visitors
+            default: true
       acidisland.team.*:
         children:
           acidisland.team.create:
@@ -121,6 +127,9 @@ permissions:
           acidisland.admin.register:
             description: Let a player register the nearest island (using the bedrock) to another player.
             default: op
+          acidisland.admin.unregister:
+            description: Removes a player from an island without deleting the island blocks.
+            default: op
           acidisland.admin.purge:
             description: Let a player purge old islands.
             default: op
@@ -130,3 +139,7 @@ permissions:
           acidisland.admin.setspawn:
             description: Allows use of spawn tools
             default: op
+          acidisland.admin.setrange:
+            description: Allows setting of island protection range
+            default: op
+
