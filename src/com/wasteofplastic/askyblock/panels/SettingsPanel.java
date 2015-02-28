@@ -1,4 +1,4 @@
-package com.wasteofplastic.acidisland;
+package com.wasteofplastic.askyblock.panels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,17 +7,27 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 
+import com.wasteofplastic.acidisland.Settings;
+
 public class SettingsPanel {
     // Island Guard Settings Panel
     private static List<IPItem> ip = new ArrayList<IPItem>();
     private static Inventory newPanel;
     static {
-	ip.add(new IPItem(Settings.allowAnvilUse, Material.ANVIL));   
-	ip.add(new IPItem(Settings.allowArmorStandUse, Material.ARMOR_STAND));
+	ip.add(new IPItem(Settings.allowAnvilUse, Material.ANVIL));
+	Class<?> clazz;
+	try {
+	    clazz = Class.forName("org.bukkit.entity.ArmorStand");
+	} catch (Exception e) {
+	    clazz = null;
+	}
+	if (clazz != null) {
+	    ip.add(new IPItem(Settings.allowArmorStandUse, Material.ARMOR_STAND));
+	}
 	ip.add(new IPItem(Settings.allowBeaconAccess, Material.BEACON));
 	ip.add(new IPItem(Settings.allowBedUse, Material.BED));
 	ip.add(new IPItem(Settings.allowBreakBlocks, Material.DIRT, "Break blocks"));
-	ip.add(new IPItem(Settings.allowBreeding, Material.CARROT, "Breeding"));
+	ip.add(new IPItem(Settings.allowBreeding, Material.CARROT_ITEM, "Breeding"));
 	ip.add(new IPItem(Settings.allowBrewing, Material.BREWING_STAND_ITEM, "Potion Brewing"));
 	ip.add(new IPItem(Settings.allowBucketUse, Material.BUCKET));
 	ip.add(new IPItem(Settings.allowChestAccess, Material.CHEST));
@@ -48,7 +58,7 @@ public class SettingsPanel {
 	ip.add(new IPItem(Settings.allowVisitorKeepInvOnDeath, Material.IRON_CHESTPLATE, "Visitor keep item on death"));
 	if (ip.size() > 0) {
 	    // Make sure size is a multiple of 9
-	    int size = ip.size() +8;
+	    int size = ip.size() + 8;
 	    size -= (size % 9);
 	    newPanel = Bukkit.createInventory(null, size, "Island Guard Settings");
 	    // Fill the inventory and return
@@ -59,6 +69,7 @@ public class SettingsPanel {
 	    }
 	}
     }
+
     public static Inventory islandGuardPanel() {
 	return newPanel;
     }
