@@ -257,6 +257,12 @@ island:
    xoffset: 0
    zoffset: 0
 
+   # Coordinate offset - never change this mid-game and there is no
+   # need to set this. It is for compatibility with IslandWorld maps and set by
+   # BlockConverter.
+   xoffset: 0
+   zoffset: 0
+
    # Max team size
    maxteamsize: 4
    # VIP team size - set by permission askyblock.team.vip
@@ -294,6 +300,7 @@ island:
    # If PVP is denied, then players can expel other players from islands
    # otherwise players have to kill each other
    allowPvP: false
+   allowNetherPvP: false
    # Other players can break blocks or not or generally damage things
    allowbreakblocks: false
    # Other players can place blocks
