@@ -40,11 +40,11 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.util.Vector;
 
-import com.wasteofplastic.askyblock.ASkyBlock;
-import com.wasteofplastic.askyblock.GridManager;
-import com.wasteofplastic.askyblock.Locale;
-import com.wasteofplastic.askyblock.Settings;
-import com.wasteofplastic.askyblock.util.VaultHelper;
+import com.wasteofplastic.acidisland.ASkyBlock;
+import com.wasteofplastic.acidisland.GridManager;
+import com.wasteofplastic.acidisland.Locale;
+import com.wasteofplastic.acidisland.Settings;
+import com.wasteofplastic.acidisland.util.VaultHelper;
 
 public class NetherPortals implements Listener {
     private final ASkyBlock plugin;

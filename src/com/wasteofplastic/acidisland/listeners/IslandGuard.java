@@ -81,14 +81,14 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.potion.Potion;
 import org.bukkit.util.Vector;
 
-import com.wasteofplastic.askyblock.ASkyBlock;
-import com.wasteofplastic.askyblock.InventorySave;
-import com.wasteofplastic.askyblock.Island;
-import com.wasteofplastic.askyblock.Locale;
-import com.wasteofplastic.askyblock.SafeBoat;
-import com.wasteofplastic.askyblock.Settings;
-import com.wasteofplastic.askyblock.util.Util;
-import com.wasteofplastic.askyblock.util.VaultHelper;
+import com.wasteofplastic.acidisland.ASkyBlock;
+import com.wasteofplastic.acidisland.InventorySave;
+import com.wasteofplastic.acidisland.Island;
+import com.wasteofplastic.acidisland.Locale;
+import com.wasteofplastic.acidisland.SafeBoat;
+import com.wasteofplastic.acidisland.Settings;
+import com.wasteofplastic.acidisland.util.Util;
+import com.wasteofplastic.acidisland.util.VaultHelper;
 
 /**
  * @author tastybento

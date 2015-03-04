@@ -54,11 +54,11 @@ import com.wasteofplastic.acidisland.Locale;
 import com.wasteofplastic.acidisland.Messages;
 import com.wasteofplastic.acidisland.PlayerCache;
 import com.wasteofplastic.acidisland.Settings;
+import com.wasteofplastic.acidisland.events.ChallengeCompleteEvent;
+import com.wasteofplastic.acidisland.events.ChallengeLevelCompleteEvent;
 import com.wasteofplastic.acidisland.panels.CPItem;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
-import com.wasteofplastic.acidisland.events.ChallengeCompleteEvent;
-import com.wasteofplastic.acidisland.events.ChallengeLevelCompleteEvent;
 
 /**
  * Handles challenge commands and related methods

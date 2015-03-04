@@ -35,8 +35,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
-import com.wasteofplastic.askyblock.util.Util;
-import com.wasteofplastic.askyblock.util.VaultHelper;
+import com.wasteofplastic.acidisland.util.Util;
+import com.wasteofplastic.acidisland.util.VaultHelper;
 
 /**
  * Handles warping in ASkyBlock Players can add one sign

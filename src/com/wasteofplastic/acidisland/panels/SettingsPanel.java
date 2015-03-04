@@ -7,8 +7,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 
-import com.wasteofplastic.askyblock.Locale;
-import com.wasteofplastic.askyblock.Settings;
+import com.wasteofplastic.acidisland.Locale;
+import com.wasteofplastic.acidisland.Settings;
 
 public class SettingsPanel {
     // Island Guard Settings Panel

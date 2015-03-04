@@ -54,23 +54,23 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import com.wasteofplastic.askyblock.NotSetup.Reason;
-import com.wasteofplastic.askyblock.Settings.GameType;
-import com.wasteofplastic.askyblock.commands.AdminCmd;
-import com.wasteofplastic.askyblock.commands.Challenges;
-import com.wasteofplastic.askyblock.commands.IslandCmd;
-import com.wasteofplastic.askyblock.generators.ChunkGeneratorWorld;
-import com.wasteofplastic.askyblock.listeners.AcidEffect;
-import com.wasteofplastic.askyblock.listeners.AcidInventory;
-import com.wasteofplastic.askyblock.listeners.IslandGuard;
-import com.wasteofplastic.askyblock.listeners.IslandGuardNew;
-import com.wasteofplastic.askyblock.listeners.JoinLeaveEvents;
-import com.wasteofplastic.askyblock.listeners.LavaCheck;
-import com.wasteofplastic.askyblock.listeners.NetherPortals;
-import com.wasteofplastic.askyblock.panels.Biomes;
-import com.wasteofplastic.askyblock.panels.ControlPanel;
-import com.wasteofplastic.askyblock.util.Util;
-import com.wasteofplastic.askyblock.util.VaultHelper;
+import com.wasteofplastic.acidisland.NotSetup.Reason;
+import com.wasteofplastic.acidisland.Settings.GameType;
+import com.wasteofplastic.acidisland.commands.AdminCmd;
+import com.wasteofplastic.acidisland.commands.Challenges;
+import com.wasteofplastic.acidisland.commands.IslandCmd;
+import com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld;
+import com.wasteofplastic.acidisland.listeners.AcidEffect;
+import com.wasteofplastic.acidisland.listeners.AcidInventory;
+import com.wasteofplastic.acidisland.listeners.IslandGuard;
+import com.wasteofplastic.acidisland.listeners.IslandGuardNew;
+import com.wasteofplastic.acidisland.listeners.JoinLeaveEvents;
+import com.wasteofplastic.acidisland.listeners.LavaCheck;
+import com.wasteofplastic.acidisland.listeners.NetherPortals;
+import com.wasteofplastic.acidisland.panels.Biomes;
+import com.wasteofplastic.acidisland.panels.ControlPanel;
+import com.wasteofplastic.acidisland.util.Util;
+import com.wasteofplastic.acidisland.util.VaultHelper;
 
 /**
  * @author tastybento

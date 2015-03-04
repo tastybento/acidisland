@@ -8,8 +8,8 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import com.wasteofplastic.askyblock.Locale;
-import com.wasteofplastic.askyblock.util.Util;
+import com.wasteofplastic.acidisland.Locale;
+import com.wasteofplastic.acidisland.util.Util;
 
 /**
  * @author tastybento

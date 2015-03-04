@@ -32,7 +32,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import com.wasteofplastic.askyblock.util.Util;
+import com.wasteofplastic.acidisland.util.Util;
 
 /**
  * Tracks the following info on the player
