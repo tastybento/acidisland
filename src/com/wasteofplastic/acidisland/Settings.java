@@ -40,14 +40,14 @@ public class Settings {
     }
 
     public final static GameType GAMETYPE = GameType.ACIDISLAND;
+    // The spawn command (Essentials spawn for example)
+    public final static String SPAWNCOMMAND = "spawn";
     // Permission prefix
     public final static String PERMPREFIX = "acidisland.";
     // The island command
     public final static String ISLANDCOMMAND = "ai";
     // The challenge command
     public static final String CHALLENGECOMMAND = "aic";
-    // The spawn command (Essentials spawn for example)
-    public final static String SPAWNCOMMAND = "spawn";
 
     public static Set<String> challengeList;
     public static int waiverAmount;
@@ -198,5 +198,8 @@ public class Settings {
     public static EntityType islandCompanion;
     public static boolean updateCheck;
     public static List<String> companionNames;
+    public static long islandStartX;
+    public static long islandStartZ;
+    public static boolean allowNetherPvP;
 
 }

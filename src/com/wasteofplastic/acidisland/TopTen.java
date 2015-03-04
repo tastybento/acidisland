@@ -10,8 +10,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import com.wasteofplastic.askyblock.util.MapUtil;
-import com.wasteofplastic.askyblock.util.Util;
+import com.wasteofplastic.acidisland.util.MapUtil;
+import com.wasteofplastic.acidisland.util.Util;
 
 /**
  * Handles all Top Ten List functions

@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import com.wasteofplastic.askyblock.util.Util;
+import com.wasteofplastic.acidisland.util.Util;
 
 /**
  * Handles offline messaging to players and teams
