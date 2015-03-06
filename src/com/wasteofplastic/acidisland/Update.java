@@ -79,7 +79,7 @@ public class Update {
 	this.projectID = projectID;
 	this.apiKey = apiKey;
 
-	success = query();
+	this.success = query();
     }
 
     /**
