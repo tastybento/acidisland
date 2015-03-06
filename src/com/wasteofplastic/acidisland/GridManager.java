@@ -434,7 +434,7 @@ public class GridManager {
 	    Island island = ownershipMap.get(owner);
 	    plugin.getLogger().warning(
 		    "Island at " + island.getCenter().getBlockX() + ", " + island.getCenter().getBlockZ()
-			    + " is already owned by this player. Removing ownership of this island.");
+		    + " is already owned by this player. Removing ownership of this island.");
 	    island.setOwner(null);
 	    ownershipMap.remove(owner);
 	}
@@ -536,8 +536,8 @@ public class GridManager {
 		    zEntry.remove(z);
 		    islandGrid.put(x, zEntry);
 		} // else {
-		  // plugin.getLogger().info("DEBUG: could not find z");
-		  // }
+		// plugin.getLogger().info("DEBUG: could not find z");
+		// }
 	    }
 	    // Remove from the ownership map
 	    // If the owner already has been given a new island, then this will
@@ -751,6 +751,11 @@ public class GridManager {
 	// Bukkit.getLogger().info("DEBUG: ground = " + ground.getType());
 	// Bukkit.getLogger().info("DEBUG: space 1 = " + space1.getType());
 	// Bukkit.getLogger().info("DEBUG: space 2 = " + space2.getType());
+	// Portals are not "safe"
+	if (space1.getType() == Material.PORTAL || ground.getType() == Material.PORTAL || space2.getType() == Material.PORTAL
+		|| space1.getType() == Material.ENDER_PORTAL || ground.getType() == Material.ENDER_PORTAL || space2.getType() == Material.ENDER_PORTAL) {
+	    return false;
+	}
 	// If ground is AIR, then this is either not good, or they are on slab,
 	// stair, etc.
 	if (ground.getType() == Material.AIR) {
@@ -779,11 +784,11 @@ public class GridManager {
 	    // Bukkit.getLogger().info("DEBUG: boat");
 	    return false;
 	} // No, I don't want to end up on the boat again
-	  // Check that the space is not solid
-	  // The isSolid function is not fully accurate (yet) so we have to
-	  // check
-	  // a few other items
-	  // isSolid thinks that PLATEs and SIGNS are solid, but they are not
+	// Check that the space is not solid
+	// The isSolid function is not fully accurate (yet) so we have to
+	// check
+	// a few other items
+	// isSolid thinks that PLATEs and SIGNS are solid, but they are not
 	if (space1.getType().isSolid()) {
 	    // Bukkit.getLogger().info("DEBUG: space 1 is solid");
 	    // Do a few other checks
