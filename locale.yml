@@ -115,7 +115,7 @@ sethome:
    homeSet: "Your island home has been set to your current location."
    errorNotOnIsland: "You must be within your island boundaries to set home!"
    errorNoIsland: "You are not part of an island. Returning you the spawn area!"
-
+   errorNumHomes: "Homes can be 1 to [max]"
 
 #Challenges
 challenges:
@@ -162,8 +162,8 @@ island:
    title: "Acid Island"
    subtitle: "by tastybento"
    # This section is to solicit donations from players. Feel free to set to '' to remove :-)
-   donate: "AcidIsland by tastybento. Click here to donate to the author via PayPal!"
-   url: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZSBJG5J2E3B7U"
+   donate: "Welcome to AcidIsland by tastybento!"
+   url: ""
 
    teleport: "Teleporting you to your island. (/island help for more info)"
    cannotTeleport: "You cannot teleport when falling!"

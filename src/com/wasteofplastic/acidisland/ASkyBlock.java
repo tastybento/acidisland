@@ -68,6 +68,7 @@ import com.wasteofplastic.acidisland.listeners.IslandGuardNew;
 import com.wasteofplastic.acidisland.listeners.JoinLeaveEvents;
 import com.wasteofplastic.acidisland.listeners.LavaCheck;
 import com.wasteofplastic.acidisland.listeners.NetherPortals;
+import com.wasteofplastic.acidisland.listeners.WorldEnter;
 import com.wasteofplastic.acidisland.panels.Biomes;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
 import com.wasteofplastic.acidisland.util.Util;
@@ -82,6 +83,7 @@ public class ASkyBlock extends JavaPlugin {
     private static ASkyBlock plugin;
     // The ASkyBlock world
     private static World islandWorld = null;
+    private static World netherWorld = null;
     // Flag indicating if a new islands is in the process of being generated or
     // not
     private boolean newIsland = false;
@@ -113,7 +115,7 @@ public class ASkyBlock extends JavaPlugin {
     private Update updateCheck = null;
 
     /**
-     * Returns the World object for the Acid Island world named in config.yml.
+     * Returns the World object for the island world named in config.yml.
      * If the world does not exist then it is created.
      * 
      * @return islandWorld - Bukkit World object for the ASkyBlock world
@@ -126,17 +128,7 @@ public class ASkyBlock extends JavaPlugin {
 		    .createWorld();
 	    // Make the nether if it does not exist
 	    if (Settings.createNether) {
-		if (plugin.getServer().getWorld(Settings.worldName + "_nether") == null) {
-		    Bukkit.getLogger().info("Creating " + plugin.getName() + "'s Nether...");
-		    if (!Settings.newNether) {
-			WorldCreator.name(Settings.worldName + "_nether").type(WorldType.NORMAL).environment(World.Environment.NETHER).createWorld();
-		    } else {
-			WorldCreator.name(Settings.worldName + "_nether").type(WorldType.FLAT).generator(new ChunkGeneratorWorld())
-			.environment(World.Environment.NETHER).createWorld();
-		    }
-		    // netherWorld.setMonsterSpawnLimit(Settings.monsterSpawnLimit);
-		    // netherWorld.setAnimalSpawnLimit(Settings.animalSpawnLimit);
-		}
+		getNetherWorld();
 	    }
 	    // Multiverse configuration
 	    if (Bukkit.getServer().getPluginManager().isPluginEnabled("Multiverse-Core")) {
@@ -626,6 +618,12 @@ public class ASkyBlock extends JavaPlugin {
 		}
 	    }
 	}
+	// TEAMSUFFIX as island level
+	Settings.setTeamName = getConfig().getBoolean("general.setteamsuffix", false);
+	// Immediate teleport
+	Settings.immediateTeleport = getConfig().getBoolean("general.immediateteleport", false);
+	// Make island automatically
+	Settings.makeIslandIfNone = getConfig().getBoolean("general.makeislandifnone", false);
 	// Use physics when pasting island block schematics
 	Settings.usePhysics = getConfig().getBoolean("general.usephysics", false);
 	// Run level calc at login
@@ -646,6 +644,11 @@ public class ASkyBlock extends JavaPlugin {
 	Settings.maxTeamSize = getConfig().getInt("island.maxteamsize", 4);
 	Settings.maxTeamSizeVIP = getConfig().getInt("island.maxteamsizeVIP", 8);
 	Settings.maxTeamSizeVIP2 = getConfig().getInt("island.maxteamsizeVIP2", 12);
+	// Max home number
+	Settings.maxHomes = getConfig().getInt("general.maxhomes",1);
+	if (Settings.maxHomes < 1) {
+	    Settings.maxHomes = 1;
+	}
 	// Settings from config.yml
 	Settings.worldName = getConfig().getString("general.worldName");
 	Settings.createNether = getConfig().getBoolean("general.createnether", true);
@@ -1204,6 +1207,8 @@ public class ASkyBlock extends JavaPlugin {
 		locale.getString("sethome.homeSet", "Your island home has been set to your current location."));
 	Locale.setHomeerrorNotOnIsland = ChatColor.translateAlternateColorCodes('&',
 		locale.getString("sethome.errorNotOnIsland", "You must be within your island boundaries to set home!"));
+	Locale.setHomeerrorNumHomes = ChatColor.translateAlternateColorCodes('&',
+		locale.getString("sethome.errorNumHomes", "Homes can be 1 to [max]"));
 	Locale.setHomeerrorNoIsland = ChatColor.translateAlternateColorCodes('&',
 		locale.getString("sethome.errorNoIsland", "You are not part of an island. Returning you the spawn area!"));
 	Locale.challengesyouHaveCompleted = ChatColor.translateAlternateColorCodes('&',
@@ -1603,6 +1608,8 @@ public class ASkyBlock extends JavaPlugin {
 	// Load Biomes
 	biomes = new Biomes();
 	manager.registerEvents(biomes, this);
+	// Track incoming world teleports
+	manager.registerEvents(new WorldEnter(this), this);
     }
 
     /**
@@ -1720,6 +1727,26 @@ public class ASkyBlock extends JavaPlugin {
     public void unregisterEvents() {
 	HandlerList.unregisterAll(warpSignsListener);
 	HandlerList.unregisterAll(lavaListener);
+    }
+
+    /**
+     * @return the netherWorld
+     */
+    public static World getNetherWorld() {
+	if (netherWorld == null) {
+	    if (plugin.getServer().getWorld(Settings.worldName + "_nether") == null) {
+		Bukkit.getLogger().info("Creating " + plugin.getName() + "'s Nether...");
+	    }
+	    if (!Settings.newNether) {
+		netherWorld = WorldCreator.name(Settings.worldName + "_nether").type(WorldType.NORMAL).environment(World.Environment.NETHER).createWorld();
+	    } else {
+		netherWorld = WorldCreator.name(Settings.worldName + "_nether").type(WorldType.FLAT).generator(new ChunkGeneratorWorld())
+			.environment(World.Environment.NETHER).createWorld();
+	    }
+	    netherWorld.setMonsterSpawnLimit(Settings.monsterSpawnLimit);
+	    netherWorld.setAnimalSpawnLimit(Settings.animalSpawnLimit);
+	}
+	return netherWorld;
     }
 
 }

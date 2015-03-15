@@ -4,7 +4,7 @@
 # material format is MATERIAL:DURABILITY where DURABILITY is optional
 
 default:
-  panelname: '&1Commands'
+  panelname: '&2Commands'
   buttons:
     0:
       material: GRASS

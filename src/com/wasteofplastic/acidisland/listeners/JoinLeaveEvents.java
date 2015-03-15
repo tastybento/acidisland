@@ -35,6 +35,7 @@ import com.wasteofplastic.acidisland.LevelCalc;
 import com.wasteofplastic.acidisland.Locale;
 import com.wasteofplastic.acidisland.Messages;
 import com.wasteofplastic.acidisland.PlayerCache;
+import com.wasteofplastic.acidisland.Scoreboards;
 import com.wasteofplastic.acidisland.Settings;
 
 public class JoinLeaveEvents implements Listener {
@@ -142,6 +143,10 @@ public class JoinLeaveEvents implements Listener {
 	}
 	// plugin.getLogger().info("Cached " + event.getPlayer().getName());
 
+	// Set the TEAMNAME and TEAMSUFFIX variable if required
+	if (Settings.setTeamName) {
+	    Scoreboards.getInstance().setLevel(event.getPlayer().getUniqueId());
+	}
     }
 
     @EventHandler(priority = EventPriority.NORMAL)

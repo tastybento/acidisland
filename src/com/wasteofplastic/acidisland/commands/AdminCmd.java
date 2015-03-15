@@ -38,9 +38,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
@@ -235,7 +235,7 @@ public class AdminCmd implements CommandExecutor {
 			    if (islandEntities.size() > 2) {
 				int numOfEntities = 0;
 				for (Entity entity : islandEntities) {
-				    if (entity instanceof LivingEntity && !(entity instanceof Player)) {
+				    if (entity instanceof Creature && !(entity instanceof Player)) {
 					numOfEntities++;
 					island.addEntity(entity.getType());
 				    }
@@ -360,7 +360,7 @@ public class AdminCmd implements CommandExecutor {
 		    return true;
 		}
 		/*
-		 * Island island = plugin.getGrid().getIslandAt(closestIsland);
+		 * PlayerIsland island = plugin.getGrid().getIslandAt(closestIsland);
 		 * plugin.getLogger().info("DEBUG: minimums " + island.getMinX()
 		 * + ", " + island.getMinZ());
 		 * plugin.getLogger().info("DEBUG: min protection " +
@@ -760,7 +760,7 @@ public class AdminCmd implements CommandExecutor {
 		    return true;
 		} else {
 		    if (plugin.getPlayers().getIslandLocation(playerUUID) != null) {
-			Location safeSpot = plugin.getGrid().getSafeHomeLocation(playerUUID);
+			Location safeSpot = plugin.getGrid().getSafeHomeLocation(playerUUID,1);
 			if (safeSpot != null) {
 			    // This next line should help players with long ping
 			    // times
@@ -1126,8 +1126,7 @@ public class AdminCmd implements CommandExecutor {
 		}
 		// Remove their old island affiliation - do not delete the
 		// island just in case
-		plugin.getPlayers().setIslandLocation(playerUUID, null);
-		plugin.getPlayers().setHasIsland(playerUUID, false);
+		plugin.deletePlayerIsland(playerUUID, false);
 		// Join the team and set the team island location and leader
 		plugin.getPlayers().setJoinTeam(playerUUID, teamLeader, plugin.getPlayers().getIslandLocation(teamLeader));
 		// Configure the best home location for this player
