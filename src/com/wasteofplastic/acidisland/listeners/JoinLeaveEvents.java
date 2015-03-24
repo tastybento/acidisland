@@ -32,7 +32,6 @@ import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.CoopPlay;
 import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.LevelCalc;
-import com.wasteofplastic.acidisland.Locale;
 import com.wasteofplastic.acidisland.Messages;
 import com.wasteofplastic.acidisland.PlayerCache;
 import com.wasteofplastic.acidisland.Scoreboards;
@@ -69,7 +68,7 @@ public class JoinLeaveEvents implements Listener {
 	    plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
 		@Override
 		public void run() {
-		    event.getPlayer().sendMessage(ChatColor.AQUA + Locale.newsHeadline);
+		    event.getPlayer().sendMessage(ChatColor.AQUA + plugin.myLocale(event.getPlayer().getUniqueId()).newsHeadline);
 		    int i = 1;
 		    for (String message : messages) {
 			event.getPlayer().sendMessage(i++ + ": " + message);
