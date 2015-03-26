@@ -42,12 +42,14 @@ public class Settings {
     public final static GameType GAMETYPE = GameType.ACIDISLAND;
     // The spawn command (Essentials spawn for example)
     public final static String SPAWNCOMMAND = "spawn";
-    // Permission prefix
-    public final static String PERMPREFIX = "acidisland.";
-    // The island command
-    public final static String ISLANDCOMMAND = "ai";
-    // The challenge command
-    public static final String CHALLENGECOMMAND = "aic";
+
+     // Permission prefix
+     public final static String PERMPREFIX = "acidisland.";
+     // The island command
+     public final static String ISLANDCOMMAND = "ai";
+     // The challenge command
+     public static final String CHALLENGECOMMAND = "aic";
+     
 
     public static Set<String> challengeList;
     public static int waiverAmount;

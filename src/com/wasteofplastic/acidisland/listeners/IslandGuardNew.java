@@ -32,7 +32,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
-import com.wasteofplastic.acidisland.Locale;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
@@ -75,7 +74,7 @@ public class IslandGuardNew implements Listener {
 	    // plugin.getLogger().info("DEBUG: Armor stand clicked off island");
 	    if (!Settings.allowArmorStandUse) {
 		e.setCancelled(true);
-		e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
+		e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
 	    }
 	}
     }
@@ -143,7 +142,7 @@ public class IslandGuardNew implements Listener {
 	if (inHand != null && inHand.getType().equals(Material.ARMOR_STAND)) {
 	    // plugin.getLogger().info("DEBUG: stand place cancelled");
 	    e.setCancelled(true);
-	    e.getPlayer().sendMessage(ChatColor.RED + Locale.islandProtected);
+	    e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
 	    e.getPlayer().updateInventory();
 	}
 
@@ -177,7 +176,7 @@ public class IslandGuardNew implements Listener {
 	    if (VaultHelper.checkPerm(p, Settings.PERMPREFIX + "mod.bypassprotect")) {
 		return;
 	    }
-	    p.sendMessage(ChatColor.RED + Locale.islandProtected);
+	    p.sendMessage(ChatColor.RED + plugin.myLocale(p.getUniqueId()).islandProtected);
 	    e.setCancelled(true);
 	}
     }

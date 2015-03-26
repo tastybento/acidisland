@@ -45,8 +45,8 @@ import org.jnbt.ShortTag;
 import org.jnbt.StringTag;
 import org.jnbt.Tag;
 
+import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.GridManager;
-import com.wasteofplastic.acidisland.Locale;
 import com.wasteofplastic.acidisland.Settings;
 
 public class Schematic {
@@ -101,7 +101,7 @@ public class Schematic {
 	    // Combine the AddBlocks data with the first 8-bit block ID
 	    for (int index = 0; index < blockId.length; index++) {
 		if ((index >> 1) >= addId.length) { // No corresponding
-						    // AddBlocks index
+		    // AddBlocks index
 		    blocks[index] = (short) (blockId[index] & 0xFF);
 		} else {
 		    if ((index & 1) == 0) {
@@ -328,9 +328,9 @@ public class Schematic {
 		    Block block = new Location(world, x, y, z).add(blockLoc).getBlock();
 		    try {
 			// Do not post air
-			if (blocks[index] != 0) {
-			    block.setTypeIdAndData(blocks[index], data[index], Settings.usePhysics);
-			}
+			//if (blocks[index] != 0) {
+			block.setTypeIdAndData(blocks[index], data[index], Settings.usePhysics);
+			//}
 		    } catch (Exception e) {
 			Bukkit.getLogger().info("Could not set (" + x + "," + y + "," + z + ") block ID:" + blocks[index] + " block data = " + data[index]);
 		    }
@@ -519,10 +519,10 @@ public class Schematic {
 	    blockToChange = welcomeSign.getBlock();
 	    blockToChange.setType(Material.SIGN_POST);
 	    Sign sign = (Sign) blockToChange.getState();
-	    sign.setLine(0, Locale.signLine1.replace("[player]", player.getName()));
-	    sign.setLine(1, Locale.signLine2.replace("[player]", player.getName()));
-	    sign.setLine(2, Locale.signLine3.replace("[player]", player.getName()));
-	    sign.setLine(3, Locale.signLine4.replace("[player]", player.getName()));
+	    sign.setLine(0, ASkyBlock.getPlugin().myLocale(player.getUniqueId()).signLine1.replace("[player]", player.getName()));
+	    sign.setLine(1, ASkyBlock.getPlugin().myLocale(player.getUniqueId()).signLine2.replace("[player]", player.getName()));
+	    sign.setLine(2, ASkyBlock.getPlugin().myLocale(player.getUniqueId()).signLine3.replace("[player]", player.getName()));
+	    sign.setLine(3, ASkyBlock.getPlugin().myLocale(player.getUniqueId()).signLine4.replace("[player]", player.getName()));
 	    // BlockFace direction = ((org.bukkit.material.Sign)
 	    // sign.getData()).getFacing();
 	    ((org.bukkit.material.Sign) sign.getData()).setFacingDirection(BlockFace.NORTH);
@@ -582,5 +582,4 @@ public class Schematic {
 	}
 	return expected.cast(tag);
     }
-
 }
