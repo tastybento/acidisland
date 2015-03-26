@@ -760,14 +760,14 @@ public class IslandCmd implements CommandExecutor {
 	    if (split[0].equalsIgnoreCase("lang")) {
 		player.sendMessage("/" + label + " lang <locale>");
 		player.sendMessage("English");
-		player.sendMessage("Fran??ais");
+		player.sendMessage("Français");
 		player.sendMessage("Deutsch");
-		player.sendMessage("Espa??ol");
+		player.sendMessage("Español");
 		player.sendMessage("Italiano");
-		player.sendMessage("????????? / Korean");
+		player.sendMessage("한국의 / Korean");
 		player.sendMessage("Polski");
 		player.sendMessage("Brasil");
-		player.sendMessage("?????? / Chinese");
+		player.sendMessage("中国 / Chinese");
 		return true;
 	    } else if (split[0].equalsIgnoreCase("settings")) {
 		// Show what the plugin settings are
@@ -1337,34 +1337,34 @@ public class IslandCmd implements CommandExecutor {
 	    if (split[0].equalsIgnoreCase("lang")) {
 		if (split[1].equalsIgnoreCase("english")) {
 		    plugin.getPlayers().setLocale(playerUUID, "en-US"); 
-		} else if (split[1].equalsIgnoreCase("Fran??ais") || split[1].equalsIgnoreCase("Francais")) {
+		} else if (split[1].equalsIgnoreCase("Français") || split[1].equalsIgnoreCase("Francais")) {
 		    plugin.getPlayers().setLocale(playerUUID, "fr-FR"); 
 		} else if (split[1].equalsIgnoreCase("Deutsch")) {
 		    plugin.getPlayers().setLocale(playerUUID, "de-DE");  
-		} else if (split[1].equalsIgnoreCase("espa??ol") || split[1].equalsIgnoreCase("espanol")) {
+		} else if (split[1].equalsIgnoreCase("español") || split[1].equalsIgnoreCase("espanol")) {
 		    plugin.getPlayers().setLocale(playerUUID, "es-ES");  
 		} else if (split[1].equalsIgnoreCase("italiano")) {
 		    plugin.getPlayers().setLocale(playerUUID, "it-IT");  
-		} else if (split[1].equalsIgnoreCase("Korean") || split[1].equalsIgnoreCase("?????????")) {
+		} else if (split[1].equalsIgnoreCase("Korean") || split[1].equalsIgnoreCase("한국의")) {
 		    plugin.getPlayers().setLocale(playerUUID, "ko-KR");  
 		} else if (split[1].equalsIgnoreCase("polski")) {
 		    plugin.getPlayers().setLocale(playerUUID, "pl-PL");  
 		} else if (split[1].equalsIgnoreCase("Brasil")) {
 		    plugin.getPlayers().setLocale(playerUUID, "pt-BR");  
-		} else if (split[1].equalsIgnoreCase("Chinese") || split[1].equalsIgnoreCase("??????")) {
+		} else if (split[1].equalsIgnoreCase("Chinese") || split[1].equalsIgnoreCase("中国")) {
 		    plugin.getPlayers().setLocale(playerUUID, "zh-CN");  
 		} else {
 		    // Typed it in wrong
 		    player.sendMessage("/" + label + " lang <locale>");
 		    player.sendMessage("English");
-		    player.sendMessage("Fran??ais");
+		    player.sendMessage("Français");
 		    player.sendMessage("Deutsch");
-		    player.sendMessage("Espa??ol");
+		    player.sendMessage("Español");
 		    player.sendMessage("Italiano");
-		    player.sendMessage("????????? / Korean");
+		    player.sendMessage("한국의 / Korean");
 		    player.sendMessage("Polski");
 		    player.sendMessage("Brasil");
-		    player.sendMessage("?????? / Chinese");
+		    player.sendMessage("中国 / Chinese");
 		    return true;
 		}
 		player.sendMessage("OK!");
