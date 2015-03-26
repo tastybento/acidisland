@@ -408,7 +408,7 @@ boats:
 sign:
    line1: "&1[AcidIsland]"
    line2: "[player]"
-   line3: "A ‡gua  ‡cido!"
+   line3: "A agua e acido!"
    line4: "Cuidado!"
 
 biome:
