@@ -1,6 +1,6 @@
 name: AcidIsland
 main: com.wasteofplastic.acidisland.ASkyBlock
-version: 2.9.1.2
+version: ${version}
 description: AcidIsland
 author: Tastybento
 depend: [Vault]

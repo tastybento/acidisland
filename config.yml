@@ -2,245 +2,14 @@
 # Config for AcidIsland
 # For initial set up you must configure or check at least these settings:
 #
-# The plugin will NOT start until #3 is set!!!
-# 1. islandLevel - the height you want your islands to float
-# 2. resetmoney - set to true so that everyone starts with nothing
-# 3. distance (in the island section below) - the distance between islands
-# 4. protectionRange - big a player's island is at the start
+# The plugin will NOT start until #1 is set!!!
+# 1. distance (in the island section below) - the distance between islands
+# 2. resetmoney (general section) - set to true so that everyone starts with nothing
+# 3. islandLevel (general section) - the height you want your islands to float
+# 4. sealevel (general section) - the height of the sea
+# 5. protectionRange - big a player's island is at the start
 #
 # #############################################################################
-
-general:
-   # Check for updates - this will tell Ops and the console if there is a new
-   # version available. It contacts dev.bukkit.org to request the latest version
-   # info. It does not download the latest version or change any files
-   checkupdates: true
-
-   # Sea level height (don't changes this mid-game unless you delete the world)
-   # Minimum is 0, which means you are playing sky block!
-   # If sea level is less than about 10, then players will drop right through it
-   # if it exists. Makes for an interesting variation on sky block.
-   sealevel: 50
-
-   # Island level - the height of the island.
-   # Height should not be lower than sea level, but can be if you have an
-   # island schematic that supports it
-   # Lowest level is 5
-   islandlevel: 50
-
-   # Name of the world - if it does not exist then it will be generated
-   worldName: AcidIsland
-
-   # Use the control panel as the default display for /island
-   # /island will always create an island if one does not exist
-   # If the control panel is not used, then /island will teleport the player home
-   usecontrolpanel: false
-
-   # Create Nether - if this is false, the nether world will not be made and access to
-   # AcidIsland control of the nether will not occur. Other plugins may still enable
-   # portal usage.
-   # Note: Some challenges will not be possible if there is no nether.
-   # Note that in AcidIsland, all players arrive at the same portal and entering a
-   # portal will return them back to their islands.
-   createnether: true
-
-   # Try new island-style nether. Change to true
-   # Still in Beta!
-   newnether: false
-
-   # Schematics
-   # The default schematic file (if used) for all players is island.schematic.
-   # To give players other schematics, list a permission and the filename
-   # then give the player that permission (it can be anything)
-   # If the file does not exist, it will not load.
-
-   schematics:
-   #  Note that in this example, the permission is 'schematic.vip'. It can be anything
-   #  you like. For example, an existing permission for a rank of player.
-   # Uncomment the lines after this one after you change them...
-   #  schematic.vip: vipisland.schematic
-   #  schematic.vip2: vip2island.schematic
-   #  schematic.jail: jail.schematic 
-
-   #How long a player must wait before they can reset their island again in second
-   resetwait: 300
-
-   #The number of seconds to wait for confirmation of a reset
-   resetconfirmwait: 10
-
-   #How long a player must wait until they can rejoin a team island after being
-   #kicked in minutes. This slows the effectiveness of players repeating challenges
-   #by repetitively being invited to a team island.
-   invitewait: 60
-
-   # Island level calculation cool down in seconds
-   levelwait: 60
-
-   #How many resets a player is allowed (override with /asadmin clearreset <player>
-   #Value of -1 means unlimited, 0 means hardcore - no resets.
-   #Example, 2 resets means they get 2 resets or 3 islands lifetime
-   resetlimit: 2
-
-   #Commands to run when the player resets their island (uncomment and customize)
-   # [player] is the player name of who is reseting
-   resetcommands:
-   #- kit tools [player]
-   #- some other command
-
-   # Commands to execute when player leaves a team, either by leaving or being kicked
-   # Commands will execute even if the player is offline, so may cause errors in
-   # the console if the commands doesn't make sense
-   leavecommands:
-   #- kit tools [player]
-
-   # Ops receive damage from acid (Set to true if you want Ops to play properly)
-   damageops: false
-
-   # Acid damage to player per second by being in acid if they have no armor on.
-   # A fully health player has 20 health points. Players will regen some health
-   # so the default will give players about 3 seconds to get out the acid
-   # 0 = no damage, 10 = default damage, 20 = instant death
-   aciddamage: 10
-   # Damage that monsters will experience.
-   mobaciddamage: 10
-   # Damage that rain does.
-   raindamage: 1
-   # Damage that animals will experience in acid.
-   animaldamage: 2
-   # Damage chickens in acid - true or false - chickens tend to go swimming...
-   damagechickens: false
-
-   # Damage type to apply in addition to acid damage
-   # Types can be : SLOW, SLOW_DIGGING, CONFUSION,BLINDNESS, HUNGER, WEAKNESS and POISON
-   # If you just want these to act, then make the acid damage 0 above
-   # Note - these are potion effects and so can be cured by milk
-   damagetype:
-   - confusion
-
-   # Removing mobs - this kills all monsters in the vicinity. Benefit is that it helps
-   # players return to their island if the island has been overrun by monsters
-   # Con is that it kills any mob grinders 
-   # Remove mobs when logging in
-   loginremovemobs: true
-
-   # Remove mobs when /island
-   islandremovemobs: false
-
-   # Sets the limit for number of monsters that can spawn in a chunk in this world. 
-   # Note: If set to a negative number the world will use the server-wide spawn limit instead.
-   # Max is 100
-   monsterspawnlimit: 70
-
-   #[integer] Sets the limit for number of animals that can spawn in a chunk in this world. 
-   # Note: If set to a negative number the world will use the server-wide spawn limit instead.
-   # Max is 100
-   animalspawnlimit: 15
-
-   # Breeding limits - if this is set to more than 0, then players will not be able
-   # to breed more animals than that number on their island. A value of zero means no
-   # limit. Note that animals will not be killed or reduced to this limit.
-   # This WILL affect mobspawn blocks AND monster egg use. Note that hearts will
-   # still appear, but breeding will not happen.
-   breedinglimit: 0
-
-   #[integer] Sets the limit for number of water animals [squid] that can spawn in a chunk in this world. 
-   # Note: If set to a negative number the world will use the server-wide spawn limit instead.
-   # Max is 100
-   wateranimalspawnlimit: 15
-
-   #[integer] Island below this level will be removed if they are abandoned and admins issue the purge command
-   abandonedislandlevel: 10
-
-
-   ##### Economy ######
-   # Use economy or not. If true, an economy plugin is required. If false,
-   # no money is used or give and the mini-shop is disabled.
-   # If there is no economy plugin present anyway, money will be automatically
-   # disabled.
-   useeconomy: true
-
-   # Reset Money - if this is true, will reset the player's money to
-   # the starting money (see below) when they start an island or reset
-   # Recommendation is that this is set to true, but if you run multi-worlds
-   # make sure your economy handles multi-worlds too.
-   resetmoney: false
-
-   # Starting money - this is how much money new players will have as their
-   # balance at the start of an island. 
-   startingmoney: 10.00
-
-   # Reset Challenges - if this is true, player's challenges will reset when they
-   # reset an island
-   resetchallenges: true
-
-   # Reset inventory - if true, the player's inventory will be cleared when they start
-   # or restart and island. Default is true.
-   # Note: if you have MultiInv running or a similar inventory control plugin, that
-   # plugin may still reset the inventory when the world changes.
-   resetinventory: true
-
-   # Reset Ender Chest - if true, the player's Ender Chest will be cleared when they
-   # start or restart their island. Default is false.
-   # NOTE: Ender Chests spawn worlds, so it will clear ALL chests. In general,
-   # Enderchests should not be allowed in ASkyblock unless you only run the ASkyblock
-   # world. Ender Chest crafting and use is governed by the askyblock.craft.enderchest
-   # permission.
-   resetenderchest: false
-
-   # Nether spawn protection radius - this is the distance around the nether spawn
-   # that will be protected from player interaction (breaking blocks, pouring lava etc.)
-   # Minimum is 0 (not recommended), maximum is 100. Default is 25.
-   # Only applies to standard nether.
-   netherspawnradius: 25
-
-   # Broadcast 1st time challenge completion messages to all players.
-   # Change to false if the spam becomes too much.
-   broadcastmessages: true
-
-   # Allow /island teleport when falling. If set to false, all teleporting is
-   # disabled until death from the void or until you hit something.
-   # See commands that this will block too
-   allowfallingteleport: true
-   blockingcommands:
-   - home
-   #- anotherCommand
-   #- andAnotherOne
-
-   # Remove non-repeatable challenges from the challenge GUI when complete
-   removecompleteonetimechallenges: false
-
-   # Add enchanted glow to completed challenges (does not work with all clients)
-   # Also currently adds an "enchanted" line of text...
-   addcompletedglow: true
-
-   # Use physics when pasting schematic blocks. If this is false, then blocks
-   # like water will not flow from the schematic
-   usephysics: false
-   
-   # Calculate level on login
-   # If true, the plugin will run the level command for the player when they login
-   # If the command is busy, it will fail silently
-   loginlevel: false
-
-   # Maximum number of homes a player can have
-   # Accessed via sethome <number> or go <number>
-   maxhomes: 1
-
-   # Make island if player teleports to the island world and does not have one
-   makeislandifnone: false
-
-   # Immediately teleport player to their island (home 1 if it exists) when 
-   # entering the world
-   immediateteleport: false
-
-   # Set TEAMSUFFIX variable to player's island level
-   # If true, this will set the server TEAMNAME variable to the player's name and
-   # TEAMSUFFIX to the player's island level.
-   # Use in chat. e.g., for essentials chat, the format could be:
-   #   format: '<{DISPLAYNAME}> (Level {TEAMSUFFIX}): {MESSAGE}'
-   # <tastybento> (Level: 223): hi there
-   # If you have other plugins that use scoreboards/teams, this may mess with them
-   setteamsuffix: false
 
 ##### Island Related Settings #####
 
@@ -297,7 +66,7 @@ island:
    # Format for POTION is POTION:<effect>:<qty> or POTION:<effect>:<type>:<qty>
    # <type> is EXTENDED, SPLASH or EXTENDEDSPLASH. Not all potions can be extended.
    # Check console for errors and guidance after reloading configuration
-   # Set to '' if items are included in the schematic
+   # Schematics can override this - see schematicsection
 
    chestItems: 'MELON:1 TORCH:2 BONE:1 LAVA_BUCKET:1 PUMPKIN_SEEDS:1 SUGAR_CANE:1 RED_MUSHROOM:1 BROWN_MUSHROOM:1 CACTUS:1 BREAD:1 WHEAT:1 POTION:WATER_BREATHING:EXTENDED:1 LEATHER_BOOTS:1 LEATHER_HELMET:1 LEATHER_CHESTPLATE:1 LEATHER_LEGGINGS:1'
 
@@ -308,7 +77,7 @@ island:
    companion: COW
    # This is a list of names, picked at random that will apply to the companion
    # You can add more if you like. If none are listed, the companion will not be
-   # named.
+   # named. Color codes work using &
    companionnames:
    - "&9[player]'s cow"
    - "&cEmergency &fFood?"
@@ -317,8 +86,6 @@ island:
    # Island Protection Settings
 
    # PVP is allowed or not.
-   # If PVP is denied, then players can expel other players from islands
-   # otherwise players have to kill each other
    allowPvP: false
    allowNetherPvP: false
    # Other players can break blocks or not or generally damage things
@@ -393,7 +160,232 @@ island:
    allowbeaconaccess: false
    # Allow portal use by visitors
    allowportaluse: true
+   
+# General settings
+general:
+   # Check for updates - this will tell Ops and the console if there is a new
+   # version available. It contacts dev.bukkit.org to request the latest version
+   # info. It does not download the latest version or change any files
+   checkupdates: true
 
+   # Sea level height (don't changes this mid-game unless you delete the world)
+   # Minimum is 0, which means you are playing sky block!
+   # If sea level is less than about 10, then players will drop right through it
+   # if it exists. Makes for an interesting variation on sky block.
+   sealevel: 50
+
+   # Island level - the height of the island.
+   # Height should not be lower than sea level, but can be if you have an
+   # island schematic that supports it
+   # Lowest level is 5
+   islandlevel: 50
+
+   # Name of the world - if it does not exist then it will be generated
+   worldName: AcidIsland
+
+   # Use the control panel as the default display for /island
+   # /island will always create an island if one does not exist
+   # If the control panel is not used, then /island will teleport the player home
+   usecontrolpanel: false
+
+   # Create Nether - if this is false, the nether world will not be made and access to
+   # AcidIsland control of the nether will not occur. Other plugins may still enable
+   # portal usage.
+   # Note: Some challenges will not be possible if there is no nether.
+   # Note that in AcidIsland, all players arrive at the same portal and entering a
+   # portal will return them back to their islands.
+   createnether: true
+
+   # Try new island-style nether. Change to true
+   # Still in Beta!
+   newnether: false
+
+   #How long a player must wait before they can reset their island again in second
+   resetwait: 300
+
+   #The number of seconds to wait for confirmation of a reset
+   resetconfirmwait: 10
+
+   #How long a player must wait until they can rejoin a team island after being
+   #kicked in minutes. This slows the effectiveness of players repeating challenges
+   #by repetitively being invited to a team island.
+   invitewait: 60
+
+   # Island level calculation cool down in seconds
+   levelwait: 60
+
+   #How many resets a player is allowed (override with /asadmin clearreset <player>
+   #Value of -1 means unlimited, 0 means hardcore - no resets.
+   #Example, 2 resets means they get 2 resets or 3 islands lifetime
+   resetlimit: 2
+
+   #Commands to run when the player resets their island (uncomment and customize)
+   # [player] is the player name of who is reseting
+   resetcommands:
+   #- kit tools [player]
+   #- some other command
+
+   # Commands to execute when player leaves a team, either by leaving or being kicked
+   # Commands will execute even if the player is offline, so may cause errors in
+   # the console if the commands doesn't make sense
+   leavecommands:
+   #- kit tools [player]
+
+   # Ops receive damage from acid (Set to true if you want Ops to play properly)
+   damageops: false
+
+   # Acid damage to player per second by being in acid if they have no armor on.
+   # A fully health player has 20 health points. Players will regen some health
+   # so the default will give players about 3 seconds to get out the acid
+   # 0 = no damage, 10 = default damage, 20 = instant death
+   aciddamage: 10
+   # Damage that monsters will experience.
+   mobaciddamage: 10
+   # Damage that rain does. Acid rain.
+   raindamage: 1
+   # Damage that animals will experience in acid.
+   animaldamage: 2
+   # Damage chickens in acid - true or false - chickens tend to go swimming...
+   damagechickens: false
+
+   # Damage type to apply in addition to acid damage
+   # Types can be : SLOW, SLOW_DIGGING, CONFUSION,BLINDNESS, HUNGER, WEAKNESS and POISON
+   # If you just want these to act, then make the acid damage 0 above
+   # Note - these are potion effects and so can be cured by milk
+   damagetype:
+   - confusion
+
+   # Removing mobs - this kills all monsters in the vicinity. Benefit is that it helps
+   # players return to their island if the island has been overrun by monsters
+   # Con is that it kills any mob grinders 
+   # Remove mobs when logging in
+   loginremovemobs: true
+
+   # Remove mobs when /island
+   islandremovemobs: false
+
+   # Sets the limit for number of monsters that can spawn in a chunk in this world. 
+   # Note: If set to a negative number the world will use the server-wide spawn limit instead.
+   # Max is 100
+   monsterspawnlimit: 70
+
+   #[integer] Sets the limit for number of animals that can spawn in a chunk in this world. 
+   # Note: If set to a negative number the world will use the server-wide spawn limit instead.
+   # Max is 100
+   animalspawnlimit: 15
+
+   #[integer] Breeding limits - if this is set to more than 0, then players will not be able
+   # to breed more animals than that number on their island. A value of zero means no
+   # limit. Note that animals will not be killed or reduced to this limit.
+   # This WILL affect mobspawn blocks AND monster egg use. Note that hearts will
+   # still appear, but breeding will not happen.
+   breedinglimit: 0
+
+   #[integer] Sets the limit for number of water animals [squid] that can spawn in a chunk in this world. 
+   # Note: If set to a negative number the world will use the server-wide spawn limit instead.
+   # Max is 100
+   wateranimalspawnlimit: 15
+
+   #[integer] Island below this level will be removed if they are abandoned and admins issue the purge command
+   abandonedislandlevel: 10
+
+
+   ##### Economy ######
+   # Use economy or not. If true, an economy plugin is required. If false,
+   # no money is used or give and the mini-shop is disabled.
+   # If there is no economy plugin present anyway, money will be automatically
+   # disabled.
+   useeconomy: true
+
+   # Reset Money - if this is true, will reset the player's money to
+   # the starting money (see below) when they start an island or reset
+   # Recommendation is that this is set to true, but if you run multi-worlds
+   # make sure your economy handles multi-worlds too.
+   resetmoney: false
+
+   # Starting money - this is how much money new players will have as their
+   # balance at the start of an island. 
+   startingmoney: 10.00
+
+   # Reset Challenges - if this is true, player's challenges will reset when they
+   # reset an island
+   resetchallenges: true
+
+   # Reset inventory - if true, the player's inventory will be cleared when they start
+   # or restart and island. Default is true.
+   # Note: if you have MultiInv running or a similar inventory control plugin, that
+   # plugin may still reset the inventory when the world changes.
+   resetinventory: true
+
+   # Reset Ender Chest - if true, the player's Ender Chest will be cleared when they
+   # start or restart their island. Default is false.
+   # NOTE: Ender Chests spawn worlds, so it will clear ALL chests. In general,
+   # Enderchests should not be allowed in ASkyblock unless you only run the ASkyblock
+   # world. Ender Chest crafting and use is governed by the askyblock.craft.enderchest
+   # permission.
+   resetenderchest: false
+
+   # Nether spawn protection radius - this is the distance around the nether spawn
+   # that will be protected from player interaction (breaking blocks, pouring lava etc.)
+   # Minimum is 0 (not recommended), maximum is 100. Default is 25.
+   # Only applies to standard nether.
+   netherspawnradius: 25
+
+   # Broadcast 1st time challenge completion messages to all players.
+   # Change to false if the spam becomes too much.
+   broadcastmessages: true
+
+   # Allow /island teleport when falling. If set to false, all teleporting is
+   # disabled until death from the void or until you hit something.
+   # See commands that this will block too. Not really applicable to AcidIsland.
+   allowfallingteleport: true
+   blockingcommands:
+   - home
+   #- anotherCommand
+   #- andAnotherOne
+
+   # Remove non-repeatable challenges from the challenge GUI when complete
+   removecompleteonetimechallenges: false
+
+   # Add enchanted glow to completed challenges (does not work with all clients)
+   # Also currently adds an "enchanted" line of text...
+   addcompletedglow: true
+
+   # Use physics when pasting schematic blocks. If this is false, then blocks
+   # like water will not flow from the schematic
+   usephysics: false
+   
+   # Calculate level on login
+   # If true, the plugin will run the level command for the player when they login
+   # If the command is busy, it will fail silently
+   loginlevel: false
+
+   # Maximum number of homes a player can have
+   # Accessed via sethome <number> or go <number>
+   maxhomes: 1
+
+   # Make island if player teleports to the island world and does not have one
+   # If the player is eligible for multiple islands they may get a GUI
+   makeislandifnone: false
+
+   # Immediately teleport player to their island (home 1 if it exists) when 
+   # entering the world
+   immediateteleport: false
+
+   # Set TEAMSUFFIX variable to player's island level
+   # If true, this will set the server TEAMNAME variable to the player's name and
+   # TEAMSUFFIX to the player's island level.
+   # Use in chat. e.g., for essentials chat, the format could be:
+   #   format: '<{DISPLAYNAME}> (Level {TEAMSUFFIX}): {MESSAGE}'
+   # <tastybento> (Level: 223): hi there
+   # If you have other plugins that use scoreboards/teams, this may mess with them
+   setteamsuffix: false
+
+   # Config.yml version. DO NOT EDIT. This number only changes if the latest
+   # plugin config has been updated. If a new config is detected, it will be
+   # auto-saved to config.new.yml.
+   version: ${version}
+   
 # Spawn protection options - different to regular islands
 spawn:
   # The following are recommended to be true at spawn
@@ -448,41 +440,90 @@ biomes:
     icon: SAPLING
     cost: 700
     description: Snowy and cold. Brrr.
+    # Perms can be any string you like!
+    permission: acidisland.biomes.cold_taiga
   DESERT:
     icon: DEAD_BUSH
     description: A dry desert. Warning - Ice or snow have to go.
+    #permission: any.perm.you.want
   FLOWER_FOREST:
     icon: RED_ROSE
     description: The place for flowers!
+    #permission: any.perm.you.want
   HELL:
     icon: LAVA_BUCKET
     cost: 1000
-    # Note, this permission can be anything you like
-    permission: askyblock.biomes.hell
+    permission: acidisland.biomes.hell
     friendlyname: Nether
     description: Warning - all water, snow and ice will be removed.
   JUNGLE:
     icon: VINE
     description: Lush jungle. Warning - Ice or snow have to go.
+    #permission: any.perm.you.want
   MUSHROOM_ISLAND:
     icon: RED_MUSHROOM
     # Note, this permission can be anything you like
     permission: askyblock.biomes.mushoom_island
     description: Mushroom island
+    #permission: any.perm.you.want
   PLAINS:
     icon: GRASS
     description: Plain plains!
+    #permission: any.perm.you.want
     cost: 0
   SWAMPLAND:
     icon: WATER_LILY
     description: Swampy. Warning - Ice or snow have to go.
+    #permission: any.perm.you.want
   MESA:
     icon: HARD_CLAY
     description: Rare dry, desert biome. Warning - Ice or snow have to go.
+    #permission: any.perm.you.want
     cost: 500
   SAVANNA:
     icon: LONG_GRASS
     description: Flat and dry, no rain. Warning - Ice or snow have to go.
+    #permission: any.perm.you.want
   ROOFED_FOREST:
     icon: LOG
     description: Black forest
+    #permission: any.perm.you.want
+    
+schematicsection:
+   # All schematics should be put in the schematics folder
+
+   # Schematic panel - if more than one schematic is available to the player
+   # Show a panel to choose. If this is false, no panel is shown and the starter 
+   # island is picked by permission. If a player has more than one permission
+   # the island selected is undefined - the plugin will pick one.
+  useschematicspanel: true
+
+  # This section lists all the schematics available
+  # You can add or remove from this list. If this section is missing, only the default
+  # island works.
+  schematics:
+    # default heading is required
+    default:
+      # Icon - if this is missing or wrong, it will be a MAP
+      icon: SAND
+      # Short name - color codes with & okay
+      name: "The Original"
+      # Longer description. Use | for new lines. Color codes okay.
+      description: "Challenging|starter|island!"
+      # Filename of the schematic in the schematic folder
+      # Default island does not need a filename
+      # filename: island.schematic
+      # Use default chest if true, or use schematic chest contents if false
+      useDefaultChest: true
+    # Additional heading names can be anything you like, but must be unique
+    temple:
+      icon: CACTUS
+      name: "Temple"
+      description: "You find yourself|on a desert island|with a hidden secret!"
+      filename: temple.schematic
+      useDefaultChest: false
+      # Biome can be set here
+      biome: DESERT
+      # If schematic should paste blocks without physics or not
+      usephysics: false
+      #permission: any.perm.you.like

@@ -446,3 +446,5 @@ lock:
    enteringspawn: "Entering Spawn"
    leavingspawn: "Leaving Spawn"
 
+schematics:
+   title: "Select island..."

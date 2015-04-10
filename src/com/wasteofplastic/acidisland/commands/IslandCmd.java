@@ -22,10 +22,10 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -36,20 +36,17 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.TreeType;
-import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.DirectionalContainer;
 import org.bukkit.scheduler.BukkitTask;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
@@ -63,8 +60,9 @@ import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.TopTen;
 import com.wasteofplastic.acidisland.WarpSigns;
 import com.wasteofplastic.acidisland.listeners.IslandGuard;
-import com.wasteofplastic.acidisland.panels.Biomes;
+import com.wasteofplastic.acidisland.panels.BiomesPanel;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
+import com.wasteofplastic.acidisland.panels.SchematicsPanel;
 import com.wasteofplastic.acidisland.panels.SettingsPanel;
 import com.wasteofplastic.acidisland.schematics.Schematic;
 import com.wasteofplastic.acidisland.util.Util;
@@ -73,13 +71,16 @@ import com.wasteofplastic.acidisland.util.VaultHelper;
 public class IslandCmd implements CommandExecutor {
     public boolean levelCalcFreeFlag = true;
     // private Schematic island = null;
-    private HashMap<String, Schematic> schematics = new HashMap<String, Schematic>();
+    private static HashMap<String, Schematic> schematics = new HashMap<String, Schematic>();
     // private Location Islandlocation;
     private ASkyBlock plugin;
     // The island reset confirmation
     private HashMap<UUID, Boolean> confirm = new HashMap<UUID, Boolean>();
     // Last island
     Location last = null;
+    // List of players in the middle of choosing an island schematic
+    private Set<UUID> pendingNewIslandSelection = new HashSet<UUID>();
+    private Set<UUID> resettingIsland = new HashSet<UUID>();
     /**
      * Invite list - invited player name string (key), inviter name string
      * (value)
@@ -103,41 +104,164 @@ public class IslandCmd implements CommandExecutor {
     public IslandCmd(ASkyBlock aSkyBlock) {
 	// Plugin instance
 	this.plugin = aSkyBlock;
-	// Get the next island spot
-	// Location loc = getNextIsland();
-	// plugin.getLogger().info("Next free island spot is at " +
-	// loc.getBlockX() + "," + loc.getBlockZ());
-	// Check if there is a schematic
-	File schematicFile = new File(plugin.getDataFolder(), "island.schematic");
+	// Load schematics
+	loadSchematics();
+    }
+
+    /**
+     * Loads schematics from the config.yml file. If the default
+     * island is not included, it will be made up
+     */
+    public static void loadSchematics() {
+	ASkyBlock plugin = ASkyBlock.getPlugin();
+	// Check if there is a schematic folder and make it if it does not exist
+	File schematicFolder = new File(plugin.getDataFolder(), "schematics");
+	if (!schematicFolder.exists()) {
+	    schematicFolder.mkdir();
+	}
+	// Clear the schematic list that is kept in memory
+	schematics.clear();
+	// Load the default schematic if it exists
+	// Set up the default schematic
+	File schematicFile = new File(schematicFolder, "island.schematic");
 	if (!schematicFile.exists()) {
-	    // Load in the ASkyBlock one if required
-	    if (Settings.GAMETYPE.equals(Settings.GameType.ASKYBLOCK)) {
-		plugin.saveResource("island.schematic", false);
-		schematicFile = new File(plugin.getDataFolder(), "island.schematic");
+	    //plugin.getLogger().info("Default schematic does not exist...");
+	    // Only copy if the default exists
+	    if (plugin.getResource("schematics/island.schematic") != null) {
+		plugin.getLogger().info("Default schematic does not exist, saving it...");
+		plugin.saveResource("schematics/island.schematic", false);
+		// Add it to schematics
+		schematics.put("default",new Schematic(schematicFile));
+		// If this is repeated later due to the schematic config, fine, it will only add info
+	    } else {
+		// No islands.schematic in the jar, so just make the default using 
+		// built-in island generation
+		schematics.put("default",new Schematic());
 	    }
+	} else {
+	    // It exists, so load it
+	    schematics.put("default",new Schematic(schematicFile));
 	}
-	if (schematicFile.exists()) {
-	    plugin.getLogger().info("Trying to load island schematic...");
-	    schematics.put("", new Schematic(schematicFile));
-	    // island = Schematic.loadSchematic(schematicFile);
-	}
-	// Now add any permission-based schematics
-	if (!Settings.schematics.isEmpty()) {
-	    for (String perm : Settings.schematics.keySet()) {
-		schematicFile = new File(plugin.getDataFolder(), Settings.schematics.get(perm));
-		if (schematicFile.exists()) {
-		    schematics.put(perm, new Schematic(schematicFile));
-		    // island = Schematic.loadSchematic(schematicFile);
+
+	// Load the schematics from config.yml
+	ConfigurationSection schemSection = plugin.getConfig().getConfigurationSection("schematicsection");
+	if (plugin.getConfig().contains("schematicsection") && schemSection != null) {
+	    //plugin.getLogger().info("DEBUG: New Schematic section exists");
+	    Settings.useSchematicPanel = schemSection.getBoolean("useschematicspanel", true);
+	    // Section exists, so go through the various sections
+	    for (String key : schemSection.getConfigurationSection("schematics").getKeys(false)) {
+		Schematic newSchem = null;
+		// Check the file exists
+		//plugin.getLogger().info("DEBUG: schematics." + key + ".filename" );
+		String filename = schemSection.getString("schematics." + key + ".filename","");
+		if (!filename.isEmpty()) {
+		    //plugin.getLogger().info("DEBUG: filename = " + filename);
+		    // Check if this file exists or if it is in the jar
+		    schematicFile = new File(schematicFolder, filename);
+		    // See if the file exists
+		    if (schematicFile.exists()) {
+			newSchem = new Schematic(schematicFile);
+		    } else if (plugin.getResource("schematics/"+filename) != null) {
+			plugin.saveResource("schematics/"+filename, false);
+			newSchem = new Schematic(schematicFile);
+		    }
 		} else {
-		    plugin.getLogger().severe("Schematic file '" + Settings.schematics.get(perm) + "' does not exist!");
+		    //plugin.getLogger().info("DEBUG: filename is empty");
+		    if (key.equalsIgnoreCase("default")) {
+			//Øplugin.getLogger().info("DEBUG: key is default, so use this one");
+			newSchem = schematics.get("default");
+		    } else {
+			plugin.getLogger().severe("Schematic " + key + " does not have a filename. Skipping!");
+		    }
+		}
+		if (newSchem != null) {   
+		    // Set the heading
+		    newSchem.setHeading(key);
+		    // Load the rest of the settings
+		    // Icon
+		    try {   
+			Material icon = Material.getMaterial(schemSection.getString("schematics." + key + ".icon","MAP").toUpperCase());
+			newSchem.setIcon(icon);
+		    } catch (Exception e) {
+			newSchem.setIcon(Material.MAP); 
+		    }
+		    // Friendly name
+		    String name = ChatColor.translateAlternateColorCodes('&', schemSection.getString("schematics." + key + ".name",""));
+		    newSchem.setName(name);
+		    // Rating - Rating is not used right now
+		    int rating = schemSection.getInt("schematics." + key + ".rating",50);
+		    if (rating <1) {
+			rating = 1;
+		    } else if (rating > 100) {
+			rating = 100;
+		    }
+		    newSchem.setRating(rating);
+		    // Description
+		    String description = ChatColor.translateAlternateColorCodes('&', schemSection.getString("schematics." + key + ".description",""));
+		    description = description.replace("[rating]",String.valueOf(rating));
+		    newSchem.setDescription(description);
+		    // Permission
+		    String perm = schemSection.getString("schematics." + key + ".permission","");
+		    newSchem.setPerm(perm);
+		    // Use default chest
+		    newSchem.setUseDefaultChest(schemSection.getBoolean("schematics." + key + ".useDefaultChest", true));
+		    // Biomes - overrides default if it exists
+		    String biomeString = schemSection.getString("schematics." + key + ".biome",Settings.defaultBiome.toString());
+		    try {
+			newSchem.setBiome(Biome.valueOf(biomeString));
+		    } catch (Exception e) {
+			plugin.getLogger().severe("Could not parse biome " + biomeString + " using default instead.");
+		    }
+		    // Use physics - overrides default if it exists
+		    newSchem.setUsePhysics(schemSection.getBoolean("schematics." + key + ".usephysics",Settings.usePhysics));
+		    // Store it
+		    schematics.put(key, newSchem);
+		    if (perm.isEmpty()) {
+			perm = "all players";
+		    } else {
+			perm = "player with " + perm + " permission";
+		    }
+		    plugin.getLogger().info("Loading schematic " + name + " (" + filename + ") for " + perm);
+		} else {
+		    plugin.getLogger().warning("Could not find " + filename + " in the schematics folder! Skipping...");
 		}
 	    }
+	    if (schematics.isEmpty()) {
+		tip();
+	    }
+	} else {
+	    //plugin.getLogger().info("DEBUG: Legacy support");
+	    // Legacy support
+	    if (plugin.getConfig().contains("general.schematics")) {
+		tip();
+		// Load the schematics in this section 
+		int count = 1;
+		for (String perms: plugin.getConfig().getConfigurationSection("general.schematics").getKeys(true)) {
+		    // See if the file exists
+		    String fileName = plugin.getConfig().getString("general.schematics." + perms);
+		    File schem = new File(plugin.getDataFolder(), fileName);
+		    if (schem.exists()) {
+			plugin.getLogger().info("Loading schematic " + fileName + " for permission " + perms);
+			Schematic schematic = new Schematic(schem);
+			schematic.setPerm(perms);
+			schematic.setHeading(perms);
+			schematic.setName("#" + count++);
+			schematics.put(perms, schematic);
+		    } 
+		}	    
+	    } //else {
+	    //plugin.getLogger().info("DEBUG: no schematics section found");
+	    //}
 	}
     }
 
-    /*
-     * PARTY SECTION!
-     */
+    private static void tip() {
+	// There is no section in config.yml. Save the default schematic anyway
+	ASkyBlock.getPlugin().getLogger().warning("***************************************************************");
+	ASkyBlock.getPlugin().getLogger().warning("* 'schematics' section in config.yml has been deprecated.     *");
+	ASkyBlock.getPlugin().getLogger().warning("* See 'schematicsection' in config.new.yml for replacement.   *");
+	ASkyBlock.getPlugin().getLogger().warning("***************************************************************");
+    }
 
     /**
      * Adds a player to a team. The player and the teamleader MAY be the same
@@ -208,7 +332,8 @@ public class IslandCmd implements CommandExecutor {
 	// If player is not the leader of their own team
 	if (!player.equals(teamleader)) {
 	    plugin.getPlayers().setLeaveTeam(player);
-	    plugin.getPlayers().setHomeLocation(player, null);
+	    //plugin.getPlayers().setHomeLocation(player, null);
+	    plugin.getPlayers().clearHomeLocations(player);
 	    plugin.getPlayers().setIslandLocation(player, null);
 	    plugin.getPlayers().setTeamIslandLocation(player, null);
 	    runCommands(Settings.leaveCommands, player);
@@ -221,64 +346,95 @@ public class IslandCmd implements CommandExecutor {
     }
 
     /**
-     * Makes an island
-     * 
-     * @param sender
-     *            player who issued the island command
-     * @return true if successful
+     * Results all the valid schematics for this player in addition to the default one
+     * @param player
+     * @return Set of schematics this player can use based on their permission level
      */
-    private Location newIsland(final CommandSender sender) {
-	// Player who is issuing the command
-	final Player player = (Player) sender;
-	final UUID playerUUID = player.getUniqueId();
-	// final Players p = plugin.getPlayers().get(player.getName());
-	Location next = getNextIsland();
-	// plugin.getLogger().info("DEBUG: next location is " +
-	// next.toString());
-	plugin.setNewIsland(true);
-	Location cowSpot = generateIslandBlocks(next.getBlockX(), next.getBlockZ(), player, ASkyBlock.getIslandWorld());
-	plugin.setNewIsland(false);
-	// plugin.getLogger().info("DEBUG: player ID is: " +
-	// playerUUID.toString());
-	plugin.getPlayers().setHasIsland(playerUUID, true);
-	// plugin.getLogger().info("DEBUG: Set island to true - actually is " +
-	// plugin.getPlayers().hasIsland(playerUUID));
+    public static List<Schematic> getSchematics(Player player) {
+	List<Schematic> result = new ArrayList<Schematic>();
+	if (!schematics.isEmpty()) {
+	    // Find out what schematics this player can choose from
+	    //Bukkit.getLogger().info("DEBUG: Checking schematics for " + player.getName());
+	    for (Schematic schematic : schematics.values()) {
+		//Bukkit.getLogger().info("DEBUG: schematic name is '"+ schematic.getName() + "'");
+		//Bukkit.getLogger().info("DEBUG: perm is " + schematic.getPerm());
+		if (schematic.getPerm().isEmpty() || VaultHelper.checkPerm(player, schematic.getPerm())) {
+		    //Bukkit.getLogger().info("DEBUG: player can use this schematic");
+		    result.add(schematic);
+		}
+	    }
+	}
+	return result;
+    }
 
+    /**
+     * Makes the default island for the player
+     * @param player
+     */
+    public void newIsland(final Player player) {
+	plugin.getLogger().info("Making default island");
+	newIsland(player, schematics.get("default"));
+    }
+
+    /**
+     * Makes an island
+     * @param player
+     * @param name - permission name for the schematic
+     * @return location where the cow will be placed
+     */
+    public void newIsland(final Player player, Schematic schematic) {
+	final UUID playerUUID = player.getUniqueId();
+	Location next = getNextIsland();
+	// Sets a flag to temporarily disable cleanstone generation
+	plugin.setNewIsland(true);
+	plugin.getBiomes();
+	// Create island based on schematic
+	if (schematic != null) {
+	    //plugin.getLogger().info("DEBUG: pasting schematic " + schematic.getName() + " " + schematic.getPerm());
+	    schematic.pasteSchematic(next, player);
+	    // Record the rating of this schematic - not used for anything right now
+	    plugin.getPlayers().setStartIslandRating(playerUUID, schematic.getRating());
+	    // Set the biome
+	    BiomesPanel.setIslandBiome(next, schematic.getBiome());
+	} 
+	// Clear the cleanstone flag so events can happen again
+	plugin.setNewIsland(false);
+	// Set the player's parameters to this island
+	plugin.getPlayers().setHasIsland(playerUUID, true);
+	// Clear any old home locations (they should be clear, but just in case)
+	plugin.getPlayers().clearHomeLocations(playerUUID);
+	// Set the player's island location to this new spot
 	plugin.getPlayers().setIslandLocation(playerUUID, next);
 	// Add to the grid
 	plugin.getGrid().addIsland(next.getBlockX(), next.getBlockZ(), playerUUID);
-	// plugin.getLogger().info("DEBUG: player island location is " +
-	// plugin.getPlayers().getIslandLocation(playerUUID).toString());
-	// Teleport the player to a safe place
-	// plugin.getGrid().homeTeleport(player);
+	// Save the player so that if the server is reset weird things won't happen
 	plugin.getPlayers().save(playerUUID);
-	// Remove any mobs if they just so happen to be around in the
-	// vicinity
-	/*
-	 * final Iterator<Entity> ents = player.getNearbyEntities(50.0D, 250.0D,
-	 * 50.0D).iterator();
-	 * int numberOfCows = 0;
-	 * while (ents.hasNext()) {
-	 * final Entity tempent = ents.next();
-	 * // Remove anything except for the player himself and the cow (!)
-	 * if (!(tempent instanceof Player) &&
-	 * !tempent.getType().equals(EntityType.COW)) {
-	 * plugin.getLogger().warning("Removed an " +
-	 * tempent.getType().toString() + " when creating island for " +
-	 * player.getName());
-	 * tempent.remove();
-	 * } else if (tempent.getType().equals(EntityType.COW)) {
-	 * numberOfCows++;
-	 * if (numberOfCows > 1) {
-	 * plugin.getLogger().warning(
-	 * "Removed an extra cow when creating island for " + player.getName());
-	 * tempent.remove();
-	 * }
-	 * }
-	 * }
-	 */
+	// Teleport to the new home
+	plugin.getGrid().homeTeleport(player);
+	// Reset any inventory, etc. This is done AFTER the teleport because other plugins may switch out inventory based on world
+	plugin.resetPlayer(player);
+	// Reset money if required
+	if (Settings.resetMoney) {
+	    resetMoney(player);
+	}
+	// Start the reset cooldown
+	setResetWaitTime(player);
+	// Show fancy titles!
+	if (!plugin.myLocale(player.getUniqueId()).islandSubTitle.isEmpty()) {
+	    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
+		    "title " + player.getName() + " subtitle {text:\"" + plugin.myLocale(player.getUniqueId()).islandSubTitle + "\", color:blue}");
+	}
+	if (!plugin.myLocale(player.getUniqueId()).islandTitle.isEmpty()) {
+	    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
+		    "title " + player.getName() + " title {text:\"" + plugin.myLocale(player.getUniqueId()).islandTitle + "\", color:gold}");
+	}
+	if (!plugin.myLocale(player.getUniqueId()).islandDonate.isEmpty() && !plugin.myLocale(player.getUniqueId()).islandURL.isEmpty()) {
+	    plugin.getServer().dispatchCommand(
+		    plugin.getServer().getConsoleSender(),
+		    "tellraw " + player.getName() + " {text:\"" + plugin.myLocale(player.getUniqueId()).islandDonate + "\",color:aqua" + ",clickEvent:{action:open_url,value:\""
+			    + plugin.myLocale(player.getUniqueId()).islandURL + "\"}}");
+	}
 	// Done
-	return cowSpot;
     }
 
     /**
@@ -415,173 +571,8 @@ public class IslandCmd implements CommandExecutor {
 
     }
 
-    /**
-     * Creates an island block by block
-     * 
-     * @param x
-     * @param z
-     * @param player
-     * @param world
-     */
-    @SuppressWarnings("deprecation")
-    private Location generateIslandBlocks(final int x, final int z, final Player player, final World world) {
-	Location cowSpot = null;
-	Location islandLoc = new Location(world, x, Settings.island_level, z);
-	// What happens next depends on whether this is AcidIsland or ASkyBlock
-	// Check to see if a baseline schematic is loaded
-	if (!schematics.isEmpty()) {
-	    // This is the same for AcidIsland or ASkyblock
-	    // Find out what level of island this player will get
-	    String mySchematic = "";
-	    for (String perm : schematics.keySet()) {
-		if (VaultHelper.checkPerm(player, perm)) {
-		    mySchematic = perm;
-		}
-	    }
-	    // plugin.getLogger().info("DEBUG: size of schematics = " +
-	    // schematics.size());
-	    // Paste the schematic
-	    cowSpot = schematics.get(mySchematic).pasteSchematic(world, islandLoc, player);
-	    if (cowSpot == null) {
-		islandLoc.getBlock().setType(Material.BEDROCK);
-		plugin.getLogger().severe("Schematic loading error - cannot load " + mySchematic);
-		player.sendMessage(ChatColor.RED + "There was a massive problem pasting the new island. Please tell an admin!");
-		return islandLoc;
-	    }
-	    return cowSpot;
-	} else {
-	    // No schematic loaded
-	    if (Settings.GAMETYPE.equals(Settings.GameType.ASKYBLOCK)) {
-		islandLoc.getBlock().setType(Material.BEDROCK);
-		player.sendMessage(ChatColor.RED + "No schematic!");
-		return islandLoc;
-	    } else {
-		// AcidIsland
-		// Build island layer by layer
-		// Start from the base
-		// half sandstone; half sand
-		int y = 0;
-		for (int x_space = x - 4; x_space <= x + 4; x_space++) {
-		    for (int z_space = z - 4; z_space <= z + 4; z_space++) {
-			final Block b = world.getBlockAt(x_space, y, z_space);
-			b.setType(Material.BEDROCK);
-		    }
-		}
-		for (y = 1; y < Settings.island_level + 5; y++) {
-		    for (int x_space = x - 4; x_space <= x + 4; x_space++) {
-			for (int z_space = z - 4; z_space <= z + 4; z_space++) {
-			    final Block b = world.getBlockAt(x_space, y, z_space);
-			    if (y < (Settings.island_level / 2)) {
-				b.setType(Material.SANDSTONE);
-			    } else {
-				b.setType(Material.SAND);
-				b.setData((byte) 0);
-			    }
-			}
-		    }
-		}
-		// Then cut off the corners to make it round-ish
-		for (y = 0; y < Settings.island_level + 5; y++) {
-		    for (int x_space = x - 4; x_space <= x + 4; x_space += 8) {
-			for (int z_space = z - 4; z_space <= z + 4; z_space += 8) {
-			    final Block b = world.getBlockAt(x_space, y, z_space);
-			    b.setType(Material.STATIONARY_WATER);
-			}
-		    }
-		}
-		// Add some grass
-		for (y = Settings.island_level + 4; y < Settings.island_level + 5; y++) {
-		    for (int x_space = x - 2; x_space <= x + 2; x_space++) {
-			for (int z_space = z - 2; z_space <= z + 2; z_space++) {
-			    final Block blockToChange = world.getBlockAt(x_space, y, z_space);
-			    blockToChange.setType(Material.GRASS);
-			}
-		    }
-		}
-		// Place bedrock - MUST be there (ensures island are not
-		// overwritten
-		Block b = world.getBlockAt(x, Settings.island_level, z);
-		b.setType(Material.BEDROCK);
-		// Then add some more dirt in the classic shape
-		y = Settings.island_level + 3;
-		for (int x_space = x - 2; x_space <= x + 2; x_space++) {
-		    for (int z_space = z - 2; z_space <= z + 2; z_space++) {
-			b = world.getBlockAt(x_space, y, z_space);
-			b.setType(Material.DIRT);
-		    }
-		}
-		b = world.getBlockAt(x - 3, y, z);
-		b.setType(Material.DIRT);
-		b = world.getBlockAt(x + 3, y, z);
-		b.setType(Material.DIRT);
-		b = world.getBlockAt(x, y, z - 3);
-		b.setType(Material.DIRT);
-		b = world.getBlockAt(x, y, z + 3);
-		b.setType(Material.DIRT);
-		y = Settings.island_level + 2;
-		for (int x_space = x - 1; x_space <= x + 1; x_space++) {
-		    for (int z_space = z - 1; z_space <= z + 1; z_space++) {
-			b = world.getBlockAt(x_space, y, z_space);
-			b.setType(Material.DIRT);
-		    }
-		}
-		b = world.getBlockAt(x - 2, y, z);
-		b.setType(Material.DIRT);
-		b = world.getBlockAt(x + 2, y, z);
-		b.setType(Material.DIRT);
-		b = world.getBlockAt(x, y, z - 2);
-		b.setType(Material.DIRT);
-		b = world.getBlockAt(x, y, z + 2);
-		b.setType(Material.DIRT);
-		y = Settings.island_level + 1;
-		b = world.getBlockAt(x - 1, y, z);
-		b.setType(Material.DIRT);
-		b = world.getBlockAt(x + 1, y, z);
-		b.setType(Material.DIRT);
-		b = world.getBlockAt(x, y, z - 1);
-		b.setType(Material.DIRT);
-		b = world.getBlockAt(x, y, z + 1);
-		b.setType(Material.DIRT);
 
-		// Add island items
-		y = Settings.island_level;
-		// Add tree (natural)
-		final Location treeLoc = new Location(world, x, y + 5D, z);
-		world.generateTree(treeLoc, TreeType.ACACIA);
-		// Place the cow
-		cowSpot = new Location(world, x, (Settings.island_level + 5), z - 2);
 
-		// Place a helpful sign in front of player
-		Block blockToChange = world.getBlockAt(x, Settings.island_level + 5, z + 3);
-		blockToChange.setType(Material.SIGN_POST);
-		Sign sign = (Sign) blockToChange.getState();
-		sign.setLine(0, plugin.myLocale(player.getUniqueId()).signLine1.replace("[player]", player.getName()));
-		sign.setLine(1, plugin.myLocale(player.getUniqueId()).signLine2.replace("[player]", player.getName()));
-		sign.setLine(2, plugin.myLocale(player.getUniqueId()).signLine3.replace("[player]", player.getName()));
-		sign.setLine(3, plugin.myLocale(player.getUniqueId()).signLine4.replace("[player]", player.getName()));
-		((org.bukkit.material.Sign) sign.getData()).setFacingDirection(BlockFace.NORTH);
-		sign.update();
-		// Place the chest - no need to use the safe spawn function
-		// because we
-		// know what this island looks like
-		blockToChange = world.getBlockAt(x, Settings.island_level + 5, z + 1);
-		blockToChange.setType(Material.CHEST);
-		// Only set if the config has items in it
-		if (Settings.chestItems.length > 0) {
-		    final Chest chest = (Chest) blockToChange.getState();
-		    final Inventory inventory = chest.getInventory();
-		    inventory.clear();
-		    inventory.setContents(Settings.chestItems);
-		    chest.update();
-		}
-		// Fill the chest and orient it correctly (1.8 faces it north!
-		DirectionalContainer dc = (DirectionalContainer) blockToChange.getState().getData();
-		dc.setFacingDirection(BlockFace.SOUTH);
-		blockToChange.setData(dc.getData(), true);
-		return cowSpot;
-	    }
-	}
-    }
 
     /**
      * Finds the next free island spot based off the last known island Uses
@@ -706,37 +697,23 @@ public class IslandCmd implements CommandExecutor {
 	    if (plugin.getPlayers().getIslandLocation(playerUUID) == null && !plugin.getPlayers().inTeam(playerUUID)) {
 		// Create new island for player
 		player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).islandnew);
-		final Location cowSpot = newIsland(sender);
-		plugin.getGrid().homeTeleport(player);
-		plugin.resetPlayer(player);
-		if (Settings.resetMoney) {
-		    resetMoney(player);
-		}
-		plugin.getBiomes().setIslandBiome(plugin.getPlayers().getIslandLocation(playerUUID), Settings.defaultBiome);
-		// plugin.getLogger().info("Spawning cow at " +
-		// cowSpot.toString());
-		if (Settings.islandCompanion != null) {
-		    plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
-			@Override
-			public void run() {
-			    spawnCompanion(player, cowSpot);
-			}
-		    }, 40L);
-		}
-		setResetWaitTime(player);
-		if (!plugin.myLocale(player.getUniqueId()).islandSubTitle.isEmpty()) {
-		    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
-			    "title " + player.getName() + " subtitle {text:\"" + plugin.myLocale(player.getUniqueId()).islandSubTitle + "\", color:blue}");
-		}
-		if (!plugin.myLocale(player.getUniqueId()).islandTitle.isEmpty()) {
-		    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
-			    "title " + player.getName() + " title {text:\"" + plugin.myLocale(player.getUniqueId()).islandTitle + "\", color:gold}");
-		}
-		if (!plugin.myLocale(player.getUniqueId()).islandDonate.isEmpty() && !plugin.myLocale(player.getUniqueId()).islandURL.isEmpty()) {
-		    plugin.getServer().dispatchCommand(
-			    plugin.getServer().getConsoleSender(),
-			    "tellraw " + player.getName() + " {text:\"" + plugin.myLocale(player.getUniqueId()).islandDonate + "\",color:aqua" + ",clickEvent:{action:open_url,value:\""
-				    + plugin.myLocale(player.getUniqueId()).islandURL + "\"}}");
+		// Get the schematics that this player is eligible to use
+		List<Schematic> schems = getSchematics(player);
+		//plugin.getLogger().info("DEBUG: size of schematics for this player = " + schems.size());
+		if (schems.isEmpty()) {
+		    // No schematics - use default island
+		    newIsland(player);
+		} else if (schems.size() == 1) {
+		    // Hobson's choice
+		    newIsland(player,schems.get(0));
+		} else {
+		    if (Settings.useSchematicPanel) {
+			pendingNewIslandSelection.add(playerUUID);
+			player.openInventory(SchematicsPanel.getSchematicPanel(player));
+		    } else {
+			// Do the last one in the list
+			newIsland(player, schems.get(schems.size()-1));
+		    }
 		}
 		return true;
 	    } else {
@@ -757,103 +734,119 @@ public class IslandCmd implements CommandExecutor {
 		return true;
 	    }
 	case 1:
-	    if (split[0].equalsIgnoreCase("lang")) {
-		player.sendMessage("/" + label + " lang <locale>");
-		player.sendMessage("English");
-		player.sendMessage("Français");
-		player.sendMessage("Deutsch");
-		player.sendMessage("Español");
-		player.sendMessage("Italiano");
-		player.sendMessage("한국의 / Korean");
-		player.sendMessage("Polski");
-		player.sendMessage("Brasil");
-		player.sendMessage("中国 / Chinese");
-		return true;
-	    } else if (split[0].equalsIgnoreCase("settings")) {
-		// Show what the plugin settings are
-		if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lock")) {
-		player.openInventory(SettingsPanel.islandGuardPanel());
-		} else {
-		    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoPermission);
+	    if (split[0].equalsIgnoreCase("make")) {
+		//plugin.getLogger().info("DEBUG: /is make called");
+		if (!pendingNewIslandSelection.contains(playerUUID)) {
+		    return false;
+		}
+		pendingNewIslandSelection.remove(playerUUID);
+		Location oldIsland = plugin.getPlayers().getIslandLocation(player.getUniqueId());
+		newIsland(player);
+		if (resettingIsland.contains(playerUUID)) {
+		    resettingIsland.remove(playerUUID);
+		    resetPlayer(player, oldIsland);
 		}
 		return true;
-	    } else if (split[0].equalsIgnoreCase("lock")) {
-		if (!VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lock")) {
-		    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoPermission);
+	    } else 
+		if (split[0].equalsIgnoreCase("lang")) {
+		    player.sendMessage("/" + label + " lang <locale>");
+		    player.sendMessage("English");
+		    player.sendMessage("Français");
+		    player.sendMessage("Deutsch");
+		    player.sendMessage("Español");
+		    player.sendMessage("Italiano");
+		    player.sendMessage("한국의 / Korean");
+		    player.sendMessage("Polski");
+		    player.sendMessage("Brasil");
+		    player.sendMessage("中国 / Chinese");
+		    player.sendMessage("Čeština");
+		    player.sendMessage("Slovenčina");
 		    return true;
-		}
-		// plugin.getLogger().info("DEBUG: perms ok");
-		// Find out which island they want to lock
-		Island island = plugin.getGrid().getIsland(playerUUID);
-		if (island == null) {
-		    // plugin.getLogger().info("DEBUG: player has no island in grid");
-		    // Player has no island in the grid
-		    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoIsland);
-		    return true;
-		} else {
-		    if (!island.isLocked()) {
-			player.sendMessage(ChatColor.GREEN + plugin.myLocale(playerUUID).lockLocking);
-			Messages.tellOfflineTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerLocked.replace("[name]", player.getDisplayName()));
-			Messages.tellTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerLocked.replace("[name]", player.getDisplayName()));
-			island.setLocked(true);
+		} else if (split[0].equalsIgnoreCase("settings")) {
+		    // Show what the plugin settings are
+		    if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.settings")) {
+			player.openInventory(SettingsPanel.islandGuardPanel());
 		    } else {
-			player.sendMessage(ChatColor.GREEN + plugin.myLocale(playerUUID).lockUnlocking);
-			Messages.tellOfflineTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerUnlocked.replace("[name]", player.getDisplayName()));
-			Messages.tellTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerUnlocked.replace("[name]", player.getDisplayName()));
-			island.setLocked(false);
+			player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoPermission);
 		    }
 		    return true;
-		}
-	    } else if (split[0].equalsIgnoreCase("go")) {
-		if (!plugin.getPlayers().hasIsland(playerUUID) && !plugin.getPlayers().inTeam(playerUUID)) {
-		    // Player has no island
-		    player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).errorNoIsland);
+		} else if (split[0].equalsIgnoreCase("lock")) {
+		    if (!VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lock")) {
+			player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoPermission);
+			return true;
+		    }
+		    // plugin.getLogger().info("DEBUG: perms ok");
+		    // Find out which island they want to lock
+		    Island island = plugin.getGrid().getIsland(playerUUID);
+		    if (island == null) {
+			// plugin.getLogger().info("DEBUG: player has no island in grid");
+			// Player has no island in the grid
+			player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoIsland);
+			return true;
+		    } else {
+			if (!island.isLocked()) {
+			    player.sendMessage(ChatColor.GREEN + plugin.myLocale(playerUUID).lockLocking);
+			    Messages.tellOfflineTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerLocked.replace("[name]", player.getDisplayName()));
+			    Messages.tellTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerLocked.replace("[name]", player.getDisplayName()));
+			    island.setLocked(true);
+			} else {
+			    player.sendMessage(ChatColor.GREEN + plugin.myLocale(playerUUID).lockUnlocking);
+			    Messages.tellOfflineTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerUnlocked.replace("[name]", player.getDisplayName()));
+			    Messages.tellTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerUnlocked.replace("[name]", player.getDisplayName()));
+			    island.setLocked(false);
+			}
+			return true;
+		    }
+		} else if (split[0].equalsIgnoreCase("go")) {
+		    if (!plugin.getPlayers().hasIsland(playerUUID) && !plugin.getPlayers().inTeam(playerUUID)) {
+			// Player has no island
+			player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).errorNoIsland);
+			return true;
+		    }
+		    // Teleport home
+		    plugin.getGrid().homeTeleport(player);
+		    if (Settings.islandRemoveMobs) {
+			plugin.getGrid().removeMobs(player.getLocation());
+		    }
 		    return true;
-		}
-		// Teleport home
-		plugin.getGrid().homeTeleport(player);
-		if (Settings.islandRemoveMobs) {
-		    plugin.getGrid().removeMobs(player.getLocation());
-		}
-		return true;
-	    } else if (split[0].equalsIgnoreCase("about")) {
-		player.sendMessage("");
-		player.sendMessage(ChatColor.GOLD + "(c) 2014 - 2015 by tastybento");
-		player.sendMessage(ChatColor.GOLD + "This plugin is free software: you can redistribute");
-		player.sendMessage(ChatColor.GOLD + "it and/or modify it under the terms of the GNU");
-		player.sendMessage(ChatColor.GOLD + "General Public License as published by the Free");
-		player.sendMessage(ChatColor.GOLD + "Software Foundation, either version 3 of the License,");
-		player.sendMessage(ChatColor.GOLD + "or (at your option) any later version.");
-		player.sendMessage(ChatColor.GOLD + "This plugin is distributed in the hope that it");
-		player.sendMessage(ChatColor.GOLD + "will be useful, but WITHOUT ANY WARRANTY; without");
-		player.sendMessage(ChatColor.GOLD + "even the implied warranty of MERCHANTABILITY or");
-		player.sendMessage(ChatColor.GOLD + "FITNESS FOR A PARTICULAR PURPOSE.  See the");
-		player.sendMessage(ChatColor.GOLD + "GNU General Public License for more details.");
-		player.sendMessage(ChatColor.GOLD + "You should have received a copy of the GNU");
-		player.sendMessage(ChatColor.GOLD + "General Public License along with this plugin.");
-		player.sendMessage(ChatColor.GOLD + "If not, see <http://www.gnu.org/licenses/>.");
-		player.sendMessage(ChatColor.GOLD + "Souce code is available on GitHub.");
-		return true;
-		// Spawn enderman
-		// Enderman enderman = (Enderman)
-		// player.getWorld().spawnEntity(player.getLocation().add(new
-		// Vector(5,0,5)), EntityType.ENDERMAN);
-		// enderman.setCustomName("TastyBento's Ghost");
-		// enderman.setCarriedMaterial(new
-		// MaterialData(Material.GRASS));
-		/*
-		 * final Hologram h = new Hologram(plugin, ChatColor.GOLD + "" +
-		 * ChatColor.BOLD + "ASkyBlock", "(c)2014 TastyBento");
-		 * h.show(player.getLocation());
-		 * plugin.getServer().getScheduler().runTaskLater(plugin, new
-		 * Runnable() {
-		 * @Override
-		 * public void run() {
-		 * h.destroy();
-		 * }}, 40L);
-		 */
+		} else if (split[0].equalsIgnoreCase("about")) {
+		    player.sendMessage("");
+		    player.sendMessage(ChatColor.GOLD + "(c) 2014 - 2015 by tastybento");
+		    player.sendMessage(ChatColor.GOLD + "This plugin is free software: you can redistribute");
+		    player.sendMessage(ChatColor.GOLD + "it and/or modify it under the terms of the GNU");
+		    player.sendMessage(ChatColor.GOLD + "General Public License as published by the Free");
+		    player.sendMessage(ChatColor.GOLD + "Software Foundation, either version 3 of the License,");
+		    player.sendMessage(ChatColor.GOLD + "or (at your option) any later version.");
+		    player.sendMessage(ChatColor.GOLD + "This plugin is distributed in the hope that it");
+		    player.sendMessage(ChatColor.GOLD + "will be useful, but WITHOUT ANY WARRANTY; without");
+		    player.sendMessage(ChatColor.GOLD + "even the implied warranty of MERCHANTABILITY or");
+		    player.sendMessage(ChatColor.GOLD + "FITNESS FOR A PARTICULAR PURPOSE.  See the");
+		    player.sendMessage(ChatColor.GOLD + "GNU General Public License for more details.");
+		    player.sendMessage(ChatColor.GOLD + "You should have received a copy of the GNU");
+		    player.sendMessage(ChatColor.GOLD + "General Public License along with this plugin.");
+		    player.sendMessage(ChatColor.GOLD + "If not, see <http://www.gnu.org/licenses/>.");
+		    player.sendMessage(ChatColor.GOLD + "Souce code is available on GitHub.");
+		    return true;
+		    // Spawn enderman
+		    // Enderman enderman = (Enderman)
+		    // player.getWorld().spawnEntity(player.getLocation().add(new
+		    // Vector(5,0,5)), EntityType.ENDERMAN);
+		    // enderman.setCustomName("TastyBento's Ghost");
+		    // enderman.setCarriedMaterial(new
+		    // MaterialData(Material.GRASS));
+		    /*
+		     * final Hologram h = new Hologram(plugin, ChatColor.GOLD + "" +
+		     * ChatColor.BOLD + "ASkyBlock", "(c)2014 TastyBento");
+		     * h.show(player.getLocation());
+		     * plugin.getServer().getScheduler().runTaskLater(plugin, new
+		     * Runnable() {
+		     * @Override
+		     * public void run() {
+		     * h.destroy();
+		     * }}, 40L);
+		     */
 
-	    }
+		}
 
 	    if (split[0].equalsIgnoreCase("controlpanel") || split[0].equalsIgnoreCase("cp")) {
 		// if
@@ -969,40 +962,42 @@ public class IslandCmd implements CommandExecutor {
 			player.sendMessage(ChatColor.YELLOW
 				+ plugin.myLocale(player.getUniqueId()).resetYouHave.replace("[number]", String.valueOf(plugin.getPlayers().getResetsLeft(playerUUID))));
 		    }
-		    // Clear any coop inventories
-		    // CoopPlay.getInstance().returnAllInventories(player);
-		    // Remove any coop invitees and grab their stuff
-		    CoopPlay.getInstance().clearMyInvitedCoops(player);
-		    CoopPlay.getInstance().clearMyCoops(player);
-		    // plugin.getLogger().info("DEBUG Reset command issued!");
-		    final Location oldIsland = plugin.getPlayers().getIslandLocation(playerUUID);
-		    // plugin.unregisterEvents();
-		    final Location cowSpot = newIsland(sender);
-		    plugin.getPlayers().setHomeLocation(playerUUID, null);
-		    plugin.getGrid().homeTeleport(player);
-		    plugin.resetPlayer(player);
-		    if (Settings.resetMoney) {
-			resetMoney(player);
-		    }
-		    plugin.getBiomes().setIslandBiome(plugin.getPlayers().getIslandLocation(playerUUID), Settings.defaultBiome);
-		    if (Settings.islandCompanion != null) {
-			plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
-			    @Override
-			    public void run() {
-				spawnCompanion(player, cowSpot);
+		    // Show a schematic panel if the player has a choice
+		    // Get the schematics that this player is eligible to use
+		    List<Schematic> schems = getSchematics(player);
+		    if (schems.isEmpty()) {
+			//plugin.getLogger().info("DEBUG: player is not eligible for any schematics");
+			// No schematics
+			Location oldIsland = plugin.getPlayers().getIslandLocation(player.getUniqueId());
+			// Make default island
+			newIsland(player);
+			resetPlayer(player,oldIsland);
+		    } else if (schems.size() == 1) {
+			//plugin.getLogger().info("DEBUG: Only one schematic loaded");
+			// Hobson's choice
+			newIsland(player,schems.get(0));
+		    } else {
+			if (Settings.useSchematicPanel) {
+			    //plugin.getLogger().info("DEBUG: using schematic panel");
+			    pendingNewIslandSelection.add(playerUUID);
+			    resettingIsland.add(player.getUniqueId());
+			    player.openInventory(SchematicsPanel.getSchematicPanel(player));
+			} else {
+			    //plugin.getLogger().info("DEBUG: no schematic panel");
+			    // Legacy support
+			    // Find out what level of island this player will get
+			    Schematic schematic = null;
+			    for (String perm : schematics.keySet()) {
+				//plugin.getLogger().info("DEBUG: checking " + perm + " that has a perm of " + schematics.get(perm).getPerm());
+				if (!perm.equalsIgnoreCase("default") && VaultHelper.checkPerm(player, schematics.get(perm).getPerm())) {
+				    schematic = schematics.get(perm);
+				}
 			    }
-			}, 40L);
+			    Location oldIsland = plugin.getPlayers().getIslandLocation(player.getUniqueId());
+			    newIsland(player, schematic);
+			    resetPlayer(player,oldIsland);
+			}
 		    }
-		    setResetWaitTime(player);
-		    WarpSigns.removeWarp(playerUUID);
-		    if (oldIsland != null) {
-			// Remove any coops
-			CoopPlay.getInstance().clearAllIslandCoops(oldIsland);
-			// Delete the island itself
-			new DeleteIslandChunk(plugin, oldIsland);
-		    }
-		    // plugin.restartEvents();
-		    runCommands(Settings.resetCommands, player.getUniqueId());
 		    return true;
 		} else {
 		    player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/island restart: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpRestart);
@@ -1108,7 +1103,7 @@ public class IslandCmd implements CommandExecutor {
 			return true;
 		    }
 		    // player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "[Biomes]");
-		    Inventory inv = Biomes.getBiomePanel(player);
+		    Inventory inv = BiomesPanel.getBiomePanel(player);
 		    if (inv != null) {
 			player.openInventory(inv);
 		    }
@@ -1259,10 +1254,7 @@ public class IslandCmd implements CommandExecutor {
 			    // their stuff
 			    CoopPlay.getInstance().clearMyInvitedCoops(player);
 			    CoopPlay.getInstance().clearMyCoops(player);
-			    plugin.resetPlayer(player);
-			    if (!player.performCommand(Settings.SPAWNCOMMAND)) {
-				player.teleport(player.getWorld().getSpawnLocation());
-			    }
+
 			    // Log the location that this player left so they
 			    // cannot join again before the cool down ends
 			    plugin.getPlayers().startInviteCoolDownTimer(playerUUID, plugin.getPlayers().getTeamIslandLocation(teamLeader));
@@ -1285,6 +1277,12 @@ public class IslandCmd implements CommandExecutor {
 				// plugin.getLogger().info("DEBUG: Party is less than 2 - removing leader from team");
 				removePlayerFromTeam(teamLeader, teamLeader);
 			    }
+			    // Clear all player variables and save
+			    plugin.resetPlayer(player);
+			    if (!player.performCommand(Settings.SPAWNCOMMAND)) {
+				player.teleport(player.getWorld().getSpawnLocation());
+			    }
+
 			    return true;
 			} else {
 			    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).leaveerrorYouCannotLeaveIsland);
@@ -1334,42 +1332,73 @@ public class IslandCmd implements CommandExecutor {
 	     * Commands that have two parameters
 	     */
 	case 2:
-	    if (split[0].equalsIgnoreCase("lang")) {
-		if (split[1].equalsIgnoreCase("english")) {
-		    plugin.getPlayers().setLocale(playerUUID, "en-US"); 
-		} else if (split[1].equalsIgnoreCase("Français") || split[1].equalsIgnoreCase("Francais")) {
-		    plugin.getPlayers().setLocale(playerUUID, "fr-FR"); 
-		} else if (split[1].equalsIgnoreCase("Deutsch")) {
-		    plugin.getPlayers().setLocale(playerUUID, "de-DE");  
-		} else if (split[1].equalsIgnoreCase("español") || split[1].equalsIgnoreCase("espanol")) {
-		    plugin.getPlayers().setLocale(playerUUID, "es-ES");  
-		} else if (split[1].equalsIgnoreCase("italiano")) {
-		    plugin.getPlayers().setLocale(playerUUID, "it-IT");  
-		} else if (split[1].equalsIgnoreCase("Korean") || split[1].equalsIgnoreCase("한국의")) {
-		    plugin.getPlayers().setLocale(playerUUID, "ko-KR");  
-		} else if (split[1].equalsIgnoreCase("polski")) {
-		    plugin.getPlayers().setLocale(playerUUID, "pl-PL");  
-		} else if (split[1].equalsIgnoreCase("Brasil")) {
-		    plugin.getPlayers().setLocale(playerUUID, "pt-BR");  
-		} else if (split[1].equalsIgnoreCase("Chinese") || split[1].equalsIgnoreCase("中国")) {
-		    plugin.getPlayers().setLocale(playerUUID, "zh-CN");  
+	    if (split[0].equalsIgnoreCase("make")) {
+		plugin.getLogger().info("DEBUG: /is make '" + split[1] + "' called");
+		if (!pendingNewIslandSelection.contains(playerUUID)) {
+		    return false;
+		}
+		pendingNewIslandSelection.remove(playerUUID);
+		// Create a new island using schematic
+		if (!schematics.containsKey(split[1])) {
+		    return false;
 		} else {
-		    // Typed it in wrong
-		    player.sendMessage("/" + label + " lang <locale>");
-		    player.sendMessage("English");
-		    player.sendMessage("Français");
-		    player.sendMessage("Deutsch");
-		    player.sendMessage("Español");
-		    player.sendMessage("Italiano");
-		    player.sendMessage("한국의 / Korean");
-		    player.sendMessage("Polski");
-		    player.sendMessage("Brasil");
-		    player.sendMessage("中国 / Chinese");
+		    Schematic schematic = schematics.get(split[1]);
+		    // Check perm again
+		    if (schematic.getPerm().isEmpty() || VaultHelper.checkPerm(player, schematic.getPerm())) {
+			Location oldIsland = plugin.getPlayers().getIslandLocation(player.getUniqueId());
+			newIsland(player,schematic);
+			if (resettingIsland.contains(playerUUID)) {
+			    resettingIsland.remove(playerUUID);
+			    resetPlayer(player, oldIsland);
+			}
+			return true;
+		    } else {
+			return false;
+		    }    
+		}
+	    } else 
+		if (split[0].equalsIgnoreCase("lang")) {
+		    if (split[1].equalsIgnoreCase("english")) {
+			plugin.getPlayers().setLocale(playerUUID, "en-US"); 
+		    } else if (split[1].equalsIgnoreCase("Français") || split[1].equalsIgnoreCase("Francais")) {
+			plugin.getPlayers().setLocale(playerUUID, "fr-FR"); 
+		    } else if (split[1].equalsIgnoreCase("Deutsch")) {
+			plugin.getPlayers().setLocale(playerUUID, "de-DE");  
+		    } else if (split[1].equalsIgnoreCase("español") || split[1].equalsIgnoreCase("espanol")) {
+			plugin.getPlayers().setLocale(playerUUID, "es-ES");  
+		    } else if (split[1].equalsIgnoreCase("italiano")) {
+			plugin.getPlayers().setLocale(playerUUID, "it-IT");  
+		    } else if (split[1].equalsIgnoreCase("Korean") || split[1].equalsIgnoreCase("한국의")) {
+			plugin.getPlayers().setLocale(playerUUID, "ko-KR");  
+		    } else if (split[1].equalsIgnoreCase("polski")) {
+			plugin.getPlayers().setLocale(playerUUID, "pl-PL");  
+		    } else if (split[1].equalsIgnoreCase("Brasil")) {
+			plugin.getPlayers().setLocale(playerUUID, "pt-BR");  
+		    } else if (split[1].equalsIgnoreCase("Chinese") || split[1].equalsIgnoreCase("中国")) {
+			plugin.getPlayers().setLocale(playerUUID, "zh-CN");  
+		    } else if (split[1].equalsIgnoreCase("Čeština") || split[1].equalsIgnoreCase("Cestina")) {
+			plugin.getPlayers().setLocale(playerUUID, "cs-CS");  
+		    } else if (split[1].equalsIgnoreCase("Slovenčina") || split[1].equalsIgnoreCase("Slovencina")) {
+			plugin.getPlayers().setLocale(playerUUID, "sk-SK");  
+		    } else {
+			// Typed it in wrong
+			player.sendMessage("/" + label + " lang <locale>");
+			player.sendMessage("English");
+			player.sendMessage("Français");
+			player.sendMessage("Deutsch");
+			player.sendMessage("Español");
+			player.sendMessage("Italiano");
+			player.sendMessage("한국의 / Korean");
+			player.sendMessage("Polski");
+			player.sendMessage("Brasil");
+			player.sendMessage("中国 / Chinese");
+			player.sendMessage("Čeština");
+			player.sendMessage("Slovenčina");
+			return true;
+		    }
+		    player.sendMessage("OK!");
 		    return true;
 		}
-		player.sendMessage("OK!");
-		return true;
-	    }
 	    // Multi home
 	    if (split[0].equalsIgnoreCase("go")) {
 		if (!plugin.getPlayers().hasIsland(playerUUID) && !plugin.getPlayers().inTeam(playerUUID)) {
@@ -1973,22 +2002,29 @@ public class IslandCmd implements CommandExecutor {
 	return false;
     }
 
-    /**
-     * Spawns a companion for the player at the location given
-     * @param player
-     * @param cowSpot
-     */
-    protected void spawnCompanion(Player player, Location cowSpot) {
-	// Older versions of the server require custom names to only apply to Living Entities
-	LivingEntity companion = (LivingEntity) player.getWorld().spawnEntity(cowSpot, Settings.islandCompanion);  
-	if (!Settings.companionNames.isEmpty()) {
-	    Random rand = new Random();
-	    int randomNum = rand.nextInt(Settings.companionNames.size());
-	    String name = Settings.companionNames.get(randomNum).replace("[player]", player.getDisplayName());
-	    //plugin.getLogger().info("DEBUG: name is " + name);
-	    companion.setCustomName(name);
-	    companion.setCustomNameVisible(true);
-	} 
+
+    private void resetPlayer(Player player, Location oldIsland) {
+	// Clear any coop inventories
+	// CoopPlay.getInstance().returnAllInventories(player);
+	// Remove any coop invitees and grab their stuff
+	CoopPlay.getInstance().clearMyInvitedCoops(player);
+	CoopPlay.getInstance().clearMyCoops(player);
+	// plugin.getLogger().info("DEBUG Reset command issued!");
+	// Remove any warps
+	WarpSigns.removeWarp(player.getUniqueId());
+	// Delete the old island, if it exists
+	if (oldIsland != null) {
+	    // Remove any coops
+	    CoopPlay.getInstance().clearAllIslandCoops(oldIsland);
+	    // Delete the island itself
+	    new DeleteIslandChunk(plugin, oldIsland);
+	    // Delete the new nether island too (if it exists)
+	    if (Settings.createNether && Settings.newNether) {
+		new DeleteIslandChunk(plugin, oldIsland.toVector().toLocation(ASkyBlock.getNetherWorld()));
+	    }
+	}
+	// Run any commands that need to be run at reset
+	runCommands(Settings.resetCommands, player.getUniqueId());
     }
 
     /**

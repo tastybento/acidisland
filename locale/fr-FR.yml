@@ -19,7 +19,7 @@ error:
    offlinePlayer: "Ce joueur est hors ligne ou n'existe pas."
    unknownCommand: "Commande inconnue."
    noTeam: "Ce joueur ne fait pas partie d'un groupe."
-   wrongWorld: "Vous ne pouvez faire ça que dans le monde Skyblock."
+   wrongWorld: "Vous ne pouvez faire ça que dans le monde AcidIsland."
 #AcidEffect
 changingObsidiantoLava: "Transformation de l'obsidienne en lave. Faites attention !"
 #AcidInventory
@@ -122,7 +122,7 @@ island:
    #Cool down warning - [time] is number of seconds left
    resetWait: "Vous devez attendre [time] secondes avant de pouvoir faire ça à nouveau."
    #Confirm
-   resetConfirm: "Tapez /island confirm dans les 10 secondes pour supprimer votre île, et la recommencer!"
+   resetConfirm: "Tapez /island confirm dans les [seconds] secondes pour supprimer votre île, et la recommencer!"
    resetYouHave: "Vous avez [number] réinitalisations restantes."
    resetNoMore: "Vous ne pouvez plus réinitaliser votre île!"
    resetTo: "Limite de réinitialisations effacée."
@@ -277,7 +277,7 @@ purge:
    typeConfirm: "Tapez /acid confirm pour confirmer"
    purgeCancelled: "Suppression annulée."
    finished: "Suppression des îles inactives terminée."
-   removingName: "Skyblock: Suppression de l'île de [name]"
+   removingName: "Suppression de l'île de [name]"
 #confirm
 confirm:
    errorTimeLimitExpired: "Limite de temps atteinte ! Retapez la commande."
@@ -357,3 +357,6 @@ lock:
    unlocking: "Ouverture de l'île."
    enteringspawn: "Vous êtes au Spawn."
    leavingspawn: "Vous quittez le Spawn."
+
+schematics:
+   title: "Sélectionner une île"

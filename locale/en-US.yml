@@ -77,7 +77,6 @@ islandguardsettings:
   visitorpickup: "Visitor item pick-up"
   visitorkeepitems: "Visitor keep item on death"
 
-  
 #LavaCheck
 lavaTip: "Tip: If obsidian was not intended, it can be scooped back up again with a bucket."
 
@@ -149,7 +148,7 @@ challenges:
    errorNotCloseEnough: "You must be standing within 10 blocks of all required items."
    errorItemsNotThere: "All required items must be close to you on your island!"
    errorIslandLevel: "Your island must be level [level] to complete this challenge!"
-   guititle: "aSkyBlock Challenges"
+   guititle: "AcidIsland Challenges"
    erroryouaremissing: "You are missing"
    errorRewardProblem: "There was a problem giving your reward. Ask Admin to check log!"
    completedtimes: "Completed [donetimes] out of [maxtimes]"
@@ -160,10 +159,10 @@ island:
    # Titles for V1.8+ servers only. Set to '' to remove.
    # Colors are fixed as blue and gold for now.
    # Only works on 1.8+ servers
-   title: "A SkyBlock"
+   title: "Acid Island"
    subtitle: "by tastybento"
    # This section is to solicit donations from players. Feel free to set to '' to remove :-)
-   donate: "Welcome to A SkyBlock by tastybento"
+   donate: "Welcome to AcidIsland by tastybento!"
    url: ""
 
    teleport: "Teleporting you to your island. (/island help for more info)"
@@ -296,7 +295,7 @@ makeleader:
 
 #minishop
 minishop:
-   title: "&EMiniShop"
+   title: "&DMiniShop"
    islandhelpMiniShop: "Opens the MiniShop"
    buy: "Buy(Left click)"
    sell: "Sell(Right click)"
@@ -392,7 +391,7 @@ resetchallenge:
 
 #News
 news:
-   headline: "[A Skyblock News] While you were offline..."
+   headline: "[AcidIsland News] While you were offline..."
 
 #Nether
 nether:
@@ -406,9 +405,9 @@ boats:
 # [player] is replaced with the player's name
 # ChatColors can be used with &
 sign:
-   line1: "&1[A Skyblock]"
+   line1: "&1[AcidIsland]"
    line2: "[player]"
-   line3: "Do not fall!"
+   line3: "Water is acid!"
    line4: "Beware!"
 
 biome:
@@ -447,4 +446,5 @@ lock:
    enteringspawn: "Entering Spawn"
    leavingspawn: "Leaving Spawn"
 
-
+schematics:
+   title: "Select island..."

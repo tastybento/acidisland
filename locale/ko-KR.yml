@@ -362,9 +362,9 @@ boats:
 # [player] is replaced with the player's name
 # ChatColors can be used with &
 sign:
-   line1: "&1[A Skyblock]"
+   line1: "&1[Acid Island]"
    line2: "[player]"
-   line3: "Do not fall!"
+   line3: "Water Is Acid!"
    line4: "Beware!"
  
 biome:
@@ -402,3 +402,6 @@ lock:
    unlocking: "잠겨지지 않은 섬"
    enteringspawn: "소환 지점으로 들어가는 중"
    leavingspawn: "소환 지점에서 떠나는 중"
+
+schematics:
+   title: "섬 선택"
