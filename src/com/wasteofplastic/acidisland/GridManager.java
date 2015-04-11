@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -902,7 +903,7 @@ public class GridManager {
 	    plugin.getLogger().warning(plugin.getPlayers().getName(p) + " player has no island!");
 	    return null;
 	}
-	// getLogger().info("DEBUG: If these island locations are not safe, then we need to get creative");
+	//plugin.getLogger().info("DEBUG: If these island locations are not safe, then we need to get creative");
 	// If these island locations are not safe, then we need to get creative
 	// Try the default location
 	//plugin.getLogger().info("DEBUG: default");
@@ -919,7 +920,7 @@ public class GridManager {
 	    return dl;
 	}
 	// Try all the way up to the sky
-	// getLogger().info("DEBUG: try all the way to the sky");
+	//plugin.getLogger().info("DEBUG: try all the way to the sky");
 	for (int y = l.getBlockY(); y < 255; y++) {
 	    final Location n = new Location(l.getWorld(), l.getX() + 0.5D, y, l.getZ() + 0.5D);
 	    if (isSafeLocation(n)) {
@@ -1023,7 +1024,7 @@ public class GridManager {
 	    return true;
 	}
 	//plugin.getLogger().info("DEBUG: home loc = " + home);
-	player.teleport(home.clone().add(new Vector(0.5D,0D,0.5D)));
+	player.teleport(home);
 	//player.sendBlockChange(home, Material.GLOWSTONE, (byte)0);
 	if (number ==1 ) {
 	    player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).islandteleport);

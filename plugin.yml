@@ -62,6 +62,12 @@ permissions:
           acidisland.island.expel:
             description: Allows expelling of visitors
             default: true
+          acidisland.island.settings:
+            description: Player can see server settings
+            default: true
+          acidisland.island.lang:
+            description: Player can select a language
+            default: true
       acidisland.team.*:
         children:
           acidisland.team.create:
