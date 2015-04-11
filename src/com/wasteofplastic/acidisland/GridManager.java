@@ -859,8 +859,9 @@ public class GridManager {
 	// Check if it is safe
 	//plugin.getLogger().info("DEBUG: Home location " + l);
 	if (l != null) {
+	    // Homes are stored as integers and need correcting to be more central
 	    if (isSafeLocation(l)) {
-		return l;
+		return l.clone().add(new Vector(0.5D,0,0.5D));
 	    }
 	    // To cover slabs, stairs and other half blocks, try one block above
 	    Location lPlusOne = l.clone();
@@ -869,7 +870,7 @@ public class GridManager {
 		if (isSafeLocation(lPlusOne)) {
 		    // Adjust the home location accordingly
 		    plugin.getPlayers().setHomeLocation(p, lPlusOne, number);
-		    return lPlusOne;
+		    return lPlusOne.clone().add(new Vector(0.5D,0,0.5D));
 		}
 	    }
 	}
@@ -881,14 +882,14 @@ public class GridManager {
 	    l = plugin.getPlayers().getTeamIslandLocation(p);
 	    if (isSafeLocation(l)) {
 		plugin.getPlayers().setHomeLocation(p, l, number);
-		return l;
+		return l.clone().add(new Vector(0.5D,0,0.5D));
 	    } else {
 		// try team leader's home
 		Location tlh = plugin.getPlayers().getHomeLocation(plugin.getPlayers().getTeamLeader(p));
 		if (tlh != null) {
 		    if (isSafeLocation(tlh)) {
 			plugin.getPlayers().setHomeLocation(p, tlh, number);
-			return tlh;
+			return tlh.clone().add(new Vector(0.5D,0,0.5D));
 		    }
 		}
 	    }
@@ -896,7 +897,7 @@ public class GridManager {
 	    l = plugin.getPlayers().getIslandLocation(p);
 	    if (isSafeLocation(l)) {
 		plugin.getPlayers().setHomeLocation(p, l, number);
-		return l;
+		return l.clone().add(new Vector(0.5D,0,0.5D));
 	    }
 	}
 	if (l == null) {
