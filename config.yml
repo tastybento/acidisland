@@ -551,3 +551,7 @@ schematicsection:
       # If schematic should paste blocks without physics or not
       usephysics: false
       #permission: any.perm.you.like
+      # This optional block determines where the player will spawn. It must be unique in
+      # the schematic and will be replaced by air when pasted.
+      #spawnblock: SPONGE
+
