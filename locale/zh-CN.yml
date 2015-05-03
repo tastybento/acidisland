@@ -416,7 +416,7 @@ sign:
    line1: "&1[末日空岛]"
    line2: "[player]"
    line3: "千万要当心!"
-   line4: "不要掉下去!"
+   line4: "不要喝！"
 
 biome:
    set: "岛屿生物群系设置为:[biome]!"

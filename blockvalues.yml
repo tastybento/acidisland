@@ -1,40 +1,28 @@
 # This file lists the values for various blocks that are used to calculate the
 # island level. Level = total of all blocks in island boundary / 100.
 
-
-
 # Underwater block multiplier
-
 # If blocks are below sea-level, they can have a higher value. e.g. 2x
-
 # Promotes under-water development if there is a sea. Value can be fractional.
-
 underwater: 1.0
+
+# Value of one island level. Default 100. 
+levelcost: 100
 
 # This section lists the limits for any particular block. Blocks over this amount
 # are not counted.
-
 # Format:
-
 # MATERIAL: limit or MATERIAL:DATA: limit.
-
 # If DATA is used, there MUST be a corresponding block:data value in the blocks list.
-
 # For example, if you limit Jungle Logs LOG:3, then there must be a value for LOG:3
-
 # in the blocks section. If there is not, then LOG:3 would have no value.
 limits:
   COBBLESTONE: 10000
   NETHERRACK: 1000
-
   #LOG:3: 10
 
-
-
 # This section lists the value of a block. Value must be an integer.
-
 # Any blocks not listed will have a value of zero.
-
 # Format is MATERIAL: value or MATERIAL:DATA: value.
 
 blocks:
@@ -121,7 +109,6 @@ blocks:
   LEVER: 1
   LOG: 1
   #Other log types - examples
-
   #LOG:3: 2
   LOG_2: 1
   LONG_GRASS: 1

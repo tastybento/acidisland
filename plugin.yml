@@ -115,7 +115,10 @@ permissions:
             default: false
           acidisland.mod.tp:
             description: Allows teleporting to a players island
-            default: false
+            default: op
+          acidisland.mod.tpnether:
+            description: Allows teleporting to a players nether island
+            default: op
           acidisland.mod.bypassprotect:
             description: Bypasses island protection
             default: false

@@ -787,7 +787,7 @@ public class GridManager {
 	// a few other items
 	// isSolid thinks that PLATEs and SIGNS are solid, but they are not
 	if (space1.getType().isSolid()) {
-	    // Bukkit.getLogger().info("DEBUG: space 1 is solid");
+	    //Bukkit.getLogger().info("DEBUG: space 1 is solid");
 	    // Do a few other checks
 	    if (!(space1.getType().equals(Material.SIGN_POST)) && !(space1.getType().equals(Material.WALL_SIGN))) {
 		// Bukkit.getLogger().info("DEBUG: space 1 is a sign post or wall sign");
@@ -826,7 +826,7 @@ public class GridManager {
 	     */
 	}
 	if (space2.getType().isSolid()) {
-	    // Bukkit.getLogger().info("DEBUG: space 2 is solid");
+	    //Bukkit.getLogger().info("DEBUG: space 2 is solid");
 	    // Do a few other checks
 	    if (!(space2.getType().equals(Material.SIGN_POST)) && !(space2.getType().equals(Material.WALL_SIGN))) {
 		// Bukkit.getLogger().info("DEBUG: space 2 is a sign post or wall sign");
@@ -842,10 +842,9 @@ public class GridManager {
      * Determines a safe teleport spot on player's island or the team island
      * they belong to.
      * 
-     * @param p
-     *            PlayerInfo for active player
-     * @param number 
-     * @return Location of a safe teleport spot
+     * @param p UUID of player
+     * @param number - starting home location e.g., 1
+     * @return Location of a safe teleport spot or null if one cannot be fond
      */
     public Location getSafeHomeLocation(final UUID p, int number) {
 	// Try the numbered home location first
@@ -1409,4 +1408,21 @@ public class GridManager {
 	}
     }
 
+    /**
+     * @return a list of unowned islands
+     */
+    public HashMap<String, Island> getUnownedIslands() {
+	HashMap<String, Island> result = new HashMap<String,Island>();
+	for (Entry<Integer, TreeMap<Integer, Island>> x : islandGrid.entrySet()) {
+	    for (Island island : x.getValue().values()) {
+		//plugin.getLogger().info("DEBUG: checking island at " + island.getCenter());
+		if (island.getOwner() == null && !island.isSpawn() && !island.isPurgeProtected()) {
+		    Location center = island.getCenter();
+		    String serialized = island.getCenter().getWorld().getName() + ":" + center.getBlockX() + ":" + center.getBlockY() + ":" + center.getBlockZ();
+		    result.put(serialized,island);
+		}
+	    }
+	}
+	return result;
+    }
 }

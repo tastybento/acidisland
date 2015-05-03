@@ -16,6 +16,8 @@
  *******************************************************************************/
 package com.wasteofplastic.acidisland.listeners;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,7 +34,6 @@ import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.CoopPlay;
 import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.LevelCalc;
-import com.wasteofplastic.acidisland.Messages;
 import com.wasteofplastic.acidisland.PlayerCache;
 import com.wasteofplastic.acidisland.Scoreboards;
 import com.wasteofplastic.acidisland.Settings;
@@ -53,18 +54,28 @@ public class JoinLeaveEvents implements Listener {
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerJoin(final PlayerJoinEvent event) {
 	final Player player = event.getPlayer();
+	final UUID playerUUID = player.getUniqueId();
+	// Get language
+	String language = getLanguage(player);
+	//plugin.getLogger().info("DEBUG: language = " + language);
+	// Check if we have this language
+	if (plugin.getResource("locale/" + language + ".yml") != null) {
+	    if (plugin.getPlayers().getLocale(playerUUID).isEmpty()) {
+		plugin.getPlayers().setLocale(playerUUID, language);
+	    }
+	}
 	// Check updates
 	if (player.isOp() && plugin.getUpdateCheck() != null) {
 	    plugin.checkUpdatesNotify(player);
 	}
-	final UUID playerUUID = player.getUniqueId();
+
 	if (players == null) {
 	    plugin.getLogger().severe("players is NULL");
 	}
 	// Load any messages for the player
 	// plugin.getLogger().info("DEBUG: Checking messages for " +
 	// player.getName());
-	final List<String> messages = Messages.getMessages(playerUUID);
+	final List<String> messages = plugin.getMessages().getMessages(playerUUID);
 	if (messages != null) {
 	    // plugin.getLogger().info("DEBUG: Messages waiting!");
 	    plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
@@ -76,7 +87,7 @@ public class JoinLeaveEvents implements Listener {
 			player.sendMessage(i++ + ": " + message);
 		    }
 		    // Clear the messages
-		    Messages.clearMessages(playerUUID);
+		    plugin.getMessages().clearMessages(playerUUID);
 		}
 	    }, 40L);
 	} // else {
@@ -163,8 +174,12 @@ public class JoinLeaveEvents implements Listener {
 	    }
 	}
 
-	// Set the player's name (it may have changed)
-	players.setPlayerName(playerUUID, player.getName());
+	// Set the player's name (it may have changed), but only if it isn't null
+	if (!player.getName().isEmpty()) {
+	    players.setPlayerName(playerUUID, player.getName());
+	} else {
+	    plugin.getLogger().warning("Player that just logged in has no name! " + playerUUID.toString());
+	}
 	players.save(playerUUID);
 	if (Settings.logInRemoveMobs) {
 	    plugin.getGrid().removeMobs(player.getLocation());
@@ -176,9 +191,9 @@ public class JoinLeaveEvents implements Listener {
 	    Scoreboards.getInstance().setLevel(playerUUID);
 	}
 
-	// Check if they logged in to a locked island and expel them
+	// Check if they logged in to a locked island and expel them or if they are banned
 	Island currentIsland = plugin.getGrid().getIslandAt(player.getLocation());
-	if (currentIsland.isLocked()) {
+	if (currentIsland != null && (currentIsland.isLocked() || plugin.getPlayers().isBanned(currentIsland.getOwner(),player.getUniqueId()))) {
 	    if (!currentIsland.getMembers().contains(playerUUID) && !player.isOp()
 		    && !VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypassprotect")) {
 		player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).lockIslandLocked);
@@ -197,4 +212,33 @@ public class JoinLeaveEvents implements Listener {
 	// "Hello! This is a test. You logged out");
 	players.removeOnlinePlayer(event.getPlayer().getUniqueId());
     }
+
+    /**
+     * Attempts to get the player's language
+     * @param p
+     * @return language or empty string
+     */
+    public String getLanguage(Player p){
+	Object ep;
+	try {
+	    ep = getMethod("getHandle", p.getClass()).invoke(p, (Object[]) null);
+	    Field f = ep.getClass().getDeclaredField("locale");
+	    f.setAccessible(true);
+	    String language = (String) f.get(ep);
+	    language.replace('_', '-');
+	    return language;
+	} catch (Exception e) {
+	    //nothing
+	}
+	return "en-US";
+    }
+
+    private Method getMethod(String name, Class<?> clazz) {
+	for (Method m : clazz.getDeclaredMethods()) {
+	    if (m.getName().equals(name))
+		return m;
+	}
+	return null;
+    }
+
 }
