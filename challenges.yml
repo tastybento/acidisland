@@ -473,7 +473,7 @@ challenges:
       icon: BREWING_STAND_ITEM
       level: 'Advanced'
       type: inventory
-      requiredItems: 'POTION:8195:1 POTION:8202:1 POTION:8194:1 POTION:8197:1 POTION:8204:1 POTION:8206:1 POTION:8201:1 POTION:8193:1'
+      requiredItems: 'POTION:FIRE_RESISTANCE::::1 POTION:SLOWNESS::::1 POTION:SPEED::::1 POTION:INSTANT_HEAL::::1 POTION:INSTANT_DAMAGE::::1 POTION:INVISIBILITY::::1 POTION:STRENGTH::::1 POTION:REGEN::::1'
       takeItems: true
       itemReward: 'ENCHANTMENT_TABLE:1'
       rewardText: 'Enchantment Table'
