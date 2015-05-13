@@ -518,6 +518,7 @@ schematicsection:
       # filename: island.schematic
       # Use default chest if true, or use schematic chest contents if false
       useDefaultChest: true
+      partnerSchematic: nether
     # This is the default nether island - do not remove this section!
     nether:
       # Hide or show this schematic to players in the GUI
@@ -554,4 +555,4 @@ schematicsection:
       # This optional block determines where the player will spawn. It must be unique in
       # the schematic and will be replaced by air when pasted.
       #spawnblock: SPONGE
-
+      partnerSchematic: nether
