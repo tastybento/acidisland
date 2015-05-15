@@ -18,20 +18,13 @@
 package com.wasteofplastic.acidisland;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
-
-import jdbm.PrimaryTreeMap;
-import jdbm.RecordManager;
-import jdbm.RecordManagerFactory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
