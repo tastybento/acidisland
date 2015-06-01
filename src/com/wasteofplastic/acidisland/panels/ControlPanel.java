@@ -119,6 +119,9 @@ public class ControlPanel implements Listener {
 			sellPrice = -1;
 		    }
 		    String description = items.getString(item + ".description");
+		    if (description != null) {
+			description = ChatColor.translateAlternateColorCodes('&', description);
+		    }
 		    MiniShopItem shopItem = new MiniShopItem(material, extra, slot, description, quantity, price, sellPrice);
 		    store.put(slot, shopItem);
 		    miniShop.setItem(slot, shopItem.getItem());
@@ -177,7 +180,7 @@ public class ControlPanel implements Listener {
 			String[] icon = m.split(":");
 			// plugin.getLogger().info("Material = " + m);
 			Material material = Material.matchMaterial(icon[0]);
-			String description = buttons.getString(item + ".description", "");
+			String description = ChatColor.translateAlternateColorCodes('&',buttons.getString(item + ".description", ""));
 			String command = buttons.getString(item + ".command", "").replace("[island]", Settings.ISLANDCOMMAND);
 			String nextSection = buttons.getString(item + ".nextsection", "");
 			ItemStack i = new ItemStack(material);

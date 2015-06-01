@@ -151,6 +151,7 @@ public class Settings {
     // Levels
     public static HashMap<MaterialData, Integer> blockLimits;
     public static HashMap<MaterialData, Integer> blockValues;
+    public static boolean fastLevelCalc;
 
     // Challenge completion broadcast
     public static boolean broadcastMessages;
@@ -213,6 +214,7 @@ public class Settings {
     public static boolean setTeamName;
     public static int debug;
     public static boolean useSchematicPanel;
+    public static boolean chooseIslandRandomly;
     public static double underWaterMultiplier;
     public static String teamSuffix;
     public static int levelCost;
@@ -220,5 +222,13 @@ public class Settings {
     public static boolean netherTrees;
     public static int maxTeamSizeVIP;
     public static int maxTeamSizeVIP2;
+    public static boolean teamChat;
+    public static boolean restrictWither;
+    public static List<String> startCommands;
+    public static boolean useWarpPanel;
+    public static List<EntityType> mobWhiteList = new ArrayList<EntityType>();
+    public static int villagerLimit;
+    public static int mobLimit;
+    public static int hopperLimit;
 
 }

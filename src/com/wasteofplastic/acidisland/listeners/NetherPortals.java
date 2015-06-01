@@ -41,6 +41,7 @@ import org.bukkit.util.Vector;
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.GridManager;
 import com.wasteofplastic.acidisland.Island;
+import com.wasteofplastic.acidisland.SafeSpotTeleport;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.commands.IslandCmd;
 import com.wasteofplastic.acidisland.schematics.Schematic;
@@ -165,15 +166,27 @@ public class NetherPortals implements Listener {
 			event.useTravelAgent(true); 
 		    } else {
 			// Home world is nether - going home
-			event.setTo(plugin.getGrid().getSafeHomeLocation(playerUUID,1));
 			event.useTravelAgent(false);
+			Location dest = plugin.getGrid().getSafeHomeLocation(playerUUID,1);
+			if (dest != null) {
+			    event.setTo(dest);
+			} else {
+			    event.setCancelled(true);
+			    new SafeSpotTeleport(plugin, event.getPlayer(), plugin.getPlayers().getIslandLocation(playerUUID), 1);
+			}		
 		    }
 		} else {
 		    // Going to Over world
 		    if (homeWorld.getEnvironment().equals(Environment.NORMAL)) {
 			// Home world is over world
-			event.setTo(plugin.getGrid().getSafeHomeLocation(playerUUID,1));
 			event.useTravelAgent(false);
+			Location dest = plugin.getGrid().getSafeHomeLocation(playerUUID,1);
+			if (dest != null) {
+			    event.setTo(dest);
+			} else {
+			    event.setCancelled(true);
+			    new SafeSpotTeleport(plugin, event.getPlayer(), plugin.getPlayers().getIslandLocation(playerUUID), 1);
+			}
 		    } else {
 			// Home world is nether 
 			event.setTo(ASkyBlock.getIslandWorld().getSpawnLocation());
@@ -211,19 +224,14 @@ public class NetherPortals implements Listener {
 			}
 		    }
 		}
-		if (!GridManager.isSafeLocation(dest)) {
-		    dest = plugin.getGrid().bigScan(dest, -1);
-		    //plugin.getLogger().info("DEBUG: Found netherhome at " + netherHome);
-		    if (dest == null) {
-			plugin.getLogger().info("Could not find a safe spot to port " + event.getPlayer().getName() + " to Nether island");
-			event.getPlayer().sendMessage(plugin.myLocale(playerUUID).warpserrorNotSafe);
-			event.setCancelled(true);
-			return;
-		    }
-		}
-		// Go!
-		event.getPlayer().teleport(dest);
 		event.setCancelled(true);
+		if (!GridManager.isSafeLocation(dest)) {
+		    // Teleport using the new safeSpot teleport
+		    new SafeSpotTeleport(plugin, event.getPlayer(), dest);
+		} else {
+		    // Go!
+		    event.getPlayer().teleport(dest);
+		}
 	    }
 	    break;
 	default:

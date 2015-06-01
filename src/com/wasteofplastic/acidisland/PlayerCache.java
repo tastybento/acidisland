@@ -316,9 +316,10 @@ public class PlayerCache {
 	return playerCache.get(playerUUID).getIslandLevel();
     }
 
-    public void setIslandLevel(UUID playerUUID, Integer islandLevel) {
+    public void setIslandLevel(UUID playerUUID, int islandLevel) {
 	addPlayer(playerUUID);
 	playerCache.get(playerUUID).setIslandLevel(islandLevel);
+	plugin.getChatListener().setPlayerLevel(playerUUID, islandLevel);
     }
 
     public void setTeamIslandLocation(UUID playerUUID, Location islandLocation) {
@@ -425,6 +426,8 @@ public class PlayerCache {
 	addPlayer(teamLeader);
 	addPlayer(playerUUID);
 	playerCache.get(teamLeader).removeMember(playerUUID);
+	// Remove from team chat too
+	plugin.getChatListener().unSetPlayer(playerUUID);
     }
 
     /**
@@ -641,6 +644,7 @@ public class PlayerCache {
      * @param localeName
      */
     public void setLocale(UUID playerUUID, String localeName) {
+	addPlayer(playerUUID);
 	playerCache.get(playerUUID).setLocale(localeName);
     }
 

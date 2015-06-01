@@ -55,14 +55,20 @@ public class JoinLeaveEvents implements Listener {
     public void onPlayerJoin(final PlayerJoinEvent event) {
 	final Player player = event.getPlayer();
 	final UUID playerUUID = player.getUniqueId();
-	// Get language
-	String language = getLanguage(player);
-	//plugin.getLogger().info("DEBUG: language = " + language);
-	// Check if we have this language
-	if (plugin.getResource("locale/" + language + ".yml") != null) {
-	    if (plugin.getPlayers().getLocale(playerUUID).isEmpty()) {
-		plugin.getPlayers().setLocale(playerUUID, language);
+	// Check language permission
+	if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lang")) {
+	    // Get language
+	    String language = getLanguage(player);
+	    //plugin.getLogger().info("DEBUG: language = " + language);
+	    // Check if we have this language
+	    if (plugin.getResource("locale/" + language + ".yml") != null) {
+		if (plugin.getPlayers().getLocale(playerUUID).isEmpty()) {
+		    plugin.getPlayers().setLocale(playerUUID, language);
+		}
 	    }
+	} else {
+	    // Default locale
+	    plugin.getPlayers().setLocale(playerUUID,"");
 	}
 	// Check updates
 	if (player.isOp() && plugin.getUpdateCheck() != null) {
@@ -207,6 +213,7 @@ public class JoinLeaveEvents implements Listener {
 	// Remove from coop list
 	CoopPlay.getInstance().clearMyCoops(event.getPlayer());
 	CoopPlay.getInstance().clearMyInvitedCoops(event.getPlayer());
+	plugin.getChatListener().unSetPlayer(event.getPlayer().getUniqueId());
 	// CoopPlay.getInstance().returnAllInventories(event.getPlayer());
 	// plugin.setMessage(event.getPlayer().getUniqueId(),
 	// "Hello! This is a test. You logged out");

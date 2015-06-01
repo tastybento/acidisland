@@ -190,9 +190,8 @@ general:
    # portal will return them back to their islands.
    createnether: true
 
-   # Try new island-style nether. Change to true
-   # Still in Beta!
-   newnether: false
+   # New island-style nether. Change to false for standard nether
+   newnether: true
    # Nether trees are made if a player grows a tree in the new nether (gravel and glowstone)
    nethertrees: true  
 
@@ -207,8 +206,17 @@ general:
    #by repetitively being invited to a team island.
    invitewait: 60
 
+   # Use new level calculation (super speedy). Set to false if you want the old
+   # method (slower).
+   fastlevelcalc: true
+   
    # Island level calculation cool down in seconds
    levelwait: 60
+
+   # Calculate level on login
+   # If true, the plugin will run the level command for the player when they login
+   # If the command is busy, it will fail silently
+   loginlevel: false
 
    #How many resets a player is allowed (override with /asadmin clearreset <player>
    #Value of -1 means unlimited, 0 means hardcore - no resets.
@@ -226,6 +234,12 @@ general:
    # the console if the commands doesn't make sense
    leavecommands:
    #- kit tools [player]
+   #- some other command
+
+   # Commands to execute when a player starts a new island for the first time - NOT a reset
+   startcommands:
+   #- asadmin lock [player]
+   #- some other command
 
    # Ops receive damage from acid (Set to true if you want Ops to play properly)
    damageops: false
@@ -257,25 +271,41 @@ general:
    # Remove mobs when logging in
    loginremovemobs: true
 
-   # Remove mobs when /island
+   # Remove mobs when /island.
    islandremovemobs: false
+   
+   # Mob white list - these mobs will NOT be removed when logging in or doing /island
+   # Options are: Blaze, Cave_Spider, Creeper, Enderman, Endermite, Giant, Guardian,
+   # Pig_Zombie, Silverfish, Skeleton, Spider, Witch, Wither, Zombie
+   mobwhitelist:
+   - Wither
+   - Enderman
+   - Pig_Zombie
 
    # Sets the limit for number of monsters that can spawn in a chunk in this world. 
    # Note: If set to a negative number the world will use the server-wide spawn limit instead.
    # Max is 100
    monsterspawnlimit: 70
-
+   
    #[integer] Sets the limit for number of animals that can spawn in a chunk in this world. 
    # Note: If set to a negative number the world will use the server-wide spawn limit instead.
    # Max is 100
    animalspawnlimit: 15
-
-   #[integer] Breeding limits - if this is set to more than 0, then players will not be able
+   
+   # Animal breeding limits - if this is set to more than 0, then players will not be able
    # to breed more animals than that number on their island. A value of zero means no
    # limit. Note that animals will not be killed or reduced to this limit.
-   # This WILL affect mobspawn blocks AND monster egg use. Note that hearts will
+   # This WILL affect mobspawn blocks AND spawn egg use. Note that hearts will
    # still appear, but breeding will not happen.
    breedinglimit: 0
+
+   # Villager limit - this is per team player, so an island of 4 will have 4x this number
+   # Note that 10 villagers minimum are required to create an iron farm. Zero is unlimited.
+   villagerlimit: 0
+   
+   # Hopper limit - max number of island hoppers. If exceeded, players will not be able
+   # to place a hopper block. Zero is unlimited. Excessive hoppers can add to lag.
+   hopperlimit: 0
 
    #[integer] Sets the limit for number of water animals [squid] that can spawn in a chunk in this world. 
    # Note: If set to a negative number the world will use the server-wide spawn limit instead.
@@ -333,7 +363,7 @@ general:
 
    # Allow /island teleport when falling. If set to false, all teleporting is
    # disabled until death from the void or until you hit something.
-   # See commands that this will block too. Not really applicable to AcidIsland.
+   # See commands that this will block too
    allowfallingteleport: true
    blockingcommands:
    - home
@@ -352,43 +382,45 @@ general:
    # Set schematic-specific options in the schematicsection
    usephysics: false
    
-   # Calculate level on login
-   # If true, the plugin will run the level command for the player when they login
-   # If the command is busy, it will fail silently
-   loginlevel: false
-
    # Default maximum number of homes a player can have. Min = 1
    # Accessed via sethome <number> or go <number>
    # Use this permission to set for specific user groups: askyblock.island.maxhomes.<number>  
    maxhomes: 1
 
    # Make island if player teleports to the island world and does not have one
-   # If the player is eligible for multiple islands they may get a GUI
    makeislandifnone: false
 
    # Immediately teleport player to their island (home 1 if it exists) when 
    # entering the world
    immediateteleport: false
 
-   # Set TEAMSUFFIX variable to player's island level
-   # If true, this will set the server TEAMNAME variable to the player's name and
-   # TEAMSUFFIX to the player's island level.
-   # Use in chat. e.g., for essentials chat, the format could be:
-   #   format: '<{DISPLAYNAME}> (Level {TEAMSUFFIX}): {MESSAGE}'
-   # <tastybento> (Level: 223): hi there
-   # If you have other plugins that use scoreboards/teams, this may mess with them
-   setteamsuffix: false
-   # What you want the suffix to be. [level] is substituted for the player's level
-   teamsuffix: "([level])"
-
+   # Use the variable "{ISLAND_LEVEL}" in chat prefixes in other plugins and it will
+   # be replaced by the player's island level.
+   
    # Have player's respawn on their island if they die
    respawnonisland: false
+
+   # Team Chat
+   # This enables player to set is so their chat goes to their team mates only
+   # using the /island teamchat command.
+   # The prefix [Team Chat] that goes in front of team chats is in the locale files
+   teamchat: true
+
+   # Restrict Wither
+   # This allows the Wither to only damage the island where it is spawned.
+   # Damage to any islands or players will not occur.
+   # This prevents griefing-by-wither. 
+   restrictwither: true
+   
+   # Warp panel - GUI for welcome warp signs. If set to false, old-style
+   # text will be used
+   usewarppanel: true
    
    # Config.yml version. DO NOT EDIT. This number only changes if the latest
    # plugin config has been updated. If a new config is detected, it will be
    # auto-saved to config.new.yml.
    version: ${version}
-   
+
 # Spawn protection options - different to regular islands
 spawn:
   # The following are recommended to be true at spawn
@@ -509,6 +541,8 @@ schematicsection:
     default:
       # Icon - if this is missing or wrong, it will be a MAP
       icon: SAND
+      # Order of preference in listing
+      order: 1
       # Short name - color codes with & okay
       name: "The Original"
       # Longer description. Use | for new lines. Color codes okay.
@@ -542,6 +576,7 @@ schematicsection:
     # Additional heading names can be anything you like, but must be unique
     temple:
       icon: CACTUS
+      order: 2
       name: "Temple"
       description: "You find yourself|on a desert island|with a hidden secret!"
       filename: temple.schematic

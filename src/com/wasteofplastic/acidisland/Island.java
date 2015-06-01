@@ -8,7 +8,11 @@ import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Hopper;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Villager;
 
 /**
  * Stores all the info about an island
@@ -149,34 +153,6 @@ public class Island {
     }
 
     /**
-     * @param minX
-     * @param z
-     * @param protectionRange
-     * @param center
-     * @param owner
-     * @param createdDate
-     * @param updatedDate
-     * @param password
-     * @param votes
-     */
-    /*
-    public Island(int x, int z, int protectionRange, Location center, UUID owner, long createdDate, long updatedDate, String password, int votes) {
-	this.minX = x - Settings.islandDistance / 2;
-	this.minZ = z - Settings.islandDistance / 2;
-	this.minProtectedX = x - Settings.island_protectionRange / 2;
-	this.minProtectedZ = z - Settings.island_protectionRange / 2;
-	this.protectionRange = protectionRange;
-	this.center = center;
-	this.world = center.getWorld();
-	this.y = center.getBlockY();
-	this.owner = owner;
-	this.createdDate = createdDate;
-	this.updatedDate = updatedDate;
-	this.password = password;
-	this.votes = votes;
-    }*/
-
-    /**
      * Checks if a location is within this island's protected area
      * 
      * @param loc
@@ -202,21 +178,7 @@ public class Island {
      * @return true if in the area
      */
     public boolean inIslandSpace(Location target) {
-	/*
-	 * Bukkit.getLogger().info("Target = " + target.getBlockX() + "," +
-	 * target.getBlockZ());
-	 * Bukkit.getLogger().info("Center = " + center.getBlockX() + "," +
-	 * center.getBlockZ());
-	 * Bukkit.getLogger().info(target.getX() + ">=" + (center.getBlockX() -
-	 * islandDistance / 2));
-	 * Bukkit.getLogger().info(target.getX() + "<" + (center.getBlockX() +
-	 * islandDistance / 2));
-	 * Bukkit.getLogger().info(target.getZ() + ">=" + (center.getBlockZ() -
-	 * islandDistance / 2));
-	 * Bukkit.getLogger().info(target.getZ() + "<" + (center.getBlockZ() +
-	 * islandDistance / 2));
-	 */
-	if (target.getWorld().equals(world)) {
+	if (target.getWorld().equals(ASkyBlock.getIslandWorld()) || target.getWorld().equals(ASkyBlock.getNetherWorld())) {
 	    if (target.getX() >= center.getBlockX() - islandDistance / 2 && target.getX() < center.getBlockX() + islandDistance / 2
 		    && target.getZ() >= center.getBlockZ() - islandDistance / 2 && target.getZ() < center.getBlockZ() + islandDistance / 2) {
 		return true;
@@ -508,5 +470,40 @@ public class Island {
      */
     public void setPurgeProtected(boolean purgeProtected) {
         this.purgeProtected = purgeProtected;
+    }
+    
+    /**
+     * @return Provides count of villagers within the protected island boundaries
+     */
+    public int getPopulation() {
+	int result = 0;	
+	for (int x = getMinProtectedX() /16; x <= (getMinProtectedX() + getProtectionSize() - 1)/16; x++) {
+		for (int z = getMinProtectedZ() /16; z <= (getMinProtectedZ() + getProtectionSize() - 1)/16; z++) {
+		    for (Entity entity : world.getChunkAt(x, z).getEntities()) {
+			if (entity instanceof Villager) {
+			    result++;
+			}
+		    }
+		}  
+	    }
+	return result;
+    }
+    
+    /**
+     * @return number of hoppers on the island
+     */
+    public int getHopperCount() {
+	int result = 0;	
+	for (int x = getMinProtectedX() /16; x <= (getMinProtectedX() + getProtectionSize() - 1)/16; x++) {
+		for (int z = getMinProtectedZ() /16; z <= (getMinProtectedZ() + getProtectionSize() - 1)/16; z++) {
+		    for (BlockState holder : world.getChunkAt(x, z).getTileEntities()) {
+			if (holder instanceof Hopper) {
+			    result++;
+			}
+		    }
+		}  
+	    }
+	return result;
+	
     }
 }

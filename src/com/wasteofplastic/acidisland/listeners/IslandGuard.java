@@ -39,6 +39,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Slime;
 import org.bukkit.entity.Squid;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -189,7 +190,8 @@ public class IslandGuard implements Listener {
 	    // Lock check
 	    if (islandTo.isLocked() || plugin.getPlayers().isBanned(islandTo.getOwner(),player.getUniqueId())) {
 		if (!islandTo.getMembers().contains(player.getUniqueId()) && !player.isOp()
-			&& !VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypassprotect")) {
+			&& !VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypassprotect")
+			&& !VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypasslock")) {
 		    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).lockIslandLocked);
 		    // Get the closest border
 		    // plugin.getLogger().info("DEBUG: minx = " +
@@ -326,7 +328,8 @@ public class IslandGuard implements Listener {
 	    // Lock check
 	    if (islandTo.isLocked() || plugin.getPlayers().isBanned(islandTo.getOwner(),e.getPlayer().getUniqueId())) {
 		if (!islandTo.getMembers().contains(e.getPlayer().getUniqueId()) && !e.getPlayer().isOp()
-			&& !VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")) {
+			&& !VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
+			&& !VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypasslock")) {
 		    e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).lockIslandLocked);
 		    // Get the closest border
 		    // plugin.getLogger().info("DEBUG: minx = " +
@@ -433,18 +436,74 @@ public class IslandGuard implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onAnimalSpawn(final CreatureSpawnEvent e) {
-	if (debug) {
-	    //plugin.getLogger().info("Animal spawn event! " + e.getEventName());
-	    // plugin.getLogger().info(e.getSpawnReason().toString());
-	    // plugin.getLogger().info(e.getCreatureType().toString());
-	}
-	// If not an animal
-	if (!(e.getEntity() instanceof Animals)) {
+    public void onVillagerSpawn(final CreatureSpawnEvent e) {
+	//if (debug) {
+	//plugin.getLogger().info("Animal spawn event! " + e.getEventName());
+	// plugin.getLogger().info(e.getSpawnReason().toString());
+	// plugin.getLogger().info(e.getCreatureType().toString());
+	//}
+	// If not an villager
+	if (!(e.getEntity() instanceof Villager)) {
 	    return;
 	}
-	// If grid is not loaded yet, return
-	if (plugin.getGrid() == null) {
+	// Only cover overworld
+	if (!e.getEntity().getWorld().equals(ASkyBlock.getIslandWorld())) {
+	    return;
+	}
+	// If there's no limit - leave it
+	if (Settings.villagerLimit <= 0) {
+	    return;
+	}
+	// We only care about villagers breeding, being cured or coming from a spawn egg, etc.
+	if (e.getSpawnReason() != SpawnReason.SPAWNER && e.getSpawnReason() != SpawnReason.BREEDING 
+		&& e.getSpawnReason() != SpawnReason.DISPENSE_EGG && e.getSpawnReason() != SpawnReason.SPAWNER_EGG
+		&& e.getSpawnReason() != SpawnReason.CURED) {
+	    return;
+	}
+	Island island = plugin.getGrid().getIslandAt(e.getLocation());
+	if (island == null) {
+	    // No island, no limit
+	    return;
+	}
+	int limit = Settings.villagerLimit * Math.max(1,plugin.getPlayers().getMembers(island.getOwner()).size());
+	//plugin.getLogger().info("DEBUG: villager limit = " + limit);
+	//long time = System.nanoTime();
+	int pop = island.getPopulation();
+	//plugin.getLogger().info("DEBUG: time = " + ((System.nanoTime() - time)*0.000000001));
+	if (pop >= limit) {
+	    plugin.getLogger().warning(
+		    "Island at " + island.getCenter().getBlockX() + "," + island.getCenter().getBlockZ() + " hit the island villager limit of "
+			    + limit);
+	    //plugin.getLogger().info("Stopped villager spawning on island " + island.getCenter());
+	    // Get all players in the area
+	    List<Entity> players = e.getEntity().getNearbyEntities(10,10,10);
+	    for (Entity player: players) {
+		if (player instanceof Player) {
+		    Player p = (Player) player;
+		    p.sendMessage(ChatColor.RED + plugin.myLocale(island.getOwner()).villagerLimitError.replace("[number]", String.valueOf(Settings.villagerLimit)));
+		}
+	    }
+	    plugin.getMessages().tellTeam(island.getOwner(), ChatColor.RED + plugin.myLocale(island.getOwner()).villagerLimitError.replace("[number]", String.valueOf(Settings.villagerLimit)));
+	    if (e.getSpawnReason().equals(SpawnReason.CURED)) {
+		// Easter Egg. Or should I say Easter Apple?
+		ItemStack goldenApple = new ItemStack(Material.GOLDEN_APPLE);
+		goldenApple.setDurability((short)1);
+		e.getLocation().getWorld().dropItemNaturally(e.getLocation(), goldenApple);
+	    }
+	    e.setCancelled(true);
+	}
+    }
+
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onAnimalSpawn(final CreatureSpawnEvent e) {
+	//if (debug) {
+	//plugin.getLogger().info("Animal spawn event! " + e.getEventName());
+	// plugin.getLogger().info(e.getSpawnReason().toString());
+	// plugin.getLogger().info(e.getCreatureType().toString());
+	//}
+	// If not an animal
+	if (!(e.getEntity() instanceof Animals)) {
 	    return;
 	}
 	// If there's no limit - leave it
@@ -463,58 +522,49 @@ public class IslandGuard implements Listener {
 	if (!animal.getWorld().equals(ASkyBlock.getIslandWorld())) {
 	    return;
 	}
-	Location islandLoc = plugin.getGrid().getClosestIsland(animal.getLocation());
-	Entity snowball = islandLoc.getWorld().spawnEntity(new Location(world, islandLoc.getBlockX(), 128, islandLoc.getBlockZ()), EntityType.SNOWBALL);
-	if (snowball == null)
-	    return;
-	int animals = 0;
-	// All for the island space is checked
-	List<Entity> islandEntities = snowball.getNearbyEntities(Settings.islandDistance / 2, 128, Settings.islandDistance / 2);
-	// An optimization - don't bother looping unless the number of all
-	// entities is greater than the breeding limit
-	// plugin.getLogger().info("DEBUG: islandEntities total = "+islandEntities.size());
-	if (islandEntities.size() >= Settings.breedingLimit) {
-	    //plugin.getLogger().info("DEBUG: breeding limit breached " + Settings.breedingLimit);
-	    // Count how many animals there are and who the most likely spawner was if it was a player
-	    List<Player> culprits = new ArrayList<Player>();
-	    boolean overLimit = false;
-	    for (Entity entity : islandEntities) {
-		//plugin.getLogger().info("DEBUG: Entity is " + entity.getType());
-		if (entity instanceof Animals) {
-		    // plugin.getLogger().info("DEBUG: Animal count is " +
-		    // animals);
-		    animals++;
-		    if (animals >= Settings.breedingLimit) {
-			// Delete any extra animals
-			overLimit = true;
-			animal.remove();
-			e.setCancelled(true);
-		    }
-		} else if (entity instanceof Player && e.getSpawnReason() != SpawnReason.SPAWNER && e.getSpawnReason() != SpawnReason.DISPENSE_EGG) {
-		    ItemStack itemInHand = ((Player) entity).getItemInHand();
-		    if (itemInHand != null) {
-			Material type = itemInHand.getType();
-			if (type == Material.EGG || type == Material.MONSTER_EGG || type == Material.WHEAT || type == Material.CARROT_ITEM
-				|| type == Material.SEEDS) {
-			    culprits.add(((Player) entity));
+	Island island = plugin.getGrid().getIslandAt(animal.getLocation());
+	// Count how many animals are there and who is the most likely spawner if it was a player
+	// This had to be reworked because the previous snowball approach doesn't work for large volumes
+	List<Player> culprits = new ArrayList<Player>();
+	boolean overLimit = false;
+	int animals = 0;	
+	for (int x = island.getMinProtectedX() /16; x <= (island.getMinProtectedX() + island.getProtectionSize() - 1)/16; x++) {
+	    for (int z = island.getMinProtectedZ() /16; z <= (island.getMinProtectedZ() + island.getProtectionSize() - 1)/16; z++) {
+		for (Entity entity : world.getChunkAt(x, z).getEntities()) {
+		    if (entity instanceof Animals) {
+			// plugin.getLogger().info("DEBUG: Animal count is " + animals);
+			animals++;
+			if (animals >= Settings.breedingLimit) {
+			    // Delete any extra animals
+			    overLimit = true;
+			    animal.remove();
+			    e.setCancelled(true);
 			}
-		    }
-		}
-		if (overLimit) {
-		    if (e.getSpawnReason() != SpawnReason.SPAWNER) {
-			plugin.getLogger().warning(
-				"Island at " + islandLoc.getBlockX() + "," + islandLoc.getBlockZ() + " hit the island animal breeding limit of "
-					+ Settings.breedingLimit);
-			for (Player player : culprits) {
-			    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).moblimitsError.replace("[number]", String.valueOf(Settings.breedingLimit)));
-			    plugin.getLogger().warning(player.getName() + " was trying to use a " + Util.prettifyText(player.getItemInHand().getType().toString()));
+		    } else if (entity instanceof Player && e.getSpawnReason() != SpawnReason.SPAWNER && e.getSpawnReason() != SpawnReason.DISPENSE_EGG) {
+			ItemStack itemInHand = ((Player) entity).getItemInHand();
+			if (itemInHand != null) {
+			    Material type = itemInHand.getType();
+			    if (type == Material.EGG || type == Material.MONSTER_EGG || type == Material.WHEAT || type == Material.CARROT_ITEM
+				    || type == Material.SEEDS) {
+				culprits.add(((Player) entity));
+			    }
 			}
 		    }
 		}
 	    }
 	}
-	snowball.remove();
-
+	if (overLimit) {
+	    if (e.getSpawnReason() != SpawnReason.SPAWNER) {
+		plugin.getLogger().warning(
+			"Island at " + island.getCenter().getBlockX() + "," + island.getCenter().getBlockZ() + " hit the island animal breeding limit of "
+				+ Settings.breedingLimit);
+		for (Player player : culprits) {
+		    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).moblimitsError.replace("[number]", String.valueOf(Settings.breedingLimit)));
+		    plugin.getLogger().warning(player.getName() + " was trying to use a " + Util.prettifyText(player.getItemInHand().getType().toString()));
+		    
+		}
+	    }
+	}
 	// plugin.getLogger().info("DEBUG: Animal count is " + animals);
     }
 
@@ -687,18 +737,18 @@ public class IslandGuard implements Listener {
 	if (debug) {
 	    plugin.getLogger().info(e.getEventName());
 	}
+	if (!(e.getEntity() instanceof Enderman)) {
+	    return;
+	}
 	if (!inWorld(e.getEntity())) {
 	    return;
 	}
-	// prevent at spawn
-	if (plugin.getGrid().isAtSpawn(e.getEntity().getLocation())) {
+	// Prevent Enderman griefing at spawn
+	if (plugin.getGrid() != null && plugin.getGrid().isAtSpawn(e.getEntity().getLocation())) {
 	    e.setCancelled(true);
 	}
 	if (Settings.allowEndermanGriefing)
 	    return;
-	if (!(e.getEntity() instanceof Enderman)) {
-	    return;
-	}
 	// Stop the Enderman from griefing
 	// plugin.getLogger().info("Enderman stopped from griefing");
 	e.setCancelled(true);
@@ -804,18 +854,10 @@ public class IslandGuard implements Listener {
 	}
 	// Check to see if it's an item frame
 	if (e.getEntity() instanceof ItemFrame) {
-	    // plugin.getLogger().info("Item frame being damaged");
-	    if (!Settings.allowSpawnBreakBlocks && plugin.getGrid().isAtSpawn(e.getEntity().getLocation())) {
-		Player player = (Player) e.getDamager();
-		player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).islandProtected);
-		e.setCancelled(true);
-		return;
-	    }
 	    if (Settings.allowBreakBlocks || (Settings.allowSpawnBreakBlocks && plugin.getGrid().isAtSpawn(e.getEntity().getLocation()))) {
 		return;
 	    }
-	    // plugin.getLogger().info("Damager is = " +
-	    // e.getDamager().toString());
+	    //plugin.getLogger().info("DEBUG: Damager is = " + e.getDamager().toString());
 	    if (e.getDamager() instanceof Player) {
 		if (!plugin.getGrid().locationIsOnIsland((Player) e.getDamager(), e.getEntity().getLocation())) {
 		    Player player = (Player) e.getDamager();
@@ -826,8 +868,7 @@ public class IslandGuard implements Listener {
 	    } else if (e.getDamager() instanceof Projectile) {
 		// Find out who fired the arrow
 		Projectile p = (Projectile) e.getDamager();
-		// plugin.getLogger().info("Shooter is " +
-		// p.getShooter().toString());
+		//plugin.getLogger().info("DEBUG: Shooter is " + p.getShooter().toString());
 		if (p.getShooter() instanceof Player) {
 		    // Is the item frame on the shooter's island?
 		    if (!plugin.getGrid().locationIsOnIsland((Player) p.getShooter(), e.getEntity().getLocation())) {
@@ -1024,6 +1065,19 @@ public class IslandGuard implements Listener {
 	    } else if (!Settings.allowPlaceBlocks && !plugin.getGrid().locationIsOnIsland(e.getPlayer(), e.getBlock().getLocation())) {
 		e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
 		e.setCancelled(true);
+	    } else {
+		// Check if it's a hopper
+		if (Settings.hopperLimit > 0 && e.getBlock().getType() == Material.HOPPER) {
+		    Island island = plugin.getGrid().getIslandAt(e.getBlock().getLocation());
+		    if (island != null) {
+			// Check island limit
+			if (island.getHopperCount() >= Settings.hopperLimit) {
+			    e.getPlayer().sendMessage(ChatColor.RED 
+				    + (plugin.myLocale(e.getPlayer().getUniqueId()).hopperLimit).replace("[number]",String.valueOf(Settings.hopperLimit)));
+			    e.setCancelled(true);
+			}
+		    }
+		}
 	    }
 	}
     }

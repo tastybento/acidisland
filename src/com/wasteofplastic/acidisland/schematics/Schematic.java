@@ -171,13 +171,7 @@ public class Schematic {
 	// Establish the World Edit to Material look up
 	// V1.8 items
 	// New V1.8 events
-	Class<?> clazz;
-	try {
-	    clazz = Class.forName("org.bukkit.Material.ACACIA_DOOR_ITEM");
-	} catch (Exception e) {
-	    clazz = null;
-	}
-	if (clazz != null) {
+	if (!Bukkit.getServer().getVersion().contains("(MC: 1.7")) {
 	    WEtoM.put("ACACIA_DOOR",Material.ACACIA_DOOR_ITEM);
 	    WEtoM.put("BIRCH_DOOR",Material.BIRCH_DOOR_ITEM);
 	    WEtoM.put("BIRCH_STAIRS",Material.BIRCH_WOOD_STAIRS);
@@ -892,9 +886,14 @@ public class Schematic {
 				    } else {
 					// This is unformatted text (not JSON). It is included in "".
 					if (text.get(line).length() > 1) {
+					    try {
 					    lineText = text.get(line).substring(text.get(line).indexOf('"')+1,text.get(line).lastIndexOf('"'));
+					    } catch (Exception e) {
+						//There may not be those "'s, so just use the raw line
+						lineText = text.get(line);
+					    }
 					} else {
-					    // ust in case it isn't - show the raw line
+					    // just in case it isn't - show the raw line
 					    lineText = text.get(line);
 					}
 				    }
@@ -1451,6 +1450,7 @@ public class Schematic {
     }
 
     /**
+     * Whether the schematic is visible or not
      * @return the visible
      */
     public boolean isVisible() {
@@ -1458,6 +1458,7 @@ public class Schematic {
     }
 
     /**
+     * Sets if the schematic can be seen in the schematics GUI or not by the player
      * @param visible the visible to set
      */
     public void setVisible(boolean visible) {

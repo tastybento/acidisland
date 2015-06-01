@@ -461,6 +461,17 @@ public class Locale {
     public String islandhelpBan;
     public String islandhelpUnban;
     public String banNotTeamMember;
+    public String teamChatPrefix;
+    public String teamChatHelp;
+    public String teamChatStatusOff;
+    public String teamChatStatusOn;
+    public String teamChatNoTeamAround;
+    public String teamChatNoTeam;
+    public String warpsPrevious;
+    public String warpsNext;
+    public String warpsTitle;
+    public String villagerLimitError;
+    public String hopperLimit;
 
     /**
      * Creates a locale object full of localized strings for a language
@@ -634,11 +645,14 @@ public class Locale {
 	warpserrorNotSafe = ChatColor.translateAlternateColorCodes('&',
 		locale.getString("warps.errorNotSafe", "That warp is not safe right now. Try again later."));
 	warpswarpToPlayersSign = ChatColor.translateAlternateColorCodes('&',
-		locale.getString("warps.warpToPlayersSign", "Warp to <player>'s welcome sign."));
+		locale.getString("warps.warpToPlayersSign", "Warping to <player>'s welcome sign."));
 	warpserrorNoWarpsYet = ChatColor.translateAlternateColorCodes('&',
 		locale.getString("warps.errorNoWarpsYet", "There are no warps available yet!"));
 	warpswarpsAvailable = ChatColor.translateAlternateColorCodes('&', locale.getString("warps.warpsAvailable", "The following warps are available"));
 	warpsPlayerWarped = ChatColor.translateAlternateColorCodes('&', locale.getString("warps.playerWarped", "[name] &2warped to your island!"));
+	warpsPrevious = ChatColor.translateAlternateColorCodes('&', locale.getString("warps.previous", "Previous"));
+	warpsNext = ChatColor.translateAlternateColorCodes('&', locale.getString("warps.next", "Next"));
+	warpsTitle = ChatColor.translateAlternateColorCodes('&', locale.getString("warps.title", "Island warps"));
 	topTenheader = ChatColor.translateAlternateColorCodes('&', locale.getString("topTen.header", "These are the Top 10 islands:"));
 	topTenerrorNotReady = ChatColor.translateAlternateColorCodes('&', locale.getString("topTen.errorNotReady", "Top ten list not generated yet!"));
 	levelislandLevel = ChatColor.translateAlternateColorCodes('&', locale.getString("level.islandLevel", "Island level"));
@@ -999,7 +1013,9 @@ public class Locale {
 	banNotTeamMember = ChatColor.translateAlternateColorCodes('&', locale.getString("ban.notteammember", "You cannot ban a team member!"));
 	banNotBanned = ChatColor.translateAlternateColorCodes('&', locale.getString("ban.notbanned", "[name] is not banned!"));
 	banAlreadyBanned = ChatColor.translateAlternateColorCodes('&', locale.getString("ban.alreadybanned", "[name] is already banned!"));
-	moblimitsError = ChatColor.translateAlternateColorCodes('&', locale.getString("moblimits.error", "Island breeding limit of [number] reached!"));
+	moblimitsError = ChatColor.translateAlternateColorCodes('&', locale.getString("moblimits.error", "Island animal breeding limit of [number] reached!"));
+	villagerLimitError = ChatColor.translateAlternateColorCodes('&', locale.getString("moblimits.villager", "Island villager breeding limit of [number] reached!"));
+	hopperLimit = ChatColor.translateAlternateColorCodes('&', locale.getString("moblimits.hopper", "Island hopper limit of [number] reached!"));
 	coopRemoved = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.removed", "[name] remove your coop status!"));
 	coopRemoveSuccess = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.removesuccess", "[name] is no longer a coop player."));
 	coopSuccess = ChatColor.translateAlternateColorCodes('&',
@@ -1023,5 +1039,11 @@ public class Locale {
 	lockEnteringSpawn = ChatColor.translateAlternateColorCodes('&', locale.getString("lock.enteringspawn", "Entering Spawn"));
 	lockLeavingSpawn = ChatColor.translateAlternateColorCodes('&', locale.getString("lock.leavingspawn", "Leaving Spawn"));
 	schematicsTitle = ChatColor.translateAlternateColorCodes('&', locale.getString("schematics.title", "Choose island..."));
+	teamChatPrefix = ChatColor.translateAlternateColorCodes('&', locale.getString("teamchat.prefix", "[Team Chat]<{ISLAND_PLAYER}> "));
+	teamChatHelp = ChatColor.translateAlternateColorCodes('&', locale.getString("teamchat.helpChat", "turn on/off team chat"));
+	teamChatStatusOff = ChatColor.translateAlternateColorCodes('&', locale.getString("teamchat.statusOff", "Team chat is off"));
+	teamChatStatusOn = ChatColor.translateAlternateColorCodes('&', locale.getString("teamchat.statusOn", "Team chat is on"));
+	teamChatNoTeamAround = ChatColor.translateAlternateColorCodes('&', locale.getString("teamchat.noTeamAround", "None of your team are online!"));
+	teamChatNoTeam = ChatColor.translateAlternateColorCodes('&', locale.getString("teamchat.noTeam", "You are not in a team!"));
     }
 }

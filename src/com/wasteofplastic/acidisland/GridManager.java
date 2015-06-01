@@ -26,7 +26,11 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
+import org.bukkit.material.SimpleAttachableMaterialData;
+import org.bukkit.material.TrapDoor;
 import org.bukkit.util.Vector;
 
 import com.wasteofplastic.acidisland.util.Util;
@@ -776,8 +780,22 @@ public class GridManager {
 		return false;
 	    }
 	}
+	MaterialData md = ground.getState().getData();
+	if (md instanceof SimpleAttachableMaterialData) {
+	    //Bukkit.getLogger().info("DEBUG: trapdoor/button/tripwire hook etc.");
+	    if (md instanceof TrapDoor) {
+		TrapDoor trapDoor = (TrapDoor)md;
+		if (trapDoor.isOpen()) {
+		    //Bukkit.getLogger().info("DEBUG: trapdoor open");
+		    return false;
+		}
+	    } else {
+		return false;
+	    }
+	    //Bukkit.getLogger().info("DEBUG: trapdoor closed");
+	}
 	if (ground.getType().equals(Material.CACTUS) || ground.getType().equals(Material.BOAT) || ground.getType().equals(Material.FENCE)
-		|| ground.getType().equals(Material.NETHER_FENCE)) {
+		|| ground.getType().equals(Material.NETHER_FENCE) || ground.getType().equals(Material.SIGN_POST) || ground.getType().equals(Material.WALL_SIGN)) {
 	    // Bukkit.getLogger().info("DEBUG: cactus");
 	    return false;
 	}
@@ -786,52 +804,11 @@ public class GridManager {
 	// check
 	// a few other items
 	// isSolid thinks that PLATEs and SIGNS are solid, but they are not
-	if (space1.getType().isSolid()) {
-	    //Bukkit.getLogger().info("DEBUG: space 1 is solid");
-	    // Do a few other checks
-	    if (!(space1.getType().equals(Material.SIGN_POST)) && !(space1.getType().equals(Material.WALL_SIGN))) {
-		// Bukkit.getLogger().info("DEBUG: space 1 is a sign post or wall sign");
-		return false;
-	    }
-	    /*
-	     * switch (space1.getType()) {
-	     * case ACACIA_STAIRS:
-	     * case BIRCH_WOOD_STAIRS:
-	     * case BRICK_STAIRS:
-	     * case COBBLESTONE_STAIRS:
-	     * case DARK_OAK_STAIRS:
-	     * case IRON_PLATE:
-	     * case JUNGLE_WOOD_STAIRS:
-	     * case NETHER_BRICK_STAIRS:
-	     * case PORTAL:
-	     * case QUARTZ_STAIRS:
-	     * case RED_SANDSTONE_STAIRS:
-	     * case SANDSTONE_STAIRS:
-	     * case SIGN_POST:
-	     * case SMOOTH_STAIRS:
-	     * case SPRUCE_WOOD_STAIRS:
-	     * case STEP:
-	     * case STONE_PLATE:
-	     * case STONE_SLAB2:
-	     * case WOOD_DOUBLE_STEP:
-	     * case WOOD_PLATE:
-	     * case WOOD_STAIRS:
-	     * case WOOD_STEP:
-	     * Bukkit.getLogger().info("DEBUG: not solid");
-	     * break;
-	     * default:
-	     * Bukkit.getLogger().info("DEBUG: solid");
-	     * return false;
-	     * }
-	     */
+	if (space1.getType().isSolid() && !space1.getType().equals(Material.SIGN_POST) && !space1.getType().equals(Material.WALL_SIGN)) {
+	    return false;
 	}
-	if (space2.getType().isSolid()) {
-	    //Bukkit.getLogger().info("DEBUG: space 2 is solid");
-	    // Do a few other checks
-	    if (!(space2.getType().equals(Material.SIGN_POST)) && !(space2.getType().equals(Material.WALL_SIGN))) {
-		// Bukkit.getLogger().info("DEBUG: space 2 is a sign post or wall sign");
-		return false;
-	    }
+	if (space2.getType().isSolid()&& !space2.getType().equals(Material.SIGN_POST) && !space2.getType().equals(Material.WALL_SIGN)) {
+	    return false;
 	}
 	// Safe
 	//Bukkit.getLogger().info("DEBUG: safe!");
@@ -873,7 +850,7 @@ public class GridManager {
 	    }
 	}
 
-	// getLogger().info("DEBUG: Home location either isn't safe, or does not exist so try the island");
+	//plugin.getLogger().info("DEBUG: Home location either isn't safe, or does not exist so try the island");
 	// Home location either isn't safe, or does not exist so try the island
 	// location
 	if (plugin.getPlayers().inTeam(p)) {
@@ -927,13 +904,9 @@ public class GridManager {
 		return n;
 	    }
 	}
-	// Try a full protected area scan (-1 = full area scan)
-	l = bigScan(l, -1);
-	// Save if it is successful
-	if (l != null) {
-	    plugin.getPlayers().setHomeLocation(p, l, number);
-	}
-	return l;
+	//plugin.getLogger().info("DEBUG: unsuccessful");
+	// Unsuccessful
+	return null;
     }
 
     /**
@@ -1013,7 +986,7 @@ public class GridManager {
 		maxYradius++;
 	    }
 	    //plugin.getLogger().info("DEBUG: Radii " + minXradius + "," + minYradius + "," + minZradius + 
-		//    "," + maxXradius + "," + maxYradius + "," + maxZradius);
+	    //    "," + maxXradius + "," + maxYradius + "," + maxZradius);
 	} while (minXradius < i || maxXradius < i || minZradius < i || maxZradius < i || minYradius < depth 
 		|| maxYradius < height);
 	// Nothing worked
@@ -1042,11 +1015,8 @@ public class GridManager {
 	    }
 	}
 	if (home == null) {
-	    // The home is not safe
-	    if (!player.performCommand(Settings.SPAWNCOMMAND)) {
-		player.teleport(player.getWorld().getSpawnLocation());
-	    }
-	    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).warpserrorNotSafe);
+	    // Try to fix this teleport location and teleport the player if possible
+	    new SafeSpotTeleport(plugin, player, plugin.getPlayers().getHomeLocation(player.getUniqueId(), number), number);
 	    return true;
 	}
 	//plugin.getLogger().info("DEBUG: home loc = " + home);
@@ -1222,7 +1192,8 @@ public class GridManager {
 	// Run through all the locations
 	for (Location islandTestLocation : islandTestLocations) {
 	    // Must be in the same world as the locations being checked
-	    if (islandTestLocation != null && islandTestLocation.getWorld().equals(player.getWorld())) {
+	    // Note that getWorld can return null if a world has been deleted on the server
+	    if (islandTestLocation != null && islandTestLocation.getWorld() != null && islandTestLocation.getWorld().equals(player.getWorld())) {
 		int protectionRange = Settings.island_protectionRange;
 		if (getIslandAt(islandTestLocation) != null) {
 		    // Get the protection range for this location if possible
@@ -1345,9 +1316,11 @@ public class GridManager {
 	for (int x = -1; x <= 1; x++) {
 	    for (int z = -1; z <= 1; z++) {
 		final Chunk c = l.getWorld().getChunkAt(new Location(l.getWorld(), px + x * 16, py, pz + z * 16));
-		for (final Entity e : c.getEntities()) {
-		    if (e instanceof Monster) {
-			e.remove();
+		if (c.isLoaded()) {
+		    for (final Entity e : c.getEntities()) {
+			if (e instanceof Monster && !Settings.mobWhiteList.contains(e.getType())) {
+			    e.remove();
+			}
 		    }
 		}
 	    }
@@ -1355,55 +1328,49 @@ public class GridManager {
     }
 
     /**
-     * This removes mobs from an island
+     * This removes mobs from an island - used when reseting or deleting an island
      * 
      * @param loc
      *            - a Location
      */
     public void removeMobsFromIsland(final Location loc) {
-	// getLogger().info("DEBUG: removeIsland");
 	if (loc != null) {
-	    // Place a temporary entity
-	    // final World world = getIslandWorld();
-	    // Check to see if this world exists or not
-	    if (loc.getWorld() == null) {
-		return;
-	    }
-	    Entity snowBall = loc.getWorld().spawnEntity(loc, EntityType.SNOWBALL);
-	    // Remove any mobs if they just so happen to be around in the
-	    // vicinity
-	    final Iterator<Entity> ents = snowBall.getNearbyEntities((Settings.island_protectionRange / 2.0), 110.0D, (Settings.island_protectionRange / 2.0))
-		    .iterator();
-	    while (ents.hasNext()) {
-		final Entity tempent = ents.next();
-		// Remove anything except for a players
-		if (tempent instanceof Player) {
-		    // Player
-		    Player pl = (Player) tempent;
-		    if (pl.isInsideVehicle()) {
-			pl.leaveVehicle();
-		    }
-		    if (!pl.isFlying()) {
-			// Move player to spawn
-			Island spawn = getSpawn();
-			if (spawn != null) {
-			    // go to island spawn
-			    pl.teleport(ASkyBlock.getIslandWorld().getSpawnLocation());
-			    plugin.getLogger().warning("During island deletion player " + pl.getName() + " sent to spawn.");
-			} else {
-			    if (!pl.performCommand(Settings.SPAWNCOMMAND)) {
-				plugin.getLogger().warning(
-					"During island deletion player " + pl.getName() + " could not be sent to spawn so was dropped, sorry.");
+	    Island island = getIslandAt(loc);
+	    if (island != null) {
+		for (int x = island.getMinX() /16; x <= (island.getMinX() + island.getIslandDistance() - 1)/16; x++) {
+		    for (int z = island.getMinZ() /16; z <= (island.getMinZ() + island.getIslandDistance() - 1)/16; z++) {
+			for (Entity tempent : loc.getWorld().getChunkAt(x, z).getEntities()) {
+			    if (!(tempent instanceof Player)) {
+				tempent.remove();
 			    } else {
-				plugin.getLogger().warning("During island deletion player " + pl.getName() + " sent to spawn using /spawn.");
+				// Teleport them back home if they are visitors
+				Player player = (Player) tempent;
+				UUID owner = island.getOwner();
+				if (!player.getUniqueId().equals(owner)) {
+				    // See if this player is in the game
+				    if (plugin.getPlayers().hasIsland(player.getUniqueId()) || plugin.getPlayers().inTeam(player.getUniqueId())) {
+					homeTeleport(player);
+				    } else {
+					// Move player to spawn
+					Island spawn = getSpawn();
+					if (spawn != null) {
+					    // go to island spawn
+					    player.teleport(ASkyBlock.getIslandWorld().getSpawnLocation());
+					    plugin.getLogger().warning("During island deletion player " + player.getName() + " sent to spawn.");
+					} else {
+					    if (!player.performCommand(Settings.SPAWNCOMMAND)) {
+						plugin.getLogger().warning(
+							"During island deletion player " + player.getName() + " could not be sent to spawn so was dropped, sorry.");
+					    } else {
+						plugin.getLogger().warning("During island deletion player " + player.getName() + " sent to spawn using /spawn.");
+					    }
+					}
+				    }
+				}
 			    }
 			}
-		    } else {
-			plugin.getLogger().warning("Not moving player " + pl.getName() + " because they are flying");
 		    }
-		} else {
-		    tempent.remove();
-		}
+		}  
 	    }
 	}
     }
