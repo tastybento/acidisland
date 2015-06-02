@@ -152,7 +152,7 @@ challenges:
    errorNotCloseEnough: "Du musst innerhalb von 10 Blöcken von den benötigten Items stehen."
    errorItemsNotThere: "Alle benötigten Items müssen bei deiner Insel sein!"
    errorIslandLevel: "Deine Insel muss auf Level [level] sein, um diese Herausforderung abzuschliessen!"
-   guititle: "aSkyBlock Herausforderungen"
+   guititle: "Herausforderungen"
    erroryouaremissing: "Du bist verloren!!!"
    errorRewardProblem: "Ein Fehler ist aufgetreten. Bitte informiere einen Teamler!"
    completedtimes: "[donetimes]x von [maxtimes]x abgeschlossen"
@@ -163,10 +163,10 @@ island:
    # Titles for V1.8+ servers only. Set to '' to remove.
    # Colors are fixed as blue and gold for now.
    # Only works on 1.8+ servers
-   title: "A SkyBlock"
+   title: "Acid Island"
    subtitle: "von tastybento"
    # This section is to solicit donations from players. Feel free to set to '' to remove :-)
-   donate: "A SkyBlock von tastybento."
+   donate: "Acid Island von tastybento."
    url: ""
 
    teleport: "Du wurdest auf deine Insel teleportiert. (/island help für mehr Infos)"
@@ -299,7 +299,7 @@ makeleader:
 
 #minishop
 minishop:
-   title: "MiniShop"
+   title: "&DMiniShop"
    islandhelpMiniShop: "Öffnet den MiniShop"
    buy: "Kaufen (Linksklick)"
    sell: "Verkaufen (Rechtsklick)"
@@ -397,7 +397,7 @@ resetchallenge:
 
 #News
 news:
-   headline: "[A Skyblock News] Während du offline warst..."
+   headline: "[Acid Island News] Während du offline warst..."
 
 #Nether
 nether:
@@ -411,9 +411,9 @@ boats:
 # [player] is replaced with the player's name
 # ChatColors can be used with &
 sign:
-   line1: "&1[A Skyblock]"
+   line1: "&1[Acid Island]"
    line2: "[player]"
-   line3: "Fall nicht!"
+   line3: "Wasser ist Säure!!"
    line4: "Pass auf!"
 
 biome:

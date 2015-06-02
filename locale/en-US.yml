@@ -77,6 +77,7 @@ islandguardsettings:
   visitorpickup: "Visitor item pick-up"
   visitorkeepitems: "Visitor keep item on death"
 
+  
 #LavaCheck
 lavaTip: "Tip: If obsidian was not intended, it can be scooped back up again with a bucket."
 
@@ -98,10 +99,13 @@ warps:
    errorNotReadyYet: "That warp is not ready yet. Try again later."
    errorNotSafe: "That warp is not safe right now. Try again later."
    #/island warp help
-   warpToPlayersSign: "Warp to <player>'s welcome sign."
+   warpToPlayersSign: "Warping to <player>'s welcome sign."
    errorNoWarpsYet: "There are no warps available yet!"
    warpsAvailable: "The following warps are available"
    playerWarped: "[name] &2warped to your island!"
+   next: "Next"
+   previous: "Previous"
+   title: "Island warps"
 
 topTen:
    header: "These are the Top 10 islands:"
@@ -162,7 +166,7 @@ island:
    title: "Acid Island"
    subtitle: "by tastybento"
    # This section is to solicit donations from players. Feel free to set to '' to remove :-)
-   donate: "Welcome to AcidIsland by tastybento!"
+   donate: "Welcome to Acid Island by tastybento"
    url: ""
 
    teleport: "Teleporting you to your island. (/island help for more info)"
@@ -352,7 +356,7 @@ purge:
    removingName: "Purge: Removing [name]'s island"
    preventPurge: "Island is protected from purging"
    allowPurge: "Purge protection removed"
-   
+
 #confirm
 confirm:
    errorTimeLimitExpired: "Time limit expired! Issue command again."
@@ -393,7 +397,7 @@ resetchallenge:
 
 #News
 news:
-   headline: "[AcidIsland News] While you were offline..."
+   headline: "[Acid Island News] While you were offline..."
 
 #Nether
 nether:
@@ -427,7 +431,9 @@ expel:
    notyourself: "You cannot expel yourself!"
 
 moblimits:
-   error: "Island breeding limit of [number] reached!"
+   error: "Island animal breeding limit of [number] reached!"
+   villager: "Island villager breeding limit of [number] reached!"
+   hopper: "Island hopper limit of [number] reached!"
 
 coop:
    help: "temporarily give a player full access to your island"
@@ -463,3 +469,11 @@ ban:
    alreadybanned: "[name] is already banned!"
    helpBan: "ban a player from your island."
    helpUnban: "un-ban a player from your island"
+
+teamchat:
+   prefix: "[Team Chat]<{ISLAND_PLAYER}> "
+   helpChat: "turn on/off team chat"
+   statusOn: "Team chat is on"
+   statusOff: "Team chat is off"
+   noTeamAround: "None of your team are online!"
+   noTeam: "You are not in a team!"
