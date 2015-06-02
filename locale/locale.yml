@@ -163,10 +163,10 @@ island:
    # Titles for V1.8+ servers only. Set to '' to remove.
    # Colors are fixed as blue and gold for now.
    # Only works on 1.8+ servers
-   title: "AcidIsland"
+   title: "Acid Island"
    subtitle: "by tastybento"
    # This section is to solicit donations from players. Feel free to set to '' to remove :-)
-   donate: "Welcome to AcidIsland by tastybento"
+   donate: "Welcome to Acid Island by tastybento"
    url: ""
 
    teleport: "Teleporting you to your island. (/island help for more info)"
@@ -299,7 +299,7 @@ makeleader:
 
 #minishop
 minishop:
-   title: "&EMiniShop"
+   title: "&DMiniShop"
    islandhelpMiniShop: "Opens the MiniShop"
    buy: "Buy(Left click)"
    sell: "Sell(Right click)"
@@ -397,7 +397,7 @@ resetchallenge:
 
 #News
 news:
-   headline: "[AcidIsland News] While you were offline..."
+   headline: "[Acid Island News] While you were offline..."
 
 #Nether
 nether:
