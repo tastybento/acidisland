@@ -20,13 +20,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
 
+import com.wasteofplastic.acidisland.ASkyBlock;
+import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.Settings;
 
 /**
@@ -36,6 +40,7 @@ import com.wasteofplastic.acidisland.Settings;
 public class ChunkGeneratorWorld extends ChunkGenerator {
     Random rand = new Random();
     PerlinOctaveGenerator gen;
+    ASkyBlock plugin = ASkyBlock.getPlugin();
 
     @SuppressWarnings("deprecation")
     public byte[][] generateBlockSections(World world, Random random, int chunkX, int chunkZ, BiomeGrid biomeGrid) {
@@ -52,7 +57,7 @@ public class ChunkGeneratorWorld extends ChunkGenerator {
 		for (int z = 0; z < 16; z++) {
 		    for (int y = 0; y < Settings.sea_level; y++) {
 			setBlock(result, x, y, z, (byte) Material.STATIONARY_WATER.getId()); // Stationary
-											     // Water
+			// Water
 			// Allows stuff to fall through into oblivion, thus
 			// keeping lag to a minimum
 		    }
@@ -263,15 +268,15 @@ public class ChunkGeneratorWorld extends ChunkGenerator {
 	    //Bukkit.getLogger().info("Math.abs(chunkZ) % chunkDist = " + (Math.abs(chunkZ) % chunkDist));
 	    // Fill the area with lava first
 	    /*
-	     * for (int x = 0; x < 16; x++) {
-	     * for (int z = 0; z < 16; z++) {
-	     * for (int y = 0; y < 50; y++) {
-	     * setBlock(result,x,y,z, (byte)Material.STATIONARY_LAVA.getId());
-	     * }
-	     * }
-	     * }
-	     */
-	    // Make the towers
+	 * for (int x = 0; x < 16; x++) {
+	 * for (int z = 0; z < 16; z++) {
+	 * for (int y = 0; y < 50; y++) {
+	 * setBlock(result,x,y,z, (byte)Material.STATIONARY_LAVA.getId());
+	 * }
+	 * }
+	 * }
+	 */
+	// Make the towers
 	/*
 	    for (int x = 0; x < 11; x++) {
 		for (int z = 0; z < 11; z++) {
@@ -339,13 +344,13 @@ public class ChunkGeneratorWorld extends ChunkGenerator {
 	} else {
 	    // Everywhere else (not tower, not island)
 	    /*
-	     * for (int x = 0; x < 16; x++) {
-	     * for (int z = 0; z < 16; z++) {
-	     * makeRoof(x,z);
-	     * }
-	     * }
-	     */
-    //}
+	 * for (int x = 0; x < 16; x++) {
+	 * for (int z = 0; z < 16; z++) {
+	 * makeRoof(x,z);
+	 * }
+	 * }
+	 */
+	//}
 	return result;
 
     }

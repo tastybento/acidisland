@@ -682,8 +682,8 @@ public class Schematic {
 	}
 	World world = loc.getWorld();
 	Map<BlockVector, Map<String, Tag>> tileEntitiesMap = this.getTileEntitiesMap();
-	// Bukkit.getLogger().info("World is " + world.getName() +
-	// "and schematic size is " + schematic.getBlocks().length);
+	//Bukkit.getLogger().info("World is " + world.getName() + "and schematic size is " + width + " x " + height + " x " + length);
+
 	// Bukkit.getLogger().info("DEBUG Location to place island is:" +
 	// loc.toString());
 
@@ -704,6 +704,7 @@ public class Schematic {
 		for (int z = 0; z < length; ++z) {
 		    int index = y * width * length + z * width + x;
 		    Block block = new Location(world, x, y, z).add(blockLoc).getBlock();
+		    block.setBiome(biome);
 		    try {
 			// Do not post torches because they fall off every so often
 			// May have to include banners too
@@ -1219,6 +1220,7 @@ public class Schematic {
 	    for (int z_space = z - 4; z_space <= z + 4; z_space++) {
 		final Block b = world.getBlockAt(x_space, y, z_space);
 		b.setType(Material.BEDROCK);
+		b.setBiome(biome);
 	    }
 	}
 	for (y = 1; y < Settings.island_level + 5; y++) {
