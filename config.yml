@@ -1,15 +1,14 @@
 #############################################################################
 # Config for AcidIsland
-# For initial set up you must configure or check at least these settings:
+# It is recommended that you check at least these settings:
 #
-# The plugin will NOT start until #1 is set!!!
-# 1. distance (in the island section below) - the distance between islands
+# 1. island distance - the distance between islands. If upgrading set to what you had.
 # 2. resetmoney (general section) - set to true so that everyone starts with nothing
 # 3. islandLevel (general section) - the height you want your islands to float
 # 4. sealevel (general section) - the height of the sea
-# 5. protectionRange - big a player's island is at the start
+# 5. protectionRange - how big a player's island is at the start
 #
-# #############################################################################
+##############################################################################
 
 ##### Island Related Settings #####
 
@@ -17,22 +16,21 @@ island:
    # Space between islands in blocks - NEVER change this mid-game.
    # Values for a new world:
    # 400 - puts players distance enough that they usually cannot see each other
-   # 200 - allows some expansion of the protected zone (recommended)
+   # 200 - allows some expansion of the protected zone
    # 110 - for compatibility with established worlds. Cozy.
    # 50 - minimum - not recommended
    # IF YOU ARE UPGRADING YOU MUST USE YOUR OLD VALUE EXACTLY, E.G., 110
    #
-   # You MUST change this value to something to start the plugin!
    # Value must be an even number.
 
-   distance: -1
+   distance: 200
 
    # Default protection range (even number). Min = 50, Recommended = 100
    # Value must be at least 16 blocks less than the island distance unless you set
    # overridelimit: true below.
-   # Use this permission to set for different groups: askyblock.island.range.<number>
+   # Use this permission to set for different groups: acidisland.island.range.<number>
    # Larger values will take longer to calculate the island level
-   # Admins can change protection sizes for players individually using /asadmin setrange
+   # Admins can change protection sizes for players individually using /acid setrange
    protectionRange: 100
 
    # If you want to try to have protection range = distance set the following to true.
@@ -48,7 +46,7 @@ island:
    startz: 0
    
    # Default max team size
-   # Use this permission to set for specific user groups: askyblock.team.maxsize.<number> 
+   # Use this permission to set for specific user groups: acidisland.team.maxsize.<number> 
    # Permission size cannot be less than the default. 
    maxteamsize: 4
 
@@ -79,8 +77,9 @@ island:
 
    # Island Protection Settings
 
-   # PVP is allowed or not.
+   # PVP is allowed or not in the game.
    allowPvP: false
+   # PVP allowed in the nether or not
    allowNetherPvP: false
    # Other players can break blocks or not or generally damage things
    allowbreakblocks: false
@@ -170,7 +169,8 @@ general:
 
    # Island level - the height of the island.
    # Height should not be lower than sea level, but can be if you have an
-   # island schematic that supports it
+   # island schematic that supports it.
+   # Set sealevel and islandheight to about 30 and slimes may spawn on islands.
    # Lowest level is 5
    islandlevel: 50
 
@@ -259,11 +259,12 @@ general:
    damagechickens: false
 
    # Damage type to apply in addition to acid damage
-   # Types can be : SLOW, SLOW_DIGGING, CONFUSION,BLINDNESS, HUNGER, WEAKNESS and POISON
+   # Types can be : SLOW, SLOW_DIGGING, CONFUSION, BLINDNESS, HUNGER, WEAKNESS and POISON
    # If you just want these to act, then make the acid damage 0 above
    # Note - these are potion effects and so can be cured by milk
    damagetype:
    - confusion
+   - slow
 
    # Removing mobs - this kills all monsters in the vicinity. Benefit is that it helps
    # players return to their island if the island has been overrun by monsters
@@ -283,11 +284,12 @@ general:
    - Pig_Zombie
 
    # Sets the limit for number of monsters that can spawn in a chunk in this world. 
+   # Note: this does not limit the number of monsters, just how many spawn naturally.
    # Note: If set to a negative number the world will use the server-wide spawn limit instead.
    # Max is 100
    monsterspawnlimit: 70
    
-   #[integer] Sets the limit for number of animals that can spawn in a chunk in this world. 
+   # Sets the limit for number of animals that can spawn in a chunk in this world. 
    # Note: If set to a negative number the world will use the server-wide spawn limit instead.
    # Max is 100
    animalspawnlimit: 15
@@ -295,30 +297,31 @@ general:
    # Animal breeding limits - if this is set to more than 0, then players will not be able
    # to breed more animals than that number on their island. A value of zero means no
    # limit. Note that animals will not be killed or reduced to this limit.
-   # This WILL affect mobspawn blocks AND spawn egg use. Note that hearts will
+   # This also affects mobspawn blocks and spawn egg use. Note that hearts will
    # still appear, but breeding will not happen.
    breedinglimit: 0
 
    # Villager limit - this is per team player, so an island of 4 will have 4x this number
    # Note that 10 villagers minimum are required to create an iron farm. Zero is unlimited.
+   # Excessive villagers can cause entity lag.
    villagerlimit: 0
    
    # Hopper limit - max number of island hoppers. If exceeded, players will not be able
-   # to place a hopper block. Zero is unlimited. Excessive hoppers can add to lag.
+   # to place a hopper block. Zero is unlimited. Excessive hoppers can add to entity lag.
    hopperlimit: 0
 
-   #[integer] Sets the limit for number of water animals [squid] that can spawn in a chunk in this world. 
+   # Sets the limit for number of water animals [squid] that can spawn in a chunk in this world. 
    # Note: If set to a negative number the world will use the server-wide spawn limit instead.
    # Max is 100
    wateranimalspawnlimit: 15
 
-   #[integer] Island below this level will be removed if they are abandoned and admins issue the purge command
+   # Islands below this level will be removed if they are abandoned and admins issue the purge command
    abandonedislandlevel: 10
 
 
    ##### Economy ######
    # Use economy or not. If true, an economy plugin is required. If false,
-   # no money is used or give and the mini-shop is disabled.
+   # no money is used or given and the mini-shop is disabled.
    # If there is no economy plugin present anyway, money will be automatically
    # disabled.
    useeconomy: true
@@ -345,9 +348,9 @@ general:
 
    # Reset Ender Chest - if true, the player's Ender Chest will be cleared when they
    # start or restart their island. Default is false.
-   # NOTE: Ender Chests spawn worlds, so it will clear ALL chests. In general,
-   # Enderchests should not be allowed in ASkyblock unless you only run the ASkyblock
-   # world. Ender Chest crafting and use is governed by the askyblock.craft.enderchest
+   # NOTE: Ender Chests span worlds, so it will clear ALL chests. In general,
+   # Enderchests should not be allowed unless you only run the Acid Island
+   # world. Ender Chest crafting and use is governed by the acidisland.craft.enderchest
    # permission.
    resetenderchest: false
 
@@ -384,7 +387,7 @@ general:
    
    # Default maximum number of homes a player can have. Min = 1
    # Accessed via sethome <number> or go <number>
-   # Use this permission to set for specific user groups: askyblock.island.maxhomes.<number>  
+   # Use this permission to set for specific user groups: acidisland.island.maxhomes.<number>  
    maxhomes: 1
 
    # Make island if player teleports to the island world and does not have one
@@ -394,9 +397,6 @@ general:
    # entering the world
    immediateteleport: false
 
-   # Use the variable "{ISLAND_LEVEL}" in chat prefixes in other plugins and it will
-   # be replaced by the player's island level.
-   
    # Have player's respawn on their island if they die
    respawnonisland: false
 
@@ -405,7 +405,9 @@ general:
    # using the /island teamchat command.
    # The prefix [Team Chat] that goes in front of team chats is in the locale files
    teamchat: true
-
+   # Use the variable "{ISLAND_LEVEL}" in chat prefixes in other plugins and it will
+   # be replaced by the player's island level.
+   
    # Restrict Wither
    # This allows the Wither to only damage the island where it is spawned.
    # Damage to any islands or players will not occur.
@@ -498,7 +500,7 @@ biomes:
   MUSHROOM_ISLAND:
     icon: RED_MUSHROOM
     # Note, this permission can be anything you like
-    permission: askyblock.biomes.mushoom_island
+    permission: acidisland.biomes.mushoom_island
     description: Mushroom island
     #permission: any.perm.you.want
   PLAINS:
