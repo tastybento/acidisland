@@ -1,11 +1,11 @@
-package com.wasteofplastic.acidisland.nms.v1_7_R3;
+package com.wasteofplastic.acidisland.nms.v1_7_R4;
 
 import java.lang.reflect.Field;
 
-import net.minecraft.server.v1_7_R3.ChunkSection;
+import net.minecraft.server.v1_7_R4.ChunkSection;
 
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
 
 import com.wasteofplastic.acidisland.nms.NMSAbstraction;
 
@@ -14,8 +14,8 @@ public class NMSHandler implements NMSAbstraction {
     @SuppressWarnings("deprecation")
     @Override
     public void setBlockSuperFast(Block b, int blockId, byte data, boolean applyPhysics) {
-	net.minecraft.server.v1_7_R3.World w = ((CraftWorld) b.getWorld()).getHandle();
-	net.minecraft.server.v1_7_R3.Chunk chunk = w.getChunkAt(b.getX() >> 4, b.getZ() >> 4);
+	net.minecraft.server.v1_7_R4.World w = ((CraftWorld) b.getWorld()).getHandle();
+	net.minecraft.server.v1_7_R4.Chunk chunk = w.getChunkAt(b.getX() >> 4, b.getZ() >> 4);
 	try {
 	    Field f = chunk.getClass().getDeclaredField("sections");
 	    f.setAccessible(true);
@@ -25,7 +25,7 @@ public class NMSHandler implements NMSAbstraction {
 	    if (chunksection == null) {
 		chunksection = sections[b.getY() >> 4] = new ChunkSection(b.getY() >> 4 << 4, !chunk.world.worldProvider.f);
 	    }
-	    net.minecraft.server.v1_7_R3.Block mb = net.minecraft.server.v1_7_R3.Block.e(blockId);
+	    net.minecraft.server.v1_7_R4.Block mb = net.minecraft.server.v1_7_R4.Block.getById(blockId);
 	    chunksection.setTypeId(b.getX() & 15, b.getY() & 15, b.getZ() & 15, mb);
 	    chunksection.setData(b.getX() & 15, b.getY() & 15, b.getZ() & 15, data);
 	    if (applyPhysics) {

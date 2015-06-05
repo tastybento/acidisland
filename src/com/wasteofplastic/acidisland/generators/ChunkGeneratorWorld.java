@@ -20,17 +20,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
-import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.util.noise.PerlinOctaveGenerator;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
-import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.Settings;
 
 /**

@@ -104,6 +104,13 @@
 			<systemPath>${project.basedir}/serverJars/spigot-1.8.6.jar</systemPath>
 			<version>1.8.6</version>
 		</dependency>
+		<dependency>
+			<groupId>spigotmc.org</groupId>
+			<artifactId>spigot-1649</artifactId>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/serverJars/spigot-1649.jar</systemPath>
+			<version>1.7.10</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
