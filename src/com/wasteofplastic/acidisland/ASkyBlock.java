@@ -1248,7 +1248,7 @@ public class ASkyBlock extends JavaPlugin {
 	try {
 	    clazz = Class.forName("org.bukkit.event.player.PlayerInteractAtEntityEvent");
 	} catch (Exception e) {
-	    getLogger().info("No PlayerInteractAtEntityEvent found.");
+	    //getLogger().info("No PlayerInteractAtEntityEvent found.");
 	    clazz = null;
 	}
 	if (clazz != null) {

@@ -19,6 +19,7 @@ package com.wasteofplastic.acidisland.schematics;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -76,9 +77,10 @@ import org.json.simple.parser.ParseException;
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.Settings.GameType;
+import com.wasteofplastic.acidisland.nms.NMSAbstraction;
 
 public class Schematic {
-
+    private ASkyBlock plugin;
     private short[] blocks;
     private byte[] data;
     private short width;
@@ -115,8 +117,10 @@ public class Schematic {
     private Vector topGrass;
     private Vector playerSpawn;
     private Material playerSpawnBlock;
+    private NMSAbstraction nms;
 
-    public Schematic() {
+    public Schematic(ASkyBlock plugin) {
+	this.plugin = plugin;
 	// Initialize 
 	name = "";
 	heading = "";
@@ -143,7 +147,8 @@ public class Schematic {
 	partnerName = "";
     }
 
-    public Schematic(File file) throws IOException {
+    public Schematic(ASkyBlock plugin, File file) throws IOException {
+	this.plugin = plugin;
 	// Initialize
 	name = file.getName();
 	heading = "";
@@ -168,6 +173,11 @@ public class Schematic {
 	playerSpawn = null;
 	playerSpawnBlock = null;
 	partnerName = "";
+	try {
+	    nms = checkVersion();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
 	// Establish the World Edit to Material look up
 	// V1.8 items
 	// New V1.8 events
@@ -709,13 +719,17 @@ public class Schematic {
 			// Do not post torches because they fall off every so often
 			// May have to include banners too
 			if (blocks[index] != Material.TORCH.getId()) {
-			    block.setTypeIdAndData(blocks[index], data[index], this.usePhysics);
+			    
+			    //block.setTypeIdAndData(blocks[index], data[index], this.usePhysics);
+			    nms.setBlockSuperFast(block, blocks[index], data[index], this.usePhysics);
 			}
 		    } catch (Exception e) {
+			e.printStackTrace();
 			// Do some 1.7.9 helping for the built-in schematic
 			if (blocks[index] == 179) {
 			    // Red sandstone - use red sand instead
-			    block.setTypeIdAndData(12, (byte)1, this.usePhysics); 
+			    //block.setTypeIdAndData(12, (byte)1, this.usePhysics);
+			    nms.setBlockSuperFast(block, 12, (byte)1, this.usePhysics);
 			} else {
 			    Bukkit.getLogger().info("Could not set (" + x + "," + y + "," + z + ") block ID:" + blocks[index] + " block data = " + data[index]);
 			}
@@ -736,7 +750,8 @@ public class Schematic {
 			// Do some 1.7.9 helping for the built-in schematic
 			if (blocks[index] == 179) {
 			    // Red sandstone - use red sand instead
-			    block.setTypeIdAndData(12, (byte)1, this.usePhysics); 
+			    //block.setTypeIdAndData(12, (byte)1, this.usePhysics);
+			    nms.setBlockSuperFast(block, blocks[index], data[index], this.usePhysics);
 			} else {
 			    Bukkit.getLogger().info("Could not set (" + x + "," + y + "," + z + ") block ID:" + blocks[index] + " block data = " + data[index]);
 			}
@@ -1536,5 +1551,39 @@ public class Schematic {
 	return false;
     }
 
+    /**
+     * Checks what version the server is running and picks the appropriate NMS handler, or fallback
+     * @return NMSAbstraction class
+     * @throws ClassNotFoundException
+     * @throws IllegalArgumentException
+     * @throws SecurityException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     */
+    private NMSAbstraction checkVersion() throws ClassNotFoundException, IllegalArgumentException,
+    SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException,
+    NoSuchMethodException {
+	String serverPackageName = plugin.getServer().getClass().getPackage().getName();
+	String pluginPackageName = plugin.getClass().getPackage().getName();
+	String version = serverPackageName.substring(serverPackageName.lastIndexOf('.') + 1);
+	Class<?> clazz;
+	try {
+	    plugin.getLogger().info("DEBUG: Trying " + pluginPackageName + ".nms." + version + ".NMSHandler");
+	    clazz = Class.forName(pluginPackageName + ".nms." + version + ".NMSHandler");
+	} catch (Exception e) {
+	    plugin.getLogger().info("No NMS Handler found, falling back to slow island delete.");
+	    clazz = Class.forName(pluginPackageName + ".nms.fallback.NMSHandler");
+	}
+	plugin.getLogger().info("DEBUG: " + serverPackageName);
+	plugin.getLogger().info("DEBUG: " + pluginPackageName);
+	// Check if we have a NMSAbstraction implementing class at that location.
+	if (NMSAbstraction.class.isAssignableFrom(clazz)) {
+	    return (NMSAbstraction) clazz.getConstructor().newInstance();
+	} else {
+	    throw new IllegalStateException("Class " + clazz.getName() + " does not implement NMSAbstraction");
+	}
+    }
 
 }

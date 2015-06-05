@@ -147,7 +147,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 		plugin.saveResource("schematics/island.schematic", false);
 		// Add it to schematics
 		try {
-		    schematics.put("default",new Schematic(schematicFile));
+		    schematics.put("default",new Schematic(plugin, schematicFile));
 		} catch (IOException e) {
 		    plugin.getLogger().severe("Could not load default schematic!");
 		    e.printStackTrace();
@@ -156,12 +156,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	    } else {
 		// No islands.schematic in the jar, so just make the default using 
 		// built-in island generation
-		schematics.put("default",new Schematic());
+		schematics.put("default",new Schematic(plugin));
 	    }
 	} else {
 	    // It exists, so load it
 	    try {
-		schematics.put("default",new Schematic(schematicFile));
+		schematics.put("default",new Schematic(plugin, schematicFile));
 	    } catch (IOException e) {
 		plugin.getLogger().severe("Could not load default schematic!");
 		e.printStackTrace();
@@ -174,7 +174,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 
 		// Add it to schematics
 		try {
-		    Schematic netherIsland = new Schematic(netherFile);
+		    Schematic netherIsland = new Schematic(plugin, netherFile);
 		    netherIsland.setVisible(false);
 		    schematics.put("nether", netherIsland);
 		} catch (IOException e) {
@@ -187,7 +187,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	} else {
 	    // It exists, so load it
 	    try {
-		Schematic netherIsland = new Schematic(netherFile);
+		Schematic netherIsland = new Schematic(plugin, netherFile);
 		netherIsland.setVisible(false);
 		schematics.put("nether", netherIsland);
 	    } catch (IOException e) {
@@ -234,7 +234,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 		    plugin.getLogger().info("Loading schematic " + fileName + " for permission " + perms);
 		    Schematic schematic;
 		    try {
-			schematic = new Schematic(schem);
+			schematic = new Schematic(plugin, schem);
 			schematic.setPerm(perms);
 			schematic.setHeading(perms);
 			schematic.setName("#" + count++);
@@ -263,10 +263,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			schematicFile = new File(schematicFolder, filename);
 			// See if the file exists
 			if (schematicFile.exists()) {
-			    newSchem = new Schematic(schematicFile);
+			    newSchem = new Schematic(plugin, schematicFile);
 			} else if (plugin.getResource("schematics/"+filename) != null) {
 			    plugin.saveResource("schematics/"+filename, false);
-			    newSchem = new Schematic(schematicFile);
+			    newSchem = new Schematic(plugin, schematicFile);
 			}
 		    } else {
 			//plugin.getLogger().info("DEBUG: filename is empty");
