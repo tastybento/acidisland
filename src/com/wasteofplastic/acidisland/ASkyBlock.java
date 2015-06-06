@@ -1117,6 +1117,7 @@ public class ASkyBlock extends JavaPlugin {
 	Settings.endermanDeathDrop = getConfig().getBoolean("island.endermandeathdrop", true);
 	Settings.allowEndermanGriefing = getConfig().getBoolean("island.allowendermangriefing", true);
 	Settings.allowCreeperDamage = getConfig().getBoolean("island.allowcreeperdamage", true);
+	Settings.allowCreeperGriefing = getConfig().getBoolean("island.allowcreepergriefing", false);
 	Settings.allowTNTDamage = getConfig().getBoolean("island.allowtntdamage", false);
 	Settings.allowMonsterEggs = getConfig().getBoolean("island.allowspawneggs", false);
 	Settings.allowBreeding = getConfig().getBoolean("island.allowbreeding", false);
