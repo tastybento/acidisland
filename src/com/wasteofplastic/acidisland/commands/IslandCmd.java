@@ -619,7 +619,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	//plugin.getLogger().info("DEBUG: found " + next);
 	// Sets a flag to temporarily disable cleanstone generation
 	plugin.setNewIsland(true);
-	plugin.getBiomes();
+	//plugin.getBiomes();
 	
 	// Create island based on schematic
 	if (schematic != null) {

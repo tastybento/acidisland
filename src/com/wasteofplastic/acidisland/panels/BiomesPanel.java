@@ -3,12 +3,15 @@ package com.wasteofplastic.acidisland.panels;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -18,6 +21,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.util.Vector;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
@@ -164,12 +168,86 @@ public class BiomesPanel implements Listener {
 	final Island island = plugin.getGrid().getIslandAt(islandLoc);
 	if (island != null) {
 	    island.getCenter().getBlock().setBiome(biomeType);
+	    // Get a snapshot of the island
+	    final World world = island.getCenter().getWorld();
+	    // If the biome is dry, then we need to remove the water, ice, snow, etc.
+	    switch (biomeType) {
+	    case MESA:
+	    case MESA_BRYCE:
+	    case DESERT:
+	    case JUNGLE:
+	    case SAVANNA:
+	    case SAVANNA_MOUNTAINS:
+	    case SAVANNA_PLATEAU:
+	    case SAVANNA_PLATEAU_MOUNTAINS:
+	    case SWAMPLAND:
+	    case HELL:
+		// Get the chunks
+		//plugin.getLogger().info("DEBUG: get the chunks");
+		List<ChunkSnapshot> chunkSnapshot = new ArrayList<ChunkSnapshot>();
+		for (int x = island.getMinProtectedX() /16; x <= (island.getMinProtectedX() + island.getProtectionSize() - 1)/16; x++) {
+		    for (int z = island.getMinProtectedZ() /16; z <= (island.getMinProtectedZ() + island.getProtectionSize() - 1)/16; z++) {
+			chunkSnapshot.add(world.getChunkAt(x, z).getChunkSnapshot());
+		    }  
+		}
+		//plugin.getLogger().info("DEBUG: size of chunk ss = " + chunkSnapshot.size());
+		final List<ChunkSnapshot> finalChunk = chunkSnapshot;
+		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+
+		    @SuppressWarnings("deprecation")
+		    @Override
+		    public void run() {
+			//System.out.println("DEBUG: running async task");
+			HashMap<Vector,Integer> blocksToRemove = new HashMap<Vector, Integer>();
+			// Go through island space and find the offending columns
+			for (ChunkSnapshot chunk: finalChunk) {
+			    for (int x = 0; x< 16; x++) {
+				for (int z = 0; z < 16; z++) {
+				    // Check if it is snow, ice or water
+				    for (int yy = world.getMaxHeight()-1; yy >= Settings.sea_level; yy--) {
+					int type = chunk.getBlockTypeId(x, yy, z);
+					if (type == Material.ICE.getId() || type == Material.SNOW.getId() || type == Material.SNOW_BLOCK.getId()
+						|| type == Material.WATER.getId() || type == Material.STATIONARY_WATER.getId()) {
+					    //System.out.println("DEBUG: offending block found " + Material.getMaterial(type) + " @ " + (chunk.getX()*16 + x) + " " + yy + " " + (chunk.getZ()*16 + z));
+					    blocksToRemove.put(new Vector(chunk.getX()*16 + x,yy,chunk.getZ()*16 + z), type);
+					} else if (type != Material.AIR.getId()){
+					    // Hit a non-offending block so break and store this column of vectors
+					    break;
+					}
+				    }
+				}
+			    }
+			}
+			// Now get rid of the blocks
+			if (!blocksToRemove.isEmpty()) {
+			    final HashMap<Vector, Integer> blocks = blocksToRemove;
+			    // Kick of a sync task
+			    plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+
+				@Override
+				public void run() {
+				    //plugin.getLogger().info("DEBUG: Running sync task");
+				    for (Entry<Vector, Integer> entry: blocks.entrySet()) {
+					if (entry.getValue() == Material.WATER.getId() || entry.getValue() == Material.STATIONARY_WATER.getId()) {
+					    if (biomeType.equals(Biome.HELL)) {
+						// Remove water from Hell	
+						entry.getKey().toLocation(world).getBlock().setType(Material.AIR);
+					    }
+					} else {
+					    entry.getKey().toLocation(world).getBlock().setType(Material.AIR);
+					}
+				    }
+				}});
+			}
+		    }});
+	    default:
+	    }
 	    return true;
 	} else {
-	   return false; 
+	    return false; 
 	}
     }
-    
+
     /**
      * Ensures that any block when loaded will match the biome of the center column of the island
      * if it exists. Does not apply to spawn.
@@ -188,54 +266,6 @@ public class BiomesPanel implements Listener {
 		for (int z = 0; z< 16; z++) {
 		    // Set biome
 		    e.getChunk().getBlock(x, 0, z).setBiome(biome);
-		    // Check y down for snow etc.
-		    switch (biome) {
-		    case MESA:
-		    case MESA_BRYCE:
-		    case DESERT:
-		    case JUNGLE:
-		    case SAVANNA:
-		    case SAVANNA_MOUNTAINS:
-		    case SAVANNA_PLATEAU:
-		    case SAVANNA_PLATEAU_MOUNTAINS:
-		    case SWAMPLAND:
-			boolean topBlockFound = false;
-			for (int y = e.getWorld().getMaxHeight(); y >= Settings.sea_level; y--) {
-			    Block b = e.getChunk().getBlock(x, y, z);
-			    if (!b.getType().equals(Material.AIR)) {
-				topBlockFound = true;
-			    }
-			    if (topBlockFound) {
-				if (b.getType() == Material.ICE || b.getType() == Material.SNOW || b.getType() == Material.SNOW_BLOCK) {
-				    b.setType(Material.AIR);
-				} else {
-				    // Finished with the removals once we hit non-offending blocks
-				    break;
-				}
-			    }
-			}
-			break;
-		    case HELL:
-			topBlockFound = false;
-			for (int y = e.getWorld().getMaxHeight(); y >= Settings.sea_level; y--) {
-			    Block b = e.getChunk().getBlock(x, y, z);
-			    if (!b.getType().equals(Material.AIR)) {
-				topBlockFound = true;
-			    }
-			    if (topBlockFound) {
-				if (b.getType() == Material.ICE || b.getType() == Material.SNOW || b.getType() == Material.SNOW_BLOCK
-					|| b.getType() == Material.WATER || b.getType() == Material.STATIONARY_WATER) {
-				    b.setType(Material.AIR);
-				} else {
-				    // Finished with the removals once we hit non-offending blocks
-				    break;
-				}
-			    }
-			}
-			break;
-
-		    default:
-		    }
 		}
 	    }
 	}

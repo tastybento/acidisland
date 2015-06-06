@@ -1442,6 +1442,11 @@ public class ASkyBlock extends JavaPlugin {
      * @return the warpPanel
      */
     public WarpPanel getWarpPanel() {
+	if (warpPanel == null) {
+	    // Probably due to a reload
+	    warpPanel = new WarpPanel(this);
+	    getServer().getPluginManager().registerEvents(warpPanel, plugin);
+	}
 	return warpPanel;
     }
 }
