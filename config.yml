@@ -412,9 +412,11 @@ general:
    # using the /island teamchat command.
    # The prefix [Team Chat] that goes in front of team chats is in the locale files
    teamchat: true
+
    # Use the variable "{ISLAND_LEVEL}" in chat prefixes in other plugins and it will
    # be replaced by the player's island level.
-   
+   # Confirmed to work with Essentials Chat, Multiverse Core and Herochat.
+      
    # Restrict Wither
    # This allows the Wither to only damage the island where it is spawned.
    # Damage to any islands or players will not occur.

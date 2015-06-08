@@ -4,6 +4,7 @@ version: ${version}
 description: AcidIsland
 author: Tastybento
 depend: [Vault]
+softdepend: [Herochat]
 load: startup
 loadbefore: [Multiverse-Core]
 commands:

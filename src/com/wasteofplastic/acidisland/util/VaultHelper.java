@@ -16,6 +16,7 @@
  *******************************************************************************/
 package com.wasteofplastic.acidisland.util;
 
+import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
@@ -30,6 +31,7 @@ import com.wasteofplastic.acidisland.ASkyBlock;
 public class VaultHelper {
     public static Economy econ = null;
     public static Permission permission = null;
+    public static Chat chat = null;
 
     /**
      * Sets up the economy instance
@@ -44,6 +46,16 @@ public class VaultHelper {
 	}
 	return econ != null;
     }
+
+    public static boolean setupChat() {
+	RegisteredServiceProvider<Chat> chatProvider = ASkyBlock.getPlugin().getServer().getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat.class);
+	if (chatProvider != null) {
+	    chat = chatProvider.getProvider();
+	}
+
+	return (chat != null);
+    }
+
 
     /**
      * Sets up the permissions instance
