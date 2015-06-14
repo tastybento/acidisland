@@ -41,7 +41,7 @@ import com.wasteofplastic.acidisland.util.Util;
  * @author tastybento
  */
 public class GridManager {
-    private ASkyBlock plugin = ASkyBlock.getPlugin();
+    private ASkyBlock plugin;
     // 2D islandGrid of islands, x,z
     private TreeMap<Integer, TreeMap<Integer, Island>> islandGrid = new TreeMap<Integer, TreeMap<Integer, Island>>();
     // private TreeMap<Integer,TreeMap<Integer,PlayerIsland>> protectionGrid = new
@@ -441,7 +441,7 @@ public class GridManager {
 	}
 	// plugin.getLogger().info("DEBUG: adding island to grid at " + x + ", "
 	// + z + " for " + owner.toString());
-	Island newIsland = new Island(x, z, owner);
+	Island newIsland = new Island(plugin, x, z, owner);
 	// if (newIsland != null) {
 	// plugin.getLogger().info("DEBUG: new island is good");
 	// }
@@ -456,7 +456,7 @@ public class GridManager {
      */
     public Island addIsland(String islandSerialized) {
 	// plugin.getLogger().info("DEBUG: adding island " + islandSerialized);
-	Island newIsland = new Island(islandSerialized);
+	Island newIsland = new Island(plugin, islandSerialized);
 	addToGrids(newIsland);
 	return newIsland;
     }
@@ -818,7 +818,7 @@ public class GridManager {
      * 
      * @param p UUID of player
      * @param number - starting home location e.g., 1
-     * @return Location of a safe teleport spot or null if one cannot be fond
+     * @return Location of a safe teleport spot or null if one cannot be found
      */
     public Location getSafeHomeLocation(final UUID p, int number) {
 	// Try the numbered home location first
@@ -1047,13 +1047,13 @@ public class GridManager {
      * @param number
      */
     public void homeSet(Player player, int number) {
-	// Check if player is in overworld
-	if (!player.getWorld().equals(ASkyBlock.getIslandWorld())) {
+	// Check if player is in their home world
+	if (!player.getWorld().equals(plugin.getGrid().getIsland(player.getUniqueId()).getCenter().getWorld())) {
 	    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).setHomeerrorNotOnIsland);
 	    return; 
 	}
-	// Check if player is on island
-	if (!plugin.getGrid().playerIsOnIsland(player)) {
+	// Check if player is on island, ignore coops
+	if (!plugin.getGrid().playerIsOnIsland(player, false)) {
 	    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).setHomeerrorNotOnIsland);
 	    return;
 	}
@@ -1164,11 +1164,20 @@ public class GridManager {
      * coop island
      * 
      * @param player
-     *            - the player who is being checked
-     * @return - true if they are on an island they have rights to be on,
-     *         otherwise false
+     * @return true if on valid island, false if not
      */
     public boolean playerIsOnIsland(final Player player) {
+	return playerIsOnIsland(player, true);
+    }
+    
+    /**
+     * Checks if an online player is on their island, on a team island or on a
+     * coop island
+     * @param player
+     * @param coop - if true, coop islands are included
+     * @return true if on valid island, false if not
+     */
+    public boolean playerIsOnIsland(final Player player, boolean coop) {
 	// Make a list of test locations and test them
 	Set<Location> islandTestLocations = new HashSet<Location>();
 	if (plugin.getPlayers().hasIsland(player.getUniqueId())) {
@@ -1184,7 +1193,9 @@ public class GridManager {
 	    }
 	}
 	// Check coop locations
-	islandTestLocations.addAll(CoopPlay.getInstance().getCoopIslands(player));
+	if (coop) {
+	    islandTestLocations.addAll(CoopPlay.getInstance().getCoopIslands(player));
+	}
 	if (islandTestLocations.isEmpty()) {
 	    return false;
 	}
@@ -1358,49 +1369,6 @@ public class GridManager {
 	}
     }
 
-
-    /*
-    public void removeMobsFromIsland(final Location loc) {
-	if (loc != null) {
-	    Island island = getIslandAt(loc);
-	    if (island != null) {
-		for (int x = island.getMinX() /16; x <= (island.getMinX() + island.getIslandDistance() - 1)/16; x++) {
-		    for (int z = island.getMinZ() /16; z <= (island.getMinZ() + island.getIslandDistance() - 1)/16; z++) {
-			for (Entity tempent : loc.getWorld().getChunkAt(x, z).getEntities()) {
-			    if (!(tempent instanceof Player)) {
-				tempent.remove();
-			    } else {
-				// Teleport them back home if they are visitors
-				Player player = (Player) tempent;
-				UUID owner = island.getOwner();
-				if (!player.getUniqueId().equals(owner)) {
-				    // See if this player is in the game
-				    if (plugin.getPlayers().hasIsland(player.getUniqueId()) || plugin.getPlayers().inTeam(player.getUniqueId())) {
-					homeTeleport(player);
-				    } else {
-					// Move player to spawn
-					Island spawn = getSpawn();
-					if (spawn != null) {
-					    // go to island spawn
-					    player.teleport(ASkyBlock.getIslandWorld().getSpawnLocation());
-					    plugin.getLogger().warning("During island deletion player " + player.getName() + " sent to spawn.");
-					} else {
-					    if (!player.performCommand(Settings.SPAWNCOMMAND)) {
-						plugin.getLogger().warning(
-							"During island deletion player " + player.getName() + " could not be sent to spawn so was dropped, sorry.");
-					    } else {
-						plugin.getLogger().warning("During island deletion player " + player.getName() + " sent to spawn using /spawn.");
-					    }
-					}
-				    }
-				}
-			    }
-			}
-		    }
-		}  
-	    }
-	}
-    }*/
     /**
      * @return a list of unowned islands
      */
@@ -1417,5 +1385,23 @@ public class GridManager {
 	    }
 	}
 	return result;
+    }
+
+    /**
+     * Set the spawn point for the island world
+     * @param location
+     */
+    public void setSpawnPoint(Location location) {
+	ASkyBlock.getIslandWorld().setSpawnLocation(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+	//plugin.getLogger().info("DEBUG: setting spawn point to " + location);
+	spawn.setSpawnPoint(location);
+    }
+
+    /**
+     * @return the spawnPoint
+     */
+    public Location getSpawnPoint() {
+	//plugin.getLogger().info("DEBUG: getting spawn point : " + spawn.getSpawnPoint());
+        return spawn.getSpawnPoint();
     }
 }

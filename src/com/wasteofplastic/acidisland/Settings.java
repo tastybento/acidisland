@@ -38,6 +38,7 @@ public class Settings {
     public enum GameType {
 	ASKYBLOCK, ACIDISLAND
     }
+
     public final static GameType GAMETYPE = GameType.ACIDISLAND;
     // The spawn command (Essentials spawn for example)
     public final static String SPAWNCOMMAND = "spawn";
@@ -47,7 +48,7 @@ public class Settings {
     public final static String ISLANDCOMMAND = "ai";
     // The challenge command
     public static final String CHALLENGECOMMAND = "aic";
-/*
+    /*
     public final static GameType GAMETYPE = GameType.ASKYBLOCK;
     // Permission prefix
     public final static String PERMPREFIX = "askyblock.";

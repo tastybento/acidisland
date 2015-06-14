@@ -14,6 +14,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 
+import com.wasteofplastic.acidisland.util.Util;
+
 /**
  * Stores all the info about an island
  * Managed by GridManager
@@ -22,7 +24,7 @@ import org.bukkit.entity.Villager;
  * 
  */
 public class Island {
-
+    ASkyBlock plugin;
     // Coordinates of the island area
     private int minX;
     private int minZ;
@@ -54,12 +56,15 @@ public class Island {
     private HashMap<EntityType, Integer> entities = new HashMap<EntityType, Integer>();
     // Protection against deletion or not
     private boolean purgeProtected;
+    // The spawn point 
+    private Location spawnPoint;
 
-    public Island(String serial) {
+    public Island(ASkyBlock plugin, String serial) {
+	this.plugin = plugin;
 	// Bukkit.getLogger().info("DEBUG: adding serialized island to grid ");
 	// Deserialize
 	// Format:
-	// x:height:z:protection range:island distance:owner UUID
+	// x:height:z:protection range:island distance:owner UUID: locked: protected
 	String[] split = serial.split(":");
 	try {
 	    protectionRange = Integer.parseInt(split[3]);
@@ -102,6 +107,11 @@ public class Island {
 	    if (!split[5].equals("null")) {
 		if (split[5].equals("spawn")) {
 		    isSpawn = true;
+		    // Try to get the spawn point
+		    if (split.length > 8) {
+			//plugin.getLogger().info("DEBUG: " + serial.substring(serial.indexOf(":SP:") + 4));
+			spawnPoint = Util.getLocationString(serial.substring(serial.indexOf(":SP:") + 4));
+		    }
 		} else {
 		    owner = UUID.fromString(split[5]);
 		}
@@ -117,7 +127,8 @@ public class Island {
      * @param minX
      * @param minZ
      */
-    public Island(int x, int z) {
+    public Island(ASkyBlock plugin, int x, int z) {
+	this.plugin = plugin;
 	// Calculate min minX and z
 	this.minX = x - Settings.islandDistance / 2;
 	this.minZ = z - Settings.islandDistance / 2;
@@ -134,7 +145,8 @@ public class Island {
 	this.votes = 0;
     }
 
-    public Island(int x, int z, UUID owner) {
+    public Island(ASkyBlock plugin, int x, int z, UUID owner) {
+	this.plugin = plugin;
 	// Calculate min minX and z
 	this.minX = x - Settings.islandDistance / 2;
 	this.minZ = z - Settings.islandDistance / 2;
@@ -392,9 +404,13 @@ public class Island {
 	if (isSpawn) {
 	    // Bukkit.getLogger().info("DEBUG: island is spawn");
 	    ownerString = "spawn";
+	    if (spawnPoint != null) {
+		return center.getBlockX() + ":" + center.getBlockY() + ":" + center.getBlockZ() + ":" + protectionRange + ":" 
+			+ islandDistance + ":" + ownerString + ":" + locked + ":" + purgeProtected + ":SP:" + Util.getStringLocation(spawnPoint);
+	    }
 	}
-	return center.getBlockX() + ":" + center.getBlockY() + ":" + center.getBlockZ() + ":" + protectionRange + ":" + islandDistance + ":" + ownerString
-		+ ":" + locked + ":" + purgeProtected;
+	return center.getBlockX() + ":" + center.getBlockY() + ":" + center.getBlockZ() + ":" + protectionRange + ":" 
+	+ islandDistance + ":" + ownerString + ":" + locked + ":" + purgeProtected;
     }
 
     /**
@@ -412,7 +428,7 @@ public class Island {
 	}
 	result.add(owner);
 	// Add any team members
-	result.addAll(ASkyBlock.getPlugin().getPlayers().getMembers(owner));
+	result.addAll(plugin.getPlayers().getMembers(owner));
 	return result;
     }
 
@@ -462,48 +478,57 @@ public class Island {
      * @return the islandDeletable
      */
     public boolean isPurgeProtected() {
-        return purgeProtected;
+	return purgeProtected;
     }
 
     /**
      * @param purgeProtected the islandDeletable to set
      */
     public void setPurgeProtected(boolean purgeProtected) {
-        this.purgeProtected = purgeProtected;
+	this.purgeProtected = purgeProtected;
     }
-    
+
     /**
      * @return Provides count of villagers within the protected island boundaries
      */
     public int getPopulation() {
 	int result = 0;	
 	for (int x = getMinProtectedX() /16; x <= (getMinProtectedX() + getProtectionSize() - 1)/16; x++) {
-		for (int z = getMinProtectedZ() /16; z <= (getMinProtectedZ() + getProtectionSize() - 1)/16; z++) {
-		    for (Entity entity : world.getChunkAt(x, z).getEntities()) {
-			if (entity instanceof Villager) {
-			    result++;
-			}
+	    for (int z = getMinProtectedZ() /16; z <= (getMinProtectedZ() + getProtectionSize() - 1)/16; z++) {
+		for (Entity entity : world.getChunkAt(x, z).getEntities()) {
+		    if (entity instanceof Villager) {
+			result++;
 		    }
-		}  
-	    }
+		}
+	    }  
+	}
 	return result;
     }
-    
+
     /**
      * @return number of hoppers on the island
      */
     public int getHopperCount() {
 	int result = 0;	
 	for (int x = getMinProtectedX() /16; x <= (getMinProtectedX() + getProtectionSize() - 1)/16; x++) {
-		for (int z = getMinProtectedZ() /16; z <= (getMinProtectedZ() + getProtectionSize() - 1)/16; z++) {
-		    for (BlockState holder : world.getChunkAt(x, z).getTileEntities()) {
-			if (holder instanceof Hopper) {
-			    result++;
-			}
+	    for (int z = getMinProtectedZ() /16; z <= (getMinProtectedZ() + getProtectionSize() - 1)/16; z++) {
+		for (BlockState holder : world.getChunkAt(x, z).getTileEntities()) {
+		    if (holder instanceof Hopper) {
+			result++;
 		    }
-		}  
-	    }
+		}
+	    }  
+	}
 	return result;
-	
+
+    }
+
+    public void setSpawnPoint(Location location) {
+	spawnPoint = location;
+
+    }
+
+    public Location getSpawnPoint() {
+	return spawnPoint;
     }
 }

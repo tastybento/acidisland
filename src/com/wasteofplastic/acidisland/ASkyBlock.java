@@ -121,8 +121,11 @@ public class ASkyBlock extends JavaPlugin {
     // Messages object
     private Messages messages;
 
-    // Team chat listened
+    // Team chat listener
     private ChatListener chatListener;
+    
+    // Schematics panel object
+    private SchematicsPanel schematicsPanel;
 
     /**
      * Returns the World object for the island world named in config.yml.
@@ -243,7 +246,19 @@ public class ASkyBlock extends JavaPlugin {
 	    return;
 	}
 	// Load all the configuration of the plugin and localization strings
-	loadPluginConfig();
+	if (!loadPluginConfig()) {
+	    // Currently, the only setup error is where the world_name does not match
+	    if (Settings.GAMETYPE.equals(Settings.GameType.ASKYBLOCK)) {
+		getCommand("island").setExecutor(new NotSetup(Reason.WORLD_NAME));
+		getCommand("asc").setExecutor(new NotSetup(Reason.WORLD_NAME));
+		getCommand("asadmin").setExecutor(new NotSetup(Reason.WORLD_NAME));
+	    } else {
+		getCommand("ai").setExecutor(new NotSetup(Reason.WORLD_NAME));
+		getCommand("aic").setExecutor(new NotSetup(Reason.WORLD_NAME));
+		getCommand("acid").setExecutor(new NotSetup(Reason.WORLD_NAME));
+	    }
+	    return;
+	}
 	if (Settings.useEconomy && !VaultHelper.setupEconomy()) {
 	    getLogger().warning("Could not set up economy! - Running without an economy.");
 	    Settings.useEconomy = false;
@@ -623,7 +638,7 @@ public class ASkyBlock extends JavaPlugin {
     /**
      * Loads the various settings from the config.yml file into the plugin
      */
-    public void loadPluginConfig() {
+    public boolean loadPluginConfig() {
 	// getLogger().info("*********************************************");
 	try {
 	    getConfig();
@@ -732,6 +747,25 @@ public class ASkyBlock extends JavaPlugin {
 	}
 	// Settings from config.yml
 	Settings.worldName = getConfig().getString("general.worldName");
+	// Check if the world name matches island.yml info
+	File islandFile = new File(plugin.getDataFolder(), "islands.yml");
+	if (islandFile.exists()) {
+	    YamlConfiguration islandYaml = new YamlConfiguration();
+	    try {
+		islandYaml.load(islandFile);
+		if (!islandYaml.contains(Settings.worldName)) {
+		   // Bad news, stop everything and tell the admin
+		    getLogger().severe("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
+		    getLogger().severe("More set up is required. Go to config.yml and edit it.");
+		    getLogger().severe("");
+		    getLogger().severe("Check island world name is same as world in islands.yml.");
+		    getLogger().severe("If you are resetting and changing world, delete island.yml and restart.");
+		    getLogger().severe("");
+		    getLogger().severe("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+");
+		    return false;
+		}
+	    } catch (Exception e) {}	    
+	}
 	Settings.createNether = getConfig().getBoolean("general.createnether", true);
 	if (!Settings.createNether) {
 	    getLogger().info("The Nether is disabled");
@@ -946,7 +980,7 @@ public class ASkyBlock extends JavaPlugin {
 
 	Settings.startingMoney = getConfig().getDouble("general.startingmoney", 0D);
 	Settings.respawnOnIsland = getConfig().getBoolean("general.respawnonisland", false);
-	Settings.newNether = getConfig().getBoolean("general.newnether", false);
+	Settings.newNether = getConfig().getBoolean("general.newnether", true);
 	Settings.netherTrees = getConfig().getBoolean("general.nethertrees", true);
 	// Nether spawn protection radius
 	Settings.netherSpawnRadius = getConfig().getInt("general.netherspawnradius", 25);
@@ -1208,6 +1242,8 @@ public class ASkyBlock extends JavaPlugin {
 	Settings.mobLimit = getConfig().getInt("general.moblimit", 0);
 	Settings.removeCompleteOntimeChallenges = getConfig().getBoolean("general.removecompleteonetimechallenges", false);
 	Settings.addCompletedGlow = getConfig().getBoolean("general.addcompletedglow", true);
+	// All done
+	return true;
     }
 
 
@@ -1253,10 +1289,11 @@ public class ASkyBlock extends JavaPlugin {
 	manager.registerEvents(new AcidInventory(this), this);
 	// Biomes
 	// Load Biomes
-	biomes = new BiomesPanel();
+	biomes = new BiomesPanel(this);
 	manager.registerEvents(biomes, this);
 	// Schematics panel
-	manager.registerEvents(new SchematicsPanel(), this);
+	schematicsPanel = new SchematicsPanel(this);
+	manager.registerEvents(schematicsPanel, this);
 	// Track incoming world teleports
 	manager.registerEvents(new WorldEnter(this), this);
 	// Team chat
@@ -1426,5 +1463,12 @@ public class ASkyBlock extends JavaPlugin {
 	    getServer().getPluginManager().registerEvents(warpPanel, plugin);
 	}
 	return warpPanel;
+    }
+
+    /**
+     * @return the schematicsPanel
+     */
+    public SchematicsPanel getSchematicsPanel() {
+        return schematicsPanel;
     }
 }

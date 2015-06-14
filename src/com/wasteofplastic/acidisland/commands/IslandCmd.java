@@ -59,6 +59,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.CoopPlay;
@@ -74,9 +75,7 @@ import com.wasteofplastic.acidisland.events.IslandLeaveEvent;
 import com.wasteofplastic.acidisland.events.IslandNewEvent;
 import com.wasteofplastic.acidisland.events.IslandResetEvent;
 import com.wasteofplastic.acidisland.listeners.PlayerEvents;
-import com.wasteofplastic.acidisland.panels.BiomesPanel;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
-import com.wasteofplastic.acidisland.panels.SchematicsPanel;
 import com.wasteofplastic.acidisland.panels.SettingsPanel;
 import com.wasteofplastic.acidisland.schematics.Schematic;
 import com.wasteofplastic.acidisland.util.Util;
@@ -126,8 +125,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
      * Loads schematics from the config.yml file. If the default
      * island is not included, it will be made up
      */
-    public static void loadSchematics() {
-	ASkyBlock plugin = ASkyBlock.getPlugin();
+    public void loadSchematics() {
 	// Check if there is a schematic folder and make it if it does not exist
 	File schematicFolder = new File(plugin.getDataFolder(), "schematics");
 	if (!schematicFolder.exists()) {
@@ -474,12 +472,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	} 
     }
 
-    private static void tip() {
+    private void tip() {
 	// There is no section in config.yml. Save the default schematic anyway
-	ASkyBlock.getPlugin().getLogger().warning("***************************************************************");
-	ASkyBlock.getPlugin().getLogger().warning("* 'schematics' section in config.yml has been deprecated.     *");
-	ASkyBlock.getPlugin().getLogger().warning("* See 'schematicsection' in config.new.yml for replacement.   *");
-	ASkyBlock.getPlugin().getLogger().warning("***************************************************************");
+	plugin.getLogger().warning("***************************************************************");
+	plugin.getLogger().warning("* 'schematics' section in config.yml has been deprecated.     *");
+	plugin.getLogger().warning("* See 'schematicsection' in config.new.yml for replacement.   *");
+	plugin.getLogger().warning("***************************************************************");
     }
 
     /**
@@ -561,7 +559,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
      * @param ignoreNoPermission
      * @return List of schematics this player can use based on their permission level
      */
-    public static List<Schematic> getSchematics(Player player, boolean ignoreNoPermission) {
+    public List<Schematic> getSchematics(Player player, boolean ignoreNoPermission) {
 	List<Schematic> result = new ArrayList<Schematic>();
 	// Find out what schematics this player can choose from
 	//Bukkit.getLogger().info("DEBUG: Checking schematics for " + player.getName());
@@ -570,7 +568,18 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	    //Bukkit.getLogger().info("DEBUG: perm is " + schematic.getPerm());
 	    if ((!ignoreNoPermission && schematic.getPerm().isEmpty()) || VaultHelper.checkPerm(player, schematic.getPerm())) {
 		//Bukkit.getLogger().info("DEBUG: player can use this schematic");
-		result.add(schematic);
+		// Only add if it's visible
+		if (schematic.isVisible()) {
+		    // Check if it's a nether island, but the nether is not enables
+		    if (schematic.getBiome().equals(Biome.HELL)) {
+			if (Settings.createNether && Settings.newNether) {
+			    result.add(schematic);
+			}
+		    } else {
+			result.add(schematic);
+		    }
+		}
+		    
 	    }
 	}
 	// Sort according to order
@@ -625,7 +634,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	if (schematic != null) {
 	    //plugin.getLogger().info("DEBUG: pasting schematic " + schematic.getName() + " " + schematic.getPerm());
 	    // Paste the starting island. If it is a HELL biome, then we start in the Nether
-	    if (schematic.isInNether() && Settings.newNether) {
+	    if (Settings.createNether && schematic.isInNether() && Settings.newNether) {
 		// Nether start
 		// Paste the overworld if it exists
 		if (!schematic.getPartnerName().isEmpty() && schematics.containsKey(schematic.getPartnerName())) {
@@ -641,7 +650,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 		//plugin.getLogger().info("DEBUG: pasting");
 		schematic.pasteSchematic(next, player);
 		//plugin.getLogger().info("DEBUG: pasted overworld");
-		if (Settings.newNether) {
+		if (Settings.createNether && Settings.newNether) {
 		    // Paste the other world schematic
 		    final Location netherLoc = next.toVector().toLocation(ASkyBlock.getNetherWorld());
 		    if (schematic.getPartnerName().isEmpty()) {
@@ -1328,7 +1337,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			if (Settings.useSchematicPanel) {
 			    pendingNewIslandSelection.add(playerUUID);
 			    resettingIsland.add(playerUUID);
-			    player.openInventory(SchematicsPanel.getSchematicPanel(player));
+			    player.openInventory(plugin.getSchematicsPanel().getPanel(player));
 			} else {
 			    // No panel
 			    // Check schematics for specific permission
@@ -1474,7 +1483,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			return true;
 		    }
 		    // player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "[Biomes]");
-		    Inventory inv = BiomesPanel.getBiomePanel(player);
+		    Inventory inv = plugin.getBiomes().getBiomePanel(player);
 		    if (inv != null) {
 			player.openInventory(inv);
 		    }
@@ -1485,22 +1494,13 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 		}
 	    } else if (split[0].equalsIgnoreCase("spawn") && plugin.getGrid().getSpawn() != null) {
 		// go to spawn
-		// plugin.getLogger().info("Debug: getSpawn" +
-		// plugin.getSpawn().toString() );
-		// plugin.getLogger().info("Debug: getSpawn loc" +
-		// plugin.getSpawn().getSpawnLoc().toString() );
-		player.teleport(ASkyBlock.getIslandWorld().getSpawnLocation());
-		/*
-		 * player.sendBlockChange(plugin.getSpawn().getSpawnLoc()
-		 * ,plugin.getSpawn().getSpawnLoc().getBlock().getType()
-		 * ,plugin.getSpawn().getSpawnLoc().getBlock().getData());
-		 * player.sendBlockChange(plugin.getSpawn().getSpawnLoc().getBlock
-		 * ().getRelative(BlockFace.DOWN).getLocation()
-		 * ,plugin.getSpawn().getSpawnLoc().getBlock().getRelative(BlockFace
-		 * .DOWN).getType()
-		 * ,plugin.getSpawn().getSpawnLoc().getBlock().getRelative(BlockFace
-		 * .DOWN).getData());
-		 */
+		Location l = ASkyBlock.getIslandWorld().getSpawnLocation();
+		l.add(new Vector(0.5,0,0.5));
+		Island spawn = plugin.getGrid().getSpawn();
+		if (spawn != null && spawn.getSpawnPoint() != null) {
+		    l = spawn.getSpawnPoint();
+		}	
+		player.teleport(l);
 		return true;
 	    } else if (split[0].equalsIgnoreCase("top")) {
 		if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.topten")) {
@@ -2569,7 +2569,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	    // A panel can only be shown if there is >1 viable schematic
 	    if (Settings.useSchematicPanel) {
 		pendingNewIslandSelection.add(player.getUniqueId());
-		player.openInventory(SchematicsPanel.getSchematicPanel(player));
+		player.openInventory(plugin.getSchematicsPanel().getPanel(player));
 	    } else {
 		// No panel
 		// Check schematics for specific permission
