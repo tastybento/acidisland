@@ -10,6 +10,11 @@ import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
 
 
+/**
+ * Fired when a player leaves an island team
+ * @author tastybento
+ *
+ */
 public class IslandLeaveEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     private final UUID player;

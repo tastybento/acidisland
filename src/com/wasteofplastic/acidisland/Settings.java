@@ -38,7 +38,7 @@ public class Settings {
     public enum GameType {
 	ASKYBLOCK, ACIDISLAND
     }
-
+    
     public final static GameType GAMETYPE = GameType.ACIDISLAND;
     // The spawn command (Essentials spawn for example)
     public final static String SPAWNCOMMAND = "spawn";

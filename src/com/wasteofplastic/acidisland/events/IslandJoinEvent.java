@@ -10,7 +10,7 @@ import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
 
 /**
- * This event is fired when a player starts a new island
+ * This event is fired when a player joins an island team
  * 
  * @author tastybento
  * 

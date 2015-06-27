@@ -17,9 +17,11 @@
 package com.wasteofplastic.acidisland;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -35,6 +37,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
+import com.wasteofplastic.acidisland.events.WarpListEvent;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
@@ -68,7 +71,7 @@ public class WarpSigns implements Listener {
 	Block b = e.getBlock();
 	Player player = e.getPlayer();
 	if (b.getWorld().equals(ASkyBlock.getIslandWorld())) {
-	    if (b.getType().equals(Material.SIGN_POST)) {
+	    if (b.getType().equals(Material.SIGN_POST) || b.getType().equals(Material.WALL_SIGN)) {
 		Sign s = (Sign) b.getState();
 		if (s != null) {
 		    if (s.getLine(0).equalsIgnoreCase(ChatColor.GREEN + plugin.myLocale().warpswelcomeLine)) {
@@ -113,7 +116,7 @@ public class WarpSigns implements Listener {
 	Player player = e.getPlayer();
 	if (player.getWorld().equals(ASkyBlock.getIslandWorld())) {
 	    //plugin.getLogger().info("DEBUG: Correct world");
-	    if (e.getBlock().getType().equals(Material.SIGN_POST)) {
+	    if (e.getBlock().getType().equals(Material.SIGN_POST) || e.getBlock().getType().equals(Material.WALL_SIGN)) {
 
 		//plugin.getLogger().info("DEBUG: The first line of the sign says " + title);
 		// Check if someone is changing their own sign
@@ -156,7 +159,7 @@ public class WarpSigns implements Listener {
 			// so,
 			// deactivate it
 			Block oldSignBlock = oldSignLoc.getBlock();
-			if (oldSignBlock.getType().equals(Material.SIGN_POST)) {
+			if (oldSignBlock.getType().equals(Material.SIGN_POST) || oldSignBlock.getType().equals(Material.WALL_SIGN)) {
 			    // The block is still a sign
 			    //plugin.getLogger().info("DEBUG: The block is still a sign");
 			    Sign oldSign = (Sign) oldSignBlock.getState();
@@ -192,7 +195,7 @@ public class WarpSigns implements Listener {
 	if (warpList == null || welcomeWarps == null) {
 	    return;
 	}
-	plugin.getLogger().info("Saving warps...");
+	//plugin.getLogger().info("Saving warps...");
 	final HashMap<String, Object> warps = new HashMap<String, Object>();
 	for (UUID p : warpList.keySet()) {
 	    warps.put(p.toString(), warpList.get(p));
@@ -212,7 +215,7 @@ public class WarpSigns implements Listener {
 		    }});
 	    }
 	}
-	plugin.getLogger().info("End of saving warps");
+	//plugin.getLogger().info("End of saving warps");
     }
 
     /**
@@ -283,7 +286,7 @@ public class WarpSigns implements Listener {
 
     private void popSign(Location loc) {
 	Block b = loc.getBlock();
-	if (b.getType().equals(Material.SIGN_POST)) {
+	if (b.getType().equals(Material.SIGN_POST) || b.getType().equals(Material.WALL_SIGN)) {
 	    Sign s = (Sign) b.getState();
 	    if (s != null) {
 		if (s.getLine(0).equalsIgnoreCase(ChatColor.GREEN + plugin.myLocale().warpswelcomeLine)) {
@@ -350,11 +353,26 @@ public class WarpSigns implements Listener {
      * @return String set of warps
      */
     public Set<UUID> listWarps() {
-	// plugin.getLogger().info("DEBUG Warp list count = " +
-	// warpList.size());
 	return warpList.keySet();
     }
 
+    /**
+     * @return Sorted list of warps with most recent players listed first
+     */
+    public Collection<UUID> listSortedWarps() {
+	// Bigger value of time means a more recent login
+	TreeMap<Long, UUID> map = new TreeMap<Long, UUID>();
+	for (UUID uuid : warpList.keySet()) {
+	    map.put(plugin.getServer().getOfflinePlayer(uuid).getLastPlayed(), uuid);
+	}
+	Collection<UUID> result = map.descendingMap().values();
+	// Fire event
+	WarpListEvent event = new WarpListEvent(plugin, result);
+	plugin.getServer().getPluginManager().callEvent(event);
+	// Get the result of any changes by listeners
+	result = event.getWarps();
+	return result;
+    }
     /**
      * Provides the location of the warp for player or null if one is not found
      * 

@@ -551,6 +551,7 @@ public class Locale {
     public String adminRegisterHadIsland;
     public String adminRegisterNoIsland;
     public String adminTopBreedersNothing;
+    public String adminHelpTeamChatSpy;
 
     /**
      * Creates a locale object full of localized strings for a language
@@ -1005,7 +1006,7 @@ public class Locale {
 		locale.getString("purge.calculating", "Calculating which islands have been inactive for more than [time] days."));
 	purgenoneFound = ChatColor.translateAlternateColorCodes('&', locale.getString("purge.noneFound", "No inactive islands to remove."));
 	purgethisWillRemove = ChatColor.translateAlternateColorCodes('&',
-		locale.getString("purge.thisWillRemove", "This will remove [number] inactive islands!"));
+		locale.getString("purge.thisWillRemove", "[number] inactive islands found. Islands with level < [level] will be removed."));
 	purgewarning = ChatColor.translateAlternateColorCodes('&',
 		locale.getString("purge.warning", "DANGER! Do not run this with players on the server! MAKE BACKUP OF WORLD!"));
 	purgetypeConfirm = ChatColor.translateAlternateColorCodes('&',
@@ -1211,6 +1212,6 @@ public class Locale {
 	adminRegisterTaking = ChatColor.translateAlternateColorCodes('&', locale.getString("adminRegister.taking", "Taking ownership away from [name]"));
 	adminRegisterHadIsland = ChatColor.translateAlternateColorCodes('&', locale.getString("adminRegister.hadIsland", "[name] had an island at [location]"));
 	adminRegisterNoIsland = ChatColor.translateAlternateColorCodes('&', locale.getString("adminRegister.noIsland", "There is no known island in this area!"));
-
+	adminHelpTeamChatSpy = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.teamChatSpy", "Spy on team chats (on/off)"));
     }
 }

@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import java.util.UUID;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -282,8 +284,14 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			newSchem.setOrder(schemSection.getInt("schematics." + key + ".order", 0));
 			// Load the rest of the settings
 			// Icon
-			try {   
-			    Material icon = Material.getMaterial(schemSection.getString("schematics." + key + ".icon","MAP").toUpperCase());
+			try { 
+			    Material icon;
+			    String iconString = schemSection.getString("schematics." + key + ".icon","MAP").toUpperCase();
+			    if (StringUtils.isNumeric(iconString)) {
+				icon = Material.getMaterial(Integer.parseInt(iconString));
+			    } else {
+				icon = Material.valueOf(iconString);
+			    }
 			    newSchem.setIcon(icon);
 			} catch (Exception e) {
 			    newSchem.setIcon(Material.MAP); 
@@ -410,10 +418,16 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 					    }
 					}
 				    } else {
+					Material mat;
+					if (StringUtils.isNumeric(amountdata[0])) {
+					    mat = Material.getMaterial(Integer.parseInt(amountdata[0]));
+					} else {
+					    mat = Material.getMaterial(amountdata[0].toUpperCase());
+					}
 					if (amountdata.length == 2) {
-					    tempChest[i++] = new ItemStack(Material.getMaterial(amountdata[0]), Integer.parseInt(amountdata[1]));
+					    tempChest[i++] = new ItemStack(mat, Integer.parseInt(amountdata[1]));
 					} else if (amountdata.length == 3) {
-					    tempChest[i++] = new ItemStack(Material.getMaterial(amountdata[0]), Integer.parseInt(amountdata[2]), Short.parseShort(amountdata[1]));
+					    tempChest[i++] = new ItemStack(mat, Integer.parseInt(amountdata[2]), Short.parseShort(amountdata[1]));
 					}
 				    }
 				} catch (java.lang.IllegalArgumentException ex) {
@@ -439,7 +453,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			if (spawnBlock != null) {
 			    // Check to see if this block is a valid material
 			    try {
-				Material playerSpawnBlock = Material.valueOf(spawnBlock.toUpperCase());
+				Material playerSpawnBlock;
+				if (StringUtils.isNumeric(spawnBlock)) {
+				    playerSpawnBlock = Material.getMaterial(Integer.parseInt(spawnBlock));
+				} else {
+				    playerSpawnBlock = Material.valueOf(spawnBlock.toUpperCase());
+				}
 				if (newSchem.setPlayerSpawnBlock(playerSpawnBlock)) {
 				    plugin.getLogger().info("Player will spawn at the " + playerSpawnBlock.toString());
 				} else {
@@ -579,7 +598,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			result.add(schematic);
 		    }
 		}
-		    
+
 	    }
 	}
 	// Sort according to order
@@ -1214,8 +1233,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 
 	    if (split[0].equalsIgnoreCase("minishop") || split[0].equalsIgnoreCase("ms")) {
 		if (Settings.useEconomy) {
-		    if (player.getWorld().getName().equalsIgnoreCase(Settings.worldName)) {
-
+		    if (player.getWorld().equals(ASkyBlock.getIslandWorld()) || player.getWorld().equals(ASkyBlock.getNetherWorld())) {	
 			if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.minishop")) {
 			    player.openInventory(ControlPanel.miniShop);
 			    return true;
@@ -1235,7 +1253,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	    } else if (split[0].equalsIgnoreCase("warps")) {
 		if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.warp")) {
 		    // Step through warp table
-		    Set<UUID> warpList = plugin.getWarpSignsListener().listWarps();
+		    Collection<UUID> warpList = plugin.getWarpSignsListener().listWarps();
 		    if (warpList.isEmpty()) {
 			player.sendMessage(ChatColor.YELLOW + plugin.myLocale(player.getUniqueId()).warpserrorNoWarpsYet);
 			if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.addwarp") && plugin.getGrid().playerIsOnIsland(player)) {
@@ -1533,8 +1551,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 		// Invite label with no name, i.e., /island invite - tells the
 		// player how many more people they can invite
 		if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "team.create")) {
-		    player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "Use" + ChatColor.WHITE + " /" + label + " invite <playername> " + plugin.myLocale(player.getUniqueId()).helpColor
-			    + plugin.myLocale(player.getUniqueId()).islandhelpInvite);
+		    player.sendMessage(plugin.myLocale(player.getUniqueId()).invitehelp);
 		    // If the player who is doing the inviting has a team
 		    if (plugin.getPlayers().inTeam(playerUUID)) {
 			// Check to see if the player is the leader
@@ -1845,29 +1862,31 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			    int number = 1;
 			    try {
 				number = Integer.valueOf(split[1]);
+				//plugin.getLogger().info("DEBUG: number = " + number);
 				if (number < 1) {
 				    plugin.getGrid().homeTeleport(player,1);
-				}
-				int maxHomes = Settings.maxHomes;
-				// Dynamic home sizes with permissions
-				for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
-				    if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.maxhomes.")) {
-					maxHomes = Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.maxhomes.")[1]);
-				    }
-				    // Do some sanity checking
-				    if (maxHomes < 1) {
-					maxHomes = 1;
-				    }
-				}
-				if (number > maxHomes) {
-				    if (maxHomes > 1) {
-					player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).setHomeerrorNumHomes.replace("[max]",String.valueOf(maxHomes)));
-				    } else {
-					plugin.getGrid().homeTeleport(player,1);
-				    }
 				} else {
-				    // Teleport home
-				    plugin.getGrid().homeTeleport(player,number);
+				    int maxHomes = Settings.maxHomes;
+				    // Dynamic home sizes with permissions
+				    for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
+					if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.maxhomes.")) {
+					    maxHomes = Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.maxhomes.")[1]);
+					}
+					// Do some sanity checking
+					if (maxHomes < 1) {
+					    maxHomes = 1;
+					}
+				    }
+				    if (number > maxHomes) {
+					if (maxHomes > 1) {
+					    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).setHomeerrorNumHomes.replace("[max]",String.valueOf(maxHomes)));
+					} else {
+					    plugin.getGrid().homeTeleport(player,1);
+					}
+				    } else {
+					// Teleport home
+					plugin.getGrid().homeTeleport(player,number);
+				    }
 				}
 			    } catch (Exception e) {
 				// Teleport home
@@ -1894,7 +1913,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 				int number = 0;
 				try {
 				    number = Integer.valueOf(split[1]);
-				    if (number < 0 || number > maxHomes) {
+				    if (number < 1 || number > maxHomes) {
 					player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).setHomeerrorNumHomes.replace("[max]",String.valueOf(maxHomes)));
 				    } else {
 					plugin.getGrid().homeSet(player, number);
@@ -1944,28 +1963,30 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 				    }
 				    // Find out if island is locked
 				    Island island = plugin.getGrid().getIslandAt(warpSpot);
-				    if (island != null && island.isLocked()) {
+				    if (island != null && island.isLocked() && !player.isOp() && !VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypasslock") 
+					    && !VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypassprotect")) {
+					// Always inform that the island is locked
 					player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).lockIslandLocked);
-					return true;
+					// Check if this is the owner, team member or coop
+					if (!plugin.getGrid().locationIsAtHome(player, true, warpSpot)) {
+					    //plugin.getLogger().info("DEBUG: not at home");
+					    return true;
+					}
 				    }
 				    // Find out which direction the warp is facing
 				    Block b = warpSpot.getBlock();
-				    if (b.getType().equals(Material.SIGN_POST)) {
+				    if (b.getType().equals(Material.SIGN_POST) || b.getType().equals(Material.WALL_SIGN)) {
 					Sign sign = (Sign) b.getState();
 					org.bukkit.material.Sign s = (org.bukkit.material.Sign) sign.getData();
 					BlockFace directionFacing = s.getFacing();
 					Location inFront = b.getRelative(directionFacing).getLocation();
+					Location oneDown = b.getRelative(directionFacing).getRelative(BlockFace.DOWN).getLocation();
 					if ((GridManager.isSafeLocation(inFront))) {
-					    // convert blockface to angle
-					    float yaw = Util.blockFaceToFloat(directionFacing);
-					    final Location actualWarp = new Location(inFront.getWorld(), inFront.getBlockX() + 0.5D, inFront.getBlockY(),
-						    inFront.getBlockZ() + 0.5D, yaw, 30F);
-					    player.teleport(actualWarp);
-					    player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
-					    Player warpOwner = plugin.getServer().getPlayer(foundWarp);
-					    if (warpOwner != null) {
-						warpOwner.sendMessage(plugin.myLocale(foundWarp).warpsPlayerWarped.replace("[name]", player.getDisplayName()));
-					    }
+					    warpPlayer(player, inFront, foundWarp, directionFacing);
+					    return true;
+					} else if (b.getType().equals(Material.WALL_SIGN) && GridManager.isSafeLocation(oneDown)) {
+					    // Try one block down if this is a wall sign
+					    warpPlayer(player, oneDown, foundWarp, directionFacing);
 					    return true;
 					}
 				    } else {
@@ -1976,8 +1997,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 				    }
 				    if (!(GridManager.isSafeLocation(warpSpot))) {
 					player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).warpserrorNotSafe);
-					plugin.getLogger().warning(
-						"Unsafe warp found at " + warpSpot.toString() + " owned by " + plugin.getPlayers().getName(foundWarp));
+					// WALL_SIGN's will always be unsafe if the place in front is obscured.
+					if (b.getType().equals(Material.SIGN_POST)) {
+					    plugin.getLogger().warning(
+						    "Unsafe warp found at " + warpSpot.toString() + " owned by " + plugin.getPlayers().getName(foundWarp));
+
+					}
 					return true;
 				    } else {
 					final Location actualWarp = new Location(warpSpot.getWorld(), warpSpot.getBlockX() + 0.5D, warpSpot.getBlockY(),
@@ -2550,6 +2575,26 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	return false;
     }
 
+
+    /**
+     * Warps a player to a spot in front of a sign
+     * @param player
+     * @param inFront
+     * @param foundWarp
+     * @param directionFacing
+     */
+    private void warpPlayer(Player player, Location inFront, UUID foundWarp, BlockFace directionFacing) {
+	// convert blockface to angle
+	    float yaw = Util.blockFaceToFloat(directionFacing);
+	    final Location actualWarp = new Location(inFront.getWorld(), inFront.getBlockX() + 0.5D, inFront.getBlockY(),
+		    inFront.getBlockZ() + 0.5D, yaw, 30F);
+	    player.teleport(actualWarp);
+	    player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
+	    Player warpOwner = plugin.getServer().getPlayer(foundWarp);
+	    if (warpOwner != null && !warpOwner.equals(player)) {
+		warpOwner.sendMessage(plugin.myLocale(foundWarp).warpsPlayerWarped.replace("[name]", player.getDisplayName()));
+	    }
+    }
 
     /**
      * Only run when a new island is created for the first time

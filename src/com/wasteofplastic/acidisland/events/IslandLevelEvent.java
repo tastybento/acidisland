@@ -1,43 +1,44 @@
 package com.wasteofplastic.acidisland.events;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import java.util.UUID;
+
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import com.wasteofplastic.acidisland.ASkyBlock;
+
 /**
- * This event is fired when a player resets an island
+ * This event is fired when an island level is calculated
  * 
  * @author tastybento
  * 
  */
-public class IslandResetEvent extends Event {
+public class IslandLevelEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
-    private final Player player;
-    private final Location location;
+    private final UUID player;
+    private int level;
 
     /**
      * @param player
-     * @param oldLocation
+     * @param teamLeader
      */
-    public IslandResetEvent(Player player, Location oldLocation) {
+    public IslandLevelEvent(ASkyBlock plugin, UUID player, int level) {
 	this.player = player;
-	this.location = oldLocation;
+	this.level = level;
     }
 
     /**
      * @return the player
      */
-    public Player getPlayer() {
+    public UUID getPlayer() {
         return player;
     }
-
-
+   
     /**
-     * @return the location
+     * @return the level
      */
-    public Location getLocation() {
-        return location;
+    public int getLevel() {
+        return level;
     }
 
     @Override
