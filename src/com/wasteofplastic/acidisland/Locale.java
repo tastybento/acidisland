@@ -552,6 +552,8 @@ public class Locale {
     public String adminRegisterNoIsland;
     public String adminTopBreedersNothing;
     public String adminHelpTeamChatSpy;
+    public String coopNotInCoop;
+    public String islandhelpUnCoop;
 
     /**
      * Creates a locale object full of localized strings for a language
@@ -634,10 +636,10 @@ public class Locale {
 
 	} else {
 	    // AcidIsland
-	    signLine1 = ChatColor.translateAlternateColorCodes('&', locale.getString("sign.line1", "&1[Acid Island]"));
-	    signLine2 = ChatColor.translateAlternateColorCodes('&', locale.getString("sign.line2", "[player]"));
-	    signLine3 = ChatColor.translateAlternateColorCodes('&', locale.getString("sign.line3", "Water is acid!"));
-	    signLine4 = ChatColor.translateAlternateColorCodes('&', locale.getString("sign.line4", "Beware!"));
+	    signLine1 = ChatColor.translateAlternateColorCodes('&', locale.getString("sign-acidisland.line1", "&1[Acid Island]"));
+	    signLine2 = ChatColor.translateAlternateColorCodes('&', locale.getString("sign-acidisland.line2", "[player]"));
+	    signLine3 = ChatColor.translateAlternateColorCodes('&', locale.getString("sign-acidisland.line3", "Water is acid!"));
+	    signLine4 = ChatColor.translateAlternateColorCodes('&', locale.getString("sign-acidisland.line4", "Beware!"));
 	    islandhelpSpawn = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpIslandSpawn", "go to AcidIsland spawn."));
 	    newsHeadline = ChatColor.translateAlternateColorCodes('&', locale.getString("news.headline", "[AcidIsland News] While you were offline..."));
 
@@ -1126,8 +1128,9 @@ public class Locale {
 	coopMadeYouCoop = ChatColor.translateAlternateColorCodes('&',
 		locale.getString("coop.madeyoucoopy", "[name] made you a coop player until you log out or they expel you."));
 	coopOnYourTeam = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.onyourteam", "Player is already on your team!"));
-	islandhelpCoop = ChatColor.translateAlternateColorCodes('&',
-		locale.getString("coop.help", "temporarily give a player full access to your island"));
+	coopNotInCoop = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.notincoop", "[name] is not in your coop!"));
+	islandhelpCoop = ChatColor.translateAlternateColorCodes('&',locale.getString("coop.help", "temporarily give a player full access to your island"));
+	islandhelpUnCoop = ChatColor.translateAlternateColorCodes('&',locale.getString("coop.uncoop", "remove full island access from player"));
 	coopInvited = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.invited", "[name] made [player] a coop player!"));
 	coopUseExpel = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.useexpel", "Use expel to remove."));
 	lockIslandLocked = ChatColor.translateAlternateColorCodes('&', locale.getString("lock.islandlocked", "Island is locked to visitors"));

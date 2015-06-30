@@ -25,7 +25,7 @@ island:
 
    distance: 200
 
-   # Default protection range (even number). Min = 50, Recommended = 100
+   # Default protection range (even number). Min = 0, Recommended = 100
    # Value must be at least 16 blocks less than the island distance unless you set
    # overridelimit: true below.
    # Use this permission to set for different groups: acidisland.island.range.<number>
@@ -135,6 +135,8 @@ island:
    allowbreeding: false
    # Allow use of Flint & Steel by visitors
    allowfire: false
+   # Allow fire spread (global - not just for visitors)
+   allowfirespread: false
    # Allow chests to be blown up by creepers or TNT
    allowchestdamage: false
    # Allow leash use
@@ -427,6 +429,9 @@ general:
    # text will be used
    usewarppanel: true
    
+   # Mute death messages
+   mutedeathmessages: false
+   
    # Config.yml version. DO NOT EDIT. This number only changes if the latest
    # plugin config has been updated. If a new config is detected, it will be
    # auto-saved to config.new.yml.
@@ -459,7 +464,8 @@ spawn:
   alloweggs: false
   # The following stops water above sea level from being acid at spawn if acid is active
   allowspawnnoacidwater: false
-
+  allowPVP: false
+  
 # This section contains the biomes that can be bought or used
 biomesettings:
   # The default cost for changing biome. Can be over-ridden by the Biome settings
