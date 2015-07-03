@@ -61,8 +61,8 @@ import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.PlayerCache;
 import com.wasteofplastic.acidisland.SafeSpotTeleport;
 import com.wasteofplastic.acidisland.Settings;
-import com.wasteofplastic.acidisland.TopTen;
 import com.wasteofplastic.acidisland.Settings.GameType;
+import com.wasteofplastic.acidisland.TopTen;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
@@ -402,7 +402,10 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
 					    }
 					}
 				    }
-
+				    // If we didn't show anything say so
+				    if (rank == 1) {
+					sender.sendMessage(plugin.myLocale().adminTopBreedersNothing);
+				    }
 
 				}});
 
