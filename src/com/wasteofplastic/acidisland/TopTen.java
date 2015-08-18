@@ -7,11 +7,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import com.wasteofplastic.acidisland.util.MapUtil;
 import com.wasteofplastic.acidisland.util.Util;
+import com.wasteofplastic.acidisland.util.VaultHelper;
 
 /**
  * Handles all Top Ten List functions
@@ -39,11 +41,10 @@ public class TopTen {
 	    }
 	    return;
 	}
-	// Only keep the top 20
-	topTenList.put(ownerUUID, level);
+	if(!VaultHelper.checkPerm(plugin.getServer().getPlayer(ownerUUID), Settings.PERMPREFIX + "mod.excludetopten")) {
+	    topTenList.put(ownerUUID, level);
+	}
 	topTenList = MapUtil.sortByValue(topTenList);
-	// plugin.getLogger().info("DEBUG: +" + level + ": " +
-	// topTenList.values().toString());
     }
 
     /**
@@ -60,45 +61,67 @@ public class TopTen {
      * files
      */
     public static void topTenCreate() {
-	// This map is a list of owner and island level
-	YamlConfiguration player = new YamlConfiguration();
-	int index = 1;
-	for (final File f : plugin.getPlayersFolder().listFiles()) {
-	    // Need to remove the .yml suffix
-	    String fileName = f.getName();
-	    if (fileName.endsWith(".yml")) {
-		try {
-		    String playerUUIDString = fileName.substring(0, fileName.length() - 4);
-		    final UUID playerUUID = UUID.fromString(playerUUIDString);
-		    if (playerUUID == null) {
-			plugin.getLogger().warning("Player file contains erroneous UUID data.");
-			plugin.getLogger().info("Looking at " + playerUUIDString);
-		    }
-		    player.load(f);
-		    index++;
-		    if (index % 1000 == 0) {
-			plugin.getLogger().info("Processed " + index + " players");
-		    }
-		    // Players player = new Players(this, playerUUID);
-		    int islandLevel = player.getInt("islandLevel", 0);
-		    String teamLeaderUUID = player.getString("teamLeader", "");
-		    if (islandLevel > 0) {
-			if (!player.getBoolean("hasTeam")) {
-			    topTenAddEntry(playerUUID, islandLevel);
-			} else if (!teamLeaderUUID.isEmpty()) {
-			    if (teamLeaderUUID.equals(playerUUIDString)) {
-				topTenAddEntry(playerUUID, islandLevel);
+	topTenCreate(null);
+    }
+
+    public static void topTenCreate(final CommandSender sender) {
+	plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+
+	    @Override
+	    public void run() {
+		// This map is a list of owner and island level
+		YamlConfiguration player = new YamlConfiguration();
+		int index = 1;
+		for (final File f : plugin.getPlayersFolder().listFiles()) {
+		    // Need to remove the .yml suffix
+		    String fileName = f.getName();
+		    if (fileName.endsWith(".yml")) {
+			try {
+			    String playerUUIDString = fileName.substring(0, fileName.length() - 4);
+			    final UUID playerUUID = UUID.fromString(playerUUIDString);
+			    if (playerUUID == null) {
+				plugin.getLogger().warning("Player file contains erroneous UUID data.");
+				plugin.getLogger().info("Looking at " + playerUUIDString);
 			    }
+			    player.load(f);
+			    index++;
+			    if (index % 1000 == 0) {
+				plugin.getLogger().info("Processed " + index + " players");
+			    }
+			    // Players player = new Players(this, playerUUID);
+			    int islandLevel = player.getInt("islandLevel", 0);
+			    String teamLeaderUUID = player.getString("teamLeader", "");
+			    if (islandLevel > 0) {
+				if (!player.getBoolean("hasTeam")) {
+				    if(!VaultHelper.checkPerm(plugin.getServer().getPlayer(playerUUID), Settings.PERMPREFIX + "mod.excludetopten"))
+					topTenAddEntry(playerUUID, islandLevel);
+				} else if (!teamLeaderUUID.isEmpty()) {
+				    if (teamLeaderUUID.equals(playerUUIDString)) {
+					if(!VaultHelper.checkPerm(plugin.getServer().getPlayer(playerUUID), Settings.PERMPREFIX + "mod.excludetopten"))
+					    topTenAddEntry(playerUUID, islandLevel);
+				    }
+				}
+			    }
+			} catch (Exception e) {
+			    e.printStackTrace();
 			}
 		    }
-		} catch (Exception e) {
-		    e.printStackTrace();
 		}
-	    }
-	}
-	plugin.getLogger().info("Processed " + index + " players");
-	// Save the top ten
-	topTenSave();
+		plugin.getLogger().info("Processed " + index + " players");
+		// Save the top ten
+		topTenSave();
+
+		plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+		    @Override
+		    public void run() {
+			if (sender != null) {
+			    sender.sendMessage(ChatColor.YELLOW + plugin.myLocale().adminTopTenfinished);
+			} else {
+			    plugin.getLogger().warning("Completed top ten creation.");
+			}
+
+		    }});
+	    }});
     }
 
     public static void topTenSave() {
@@ -139,7 +162,6 @@ public class TopTen {
 	if (!topTenFile.exists()) {
 	    plugin.getLogger().warning("Top ten file does not exist - creating it. This could take some time with a large number of players");
 	    topTenCreate();
-	    plugin.getLogger().warning("Completed top ten creation.");
 	} else {
 	    // Load the top ten
 	    YamlConfiguration topTenConfig = Util.loadYamlFile("topten.yml");
@@ -213,6 +235,6 @@ public class TopTen {
      * @return the topTenList - may be more or less than ten
      */
     public static Map<UUID, Integer> getTopTenList() {
-        return topTenList;
+	return topTenList;
     }
 }

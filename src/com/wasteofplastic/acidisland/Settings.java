@@ -38,7 +38,7 @@ public class Settings {
     public enum GameType {
 	ASKYBLOCK, ACIDISLAND
     }
-
+    
     public final static GameType GAMETYPE = GameType.ACIDISLAND;
     // The spawn command (Essentials spawn for example)
     public final static String SPAWNCOMMAND = "spawn";
@@ -241,5 +241,14 @@ public class Settings {
     public static boolean allowSpawnPVP;
     public static boolean allowSpawnLavaCollection;
     public static boolean allowSpawnWaterCollection;
+    public static int maxIslands;
+    public static boolean allowPressurePlate;
+    public static boolean allowSpawnPressurePlate;
+    public static boolean allowPistonPush;
+    public static HashMap<String,Integer> limitedBlocks;
+    public static boolean allowHorseRiding;
+    public static boolean allowSpawnHorseRiding;
+    public static boolean allowSpawnHorseInvAccess;
+    public static boolean allowHorseInvAccess;
 
 }

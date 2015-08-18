@@ -27,6 +27,9 @@ permissions:
     children:
       acidisland.island.*:
         children:
+          acidisland.island.go:
+            description: Allow teleporting to player island
+            default: true
           acidisland.island.create:
             description: Let the player use the /island command
             default: true
@@ -56,7 +59,7 @@ permissions:
             default: true
           acidisland.island.biomes:
             description: Allows biome changing
-            default: false
+            default: true
           acidisland.island.lock:
             description: Allows island locking
             default: false
@@ -91,11 +94,11 @@ permissions:
             default: true
       acidisland.coop:
         description: Allows player to use the coop command
-        default: false
+        default: false    
       acidisland.craft.*:
         children:
           acidisland.craft.enderchest:
-            description: Allow crafting and use of enderchests in AcidIsland
+            description: Allow crafting and use of enderchests in askyblock
             default: false
       acidisland.mod.*:
         children:
@@ -118,17 +121,17 @@ permissions:
             description: Allow clearing of island reset limit
             default: false
           acidisland.mod.tp:
-            description: Allows teleporting to a players island
+            description: Allows teleport to an island
             default: op
           acidisland.mod.tpnether:
-            description: Allows teleporting to a players nether island
+            description: Allows teleport to a nether island
             default: op
           acidisland.mod.bypassprotect:
-            description: Bypasses island protection
-            default: false
+            description: Allow moderator to bypass island protection
+            default: op
           acidisland.mod.setbiome:
             description: Allows setting player island biomes
-            default: false
+            default: op
           acidisland.mod.topbreeders:
             description: Lists most populated islands current loaded
             default: op
@@ -141,8 +144,11 @@ permissions:
           acidisland.mod.signadmin:
             description: Enables warp sign admin commands
             default: op
-          acidisland.mod.teamchatspy:
+          acidisland.mod.spy:
             description: Spy on team chats
+            default: false
+          acidisland.mod.excludetopten:
+            description: Exclude player from the top ten list
             default: false
       acidisland.admin.*:
         children:
@@ -150,13 +156,13 @@ permissions:
             description: Reload the config.yml
             default: op
           acidisland.admin.delete:
-            description: Let a player completely remove a player's island (including blocks)
+            description: Let a player completely remove a player (including island)
             default: op
           acidisland.admin.deleteisland:
             description: Let a player completely remove the island the player is on
             default: op
           acidisland.admin.register:
-            description: Let a player register the nearest island (using the bedrock) to another player.
+            description: Let a player register the nearest island to another player.
             default: op
           acidisland.admin.unregister:
             description: Removes a player from an island without deleting the island blocks.
@@ -176,4 +182,3 @@ permissions:
           acidisland.admin.topbreeders:
             description: Lists most populated islands current loaded
             default: op
-

@@ -329,6 +329,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			newSchem.setUsePhysics(schemSection.getBoolean("schematics." + key + ".usephysics",Settings.usePhysics));	    
 			// Paste Entities or not
 			newSchem.setPasteEntities(schemSection.getBoolean("schematics." + key + ".pasteentities",false));
+			// Paste air or not. Default is false - huge performance savings!
+			//newSchem.setPasteAir(schemSection.getBoolean("schematics." + key + ".pasteair",false));	    
 			// Visible in GUI or not
 			newSchem.setVisible(schemSection.getBoolean("schematics." + key + ".show",true));
 			// Partner schematic
@@ -645,6 +647,21 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	//plugin.getLogger().info("DEBUG: finding island location");
 	Location next = getNextIsland();
 	//plugin.getLogger().info("DEBUG: found " + next);
+	// Set the player's parameters to this island
+	plugin.getPlayers().setHasIsland(playerUUID, true);
+	// Clear any old home locations (they should be clear, but just in case)
+	plugin.getPlayers().clearHomeLocations(playerUUID);
+	// Set the player's island location to this new spot
+	plugin.getPlayers().setIslandLocation(playerUUID, next);
+
+	// Set the biome
+	//BiomesPanel.setIslandBiome(next, schematic.getBiome());
+	// Teleport to the new home
+	if (schematic.isPlayerSpawn()) {
+	    // Set home and teleport
+	    plugin.getPlayers().setHomeLocation(playerUUID, schematic.getPlayerSpawn(next), 1);
+	}
+
 	// Sets a flag to temporarily disable cleanstone generation
 	plugin.setNewIsland(true);
 	//plugin.getBiomes();
@@ -662,12 +679,18 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 		}
 		// Switch home location to the Nether
 		next = next.toVector().toLocation(ASkyBlock.getNetherWorld());
+		// Set the player's island location to this new spot
+		plugin.getPlayers().setIslandLocation(playerUUID, next);
 		// TODO: work through the implications of this!
-		schematic.pasteSchematic(next, player);
+		schematic.pasteSchematic(next, player, true);
 	    } else {
 		// Over world start
 		//plugin.getLogger().info("DEBUG: pasting");
-		schematic.pasteSchematic(next, player);
+		//long timer = System.nanoTime();
+		// Paste the island and teleport the player home
+		schematic.pasteSchematic(next, player, true);
+		//double diff = (System.nanoTime() - timer)/1000000;
+		//plugin.getLogger().info("DEBUG: nano time = " + diff + " ms");
 		//plugin.getLogger().info("DEBUG: pasted overworld");
 		if (Settings.createNether && Settings.newNether) {
 		    // Paste the other world schematic
@@ -693,27 +716,28 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	} 
 	// Clear the cleanstone flag so events can happen again
 	plugin.setNewIsland(false);
-	// Set the player's parameters to this island
-	plugin.getPlayers().setHasIsland(playerUUID, true);
-	// Clear any old home locations (they should be clear, but just in case)
-	plugin.getPlayers().clearHomeLocations(playerUUID);
-	// Set the player's island location to this new spot
-	plugin.getPlayers().setIslandLocation(playerUUID, next);
 	// Add to the grid
 	Island myIsland = plugin.getGrid().addIsland(next.getBlockX(), next.getBlockZ(), playerUUID);
+
 	// Save the player so that if the server is reset weird things won't happen
 	plugin.getPlayers().save(playerUUID);
-	// Set the biome
-	//BiomesPanel.setIslandBiome(next, schematic.getBiome());
-	// Teleport to the new home
-	if (schematic.isPlayerSpawn()) {
-	    // Set home and teleport
-	    plugin.getPlayers().setHomeLocation(playerUUID, schematic.getPlayerSpawn(next), 1);
-	    player.teleport(schematic.getPlayerSpawn(next));
-	} else {
-	    //plugin.getLogger().info("DEBUG: teleporting to home location");
+	/*
+	if (firstTime) {
+	    plugin.getLogger().info("First time teleport");
 	    plugin.getGrid().homeTeleport(player);
-	}
+	}*/
+
+	// Delayed teleport so that the island pasting can be completed.
+	/*
+	plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+
+	    @Override
+	    public void run() {
+		// New island teleport
+		plugin.getGrid().homeTeleport(player);
+
+	    }}, 40L);
+	 */
 	// Reset any inventory, etc. This is done AFTER the teleport because other plugins may switch out inventory based on world
 	plugin.resetPlayer(player);
 	// Reset money if required
@@ -721,7 +745,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	    resetMoney(player);
 	}
 	// Start the reset cooldown
-	setResetWaitTime(player);
+	if (!firstTime) {
+	    setResetWaitTime(player);
+	}
 	// Set the custom protection range if appropriate
 	// Dynamic home sizes with permissions
 	int range = Settings.island_protectionRange;
@@ -745,8 +771,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			range = Settings.islandDistance;
 		    }
 		}
-		if (range < 50) {
-		    range = 50;
+		if (range < 0) {
+		    range = 0;
 		}
 	    }
 	}
@@ -786,7 +812,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 
 	    @Override
 	    public void run() {
-		schematic.pasteSchematic(loc, player);
+		schematic.pasteSchematic(loc, player, false);
 
 	    }}, 60L);
 
@@ -799,7 +825,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
      * @param player
      */
     public void pasteSchematic(final Schematic schematic, final Location loc, final Player player) {
-	schematic.pasteSchematic(loc, player);
+	schematic.pasteSchematic(loc, player, false);
     }
 
     /**
@@ -1016,6 +1042,11 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	case 0:
 	    // New island
 	    if (plugin.getPlayers().getIslandLocation(playerUUID) == null && !plugin.getPlayers().inTeam(playerUUID)) {
+		// Check if the max number of islands is made already
+		if (Settings.maxIslands > 0 && plugin.getGrid().getIslandCount() > Settings.maxIslands) {
+		    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorMaxIslands);
+		    return true;
+		}
 		// Create new island for player
 		player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).islandnew);
 		chooseIsland(player);
@@ -1183,6 +1214,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			return true;
 		    }
 		} else if (split[0].equalsIgnoreCase("go")) {
+		    if (!VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.go")) {
+			player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoPermission);
+			return true;
+		    }
 		    if (!plugin.getPlayers().hasIsland(playerUUID) && !plugin.getPlayers().inTeam(playerUUID)) {
 			// Player has no island
 			player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).errorNoIsland);
@@ -1333,6 +1368,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	    } else if (split[0].equalsIgnoreCase("confirm")) {
 		// This is where the actual reset is done
 		if (confirm.containsKey(playerUUID) && confirm.get(playerUUID)) {
+		    confirm.remove(playerUUID);
 		    // Actually RESET the island
 		    player.sendMessage(ChatColor.YELLOW + plugin.myLocale(player.getUniqueId()).islandresetPleaseWait);
 		    if (plugin.getPlayers().getResetsLeft(playerUUID) == 0) {
@@ -2682,7 +2718,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	}
     }
 
-    private void resetPlayer(Player player, Island oldIsland) {
+    private void resetPlayer(Player player, final Island oldIsland) {
 	// Deduct the reset
 	plugin.getPlayers().setResetsLeft(player.getUniqueId(), plugin.getPlayers().getResetsLeft(player.getUniqueId()) - 1);
 	// Clear any coop inventories
@@ -2694,15 +2730,17 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	// Remove any warps
 	plugin.getWarpSignsListener().removeWarp(player.getUniqueId());
 	// Delete the old island, if it exists
-	// Remove any coops
-	CoopPlay.getInstance().clearAllIslandCoops(oldIsland.getCenter());
-	plugin.getGrid().removePlayersFromIsland(oldIsland);
-	new DeleteIslandChunk(plugin, oldIsland);
+	if (oldIsland != null) {
+	    // Remove any coops
+	    CoopPlay.getInstance().clearAllIslandCoops(oldIsland.getCenter());
+	    plugin.getGrid().removePlayersFromIsland(oldIsland, player.getUniqueId());
+	    new DeleteIslandChunk(plugin, oldIsland);
+	    // Fire event
+	    final IslandResetEvent event = new IslandResetEvent(player, oldIsland.getCenter());
+	    plugin.getServer().getPluginManager().callEvent(event);
+	}
 	// Run any commands that need to be run at reset
 	runCommands(Settings.resetCommands, player.getUniqueId());
-	// Fire event
-	final IslandResetEvent event = new IslandResetEvent(player, oldIsland.getCenter());
-	plugin.getServer().getPluginManager().callEvent(event);
     }
 
     /**

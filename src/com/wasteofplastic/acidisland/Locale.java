@@ -31,6 +31,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * @author tastybento
  */
 public class Locale {
+    
     // Localization Strings
     private FileConfiguration locale = null;
     private File localeFile = null;
@@ -459,6 +460,8 @@ public class Locale {
     public String igsVisitorKeep;
     public String igsNetherPVP;
     public String igsAnvil;
+    public String igsHorseRiding;
+    public String igsHorseInvAccess;
     public String setHomeerrorNumHomes;
     public String schematicsTitle;
     public String islandhelpBan;
@@ -554,6 +557,8 @@ public class Locale {
     public String adminHelpTeamChatSpy;
     public String coopNotInCoop;
     public String islandhelpUnCoop;
+    public String errorMaxIslands;
+    public String entityLimitReached;
 
     /**
      * Creates a locale object full of localized strings for a language
@@ -708,6 +713,8 @@ public class Locale {
 	igsVisitorDrop = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.visitordrop", "Visitor item dropping"));
 	igsVisitorPickUp = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.visitorpickup", "Visitor item pick-up"));
 	igsVisitorKeep = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.visitorkeepitems", "Visitor keep item on death"));	
+	igsHorseRiding = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.horseriding", "Visitor horse riding"));	
+	igsHorseInvAccess = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.horseinventoryaccess", "Visitor horse inventory access"));	
 	lavaTip = ChatColor.translateAlternateColorCodes('&', locale.getString("lavaTip", "Changing obsidian back into lava. Be careful!"));
 	warpswelcomeLine = ChatColor.translateAlternateColorCodes('&', locale.getString("warps.welcomeLine", "[WELCOME]"));
 	warpswarpTip = ChatColor.translateAlternateColorCodes('&',
@@ -1121,6 +1128,7 @@ public class Locale {
 	moblimitsError = ChatColor.translateAlternateColorCodes('&', locale.getString("moblimits.error", "Island animal breeding limit of [number] reached!"));
 	villagerLimitError = ChatColor.translateAlternateColorCodes('&', locale.getString("moblimits.villager", "Island villager breeding limit of [number] reached!"));
 	hopperLimit = ChatColor.translateAlternateColorCodes('&', locale.getString("moblimits.hopper", "Island hopper limit of [number] reached!"));
+	entityLimitReached = ChatColor.translateAlternateColorCodes('&', locale.getString("moblimits.entity", "Island [entity] limit of [number] reached!"));
 	coopRemoved = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.removed", "[name] remove your coop status!"));
 	coopRemoveSuccess = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.removesuccess", "[name] is no longer a coop player."));
 	coopSuccess = ChatColor.translateAlternateColorCodes('&',
@@ -1216,5 +1224,6 @@ public class Locale {
 	adminRegisterHadIsland = ChatColor.translateAlternateColorCodes('&', locale.getString("adminRegister.hadIsland", "[name] had an island at [location]"));
 	adminRegisterNoIsland = ChatColor.translateAlternateColorCodes('&', locale.getString("adminRegister.noIsland", "There is no known island in this area!"));
 	adminHelpTeamChatSpy = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.teamChatSpy", "Spy on team chats (on/off)"));
+	errorMaxIslands = ChatColor.translateAlternateColorCodes('&', locale.getString("error.maxIslands", "The sky is full of islands! Try again later!"));
     }
 }

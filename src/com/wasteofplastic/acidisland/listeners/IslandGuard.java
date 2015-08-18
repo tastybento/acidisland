@@ -17,7 +17,9 @@
 package com.wasteofplastic.acidisland.listeners;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,6 +34,7 @@ import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -48,6 +51,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockMultiPlaceEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -60,6 +64,7 @@ import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
@@ -89,6 +94,7 @@ import com.wasteofplastic.acidisland.util.VaultHelper;
 public class IslandGuard implements Listener {
     private final ASkyBlock plugin;
     private final boolean debug = false;
+    private HashMap<UUID,Vector> onPlate = new HashMap<UUID,Vector>();
 
     public IslandGuard(final ASkyBlock plugin) {
 	this.plugin = plugin;
@@ -104,7 +110,7 @@ public class IslandGuard implements Listener {
     protected static boolean inWorld(Entity entity) {
 	return inWorld(entity.getLocation());
     }
-    
+
     /**
      * Determines if a block is in the island world or not
      * @param block
@@ -130,6 +136,49 @@ public class IslandGuard implements Listener {
 	return false;
     }
 
+    /**
+     * Prevents visitors picking items from riding horses or other inventories
+     * @param event
+     */
+    @EventHandler(priority = EventPriority.LOW)
+    public void onInventoryClick(InventoryClickEvent event) {
+	if (!inWorld(event.getWhoClicked()) || event.getWhoClicked().isOp() 
+		|| VaultHelper.checkPerm((Player)event.getWhoClicked(), Settings.PERMPREFIX + "mod.bypassprotect")) {
+	    return;
+	}
+	if (!(event.getInventory().getHolder() instanceof Horse)) {
+	    //plugin.getLogger().info("DEBUG: not a horse!");
+	    return;
+	}
+	/*
+	plugin.getLogger().info("DEBUG: control panel inv click event");
+	plugin.getLogger().info("DEBUG: Action " + event.getAction().toString());
+	plugin.getLogger().info("DEBUG: click " + event.getClick().toString());
+	plugin.getLogger().info("DEBUG: type " + event.getClickedInventory().getType());
+	plugin.getLogger().info("DEBUG: slot type " + event.getSlotType());
+	plugin.getLogger().info("DEBUG: cursor " + event.getCursor());
+	plugin.getLogger().info("DEBUG: result " + event.getResult());
+	plugin.getLogger().info("DEBUG: shift click " + event.isShiftClick());
+	plugin.getLogger().info("DEBUG: right click " + event.isRightClick());
+	plugin.getLogger().info("DEBUG: left click " + event.isLeftClick());
+	*/
+	boolean playerAtSpawn = false;
+	if (plugin.getGrid().isAtSpawn(event.getWhoClicked().getLocation())) {
+	    // plugin.getLogger().info("DEBUG: Player is at spawn");
+	    playerAtSpawn = true;
+	}
+	if (playerAtSpawn) {
+	    if (!Settings.allowSpawnHorseInvAccess) {
+		event.getWhoClicked().sendMessage(ChatColor.RED + plugin.myLocale(event.getWhoClicked().getUniqueId()).islandProtected);
+		event.setCancelled(true);
+		return;
+	    }
+	} else if (!Settings.allowHorseInvAccess) {
+	    event.getWhoClicked().sendMessage(ChatColor.RED + plugin.myLocale(event.getWhoClicked().getUniqueId()).islandProtected);
+		event.setCancelled(true);
+	    return;
+	}
+    }
     /*
      * For testing only
      * @EventHandler()
@@ -572,7 +621,7 @@ public class IslandGuard implements Listener {
 		for (Player player : culprits) {
 		    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).moblimitsError.replace("[number]", String.valueOf(Settings.breedingLimit)));
 		    plugin.getLogger().warning(player.getName() + " was trying to use a " + Util.prettifyText(player.getItemInHand().getType().toString()));
-		    
+
 		}
 	    }
 	}
@@ -1094,15 +1143,26 @@ public class IslandGuard implements Listener {
 		e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
 		e.setCancelled(true);
 	    } else {
-		// Check if it's a hopper
-		if (Settings.hopperLimit > 0 && e.getBlock().getType() == Material.HOPPER) {
-		    Island island = plugin.getGrid().getIslandAt(e.getBlock().getLocation());
-		    if (island != null) {
-			// Check island limit
-			if (island.getHopperCount() >= Settings.hopperLimit) {
-			    e.getPlayer().sendMessage(ChatColor.RED 
-				    + (plugin.myLocale(e.getPlayer().getUniqueId()).hopperLimit).replace("[number]",String.valueOf(Settings.hopperLimit)));
+		// Check how many placed
+		//plugin.getLogger().info("DEBUG: block placed " + e.getBlock().getType());
+		String type = e.getBlock().getType().toString();
+		if (!e.getBlock().getState().getClass().getName().endsWith("CraftBlockState") 
+			// Not all blocks have that type of class, so we have to do some explicit checking...
+			|| e.getBlock().getType().equals(Material.REDSTONE_COMPARATOR_OFF) 
+			|| type.endsWith("BANNER") // Avoids V1.7 issues
+			|| e.getBlock().getType().equals(Material.ENDER_CHEST)
+			|| e.getBlock().getType().equals(Material.ENCHANTMENT_TABLE)
+			|| e.getBlock().getType().equals(Material.DAYLIGHT_DETECTOR)
+			|| e.getBlock().getType().equals(Material.FLOWER_POT)){
+		    // tile entity placed
+		    if (Settings.limitedBlocks.containsKey(type) && Settings.limitedBlocks.get(type) > -1) {
+			Island island = plugin.getGrid().getIslandAt(e.getBlock().getLocation());
+			int count = island.getTileEntityCount(e.getBlock().getType());
+			if (Settings.limitedBlocks.get(type) <= count) {
+			    e.getPlayer().sendMessage(ChatColor.RED + (plugin.myLocale(e.getPlayer().getUniqueId()).entityLimitReached.replace("[entity]",
+				    Util.prettifyText(type))).replace("[number]", String.valueOf(Settings.limitedBlocks.get(type))));
 			    e.setCancelled(true);
+			    return;
 			}
 		    }
 		}
@@ -1152,6 +1212,21 @@ public class IslandGuard implements Listener {
 	    } else if (!Settings.allowPlaceBlocks && !plugin.getGrid().locationIsOnIsland(e.getPlayer(), e.getBlock().getLocation())) {
 		e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
 		e.setCancelled(true);
+	    }
+	    // Check how many placed
+	    if (!e.getEntity().getClass().getName().endsWith("CraftBlockState")){
+		// entity placed
+		String type = e.getEntity().getType().toString();
+		if (Settings.limitedBlocks.containsKey(type) && Settings.limitedBlocks.get(type) > -1) {
+		    Island island = plugin.getGrid().getIslandAt(e.getEntity().getLocation());
+		    int count = island.getEntityCount(e.getEntity().getType());
+		    if (Settings.limitedBlocks.get(type) <= count) {
+			e.getPlayer().sendMessage(ChatColor.RED + (plugin.myLocale(e.getPlayer().getUniqueId()).entityLimitReached.replace("[entity]",
+				Util.prettifyText(type))).replace("[number]", String.valueOf(Settings.limitedBlocks.get(type))));
+			e.setCancelled(true);
+			return;
+		    }
+		}
 	    }
 	}
     }
@@ -1413,9 +1488,8 @@ public class IslandGuard implements Listener {
 
 	// Check for disallowed clicked blocks
 	if (e.getClickedBlock() != null) {
-	    // plugin.getLogger().info("DEBUG: clicked block " +
-	    // e.getClickedBlock());
-	    // plugin.getLogger().info("DEBUG: Material " + e.getMaterial());
+	    plugin.getLogger().info("DEBUG: clicked block " + e.getClickedBlock());
+	    plugin.getLogger().info("DEBUG: Material " + e.getMaterial());
 
 	    switch (e.getClickedBlock().getType()) {
 	    case WOODEN_DOOR:
@@ -1779,6 +1853,13 @@ public class IslandGuard implements Listener {
 	    // e.getRightClicked().getType().toString());
 	    switch (e.getRightClicked().getType()) {
 	    case HORSE:
+		if (plugin.getGrid().isAtSpawn(e.getPlayer().getLocation())) {
+		    if (Settings.allowSpawnHorseRiding) {
+			return;
+		    }
+		} else if (Settings.allowHorseRiding) {
+		    return;
+		}
 	    case ITEM_FRAME:
 	    case MINECART_CHEST:
 	    case MINECART_FURNACE:
@@ -1793,7 +1874,7 @@ public class IslandGuard implements Listener {
 	    }
 	}
     }
-    
+
     /**
      * Prevents fire spread
      * @param e
@@ -1807,7 +1888,7 @@ public class IslandGuard implements Listener {
 	    //plugin.getLogger().info("DEBUG: Not in world");
 	    return;
 	}
-        e.setCancelled(true);
+	e.setCancelled(true);
     }
 
     /**
@@ -1824,9 +1905,77 @@ public class IslandGuard implements Listener {
 	    //plugin.getLogger().info("DEBUG: Not in world");
 	    return;
 	}
-        if (e.getSource().getType() == Material.FIRE) {
-          e.setCancelled(true);
-      }
+	if (e.getSource().getType() == Material.FIRE) {
+	    e.setCancelled(true);
+	}
     }
-    
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onPlateStep(PlayerInteractEvent e) {
+	if (debug) {
+	    plugin.getLogger().info(e.getEventName());
+	}
+	if (Settings.allowPressurePlate || !inWorld(e.getPlayer()) || !e.getAction().equals(Action.PHYSICAL)
+		|| e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
+		|| plugin.getGrid().playerIsOnIsland(e.getPlayer())) {
+	    //plugin.getLogger().info("DEBUG: Not in world");
+	    return;
+	}
+	// Check for spawn
+	//plugin.getLogger().info("DEBUG: " + Settings.allowSpawnPressurePlate);
+	//plugin.getLogger().info("DEBUG: " + plugin.getGrid().isAtSpawn(e.getPlayer().getLocation()));
+	if (Settings.allowSpawnPressurePlate && plugin.getGrid().isAtSpawn(e.getPlayer().getLocation())) {
+	    return;
+	}
+	UUID playerUUID = e.getPlayer().getUniqueId();
+	if (!onPlate.containsKey(playerUUID)) {
+	    e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).islandProtected);
+	    Vector v = e.getPlayer().getLocation().toVector();
+	    onPlate.put(playerUUID, new Vector(v.getBlockX(), v.getBlockY(), v.getBlockZ()));
+	}
+	e.setCancelled(true);
+	return;
+    }
+
+    /**
+     * Removes the player from the plate map
+     * @param e
+     */
+    @EventHandler(priority = EventPriority.LOW)
+    public void onStepOffPlate(PlayerMoveEvent e) {
+	if (!onPlate.containsKey(e.getPlayer().getUniqueId())) {
+	    return;
+	}
+	Vector v = e.getPlayer().getLocation().toVector();
+	if (!(new Vector(v.getBlockX(), v.getBlockY(), v.getBlockZ())).equals(onPlate.get(e.getPlayer().getUniqueId()))) {
+	    onPlate.remove(e.getPlayer().getUniqueId());
+	}
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onPistonExtend(BlockPistonExtendEvent e) {
+	if (debug) {
+	    plugin.getLogger().info(e.getEventName());
+	}
+	Location pistonLoc = e.getBlock().getLocation();
+	if (Settings.allowPistonPush || !inWorld(pistonLoc)) {
+	    //plugin.getLogger().info("DEBUG: Not in world");
+	    return;
+	}
+	Island island = plugin.getGrid().getIslandAt(pistonLoc);
+	if (island == null || !island.onIsland(pistonLoc)) {
+	    //plugin.getLogger().info("DEBUG: Not on is island protection zone");
+	    return;
+	}
+	// We need to check where the blocks are going to go, not where they are
+	for (Block b : e.getBlocks()) {
+	    if (!island.onIsland(b.getRelative(e.getDirection()).getLocation())) {
+		//plugin.getLogger().info("DEBUG: Block is outside protected area");
+		e.setCancelled(true);
+		return;
+	    }
+	}
+    }
+
+
 }

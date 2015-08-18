@@ -61,8 +61,8 @@ import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.PlayerCache;
 import com.wasteofplastic.acidisland.SafeSpotTeleport;
 import com.wasteofplastic.acidisland.Settings;
-import com.wasteofplastic.acidisland.Settings.GameType;
 import com.wasteofplastic.acidisland.TopTen;
+import com.wasteofplastic.acidisland.Settings.GameType;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
@@ -186,7 +186,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
 	    if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "admin.setrange") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/" + label + " setrange:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelpSetRange);
 	    }
-	    if (Settings.teamChat && VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.teamchatspy") || player.isOp()) {
+	    if (Settings.teamChat && VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.spy") || player.isOp()) {
 		player.sendMessage(ChatColor.YELLOW + "/" + label + " spy:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelpTeamChatSpy);
 	    }
 	    if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.team") || player.isOp()) {
@@ -258,7 +258,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
 		    return true;
 		}
 		player = (Player) sender;
-		if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.teamchatspy") || player.isOp()) {
+		if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.spy") || player.isOp()) {
 		    if (plugin.getChatListener().toggleSpy(player.getUniqueId())) {
 			sender.sendMessage(ChatColor.GREEN + plugin.myLocale().teamChatStatusOn);
 		    } else {
@@ -576,8 +576,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
 		return true;
 	    } else if (split[0].equalsIgnoreCase("topten")) {
 		sender.sendMessage(ChatColor.YELLOW + plugin.myLocale().adminTopTengenerating);
-		TopTen.topTenCreate();
-		sender.sendMessage(ChatColor.YELLOW + plugin.myLocale().adminTopTenfinished);
+		TopTen.topTenCreate(sender);
 		return true;
 	    } else if (split[0].equalsIgnoreCase("purge")) {
 		if (purgeFlag) {
@@ -1002,6 +1001,14 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
 			Location warpSpot = plugin.getPlayers().getIslandLocation(targetUUID).toVector().toLocation(ASkyBlock.getIslandWorld());
 			String failureMessage = ChatColor.RED + plugin.myLocale(player.getUniqueId()).adminTpManualWarp.replace("[location]", warpSpot.getBlockX() + " " + warpSpot.getBlockY() + " "
 				+ warpSpot.getBlockZ());
+			// Try the player's home first
+			Location home = plugin.getPlayers().getHomeLocation(targetUUID);
+			plugin.getGrid();
+			if (home.getWorld().equals(ASkyBlock.getIslandWorld()) && GridManager.isSafeLocation(home)) {
+			    player.teleport(home);
+			    return true;
+			}
+			// Other wise, go to a safe spot
 			new SafeSpotTeleport(plugin, player, warpSpot, failureMessage);
 			return true;
 		    }
@@ -1028,6 +1035,13 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
 			Location warpSpot = plugin.getPlayers().getIslandLocation(targetUUID).toVector().toLocation(ASkyBlock.getNetherWorld());
 			String failureMessage = ChatColor.RED + plugin.myLocale(player.getUniqueId()).adminTpManualWarp.replace("[location]", warpSpot.getBlockX() + " " + warpSpot.getBlockY() + " "
 				+ warpSpot.getBlockZ());
+			// Try the player's home first
+			Location home = plugin.getPlayers().getHomeLocation(targetUUID);
+			plugin.getGrid();
+			if (home.getWorld().equals(ASkyBlock.getNetherWorld()) && GridManager.isSafeLocation(home)) {
+			    player.teleport(home);
+			    return true;
+			}
 			new SafeSpotTeleport(plugin, player, warpSpot, failureMessage);
 			return true;
 		    }
@@ -1264,6 +1278,18 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
 			    return true;
 			}
 			UUID teamLeader = plugin.getPlayers().getTeamLeader(playerUUID);
+			if (teamLeader == null) {
+			    // Player is apparently in a team, but there is no team leader
+			    // Remove their team status
+			    // Clear the player of all team-related items
+			    plugin.getPlayers().setLeaveTeam(playerUUID);
+			    plugin.getPlayers().setHomeLocation(playerUUID, null);
+			    plugin.getPlayers().setIslandLocation(playerUUID, null);
+			    // Remove any warps
+			    plugin.getWarpSignsListener().removeWarp(playerUUID);
+			    sender.sendMessage(ChatColor.RED + plugin.myLocale().kicknameRemoved.replace("[name]", split[2]));
+			    return true;
+			}
 			// Payer is not a team leader
 			if (!teamLeader.equals(playerUUID)) {
 			    // Clear the player of all team-related items
@@ -1421,7 +1447,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
      * @param sender
      */
     private void deleteIslands(Island island, CommandSender sender) {
-	plugin.getGrid().removePlayersFromIsland(island);
+	plugin.getGrid().removePlayersFromIsland(island,null);
 	// Reset the biome
 	plugin.getBiomes().setIslandBiome(island.getCenter(), Settings.defaultBiome);
 	new DeleteIslandChunk(plugin, island);
@@ -1919,7 +1945,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
 		if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.signadmin") || player.isOp()) {
 		    options.add("resetsign");
 		}
-		if (Settings.teamChat && VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.teamchatspy") || player.isOp()) {
+		if (Settings.teamChat && VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.spy") || player.isOp()) {
 		    options.add("spy");
 		}
 		break;
