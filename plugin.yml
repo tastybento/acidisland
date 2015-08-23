@@ -98,7 +98,96 @@ permissions:
       acidisland.craft.*:
         children:
           acidisland.craft.enderchest:
-            description: Allow crafting and use of enderchests in askyblock
+            description: Allow crafting and use of enderchests in acidisland
+            default: false
+      acidisland.settings.*:
+        children:
+          acidisland.settings.allowAnvilUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowArmorStandUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowBeaconAccess:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowBedUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowBreakBlocks:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowBreeding:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowBrewing:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowBucketUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowChestAccess:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowCrafting:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowCropTrample:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowDoorUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowEnchanting:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowEnderPearls:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowFurnaceUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowGateUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowHorseInvAccess:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowHorseRiding:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowHurtMobs:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowLeashUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowLeverButtonUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowMusic:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowPlaceBlocks:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowPortalUse:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowPressurePlate:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowPvP:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowNetherPvP:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowRedStone:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowShearing:
+            description: Allow player to change this island guard setting
             default: false
       acidisland.mod.*:
         children:

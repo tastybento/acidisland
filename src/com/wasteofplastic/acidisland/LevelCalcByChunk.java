@@ -156,13 +156,16 @@ public class LevelCalcByChunk {
 				}
 			    }
 			    //plugin.getLogger().info("DEBUG: updating top ten");
-			    if (plugin.getPlayers().inTeam(targetPlayer)) {
-				UUID leader = plugin.getPlayers().getTeamLeader(targetPlayer);
-				if (leader != null) {
-				    TopTen.topTenAddEntry(leader, score);
+			    // Only update top ten if the asker doesn't have this permission
+			    if (!(asker.getUniqueId().equals(targetPlayer) && asker.hasPermission(Settings.PERMPREFIX + "mod.excludetopten"))) {
+				if (plugin.getPlayers().inTeam(targetPlayer)) {
+				    UUID leader = plugin.getPlayers().getTeamLeader(targetPlayer);
+				    if (leader != null) {
+					TopTen.topTenAddEntry(leader, score);
+				    }
+				} else {
+				    TopTen.topTenAddEntry(targetPlayer, score);
 				}
-			    } else {
-				TopTen.topTenAddEntry(targetPlayer, score);
 			    }
 			    // Fire the level event
 			    final IslandLevelEvent event = new IslandLevelEvent(plugin, targetPlayer, score);

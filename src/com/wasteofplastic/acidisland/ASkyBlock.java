@@ -74,6 +74,7 @@ import com.wasteofplastic.acidisland.listeners.WorldEnter;
 import com.wasteofplastic.acidisland.panels.BiomesPanel;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
 import com.wasteofplastic.acidisland.panels.SchematicsPanel;
+import com.wasteofplastic.acidisland.panels.SettingsPanel;
 import com.wasteofplastic.acidisland.panels.WarpPanel;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
@@ -131,6 +132,9 @@ public class ASkyBlock extends JavaPlugin {
 
     // Schematics panel object
     private SchematicsPanel schematicsPanel;
+
+    // Settings panel object
+    private SettingsPanel settingsPanel;
 
     /**
      * Returns the World object for the island world named in config.yml.
@@ -353,6 +357,9 @@ public class ASkyBlock extends JavaPlugin {
 		// Minishop - must wait for economy to load before we can use
 		// econ
 		getServer().getPluginManager().registerEvents(new ControlPanel(plugin), plugin);
+		// Settings
+		settingsPanel = new SettingsPanel(plugin);
+		getServer().getPluginManager().registerEvents(settingsPanel, plugin);
 		// Try to register Herochat
 		if (Bukkit.getServer().getPluginManager().isPluginEnabled("Herochat")) {
 		    getServer().getPluginManager().registerEvents(new HeroChatListener(plugin), plugin);
@@ -688,6 +695,7 @@ public class ASkyBlock extends JavaPlugin {
 	availableLocales.put("cs-CS", new Locale(this,"cs-CS"));
 	availableLocales.put("sk-SK", new Locale(this,"sk-SK"));
 	availableLocales.put("zh-TW", new Locale(this,"zh-TW"));
+	availableLocales.put("nl-NL", new Locale(this,"nl-NL"));
 
 	// Assign settings
 	String configVersion = getConfig().getString("general.version", "");
@@ -722,6 +730,8 @@ public class ASkyBlock extends JavaPlugin {
 	}
 	// Debug
 	Settings.debug = getConfig().getInt("debug", 0);
+	// How long a player has to wait after deactivating PVP until they can activate PVP again
+	Settings.pvpRestartCooldown = getConfig().getLong("general.pvpcooldown",60);
 	// Max Islands
 	Settings.maxIslands = getConfig().getInt("general.maxIslands",0);
 	// Mute death messages
@@ -957,23 +967,17 @@ public class ASkyBlock extends JavaPlugin {
 	}
 
 	Settings.animalSpawnLimit = getConfig().getInt("general.animalspawnlimit", 15);
-	if (Settings.animalSpawnLimit > 100) {
-	    Settings.animalSpawnLimit = 100;
-	} else if (Settings.animalSpawnLimit < -1) {
+	if (Settings.animalSpawnLimit < -1) {
 	    Settings.animalSpawnLimit = -1;
 	}
 
-	Settings.monsterSpawnLimit = getConfig().getInt("general.monsterspawnlimit", 70);
-	if (Settings.monsterSpawnLimit > 100) {
-	    Settings.monsterSpawnLimit = 100;
-	} else if (Settings.monsterSpawnLimit < -1) {
+	Settings.monsterSpawnLimit = getConfig().getInt("general.monsterspawnlimit", 100);
+	if (Settings.monsterSpawnLimit < -1) {
 	    Settings.monsterSpawnLimit = -1;
 	}
 
 	Settings.waterAnimalSpawnLimit = getConfig().getInt("general.wateranimalspawnlimit", 15);
-	if (Settings.waterAnimalSpawnLimit > 100) {
-	    Settings.waterAnimalSpawnLimit = 100;
-	} else if (Settings.waterAnimalSpawnLimit < -1) {
+	if (Settings.waterAnimalSpawnLimit < -1) {
 	    Settings.waterAnimalSpawnLimit = -1;
 	}
 
@@ -1214,6 +1218,9 @@ public class ASkyBlock extends JavaPlugin {
 	Settings.allowSpawnMilking = getConfig().getBoolean("spawn.allowmilking", false);
 	Settings.allowSpawnLavaCollection = getConfig().getBoolean("spawn.allowlavacollection", false);
 	Settings.allowSpawnWaterCollection = getConfig().getBoolean("spawn.allowwatercollection", false);
+	Settings.allowSpawnVisitorItemDrop = getConfig().getBoolean("spawn.allowvisitoritemdrop", true);
+	Settings.allowSpawnVisitorItemPickup = getConfig().getBoolean("spawn.allowvisitoritempickup", true);
+
 	// Challenges
 	getChallenges();
 	// Challenge completion
@@ -1563,5 +1570,12 @@ public class ASkyBlock extends JavaPlugin {
      */
     public boolean isOnePointEight() {
 	return onePointEight;
+    }
+
+    /**
+     * @return the settingsPanel
+     */
+    public SettingsPanel getSettingsPanel() {
+	return settingsPanel;
     }
 }

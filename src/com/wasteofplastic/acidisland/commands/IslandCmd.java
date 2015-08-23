@@ -68,6 +68,7 @@ import com.wasteofplastic.acidisland.CoopPlay;
 import com.wasteofplastic.acidisland.DeleteIslandChunk;
 import com.wasteofplastic.acidisland.GridManager;
 import com.wasteofplastic.acidisland.Island;
+import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.LevelCalc;
 import com.wasteofplastic.acidisland.LevelCalcByChunk;
 import com.wasteofplastic.acidisland.Settings;
@@ -78,7 +79,6 @@ import com.wasteofplastic.acidisland.events.IslandNewEvent;
 import com.wasteofplastic.acidisland.events.IslandResetEvent;
 import com.wasteofplastic.acidisland.listeners.PlayerEvents;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
-import com.wasteofplastic.acidisland.panels.SettingsPanel;
 import com.wasteofplastic.acidisland.schematics.Schematic;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
@@ -1152,6 +1152,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			player.sendMessage("Čeština");
 			player.sendMessage("Slovenčina");
 			player.sendMessage("繁體中文 / TraditionalChinese");
+			player.sendMessage("Nederlands");
 		    } else {
 			player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).errorNoPermission);
 		    }
@@ -1159,7 +1160,11 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 		} else if (split[0].equalsIgnoreCase("settings")) {
 		    // Show what the plugin settings are
 		    if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.settings")) {
-			player.openInventory(SettingsPanel.islandGuardPanel());
+			try {
+			    player.openInventory(plugin.getSettingsPanel().islandGuardPanel(player));
+			} catch (Exception e) {
+			    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorCommandNotReady);
+			}
 		    } else {
 			player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoPermission);
 		    }
@@ -1668,6 +1673,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 
 			plugin.getGrid().homeTeleport(player);
 			plugin.resetPlayer(player);
+			// Reset reset limit - note that a player can get around the reset
+			// limit by begging someone to invite them to an island and then leaving
+			plugin.getPlayers().setResetsLeft(playerUUID, Settings.resetLimit);
 			player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).inviteyouHaveJoinedAnIsland);
 			if (Bukkit.getPlayer(inviteList.get(playerUUID)) != null) {
 			    Bukkit.getPlayer(inviteList.get(playerUUID)).sendMessage(
@@ -1873,7 +1881,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			} else if (split[1].equalsIgnoreCase("Slovenčina") || split[1].equalsIgnoreCase("Slovencina")) {
 			    plugin.getPlayers().setLocale(playerUUID, "sk-SK");  
 			} else if (split[1].equalsIgnoreCase("TraditionalChinese") || split[1].equalsIgnoreCase("繁體中文")) {
-			    plugin.getPlayers().setLocale(playerUUID, "zh-TW");  
+			    plugin.getPlayers().setLocale(playerUUID, "nl-NL");  
+			} else if (split[1].equalsIgnoreCase("Nederlands") || split[1].equalsIgnoreCase("Dutch")) {
+			    plugin.getPlayers().setLocale(playerUUID, "nl-NL");  
 			} else {
 			    // Typed it in wrong
 			    player.sendMessage("/" + label + " lang <locale>");
@@ -1889,6 +1899,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 			    player.sendMessage("Čeština");
 			    player.sendMessage("Slovenčina");
 			    player.sendMessage("繁體中文 / TraditionalChinese");
+			    player.sendMessage("Nederlands");
 			    return true;
 			}
 			player.sendMessage("OK!");
@@ -2017,6 +2028,14 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 				    }
 				    // Find out if island is locked
 				    Island island = plugin.getGrid().getIslandAt(warpSpot);
+				    // Check bans
+				    if (island != null && plugin.getPlayers().isBanned(island.getOwner(), playerUUID)) {
+					player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).banBanned.replace("[name]", plugin.getPlayers().getName(island.getOwner())));
+					if (!VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypassprotect")
+						&& !VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypasslock")) {
+					    return true;
+					}
+				    }
 				    if (island != null && island.isLocked() && !player.isOp() && !VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypasslock") 
 					    && !VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypassprotect")) {
 					// Always inform that the island is locked
@@ -2027,6 +2046,11 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 					    return true;
 					}
 				    }
+				    boolean pvp = false;
+				    if ((warpSpot.getWorld().equals(ASkyBlock.getIslandWorld()) && island.getIgsFlag(Flags.allowPvP)) 
+					    || (warpSpot.getWorld().equals(ASkyBlock.getNetherWorld()) && island.getIgsFlag(Flags.allowNetherPvP))) {
+					pvp = true;
+				    }
 				    // Find out which direction the warp is facing
 				    Block b = warpSpot.getBlock();
 				    if (b.getType().equals(Material.SIGN_POST) || b.getType().equals(Material.WALL_SIGN)) {
@@ -2036,11 +2060,11 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 					Location inFront = b.getRelative(directionFacing).getLocation();
 					Location oneDown = b.getRelative(directionFacing).getRelative(BlockFace.DOWN).getLocation();
 					if ((GridManager.isSafeLocation(inFront))) {
-					    warpPlayer(player, inFront, foundWarp, directionFacing);
+					    warpPlayer(player, inFront, foundWarp, directionFacing, pvp);
 					    return true;
 					} else if (b.getType().equals(Material.WALL_SIGN) && GridManager.isSafeLocation(oneDown)) {
 					    // Try one block down if this is a wall sign
-					    warpPlayer(player, oneDown, foundWarp, directionFacing);
+					    warpPlayer(player, oneDown, foundWarp, directionFacing, pvp);
 					    return true;
 					}
 				    } else {
@@ -2062,7 +2086,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 					final Location actualWarp = new Location(warpSpot.getWorld(), warpSpot.getBlockX() + 0.5D, warpSpot.getBlockY(),
 						warpSpot.getBlockZ() + 0.5D);
 					player.teleport(actualWarp);
-					player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
+					if (pvp) {
+					    player.sendMessage(ChatColor.BOLD + "" + ChatColor.RED + plugin.myLocale(player.getUniqueId()).igsPVP + " " + plugin.myLocale(player.getUniqueId()).igsAllowed);
+					    player.getWorld().playSound(player.getLocation(), Sound.ARROW_HIT, 1F, 1F);
+					} else {
+					    player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
+					}
 					return true;
 				    }
 				}
@@ -2669,13 +2698,18 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
      * @param foundWarp
      * @param directionFacing
      */
-    private void warpPlayer(Player player, Location inFront, UUID foundWarp, BlockFace directionFacing) {
+    private void warpPlayer(Player player, Location inFront, UUID foundWarp, BlockFace directionFacing, boolean pvp) {
 	// convert blockface to angle
 	float yaw = Util.blockFaceToFloat(directionFacing);
 	final Location actualWarp = new Location(inFront.getWorld(), inFront.getBlockX() + 0.5D, inFront.getBlockY(),
 		inFront.getBlockZ() + 0.5D, yaw, 30F);
 	player.teleport(actualWarp);
-	player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
+	if (pvp) {
+	    player.sendMessage(ChatColor.BOLD + "" + ChatColor.RED + plugin.myLocale(player.getUniqueId()).igsPVP + " " + plugin.myLocale(player.getUniqueId()).igsAllowed);
+	    player.getWorld().playSound(player.getLocation(), Sound.ARROW_HIT, 1F, 1F);
+	} else {
+	    player.getWorld().playSound(player.getLocation(), Sound.BAT_TAKEOFF, 1F, 1F);
+	}
 	Player warpOwner = plugin.getServer().getPlayer(foundWarp);
 	if (warpOwner != null && !warpOwner.equals(player)) {
 	    warpOwner.sendMessage(plugin.myLocale(foundWarp).warpsPlayerWarped.replace("[name]", player.getDisplayName()));
@@ -2718,7 +2752,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 	}
     }
 
-    private void resetPlayer(Player player, final Island oldIsland) {
+    private void resetPlayer(Player player, Island oldIsland) {
 	// Deduct the reset
 	plugin.getPlayers().setResetsLeft(player.getUniqueId(), plugin.getPlayers().getResetsLeft(player.getUniqueId()) - 1);
 	// Clear any coop inventories
@@ -2957,9 +2991,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 		    options.add("Polski");
 		    options.add("Brasil");
 		    options.add("中国");
-		    options.add("Chinese");
+		    options.add("SimplifiedChinese");
+		    options.add("繁體中文");
+		    options.add("TraditionalChinese");
 		    options.add("Čeština");
 		    options.add("Slovenčina");
+		    options.add("Nederlands");
 		}
 	    }
 	    if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.sethome")) {

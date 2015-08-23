@@ -22,9 +22,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -159,6 +161,12 @@ public class PlayerEvents implements Listener {
 	if (!IslandGuard.inWorld(e.getPlayer())) {
 	    return;
 	}
+	if (plugin.getGrid().isAtSpawn(e.getItem().getLocation())) {
+	    if (Settings.allowSpawnVisitorItemPickup || e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
+		    || plugin.getGrid().locationIsOnIsland(e.getPlayer(), e.getItem().getLocation())) {
+		return;
+	    }
+	}
 	if (Settings.allowVisitorItemPickup || e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
 		|| plugin.getGrid().locationIsOnIsland(e.getPlayer(), e.getItem().getLocation())) {
 	    return;
@@ -176,6 +184,12 @@ public class PlayerEvents implements Listener {
 	}
 	if (!IslandGuard.inWorld(e.getPlayer())) {
 	    return;
+	}
+	if (plugin.getGrid().isAtSpawn(e.getItemDrop().getLocation())) {
+	    if (Settings.allowSpawnVisitorItemDrop || e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
+		    || plugin.getGrid().locationIsOnIsland(e.getPlayer(), e.getItemDrop().getLocation())) {
+		return;
+	    }
 	}
 	if (Settings.allowVisitorItemPickup || e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
 		|| plugin.getGrid().locationIsOnIsland(e.getPlayer(), e.getItemDrop().getLocation())) {
@@ -245,6 +259,7 @@ public class PlayerEvents implements Listener {
 	// e.getMessage().substring(1).toLowerCase() + "'");
 	if (isFalling(e.getPlayer().getUniqueId()) && (Settings.fallingCommandBlockList.contains("*") || Settings.fallingCommandBlockList.contains(e.getMessage().substring(1).toLowerCase()))) {
 	    // Sorry you are going to die
+	    e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).errorNoPermission); 
 	    e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).islandcannotTeleport);
 	    e.setCancelled(true);
 	}
@@ -260,8 +275,15 @@ public class PlayerEvents implements Listener {
 	if (debug) {
 	    plugin.getLogger().info(e.getEventName());
 	}
-	// We only check if the player is teleporting from an Island world and to is not null
-	if (e.getTo() == null || !IslandGuard.inWorld(e.getFrom())) {
+	// Options - 
+	// Player is in an island world and trying to teleport out - handle
+	// Player is in an island world and trying to teleport within - handle
+	// Player is not in an island world and trying to teleport in - handle
+	// Player is not in an island world and teleporting not in - skip
+	if (e.getTo() == null || e.getFrom() == null) {
+	    return;
+	}
+	if (!IslandGuard.inWorld(e.getTo()) && !IslandGuard.inWorld(e.getFrom())) {
 	    return;
 	}
 	// Check if ready
@@ -347,7 +369,7 @@ public class PlayerEvents implements Listener {
 	// getLogger().info("DEBUG: unset falling");
 	fallingPlayers.remove(uniqueId);
     }
-    
+
     /**
      * Prevents visitors from using commands on islands, like /spawner
      * @param e
