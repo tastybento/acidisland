@@ -37,6 +37,7 @@ import com.wasteofplastic.acidisland.LevelCalc;
 import com.wasteofplastic.acidisland.PlayerCache;
 import com.wasteofplastic.acidisland.Scoreboards;
 import com.wasteofplastic.acidisland.Settings;
+import com.wasteofplastic.acidisland.TopTen;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
 public class JoinLeaveEvents implements Listener {
@@ -210,10 +211,18 @@ public class JoinLeaveEvents implements Listener {
 	}
 	// Set the player's level
 	plugin.getChatListener().setPlayerLevel(playerUUID, plugin.getPlayers().getIslandLevel(player.getUniqueId()));
+	// Remove from TopTen if the player has the permission
+	if (player.hasPermission(Settings.PERMPREFIX + "mod.excludetopten")) {
+	    TopTen.topTenRemoveEntry(playerUUID);
+	}
     }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerQuit(final PlayerQuitEvent event) {
+	// Remove from TopTen if the player has the permission
+	if (event.getPlayer().hasPermission(Settings.PERMPREFIX + "mod.excludetopten")) {
+	    TopTen.topTenRemoveEntry(event.getPlayer().getUniqueId());
+	}
 	// Remove from coop list
 	CoopPlay.getInstance().clearMyCoops(event.getPlayer());
 	CoopPlay.getInstance().clearMyInvitedCoops(event.getPlayer());

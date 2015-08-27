@@ -239,6 +239,9 @@ permissions:
           acidisland.mod.excludetopten:
             description: Exclude player from the top ten list
             default: false
+          acidisland.mod.removesign:
+            description: Gives ability to remove warp signs
+            default: false
       acidisland.admin.*:
         children:
           acidisland.admin.reload:
