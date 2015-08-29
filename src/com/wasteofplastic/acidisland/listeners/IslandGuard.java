@@ -894,10 +894,32 @@ public class IslandGuard implements Listener {
     public void onEntityDamage(final EntityDamageByEntityEvent e) {
 	if (debug) {
 	    plugin.getLogger().info(e.getEventName());
-	    plugin.getLogger().info(e.getDamager().toString());
+	    plugin.getLogger().info("DEBUG: Damager = " + e.getDamager().toString());
+	    plugin.getLogger().info("DEBUG: Entitytype = " + e.getEntityType());
 	}
-	// We do not care about any EnderPearl damage in this method
-	if (e.getDamager() instanceof EnderPearl) {
+	// Get the island where the damage is occurring
+	Island island = plugin.getGrid().getProtectedIslandAt(e.getEntity().getLocation());
+	// EnderPearl damage
+	if (e.getDamager() instanceof EnderPearl && e.getEntity() != null && e.getEntity() instanceof Player) {
+	    Player p = (Player) e.getEntity();
+	    if (island == null) {
+		if (Settings.allowEnderPearls) {
+		    return;
+		}
+	    } else {
+		if (island.isSpawn()) {
+		    if (Settings.allowEnderPearls) {
+			return;
+		    }
+		} else {
+		    // Regular island
+		    if (island.getIgsFlag(Flags.allowEnderPearls)) {
+			return;
+		    }
+		}	
+	    }
+	    p.sendMessage(ChatColor.RED + plugin.myLocale(p.getUniqueId()).islandProtected);
+	    e.setCancelled(true);
 	    return;
 	}
 	// Check world
@@ -946,8 +968,7 @@ public class IslandGuard implements Listener {
 	    if (debug) plugin.getLogger().info("Self damage!");
 	    return;
 	}
-	// Get the island where the damage is occurring
-	Island island = plugin.getGrid().getProtectedIslandAt(e.getEntity().getLocation());
+
 
 	// ITEM FRAME ENTITY DAMAGE or Armor Stand
 	// Check to see if it's an item frame
@@ -1197,7 +1218,7 @@ public class IslandGuard implements Listener {
      * 
      * @param e
      */
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerBlockPlace(final BlockPlaceEvent e) {
 	if (debug) {
 	    plugin.getLogger().info(e.getEventName());
@@ -1252,7 +1273,7 @@ public class IslandGuard implements Listener {
 	}
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerBlockPlace(final BlockMultiPlaceEvent e) {
 	if (debug) {
 	    plugin.getLogger().info(e.getEventName());
@@ -1307,10 +1328,12 @@ public class IslandGuard implements Listener {
 	}
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerBlockPlace(final HangingPlaceEvent e) {
 	if (debug) {
 	    plugin.getLogger().info(e.getEventName());
+	    plugin.getLogger().info("DEBUG: block placed " + e.getBlock().getType());
+	    plugin.getLogger().info("DEBUG: entity " + e.getEntity().getType());
 	}
 	// plugin.getLogger().info(e.getEventName());
 	if (inWorld(e.getPlayer())) {
@@ -1331,18 +1354,15 @@ public class IslandGuard implements Listener {
 	    if (island.isSpawn() && Settings.allowSpawnPlaceBlocks) {
 		return;
 	    }
+	    if (e.getEntity() != null && e.getEntity().getType().equals(EntityType.LEASH_HITCH)) {
+		if (island != null && island.getIgsFlag(Flags.allowLeashUse)) {
+		    return;
+		}
+	    }
 	    if (island.getIgsFlag(Flags.allowPlaceBlocks) || island.getMembers().contains(e.getPlayer().getUniqueId()))  {
 		// Check how many placed
-		//plugin.getLogger().info("DEBUG: block placed " + e.getBlock().getType());
-		String type = e.getBlock().getType().toString();
-		if (!e.getBlock().getState().getClass().getName().endsWith("CraftBlockState") 
-			// Not all blocks have that type of class, so we have to do some explicit checking...
-			|| e.getBlock().getType().equals(Material.REDSTONE_COMPARATOR_OFF) 
-			|| type.endsWith("BANNER") // Avoids V1.7 issues
-			|| e.getBlock().getType().equals(Material.ENDER_CHEST)
-			|| e.getBlock().getType().equals(Material.ENCHANTMENT_TABLE)
-			|| e.getBlock().getType().equals(Material.DAYLIGHT_DETECTOR)
-			|| e.getBlock().getType().equals(Material.FLOWER_POT)){
+		String type = e.getEntity().getType().toString();
+		if (e.getBlock().getType().equals(Material.ITEM_FRAME) || type.endsWith("BANNER")) { // Avoids V1.7 issues){
 		    // tile entity placed
 		    if (Settings.limitedBlocks.containsKey(type) && Settings.limitedBlocks.get(type) > -1) {
 			int count = island.getTileEntityCount(e.getBlock().getType());
@@ -1623,7 +1643,7 @@ public class IslandGuard implements Listener {
      * 
      * @param e
      */
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerInteract(final PlayerInteractEvent e) {
 	if (debug) {
 	    plugin.getLogger().info(e.getEventName());
@@ -1643,10 +1663,35 @@ public class IslandGuard implements Listener {
 	if (e.getClickedBlock() == null && (e.getMaterial() != null && plugin.getGrid().playerIsOnIsland(e.getPlayer()))) {
 	    return;
 	}
-	// Player is off island
-	// Check if player is at spawn
-	// prevent at spawn
+	// Get island
 	Island island = plugin.getGrid().getProtectedIslandAt(e.getPlayer().getLocation());
+	/* This doesn't work because this event is not called when an ender pearl is thrown
+	// Ender pearl check
+	if(e.getAction().equals(Action.RIGHT_CLICK_AIR) || e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+	    if(e.getPlayer().getItemInHand().getType().equals(Material.ENDER_PEARL)) {
+		if (island == null) {
+		    if (Settings.allowEnderPearls) {
+			return;
+		    }
+		} else {
+		    if (island.isSpawn()) {
+			if (Settings.allowEnderPearls) {
+			    return;
+			}
+		    } else {
+			// Regular island
+			if (island.getIgsFlag(Flags.allowEnderPearls)) {
+			    return;
+			}
+		    }	
+		}
+		e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
+		e.setCancelled(true);
+		return;
+	    }
+	}
+*/
+
 	// Check for disallowed clicked blocks
 	if (e.getClickedBlock() != null) {
 	    //plugin.getLogger().info("DEBUG: clicked block " + e.getClickedBlock());
@@ -2030,7 +2075,7 @@ public class IslandGuard implements Listener {
      * @param event
      */
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onEnderChestEvent(PlayerInteractEvent event) {
 	if (debug) {
 	    plugin.getLogger().info("Ender chest " + event.getEventName());
@@ -2064,6 +2109,10 @@ public class IslandGuard implements Listener {
 	}
 	if (p.isOp() || VaultHelper.checkPerm(p, Settings.PERMPREFIX + "mod.bypassprotect")) {
 	    // You can do anything if you are Op of have the bypass
+	    return;
+	}
+	// Leashes are dealt with elsewhere
+	if (p.getItemInHand() != null && p.getItemInHand().getType().equals(Material.LEASH)) {
 	    return;
 	}
 	Island island = plugin.getGrid().getProtectedIslandAt(e.getPlayer().getLocation());
@@ -2173,10 +2222,10 @@ public class IslandGuard implements Listener {
      * Pressure plates
      * @param e
      */
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlateStep(PlayerInteractEvent e) {
 	if (debug) {
-	    plugin.getLogger().info(e.getEventName());
+	    plugin.getLogger().info("pressure plate = " + e.getEventName());
 	}
 	if (!inWorld(e.getPlayer()) || !e.getAction().equals(Action.PHYSICAL)
 		|| e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
@@ -2193,6 +2242,9 @@ public class IslandGuard implements Listener {
 	//plugin.getLogger().info("DEBUG: " + Settings.allowSpawnPressurePlate);
 	//plugin.getLogger().info("DEBUG: " + plugin.getGrid().isAtSpawn(e.getPlayer().getLocation()));
 	if (island != null && Settings.allowSpawnPressurePlate && island.isSpawn()) {
+	    return;
+	}
+	if (island != null && !island.isSpawn() && island.getIgsFlag(Flags.allowPressurePlate)) {
 	    return;
 	}
 	// Block action
