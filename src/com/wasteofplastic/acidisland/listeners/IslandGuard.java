@@ -95,7 +95,7 @@ import com.wasteofplastic.acidisland.util.VaultHelper;
  */
 public class IslandGuard implements Listener {
     private final ASkyBlock plugin;
-    private final boolean debug = true;
+    private final boolean debug = false;
     private HashMap<UUID,Vector> onPlate = new HashMap<UUID,Vector>();
 
     public IslandGuard(final ASkyBlock plugin) {
@@ -2107,18 +2107,27 @@ public class IslandGuard implements Listener {
 		}
 		break;
 	    case ITEM_FRAME:
+		// This is to place or extract items from an item frame so it is governed by chest access
 	    case MINECART_CHEST:
 	    case MINECART_FURNACE:
 	    case MINECART_HOPPER:
-	    case MINECART_TNT:
+		//plugin.getLogger().info("Minecarts");
 		if (island == null && !Settings.allowChestAccess) {
 		    e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
 		    e.setCancelled(true);
 		}
-		if (island != null && !island.getIgsFlag(Flags.allowChestAccess)) {
-		    e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
-		    e.setCancelled(true);
+		if (island != null) {
+		    if (island.isSpawn()) {
+			if (!Settings.allowSpawnChestAccess) {
+			    e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
+			    e.setCancelled(true);
+			}
+		    } else if (!island.getIgsFlag(Flags.allowChestAccess)) {
+			e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
+			e.setCancelled(true);
+		    }
 		}
+		break;
 	    default:
 		break;
 	    }
