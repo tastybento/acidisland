@@ -83,9 +83,9 @@ import org.bukkit.util.Vector;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
-import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.SafeBoat;
 import com.wasteofplastic.acidisland.Settings;
+import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
@@ -365,6 +365,10 @@ public class IslandGuard implements Listener {
 	    return;
 	}
 	if (e.getPlayer().isInsideVehicle()) {
+	    return;
+	}
+	// Only do something if there is a definite x or z movement
+	if (e.getTo().getBlockX() - e.getFrom().getBlockX() == 0 && e.getTo().getBlockZ() - e.getFrom().getBlockZ() == 0) {
 	    return;
 	}
 	Island islandTo = plugin.getGrid().getProtectedIslandAt(e.getTo());
