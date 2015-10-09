@@ -137,6 +137,17 @@ public class ASkyBlock extends JavaPlugin {
     private SettingsPanel settingsPanel;
 
     /**
+     * Check if the island world is ready or not. Used by biomepanel to avoid chunk load issues when
+     * worlds are being created.
+     * @return true if world is ready, otherwise false
+     */
+    public static boolean getIslandWorldReady() {
+	if (islandWorld != null) {
+	    return true;
+	}
+	return false;
+    }
+    /**
      * Returns the World object for the island world named in config.yml.
      * If the world does not exist then it is created.
      * 
@@ -579,7 +590,7 @@ public class ASkyBlock extends JavaPlugin {
      */
     public void deletePlayerIsland(final UUID player, boolean removeBlocks) {
 	// Removes the island
-	// getLogger().info("DEBUG: deleting player island");
+	//getLogger().info("DEBUG: deleting player island");
 	CoopPlay.getInstance().clearAllIslandCoops(player);
 	getWarpSignsListener().removeWarp(player);
 	Island island = grid.getIsland(player);

@@ -1058,7 +1058,7 @@ public class GridManager {
      */
     public void homeSet(Player player, int number) {
 	// Check if player is in their home world
-	if (!player.getWorld().equals(plugin.getGrid().getIsland(player.getUniqueId()).getCenter().getWorld())) {
+	if (!player.getWorld().equals(plugin.getPlayers().getHomeLocation(player.getUniqueId()).getWorld())) {
 	    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).setHomeerrorNotOnIsland);
 	    return; 
 	}
@@ -1100,6 +1100,8 @@ public class GridManager {
 	if (island != null) {
 	    //plugin.getLogger().info("DEBUG: island here is " + island.getCenter());
 	    // On an island in the grid
+	    //plugin.getLogger().info("DEBUG: onIsland = " + island.onIsland(loc));
+	    //plugin.getLogger().info("DEBUG: members = " + island.getMembers());
 	    if (island.onIsland(loc) && island.getMembers().contains(player.getUniqueId())) {
 		//plugin.getLogger().info("DEBUG: allowed");
 		// In a protected zone but is on the list of acceptable players
@@ -1369,10 +1371,13 @@ public class GridManager {
 	// Teleport players away
 	for (Player player : plugin.getServer().getOnlinePlayers()) {
 	    if (island.inIslandSpace(player.getLocation())) {
+		//plugin.getLogger().info("DEBUG: in island space");
 		// Teleport island players to their island home
 		if (!player.getUniqueId().equals(uuid) && (plugin.getPlayers().hasIsland(player.getUniqueId()) || plugin.getPlayers().inTeam(player.getUniqueId()))) {
+		    //plugin.getLogger().info("DEBUG: home teleport");
 		    homeTeleport(player);
-		} else if (!player.getUniqueId().equals(uuid)) {
+		} else {
+		    //plugin.getLogger().info("DEBUG: move player to spawn");
 		    // Move player to spawn
 		    Island spawn = getSpawn();
 		    if (spawn != null) {

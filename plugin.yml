@@ -100,6 +100,9 @@ permissions:
           acidisland.craft.enderchest:
             description: Allow crafting and use of enderchests in acidisland
             default: false
+      acidisland.excludetopten:
+        description: Excludes player from top ten
+        default: false   
       acidisland.settings.*:
         children:
           acidisland.settings.allowAnvilUse:
@@ -235,9 +238,6 @@ permissions:
             default: op
           acidisland.mod.spy:
             description: Spy on team chats
-            default: false
-          acidisland.mod.excludetopten:
-            description: Exclude player from the top ten list
             default: false
           acidisland.mod.removesign:
             description: Gives ability to remove warp signs

@@ -43,7 +43,8 @@ public class LevelCalcByChunk {
 	// Get player's island
 	Island island = plugin.getGrid().getIsland(targetPlayer);
 	if (island != null) {
-	    World world = island.getCenter().getWorld();
+	    // Check if player's island world is the nether or overworld and adjust accordingly
+	    World world = plugin.getPlayers().getHomeLocation(targetPlayer).getWorld();
 	    // Get the chunks
 	    //long nano = System.nanoTime();
 	    Set<ChunkSnapshot> chunkSnapshot = new HashSet<ChunkSnapshot>();
@@ -167,7 +168,7 @@ public class LevelCalcByChunk {
 			    }
 			    //plugin.getLogger().info("DEBUG: updating top ten");
 			    // Only update top ten if the asker doesn't have this permission
-			    if (!(asker.getUniqueId().equals(targetPlayer) && asker.hasPermission(Settings.PERMPREFIX + "mod.excludetopten"))) {
+			    if (!(asker.getUniqueId().equals(targetPlayer) && asker.hasPermission(Settings.PERMPREFIX + "excludetopten"))) {
 				if (plugin.getPlayers().inTeam(targetPlayer)) {
 				    UUID leader = plugin.getPlayers().getTeamLeader(targetPlayer);
 				    if (leader != null) {

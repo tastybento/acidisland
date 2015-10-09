@@ -680,6 +680,13 @@ schematicsection:
       filename: temple.schematic
       # All the goodies are inside the schematic
       useDefaultChest: false
+      # Chest items defined here will override the default chest items if useDefaultChest
+      # is true.
+      # You can set the chest items here in this list
+      # Material:Qty, or Material:Data:Qty
+      #chestItems:
+      #- MELON:1
+      #- ICE:1
       # Biome can be set here
       biome: DESERT
       # If schematic should paste blocks without physics or not

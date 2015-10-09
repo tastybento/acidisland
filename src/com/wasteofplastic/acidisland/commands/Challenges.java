@@ -303,7 +303,7 @@ public class Challenges implements CommandExecutor, TabCompleter {
 	    if (Settings.broadcastMessages) {
 		for (Player p : plugin.getServer().getOnlinePlayers()) {
 		    p.sendMessage(
-			ChatColor.GOLD + plugin.myLocale(p.getUniqueId()).challengesnameHasCompleted.replace("[name]", player.getDisplayName()).replace("[challenge]", challengeName));
+			    ChatColor.GOLD + plugin.myLocale(p.getUniqueId()).challengesnameHasCompleted.replace("[name]", player.getDisplayName()).replace("[challenge]", challengeName));
 		}
 	    }
 	    plugin.getMessages().tellOfflineTeam(player.getUniqueId(),
@@ -692,7 +692,13 @@ public class Challenges implements CommandExecutor, TabCompleter {
 		return false;
 	    }
 	    if (!hasRequired(player, challenge, "island")) {
-		player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).challengeserrorNotCloseEnough);
+		int searchRadius = getChallengeConfig().getInt("challenges.challengeList." + challenge + ".searchRadius",10);
+		if (searchRadius < 10) {
+		    searchRadius = 10;
+		} else if (searchRadius > 50) {
+		    searchRadius = 50;
+		}
+		player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).challengeserrorNotCloseEnough.replace("[number]", String.valueOf(searchRadius)));
 		player.sendMessage(ChatColor.RED + getChallengeConfig().getString("challenges.challengeList." + challenge + ".description"));
 		return false;
 	    }
@@ -816,6 +822,10 @@ public class Challenges implements CommandExecutor, TabCompleter {
 			    for (Entry<Integer, ? extends ItemStack> en : player.getInventory().all(reqItem).entrySet()) {
 				// Get the item
 				ItemStack i = en.getValue();
+				// If the item is enchanted, skip - it doesn't count
+				if (i.hasItemMeta()) {
+				    continue;
+				}
 				// Map needs special handling because the
 				// durability increments every time a new one is
 				// made by the player
@@ -823,8 +833,8 @@ public class Challenges implements CommandExecutor, TabCompleter {
 				// in the same way, they need adding too...
 				if (i.getDurability() == 0 || (reqItem == Material.MAP && i.getType() == Material.MAP)) {
 				    // Clear any naming, or lore etc.
-				    i.setItemMeta(null);
-				    player.getInventory().setItem(en.getKey(), i);
+				    //i.setItemMeta(null);
+				    //player.getInventory().setItem(en.getKey(), i);
 				    // #1 item stack qty + amount is less than
 				    // required items - take all i
 				    // #2 item stack qty + amount = required
@@ -979,10 +989,13 @@ public class Challenges implements CommandExecutor, TabCompleter {
 			    for (Entry<Integer, ? extends ItemStack> en : player.getInventory().all(reqItem).entrySet()) {
 				// Get the item
 				ItemStack i = en.getValue();
+				if (i.hasItemMeta()) {
+				    continue;
+				}
 				if (i.getDurability() == reqDurability) {
 				    // Clear any naming, or lore etc.
-				    i.setItemMeta(null);
-				    player.getInventory().setItem(en.getKey(), i);
+				    //i.setItemMeta(null);
+				    // player.getInventory().setItem(en.getKey(), i);
 				    // #1 item stack qty + amount is less than
 				    // required items - take all i
 				    // #2 item stack qty + amount = required
@@ -1246,9 +1259,16 @@ public class Challenges implements CommandExecutor, TabCompleter {
 	    final int px = l.getBlockX();
 	    final int py = l.getBlockY();
 	    final int pz = l.getBlockZ();
-	    for (int x = -10; x <= 10; x++) {
-		for (int y = -10; y <= 10; y++) {
-		    for (int z = -10; z <= 10; z++) {
+	    // Get search radius - min is 10, max is 50
+	    int searchRadius = getChallengeConfig().getInt("challenges.challengeList." + challenge + ".searchRadius",10);
+	    if (searchRadius < 10) {
+		searchRadius = 10;
+	    } else if (searchRadius > 50) {
+		searchRadius = 50;
+	    }
+	    for (int x = -searchRadius; x <= searchRadius; x++) {
+		for (int y = -searchRadius; y <= searchRadius; y++) {
+		    for (int z = -searchRadius; z <= searchRadius; z++) {
 			final Material b = new Location(l.getWorld(), px + x, py + y, pz + z).getBlock().getType();
 			if (neededItem.containsKey(b)) {
 			    if (neededItem.get(b) == 1) {
@@ -1497,7 +1517,7 @@ public class Challenges implements CommandExecutor, TabCompleter {
 		plugin.getLogger().warning("Format should be 'icon: MaterialType:Damage' where Damage is optional");
 	    }
 	}
-	if (icon == null || icon.equals(Material.AIR)) {
+	if (icon == null || icon.getType() == Material.AIR) {
 	    icon = new ItemStack(Material.PAPER);
 	}
 	String description = ChatColor.GREEN
