@@ -103,6 +103,9 @@ permissions:
       acidisland.excludetopten:
         description: Excludes player from top ten
         default: false   
+      acidisland.nohunger:
+        description: Excludes player from hunger if on island
+        default: false   
       acidisland.settings.*:
         children:
           acidisland.settings.allowAnvilUse:

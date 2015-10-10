@@ -72,7 +72,7 @@ public class PlayerEvents implements Listener {
 	if (debug) {
 	    plugin.getLogger().info(e.getEventName());
 	}
-	if (e.getEntity().hasPermission("askyblock.nohunger")) {
+	if (e.getEntity().hasPermission(Settings.PERMPREFIX + "nohunger")) {
 		if(plugin.getGrid().playerIsOnIsland((Player) e.getEntity())) {
 			e.setCancelled(true);
 		}
