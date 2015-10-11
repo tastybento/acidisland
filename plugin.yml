@@ -247,6 +247,9 @@ permissions:
             default: false
       acidisland.admin.*:
         children:
+          acidisland.mod.clearresetall:
+            description: Allow clearing of island reset limit for all players
+            default: op
           acidisland.admin.reload:
             description: Reload the config.yml
             default: op
