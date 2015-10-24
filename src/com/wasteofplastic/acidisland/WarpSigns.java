@@ -189,7 +189,7 @@ public class WarpSigns implements Listener {
     /**
      * Saves the warp lists to file
      */
-    public void saveWarpList(boolean reloadPanel) {
+    public void saveWarpList() {
 	if (warpList == null || welcomeWarps == null) {
 	    return;
 	}
@@ -202,6 +202,7 @@ public class WarpSigns implements Listener {
 	Util.saveYamlFile(welcomeWarps, "warps.yml");
 	// Update the warp panel - needs to be done 1 tick later so that the sign
 	// text will be updated.
+	/*
 	if (reloadPanel) {
 	    // This is not done on shutdown
 	    if (Settings.useWarpPanel && plugin.getWarpPanel() != null) {
@@ -209,10 +210,10 @@ public class WarpSigns implements Listener {
 
 		    @Override
 		    public void run() {
-			plugin.getWarpPanel().updatePanel();
+			plugin.getWarpPanel().;
 		    }});
 	    }
-	}
+	}*/
 	//plugin.getLogger().info("End of saving warps");
     }
 
@@ -240,6 +241,17 @@ public class WarpSigns implements Listener {
 		    warpList.put(playerUUID, l);
 		} else {
 		    plugin.getLogger().warning("Warp at location " + temp.get(s) + " has no sign - removing.");
+		    // Test code
+		    /*
+		    warpList.put(playerUUID, l);
+		    b.getRelative(BlockFace.DOWN).setType(Material.DIRT);
+		    b.setType(Material.SIGN_POST);
+		    Sign sign = (Sign)b.getState();
+		    sign.setLine(0, ChatColor.GREEN + plugin.myLocale().warpswelcomeLine);
+		    sign.setLine(1, "test");
+		    sign.setLine(2, "Test 2");
+		    sign.update();
+		    */
 		}
 	    } catch (Exception e) {
 		plugin.getLogger().severe("Problem loading warp at location " + temp.get(s) + " - removing.");
@@ -254,7 +266,7 @@ public class WarpSigns implements Listener {
      * @param player
      * @param loc
      */
-    public boolean addWarp(UUID player, Location loc) {
+    public boolean addWarp(final UUID player, Location loc) {
 	// Do not allow warps to be in the same location
 	if (warpList.containsValue(loc)) {
 	    return false;
@@ -264,7 +276,17 @@ public class WarpSigns implements Listener {
 	    warpList.remove(player);
 	}
 	warpList.put(player, loc);
-	saveWarpList(true);
+	saveWarpList();
+	// Update warp signs
+	// Run one tick later because text gets updated at the end of tick
+	plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+
+	    @Override
+	    public void run() {
+		plugin.getWarpPanel().addWarp(player);
+		plugin.getWarpPanel().updatePanel();
+
+	    }});
 	return true;
     }
 
@@ -279,7 +301,16 @@ public class WarpSigns implements Listener {
 	    popSign(warpList.get(uuid));
 	    warpList.remove(uuid);
 	}
-	saveWarpList(true);
+	saveWarpList();
+	// Update warp signs
+	// Run one tick later because text gets updated at the end of tick
+	plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+
+	    @Override
+	    public void run() {
+		plugin.getWarpPanel().updatePanel();
+
+	    }});
     }
 
     /**
@@ -322,7 +353,8 @@ public class WarpSigns implements Listener {
 		it.remove();
 	    }
 	}
-	saveWarpList(true);
+	saveWarpList();
+	plugin.getWarpPanel().updatePanel();
     }
 
     /**
@@ -341,7 +373,13 @@ public class WarpSigns implements Listener {
 	// Bigger value of time means a more recent login
 	TreeMap<Long, UUID> map = new TreeMap<Long, UUID>();
 	for (UUID uuid : warpList.keySet()) {
-	    map.put(plugin.getServer().getOfflinePlayer(uuid).getLastPlayed(), uuid);
+	    // If never played, will be zero
+	    long lastPlayed = plugin.getServer().getOfflinePlayer(uuid).getLastPlayed();
+	    // This aims to avoid the chance that players logged off at exactly the same time
+	    if (!map.isEmpty() && map.containsKey(lastPlayed)) {
+		lastPlayed = map.firstKey() - 1;
+	    }
+	    map.put(lastPlayed, uuid);
 	}
 	Collection<UUID> result = map.descendingMap().values();
 	// Fire event

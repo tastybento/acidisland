@@ -24,6 +24,7 @@ commands:
             /challenge
 permissions:    
   acidisland.*:
+    default: false
     children:
       acidisland.island.*:
         children:
@@ -92,6 +93,22 @@ permissions:
           acidisland.team.chat:
             description: Allow player to use team chat
             default: true
+      acidisland.command.*:
+        description: Event commands will not be run for players with this perm
+        default: false
+        children:
+          acidisland.command.resetexempt:
+            description: Player is exempt from commands run when island resets
+            default: false
+          acidisland.command.leaveexempt:
+            description: Player is exempt from commands run when they leave or are kicked. Note will not help if player is offline.
+            default: false
+          acidisland.command.newexempt:
+            description: Player is exempt from commands run when starting an island
+            default: false
+          acidisland.command.challengeexempt:
+            description: Player is exempt from commands run when a challenge is completed
+            default: false
       acidisland.coop:
         description: Allows player to use the coop command
         default: false    

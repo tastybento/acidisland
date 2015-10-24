@@ -55,7 +55,6 @@ import org.bukkit.util.BlockIterator;
 
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
-import com.google.common.io.Files;
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.CoopPlay;
 import com.wasteofplastic.acidisland.DeleteIslandChunk;
