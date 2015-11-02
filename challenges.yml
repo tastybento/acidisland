@@ -27,6 +27,9 @@
 #      - heal [player]
 #      - warp winner_circle [player]
 # If a command fails, it will be noted in the console.
+# Reseting islands and challenges - usually challenges are reset when a player resets
+# their island (see resetchallenges in config.yml). You can stop some challenges from
+# being reset by using resetallowed:false in the challenge.
 ##########################################################################################
 
 challenges:
@@ -123,6 +126,10 @@ challenges:
       #  - vanish [player] <--- this is totally silly, just an example!
       # Max times limits how many times a challenge can be done. Comment out to make unlimited
       maxtimes: 100
+      # Allow this challenge to reset when the player resets their island
+      # Default is true. Set to false to keep this challenge completed.
+      # Admins can always reset challenges even if this is set to false.
+      resetallowed: true
     breadmaker:
       friendlyname: 'Bread Maker'
       description: 'Bake 21 loaves of bread'
@@ -245,7 +252,7 @@ challenges:
       maxtimes: 100
     builder:
       friendlyname: 'Builder'
-      description: 'Reach island level 10 (/island level).'
+      description: 'Reach island level 10 (/[label] level).'
       icon: WOOD
       level: 'Novice'
       type: level
@@ -357,7 +364,7 @@ challenges:
       repeatExpReward: 15
     craftsman:
       friendlyname: 'Craftsman'
-      description: 'Reach island level 75 (/island level).'
+      description: 'Reach island level 75 (/[label] level).'
       icon: IRON_BLOCK
       level: 'Competent'
       type: level
@@ -495,7 +502,7 @@ challenges:
       maxtimes: 100
     mason:
       friendlyname: 'Mason'
-      description: 'Reach island level 150 (/island level).'
+      description: 'Reach island level 150 (/[label] level).'
       icon: GOLD_BLOCK
       level: 'Expert'
       type: level

@@ -34,6 +34,7 @@ import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.CoopPlay;
 import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.LevelCalc;
+import com.wasteofplastic.acidisland.LevelCalcByChunk;
 import com.wasteofplastic.acidisland.PlayerCache;
 import com.wasteofplastic.acidisland.Scoreboards;
 import com.wasteofplastic.acidisland.Settings;
@@ -146,7 +147,8 @@ public class JoinLeaveEvents implements Listener {
 		    // We have a mismatch - correct in favor of the player info
 		    //plugin.getLogger().info("DEBUG: getIslandLoc is null but there is a player listing");
 		    plugin.getLogger().warning(player.getName() + " login: mismatch - player.yml and islands.yml are out of sync. Fixing...");
-		    plugin.getGrid().deleteIsland(islandByOwner.getCenter());
+		    // Cannot delete by location
+		    plugin.getGrid().deleteIslandOwner(playerUUID);
 		    plugin.getGrid().addIsland(loc.getBlockX(), loc.getBlockZ(), leader);
 		}
 	    } else {
@@ -173,11 +175,15 @@ public class JoinLeaveEvents implements Listener {
 	}
 	// Run the level command if it's free to do so
 	if (Settings.loginLevel) {
-	    if (!plugin.isCalculatingLevel()) {
-		// This flag is true if the command can be used
-		plugin.setCalculatingLevel(true);
-		LevelCalc levelCalc = new LevelCalc(plugin, playerUUID, player, true);
-		levelCalc.runTaskTimer(plugin, 0L, 10L);
+	    if (Settings.fastLevelCalc) {
+		new LevelCalcByChunk(plugin, playerUUID, player, true);
+	    } else {
+		if (!plugin.isCalculatingLevel()) {
+		    // This flag is true if the command can be used
+		    plugin.setCalculatingLevel(true);
+		    LevelCalc levelCalc = new LevelCalc(plugin, playerUUID, player, true);
+		    levelCalc.runTaskTimer(plugin, 0L, 10L);
+		}
 	    }
 	}
 

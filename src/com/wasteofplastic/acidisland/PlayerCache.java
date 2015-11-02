@@ -378,9 +378,25 @@ public class PlayerCache {
 	playerCache.get(playerUUID).resetChallenge(challenge);
     }
 
-    public void resetAllChallenges(UUID playerUUID) {
+    /**
+     * Resets all the player's challenges. If the boolean is true, then everything will be reset, if false
+     * challenges that have the "resetallowed: false" flag in challenges.yml will not be reset
+     * @param playerUUID
+     * @param resetAll
+     */
+    public void resetAllChallenges(UUID playerUUID, boolean resetAll) {
 	addPlayer(playerUUID);
-	playerCache.get(playerUUID).resetAllChallenges();
+	if (resetAll) {
+	    playerCache.get(playerUUID).resetAllChallenges();
+	} else {
+	    // Look through challenges and check them
+	    for (String challenge: plugin.getChallenges().getAllChallenges()) {
+		// Check for the flag
+		if (plugin.getChallenges().resetable(challenge)) {
+		    playerCache.get(playerUUID).resetChallenge(challenge);
+		}
+	    }
+	}
     }
 
     public void setJoinTeam(UUID playerUUID, UUID teamLeader, Location islandLocation) {
@@ -763,5 +779,25 @@ public class PlayerCache {
 	for (Players player : playerCache.values()) {
 	    player.setResetsLeft(resetLimit);
 	}	
+    }
+
+    /**
+     * Sets whether the player uses the control panel or not when doing /island
+     * @param b
+     */
+    public void setControlPanel(UUID playerUUID, boolean b) {
+	addPlayer(playerUUID);
+	playerCache.get(playerUUID).setControlPanel(b);
+	
+    }
+    
+    /**
+     * Sets whether the player uses the control panel or not when doing /island
+     * @param b
+     */
+    public boolean getControlPanel(UUID playerUUID) {
+	addPlayer(playerUUID);
+	return playerCache.get(playerUUID).getControlPanel();
+	
     }
 }
