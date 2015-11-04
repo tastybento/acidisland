@@ -460,7 +460,7 @@ warps:
   removed: "Placa de boas-vindas removida!"
   signRemoved: "Sua placa de boas-vindas foi removida!"
   success: "Placa de boas-vindas colocada com sucesso!"
-  title: "Warps para as ilhas"  
+  title: "&eWarps para as ilhas"  
   warpTip: "Para criar um ponto de warp, basta colocar uma placa com [Bem-vindo] na primeira linha."
   warpToPlayersSign: "Fazer warp para a placa de boas-vindas do jogador <player>."
   warpsAvailable: "Os seguintes pontos de warp estão disponíveis"

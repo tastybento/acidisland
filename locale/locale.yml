@@ -460,7 +460,7 @@ warps:
   removed: "Welcome sign removed!"
   signRemoved: "Your welcome sign was removed!"
   success: "Welcome sign placed successfully!"
-  title: "Island warps"
+  title: "&eIsland warps"
   warpTip: "Create a warp by placing a sign with [WELCOME] at the top."
   warpToPlayersSign: "Warping to <player>'s welcome sign."
   warpsAvailable: "The following warps are available"

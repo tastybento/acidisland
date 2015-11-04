@@ -462,7 +462,7 @@ warps:
   removed: "Insel-Warp-Schild entfernt!"
   signRemoved: "Dein Insel-Warp-Schild wurde entfernt!"
   success: "Insel-Warp-Schild erfolgreich erstellt!"
-  title: "Insel Warps"
+  title: "&eInsel Warps"
   warpTip: "&aErstelle ein Warp-Schild mit &c[WELCOME] &ain der obersten Zeile."
   warpToPlayersSign: "Teleportiert dich zum Insel-Warp von: <player>."
   warpsAvailable: "Folgende Insel-Warps sind verfügbar"

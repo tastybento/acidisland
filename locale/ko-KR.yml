@@ -450,7 +450,7 @@ warps:
   removed: "환영 표지판 제거!"
   signRemoved: "환영 표지판이 제거되었습니다!"
   success: "성공적으로 환영 표지판을 설치했습니다!"
-  title: "섬 워프"
+  title: "&e섬 워프"
   warpTip: "표지판 첫째줄에 [WELCOME] 이라 적고 설치해 워프를 만드세요."
   warpToPlayersSign: "<player> 의 환영 표지판으로 순간이동합니다."
   warpsAvailable: "다음 워프들은 사용가능합니다"

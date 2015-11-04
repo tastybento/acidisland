@@ -329,6 +329,7 @@ warps:
   removed: "Uvitacia cedulka bola vymazana!"
   signRemoved: "Vasa uvitacia cedulka bola znicena!"
   success: "Uvitacia cedulka bola vytvorena spravne!"
+  title: "&eIsland warps"
   warpTip: "Vytvor si warp pomocou cedulky a textu [WELCOME] na prvom riadku."
   warpToPlayersSign: "Warp k uvitacej cedulke hraca <player>."
   warpsAvailable: "Nasledovne warpy su povolene"

@@ -332,6 +332,7 @@ warps:
   removed: "Cedulka WELCOME byla odstranena!"
   signRemoved: "Tvoje cedulka WELCOME byla odstranena!"
   success: "Cedulka WELCOME umistena uspesne!"
+  title: "&eIsland warps"
   warpTip: "Create a warp by placing a sign with [WELCOME] at the top."
   warpToPlayersSign: "Warp k <player> WELCOME cedulce."
   warpsAvailable: "Nasledujici warpy jsou dostupne"

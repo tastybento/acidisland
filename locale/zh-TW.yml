@@ -338,6 +338,7 @@ warps:
   removed: "&c&l傳送點已經移除!"
   signRemoved: "&c&l你的島嶼傳送點已經移除!"
   success: "&b&l空島傳送點成功創建!"
+  title: "&eIsland warps"
   warpTip: "放置一個木牌,並且在木牌的第一行輸入&b[WELCOME]&e以設置一個島嶼傳送點."
   warpToPlayersSign: "傳送到玩家: &b<player>&e的島嶼傳送點."
   warpsAvailable: 以下的傳送點可用

@@ -459,7 +459,7 @@ warps:
   removed: "Cartel de bienvenida eliminado!"
   signRemoved: "Tu cartel de bienvenida fue eliminado!"
   success: "Cartel de bienvenida puesto!"
-  title: "Warps de Isla"
+  title: "&eWarps de Isla"
   warpTip: "Crea un warp poniendo un cartel con [WELCOME] al inicio."
   warpToPlayersSign: "Teletransportar al cartel de bienvenida de <jugador>."
   warpsAvailable: "Los siguentes warps están disponibles"

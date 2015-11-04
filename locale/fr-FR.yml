@@ -439,7 +439,7 @@ warps:
   removed: "Panneau de bienvenue supprimé !"
   signRemoved: "Votre panneau de bienvenue a été détruit !"
   success: "Panneau de bienvenue créé !"
-  title: "Téléportations des îles"
+  title: "&eTéléportations des îles"
   warpTip: "Créez un panneau [WELCOME] sur la première ligne pour créer un warp. Placez du texte en dessous pour une description."
   warpToPlayersSign: "Vous téléporte au panneau de bienvenue du joueur."
   warpsAvailable: "Les warps suivants sont disponibles"

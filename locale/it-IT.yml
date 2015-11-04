@@ -288,6 +288,7 @@ warps:
   removed: "Cartello [WELCOME] rimosso!"
   signRemoved: "Il tuo cartello [WELCOME] è stato rimosso!"
   success: "Cartello [WELCOME] settato!"
+  title: "&eOrditi isola"
   warpTip: "Crea un warp piazzando il cartello con scritto [WELCOME] nella prima riga."
   warpToPlayersSign: "Ti trasporta dal cartello [WELCOME] di <player>."
   warpsAvailable: "I seguenti warp sono disponibili"
