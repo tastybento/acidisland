@@ -510,7 +510,9 @@ public class PlayerCache {
 	playerCache.get(uniqueId).setPlayerN(name);
 	// Save the name in the name database. Note that the old name will still work until someone takes it
 	// This feature enables admins to locate 'fugitive' players even if they change their name
-	plugin.getTinyDB().savePlayerName(name, uniqueId);
+	if (plugin.getTinyDB().isDbReady()) {
+	    plugin.getTinyDB().savePlayerName(name, uniqueId);
+	}
     }
 
     /**
