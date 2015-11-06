@@ -391,7 +391,7 @@ warps:
   removed: §c传送点已经移除!
   signRemoved: §c你的岛屿传送点已经移除!
   success: §a空岛传送点成功创建!
-  title: §b岛屿传送点
+  title: §e岛屿传送点
   warpTip: "§e放置一个木牌,并且在木牌的第一行输入§b[传送点]§e以设置一个岛屿传送点."
   warpToPlayersSign: "§e传送到玩家: §b<player>§e的岛屿传送点."
   warpsAvailable: §a以下的传送点可用
