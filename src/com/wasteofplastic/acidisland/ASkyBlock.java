@@ -301,12 +301,15 @@ public class ASkyBlock extends JavaPlugin {
 	if (Bukkit.getWorld(Settings.worldName) == null) {
 	    islandWorld = WorldCreator.name(Settings.worldName).type(WorldType.FLAT).environment(World.Environment.NORMAL).createWorld();
 	}*/
+	// Get challenges
+	challenges = new Challenges(this);
 	// Set and make the player's directory if it does not exist and then
 	// load players into memory
 	playersFolder = new File(getDataFolder() + File.separator + "players");
 	if (!playersFolder.exists()) {
 	    playersFolder.mkdir();
 	}
+	players = new PlayerCache(this);
 	// Set up commands for this plugin
 	islandCmd = new IslandCmd(this);
 	if (Settings.GAMETYPE.equals(Settings.GameType.ASKYBLOCK)) {
@@ -354,24 +357,6 @@ public class ASkyBlock extends JavaPlugin {
 		// Create the world if it does not exist. This is run after the
 		// server starts.
 		getIslandWorld();
-		// Load warps
-		getWarpSignsListener().loadWarpList();
-		// Load the warp panel
-		if (Settings.useWarpPanel) {
-		    warpPanel = new WarpPanel(plugin);
-		    getServer().getPluginManager().registerEvents(warpPanel, plugin);
-		}
-		// Minishop - must wait for economy to load before we can use
-		// econ
-		getServer().getPluginManager().registerEvents(new ControlPanel(plugin), plugin);
-		// Settings
-		settingsPanel = new SettingsPanel(plugin);
-		getServer().getPluginManager().registerEvents(settingsPanel, plugin);
-		// Biomes
-		// Load Biomes
-		biomes = new BiomesPanel(plugin);
-		getServer().getPluginManager().registerEvents(biomes, plugin);
-
 		// Try to register Herochat
 		if (Bukkit.getServer().getPluginManager().isPluginEnabled("Herochat")) {
 		    getServer().getPluginManager().registerEvents(new HeroChatListener(plugin), plugin);
@@ -404,6 +389,24 @@ public class ASkyBlock extends JavaPlugin {
 			if (grid == null) {
 			    grid = new GridManager(plugin);
 			}
+			// Load warps
+			getWarpSignsListener().loadWarpList();
+			// Load the warp panel
+			if (Settings.useWarpPanel) {
+			    warpPanel = new WarpPanel(plugin);
+			    getServer().getPluginManager().registerEvents(warpPanel, plugin);
+			}
+			// Minishop - must wait for economy to load before we can use
+			// econ
+			getServer().getPluginManager().registerEvents(new ControlPanel(plugin), plugin);
+			// Settings
+			settingsPanel = new SettingsPanel(plugin);
+			getServer().getPluginManager().registerEvents(settingsPanel, plugin);
+			// Biomes
+			// Load Biomes
+			biomes = new BiomesPanel(plugin);
+			getServer().getPluginManager().registerEvents(biomes, plugin);
+
 			TopTen.topTenLoad();
 			if (tinyDB == null) {
 			    tinyDB = new TinyDB(plugin);
@@ -620,9 +623,10 @@ public class ASkyBlock extends JavaPlugin {
      * @return the challenges
      */
     public Challenges getChallenges() {
+	/*
 	if (challenges == null) {
 	    challenges = new Challenges(this);
-	}
+	}*/
 	return challenges;
     }
 
@@ -635,9 +639,10 @@ public class ASkyBlock extends JavaPlugin {
      * @return the grid
      */
     public GridManager getGrid() {
+	/*
 	if (grid == null) {
 	    grid = new GridManager(this);
-	}
+	}*/
 	return grid;
     }
 
@@ -645,9 +650,10 @@ public class ASkyBlock extends JavaPlugin {
      * @return the players
      */
     public PlayerCache getPlayers() {
+	/*
 	if (players == null) {
 	    players = new PlayerCache(this);
-	}
+	}*/
 	return players;
     }
 
@@ -1557,9 +1563,6 @@ public class ASkyBlock extends JavaPlugin {
      * @return the nameDB
      */
     public TinyDB getTinyDB() {
-	if (tinyDB == null) {
-	    tinyDB = new TinyDB(this);
-	}
 	return tinyDB;
     }
 

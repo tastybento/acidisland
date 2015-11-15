@@ -464,11 +464,11 @@ public class PlayerCache {
     public void save(UUID playerUUID) {
 	playerCache.get(playerUUID).save();
 	// Save the name + UUID in the database if it ready
-	if (plugin.getTinyDB().isDbReady()) {
+	if (plugin.getTinyDB() != null && plugin.getTinyDB().isDbReady()) {
 	    plugin.getTinyDB().savePlayerName(playerCache.get(playerUUID).getPlayerName(), playerUUID);
 	}
     }
-    
+
     public void completeChallenge(UUID playerUUID, String challenge) {
 	addPlayer(playerUUID);
 	playerCache.get(playerUUID).completeChallenge(challenge);
@@ -494,7 +494,7 @@ public class PlayerCache {
 	    }
 	}
 	// Look in the database if it ready
-	if (plugin.getTinyDB().isDbReady()) {
+	if (plugin.getTinyDB() != null && plugin.getTinyDB().isDbReady()) {
 	    return plugin.getTinyDB().getPlayerUUID(string);
 	}
 	return null;
@@ -510,7 +510,7 @@ public class PlayerCache {
 	playerCache.get(uniqueId).setPlayerN(name);
 	// Save the name in the name database. Note that the old name will still work until someone takes it
 	// This feature enables admins to locate 'fugitive' players even if they change their name
-	if (plugin.getTinyDB().isDbReady()) {
+	if (plugin.getTinyDB() != null && plugin.getTinyDB().isDbReady()) {
 	    plugin.getTinyDB().savePlayerName(name, uniqueId);
 	}
     }
@@ -790,9 +790,9 @@ public class PlayerCache {
     public void setControlPanel(UUID playerUUID, boolean b) {
 	addPlayer(playerUUID);
 	playerCache.get(playerUUID).setControlPanel(b);
-	
+
     }
-    
+
     /**
      * Sets whether the player uses the control panel or not when doing /island
      * @param b
@@ -800,6 +800,6 @@ public class PlayerCache {
     public boolean getControlPanel(UUID playerUUID) {
 	addPlayer(playerUUID);
 	return playerCache.get(playerUUID).getControlPanel();
-	
+
     }
 }
