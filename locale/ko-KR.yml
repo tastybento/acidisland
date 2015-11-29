@@ -150,7 +150,7 @@ challenges:
   erroryouaremissing: "당신은 손실되었습니다"
   expReward: "경험치 보상"
   firstTimeRewards: "첫번째 보상(들)"
-  guititle: "스카이블록 도전과제"
+  guititle: "Acidisland 도전"
   help1: "/c <도전과제> 을 입력해 특정 도전 과제 정보를 봅니다."
   help2: "/c complete <도전과제> 을 입력해 도전과제 완료를 시도합니다."
   incomplete: "미완료"
