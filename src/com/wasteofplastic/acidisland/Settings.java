@@ -36,9 +36,9 @@ public class Settings {
     // Constants
     // Game Type ASKYBLOCK or ACIDISLAND
     public enum GameType {
-	ASKYBLOCK, ACIDISLAND
+        ASKYBLOCK, ACIDISLAND
     }
-    
+    /*
     public final static GameType GAMETYPE = GameType.ACIDISLAND;
     // The spawn command (Essentials spawn for example)
     public final static String SPAWNCOMMAND = "spawn";
@@ -50,7 +50,7 @@ public class Settings {
     public static final String CHALLENGECOMMAND = "aic";
     // Admin command
     public static final String ADMINCOMMAND = "acid";
-    /*
+     */
     public final static GameType GAMETYPE = GameType.ASKYBLOCK;
     // Permission prefix
     public final static String PERMPREFIX = "askyblock.";
@@ -62,7 +62,7 @@ public class Settings {
     public final static String SPAWNCOMMAND = "spawn";
     // Admin command
     public static final String ADMINCOMMAND = "asadmin";
-   */
+
     public static Set<String> challengeList;
     public static int waiverAmount;
     public static List<String> challengeLevels;
@@ -106,7 +106,7 @@ public class Settings {
     public static boolean allowNetherPvP;
     public static boolean allowRedStone;
     public static boolean allowShearing;
-    
+
     // System settings
     public static boolean allowChestDamage;
     public static boolean allowCreeperDamage;
@@ -173,6 +173,13 @@ public class Settings {
     public static boolean allowSpawnPressurePlate;
     public static boolean allowSpawnVisitorItemDrop;
     public static boolean allowSpawnVisitorItemPickup;
+    public static boolean allowSpawnArmorStandUse;
+    public static boolean allowSpawnBedUse;
+    public static boolean allowSpawnBreeding;
+    public static boolean allowSpawnCropTrample;
+    public static boolean allowSpawnEnderPearls;
+    public static boolean allowSpawnLeashUse;
+    public static boolean allowSpawnShearing;
 
     // Levels
     public static HashMap<MaterialData, Integer> blockLimits;
@@ -256,7 +263,8 @@ public class Settings {
     public static HashMap<String,Integer> limitedBlocks;
     public static long pvpRestartCooldown;
     public static long backupDuration;
-    
-    
+
+
+
 
 }
