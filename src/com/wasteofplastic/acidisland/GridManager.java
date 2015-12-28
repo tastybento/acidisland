@@ -21,12 +21,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -388,24 +390,48 @@ public class GridManager {
         saveGrid();
     }
 
+    /**
+     * Saves the grid asynchronously
+     */
     public void saveGrid() {
-        final File islandFile = new File(plugin.getDataFolder(), "islands.yml");
-        YamlConfiguration islandYaml = new YamlConfiguration();
-        List<String> islandList = new ArrayList<String>();
-        for (int x : islandGrid.keySet()) {
-            for (int z : islandGrid.get(x).keySet()) {
-                Island island = islandGrid.get(x).get(z);
-                islandList.add(island.save());
+        saveGrid(true);
+    }
+    
+    /**
+     * Saves the grid. Option to save sync or async.
+     * Asymc cannot be used when disabling the plugin
+     * @param async
+     */
+    public void saveGrid(boolean async) {
+	final File islandFile = new File(plugin.getDataFolder(), "islands.yml");
+	final YamlConfiguration islandYaml = new YamlConfiguration();
+	List<String> islandList = new ArrayList<String>();
+	for (int x : islandGrid.keySet()) {
+	    for (int z : islandGrid.get(x).keySet()) {
+		Island island = islandGrid.get(x).get(z);
+		islandList.add(island.save());
+	    }
+	}
+	islandYaml.set(Settings.worldName, islandList);
+	// Save the file
+	if (async) {
+	Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+	public void run() {
+		try {
+		    islandYaml.save(islandFile);
+		} catch (Exception e) {
+		    plugin.getLogger().severe("Could not save islands.yml!");
+		    e.printStackTrace();
+		}}
+	  });
+	} else {
+	    try {
+                islandYaml.save(islandFile);
+            } catch (Exception e) {
+                plugin.getLogger().severe("Could not save islands.yml!");
+                e.printStackTrace();
             }
-        }
-        islandYaml.set(Settings.worldName, islandList);
-        // Save the file
-        try {
-            islandYaml.save(islandFile);
-        } catch (Exception e) {
-            plugin.getLogger().severe("Could not save islands.yml!");
-            e.printStackTrace();
-        }
+	}
     }
 
     /**
@@ -1434,6 +1460,13 @@ public class GridManager {
      * @param l
      */
     public void removeMobs(final Location l) {
+        //plugin.getLogger().info("DEBUG: removing mobs");
+        // Don't remove mobs if at spawn
+        if (this.isAtSpawn(l)) {
+            //plugin.getLogger().info("DEBUG: at spawn!");
+            return;
+        }
+
         final int px = l.getBlockX();
         final int py = l.getBlockY();
         final int pz = l.getBlockZ();
@@ -1442,8 +1475,17 @@ public class GridManager {
                 final Chunk c = l.getWorld().getChunkAt(new Location(l.getWorld(), px + x * 16, py, pz + z * 16));
                 if (c.isLoaded()) {
                     for (final Entity e : c.getEntities()) {
+                        //plugin.getLogger().info("DEBUG: " + e.getType());
+                        
                         if (e instanceof Monster && !Settings.mobWhiteList.contains(e.getType())) {
-                            e.remove();
+                            Monster monster = (Monster)e;
+                            //plugin.getLogger().info("DEBUG: monster found. custom name is '" + monster.getCustomName() + "'");
+                            //plugin.getLogger().info("DEBUG: remove when far away = " + monster.getRemoveWhenFarAway());
+
+                            // Don't remove if the monster has a name tag
+                            if (monster.getCustomName() == null || monster.getRemoveWhenFarAway()) {
+                                e.remove();
+                            }
                         }
                     }
                 }

@@ -38,7 +38,7 @@ public class Settings {
     public enum GameType {
         ASKYBLOCK, ACIDISLAND
     }
-    /*
+    
     public final static GameType GAMETYPE = GameType.ACIDISLAND;
     // The spawn command (Essentials spawn for example)
     public final static String SPAWNCOMMAND = "spawn";
@@ -50,7 +50,7 @@ public class Settings {
     public static final String CHALLENGECOMMAND = "aic";
     // Admin command
     public static final String ADMINCOMMAND = "acid";
-     */
+    /*
     public final static GameType GAMETYPE = GameType.ASKYBLOCK;
     // Permission prefix
     public final static String PERMPREFIX = "askyblock.";
@@ -62,7 +62,7 @@ public class Settings {
     public final static String SPAWNCOMMAND = "spawn";
     // Admin command
     public static final String ADMINCOMMAND = "asadmin";
-
+*/
     public static Set<String> challengeList;
     public static int waiverAmount;
     public static List<String> challengeLevels;
