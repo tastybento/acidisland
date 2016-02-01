@@ -123,6 +123,8 @@ public class Schematic {
     private Map<Byte, Rotation> rotationList = new HashMap<Byte, Rotation>();
     private List<IslandBlock> islandBlocks;
     private boolean pasteAir;
+    private int durability;
+    private int levelHandicap;
 
     public Schematic(ASkyBlock plugin) {
         this.plugin = plugin;
@@ -649,6 +651,13 @@ public class Schematic {
     }
 
     /**
+     * @return the durability of the icon
+     */
+    public int getDurability() {
+        return durability;
+    }
+
+    /**
      * @return the length
      */
     public short getLength() {
@@ -1138,6 +1147,10 @@ public class Schematic {
         this.heading = heading;
     }
 
+    public void setIcon(Material icon, int damage) {
+        this.icon = icon;
+        this.durability = damage;    
+    }
     /**
      * @param icon the icon to set
      */
@@ -1529,7 +1542,7 @@ public class Schematic {
      * @throws InvocationTargetException
      * @throws NoSuchMethodException
      */
-    private NMSAbstraction checkVersion() throws ClassNotFoundException, IllegalArgumentException,
+    public NMSAbstraction checkVersion() throws ClassNotFoundException, IllegalArgumentException,
     SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException,
     NoSuchMethodException {
         String serverPackageName = plugin.getServer().getClass().getPackage().getName();
@@ -1551,6 +1564,20 @@ public class Schematic {
         } else {
             throw new IllegalStateException("Class " + clazz.getName() + " does not implement NMSAbstraction");
         }
+    }
+
+    /**
+     * @return the levelHandicap
+     */
+    public int getLevelHandicap() {
+        return levelHandicap;
+    }
+
+    /**
+     * @param levelHandicap the levelHandicap to set
+     */
+    public void setLevelHandicap(int levelHandicap) {
+        this.levelHandicap = levelHandicap;
     }
 
 }

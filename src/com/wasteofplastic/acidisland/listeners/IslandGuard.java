@@ -105,6 +105,7 @@ public class IslandGuard implements Listener {
     private final static boolean DEBUG = false;
     private HashMap<UUID,Vector> onPlate = new HashMap<UUID,Vector>();
     private Set<Location> tntBlocks = new HashSet<Location>();
+    private Set<UUID> litCreeper = new HashSet<UUID>();
 
     public IslandGuard(final ASkyBlock plugin) {
         this.plugin = plugin;
@@ -327,31 +328,47 @@ public class IslandGuard implements Listener {
         if (islandTo !=null && islandFrom == null && (islandTo.getOwner() != null || islandTo.isSpawn())) {
             // Entering
             if (islandTo.isSpawn()) {
-                player.sendMessage(plugin.myLocale(player.getUniqueId()).lockEnteringSpawn);
+                if (!plugin.myLocale(player.getUniqueId()).lockEnteringSpawn.isEmpty()) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).lockEnteringSpawn);
+                }
             } else {
-                player.sendMessage(plugin.myLocale(player.getUniqueId()).lockNowEntering.replace("[name]", plugin.getPlayers().getName(islandTo.getOwner())));
+                if (!plugin.myLocale(player.getUniqueId()).lockNowEntering.isEmpty()) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).lockNowEntering.replace("[name]", plugin.getPlayers().getName(islandTo.getOwner())));
+                }
             }
         } else if (islandTo == null && islandFrom != null && (islandFrom.getOwner() != null || islandFrom.isSpawn())) {
             // Leaving
             if (islandFrom.isSpawn()) {
                 // Leaving
-                player.sendMessage(plugin.myLocale(player.getUniqueId()).lockLeavingSpawn);
+                if (!plugin.myLocale(player.getUniqueId()).lockLeavingSpawn.isEmpty()) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).lockLeavingSpawn);
+                }
             } else {
-                player.sendMessage(plugin.myLocale(player.getUniqueId()).lockNowLeaving.replace("[name]", plugin.getPlayers().getName(islandFrom.getOwner())));
+                if (!plugin.myLocale(player.getUniqueId()).lockNowLeaving.isEmpty()) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).lockNowLeaving.replace("[name]", plugin.getPlayers().getName(islandFrom.getOwner())));
+                }
             }
         } else if (islandTo != null && islandFrom !=null && !islandTo.equals(islandFrom)) {
             // Adjacent islands or overlapping protections
             if (islandFrom.isSpawn()) {
                 // Leaving
-                player.sendMessage(plugin.myLocale(player.getUniqueId()).lockLeavingSpawn);
+                if (!plugin.myLocale(player.getUniqueId()).lockLeavingSpawn.isEmpty()) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).lockLeavingSpawn);
+                }
             } else if (islandFrom.getOwner() != null){
-                player.sendMessage(plugin.myLocale(player.getUniqueId()).lockNowLeaving.replace("[name]", plugin.getPlayers().getName(islandFrom.getOwner())));
+                if (!plugin.myLocale(player.getUniqueId()).lockNowLeaving.isEmpty()) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).lockNowLeaving.replace("[name]", plugin.getPlayers().getName(islandFrom.getOwner())));
+                }
             }
             if (islandTo.isSpawn()) {
-                player.sendMessage(plugin.myLocale(player.getUniqueId()).lockEnteringSpawn);
-            } else if (islandTo.getOwner() != null){
-                player.sendMessage(plugin.myLocale(player.getUniqueId()).lockNowEntering.replace("[name]", plugin.getPlayers().getName(islandTo.getOwner())));
-            }    
+                if (!plugin.myLocale(player.getUniqueId()).lockEnteringSpawn.isEmpty()) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).lockEnteringSpawn);
+                }
+            } else if (islandTo.getOwner() != null) {
+                if (!plugin.myLocale(player.getUniqueId()).lockNowEntering.isEmpty()) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).lockNowEntering.replace("[name]", plugin.getPlayers().getName(islandTo.getOwner())));
+                }
+            }
         }	
     }
 
@@ -476,9 +493,13 @@ public class IslandGuard implements Listener {
                 e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).lockIslandLocked);
             }
             if (islandTo.isSpawn()) {
-                e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).lockEnteringSpawn);
+                if (!plugin.myLocale(e.getPlayer().getUniqueId()).lockEnteringSpawn.isEmpty()) {
+                    e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).lockEnteringSpawn);
+                }
             } else {
-                e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).lockNowEntering.replace("[name]", plugin.getPlayers().getName(islandTo.getOwner())));
+                if (!plugin.myLocale(e.getPlayer().getUniqueId()).lockNowEntering.isEmpty()) {
+                    e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).lockNowEntering.replace("[name]", plugin.getPlayers().getName(islandTo.getOwner())));
+                }
             }
             // Fire entry event
             final IslandEnterEvent event = new IslandEnterEvent(e.getPlayer().getUniqueId(), islandTo, e.getTo());
@@ -487,9 +508,13 @@ public class IslandGuard implements Listener {
             // Leaving
             if (islandFrom.isSpawn()) {
                 // Leaving
-                e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn);
+                if (!plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn.isEmpty()) {
+                    e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn);
+                }
             } else {
-                e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).lockNowLeaving.replace("[name]", plugin.getPlayers().getName(islandFrom.getOwner())));
+                if (!plugin.myLocale(e.getPlayer().getUniqueId()).lockNowLeaving.isEmpty()) {
+                    e.getPlayer().sendMessage(plugin.myLocale(e.getPlayer().getUniqueId()).lockNowLeaving.replace("[name]", plugin.getPlayers().getName(islandFrom.getOwner())));
+                }
             }
             // Fire exit event
             final IslandExitEvent event = new IslandExitEvent(e.getPlayer().getUniqueId(), islandFrom, e.getFrom());
@@ -768,6 +793,15 @@ public class IslandGuard implements Listener {
                             e.blockList().clear();
                         }
                     }
+                    // Check if this creeper was lit by a visitor
+                    if (litCreeper.contains(creeper.getUniqueId())) {
+                        if (DEBUG) {
+                            plugin.getLogger().info("DBEUG: preventing creeper from damaging");
+                        }
+                        litCreeper.remove(creeper.getUniqueId());
+                        e.setCancelled(true);
+                        return;
+                    }
                 }
                 if (!Settings.allowChestDamage) {
                     List<Block> toberemoved = new ArrayList<Block>();
@@ -878,6 +912,16 @@ public class IslandGuard implements Listener {
         }
     }
 
+/*    
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
+    public void onBlockBreakCheck(final BlockPhysicsEvent e) {
+        if (DEBUG) {
+            plugin.getLogger().info("DEBUG: check: " + e.getEventName());
+            plugin.getLogger().info("DEBUG: block is " + e.getBlock());
+        }
+    }
+*/    
+    
     /**
      * Prevents blocks from being broken
      * 
@@ -982,7 +1026,15 @@ public class IslandGuard implements Listener {
                     e.setCancelled(true);
                     return;
                 }
-            } 
+            }
+            // Check if this creeper was lit by a visitor
+            if (litCreeper.contains(creeper.getUniqueId())) {
+                if (DEBUG) {
+                    plugin.getLogger().info("DBEUG: preventing creeeper from damaging");
+                }
+                e.setCancelled(true);
+                return;
+            }
         }
         // Ops can do anything
         if (e.getDamager() instanceof Player) {
@@ -1045,8 +1097,22 @@ public class IslandGuard implements Listener {
                 return;
             }
             // Normal island check
-            if (Settings.allowHurtMonsters || island.getMembers().contains(attacker.getUniqueId())) {
+            if (island.getMembers().contains(attacker.getUniqueId())) {
                 // Members always allowed
+                return;
+            }
+            if (Settings.allowHurtMonsters) { 
+                // Check for visitors setting creepers alight using flint steel
+                if (!Settings.allowCreeperGriefing && e.getEntity() instanceof Creeper) {
+                    ItemStack holding = attacker.getItemInHand();
+                    if (holding != null && holding.getType().equals(Material.FLINT_AND_STEEL)) {
+                        // Save this creeper for later when any damage caused by its explosion will be nullified
+                        litCreeper.add(e.getEntity().getUniqueId());
+                        if (DEBUG) {
+                            plugin.getLogger().info("DBEUG: adding to lit creeper set");
+                        }
+                    }
+                }
                 return;
             }
             // Not allowed
@@ -1273,6 +1339,7 @@ public class IslandGuard implements Listener {
             if (e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")) {
                 return;
             }
+            //plugin.getLogger().info("DEBUG: checking is inside protection area");
             Island island = plugin.getGrid().getProtectedIslandAt(e.getBlock().getLocation());
             // Outside of island protection zone
             if (island == null) {
@@ -1322,6 +1389,7 @@ public class IslandGuard implements Listener {
     public void onPlayerBlockPlace(final BlockMultiPlaceEvent e) {
         if (DEBUG) {
             plugin.getLogger().info(e.getEventName());
+            plugin.getLogger().info("Block being placed " + e.getBlock());
         }
         // plugin.getLogger().info(e.getEventName());
         if (inWorld(e.getPlayer())) {
@@ -1372,7 +1440,7 @@ public class IslandGuard implements Listener {
             e.setCancelled(true);
         }
     }
-
+    
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerLeashHitch(final HangingPlaceEvent e) {
         if (DEBUG) {
@@ -1522,6 +1590,14 @@ public class IslandGuard implements Listener {
                         e.setCancelled(true);
                         return;
                     }
+                }
+                // Check if this creeper was lit by a visitor
+                if (litCreeper.contains(creeper.getUniqueId())) {
+                    if (DEBUG) {
+                        plugin.getLogger().info("DBEUG: preventing creeper from damaging");
+                    }
+                    e.setCancelled(true);
+                    return;
                 }
             }
             if (e.getRemover() instanceof Player) {
@@ -2173,7 +2249,8 @@ public class IslandGuard implements Listener {
         if (e.getMaterial() != null) {
             // This check protects against an exploit in 1.7.9 against cactus
             // and sugar cane
-            if (e.getMaterial() == Material.WOOD_DOOR) {
+            if (e.getMaterial() == Material.WOOD_DOOR || e.getMaterial() == Material.CHEST 
+                    || e.getMaterial() == Material.TRAPPED_CHEST || e.getMaterial() == Material.IRON_DOOR) {
                 e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
                 e.setCancelled(true);
                 e.getPlayer().updateInventory();
@@ -2333,6 +2410,19 @@ public class IslandGuard implements Listener {
                 }
             }
             switch (e.getRightClicked().getType()) {
+            case CREEPER:
+                // This seems to be called when the player is in Creative mode...
+                if (!Settings.allowCreeperGriefing) {
+                    ItemStack item = e.getPlayer().getItemInHand();
+                    if (item != null && item.getType().equals(Material.FLINT_AND_STEEL)) {
+                        if (!island.getMembers().contains(e.getPlayer().getUniqueId())) {
+                            // Visitor
+                            litCreeper.add(e.getRightClicked().getUniqueId());
+                            plugin.getLogger().info("DEBUG: visitor lit creeper");
+                        }
+                    }
+                }
+                break;
             case HORSE:
                 //plugin.getLogger().info("Horse riding");
                 if (island == null && !Settings.allowHorseRiding) {

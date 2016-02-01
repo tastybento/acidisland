@@ -297,10 +297,15 @@ public class IslandBlock {
     public void setSign(Map<String, Tag> tileData) {
         signText = new ArrayList<String>();
         List<String> text = new ArrayList<String>();
-        text.add(((StringTag) tileData.get("Text1")).getValue());
-        text.add(((StringTag) tileData.get("Text2")).getValue());
-        text.add(((StringTag) tileData.get("Text3")).getValue());
-        text.add(((StringTag) tileData.get("Text4")).getValue());
+        for (int i = 1; i < 5; i++) {
+            String line = ((StringTag) tileData.get("Text" + String.valueOf(i))).getValue();
+            // This value can actually be a string that says null sometimes.
+            if (line.equalsIgnoreCase("null")) {
+                line = "";
+            }
+            //System.out.println("DEBUG: line " + i + " = '"+ line + "' of length " + line.length());
+            text.add(line);
+        }
 
         JSONParser parser = new JSONParser();
         ContainerFactory containerFactory = new ContainerFactory(){

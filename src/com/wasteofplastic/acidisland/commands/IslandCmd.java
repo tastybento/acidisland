@@ -37,7 +37,6 @@ import java.util.UUID;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -286,16 +285,26 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         newSchem.setOrder(schemSection.getInt("schematics." + key + ".order", 0));
                         // Load the rest of the settings
                         // Icon
-                        try { 
+                        try {
+                                            
                             Material icon;
                             String iconString = schemSection.getString("schematics." + key + ".icon","MAP").toUpperCase();
-                            if (StringUtils.isNumeric(iconString)) {
+                            // Support damage values
+                            String[] split = iconString.split(":");                            
+                            if (StringUtils.isNumeric(split[0])) {
                                 icon = Material.getMaterial(Integer.parseInt(iconString));
                             } else {
-                                icon = Material.valueOf(iconString);
+                                icon = Material.valueOf(split[0]);
                             }
-                            newSchem.setIcon(icon);
+                            int damage = 0;
+                            if (split.length == 2) {
+                                if (StringUtils.isNumeric(split[1])) {
+                                   damage = Integer.parseInt(split[1]);
+                                }  
+                            }
+                            newSchem.setIcon(icon, damage);
                         } catch (Exception e) {
+                            //e.printStackTrace();
                             newSchem.setIcon(Material.MAP); 
                         }
                         // Friendly name
@@ -474,6 +483,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         } else {
                             // plugin.getLogger().info("No spawn block found");
                         }
+                        // Level handicap
+                        newSchem.setLevelHandicap(schemSection.getInt("schematics." + key + ".levelHandicap", 0));
+                        
                         // Store it
                         schematics.put(key, newSchem);
                         if (perm.isEmpty()) {
@@ -793,16 +805,16 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         // Show fancy titles!
         if (!plugin.myLocale(player.getUniqueId()).islandSubTitle.isEmpty()) {
             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
-                    "title " + player.getName() + " subtitle {text:\"" + plugin.myLocale(player.getUniqueId()).islandSubTitle + "\", color:blue}");
+                    "title " + player.getName() + " subtitle {text:\"" + plugin.myLocale(player.getUniqueId()).islandSubTitle + "\", color:" + plugin.myLocale(player.getUniqueId()).islandSubTitleColor + "}");
         }
         if (!plugin.myLocale(player.getUniqueId()).islandTitle.isEmpty()) {
             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
-                    "title " + player.getName() + " title {text:\"" + plugin.myLocale(player.getUniqueId()).islandTitle + "\", color:gold}");
+                    "title " + player.getName() + " title {text:\"" + plugin.myLocale(player.getUniqueId()).islandTitle + "\", color:" + plugin.myLocale(player.getUniqueId()).islandTitleColor + "}");
         }
         if (!plugin.myLocale(player.getUniqueId()).islandDonate.isEmpty() && !plugin.myLocale(player.getUniqueId()).islandURL.isEmpty()) {
             plugin.getServer().dispatchCommand(
                     plugin.getServer().getConsoleSender(),
-                    "tellraw " + player.getName() + " {text:\"" + plugin.myLocale(player.getUniqueId()).islandDonate + "\",color:aqua" + ",clickEvent:{action:open_url,value:\""
+                    "tellraw " + player.getName() + " {text:\"" + plugin.myLocale(player.getUniqueId()).islandDonate + "\",color:" + plugin.myLocale(player.getUniqueId()).islandDonateColor + ",clickEvent:{action:open_url,value:\""
                             + plugin.myLocale(player.getUniqueId()).islandURL + "\"}}");
         }
         // Run any commands that need to be run at the start
@@ -2257,7 +2269,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                                 if (perms.getPermission().startsWith(Settings.PERMPREFIX + "team.maxsize.")) {
                                                     // Prevent the situation where the player has 
                                                     String[] permSplit = perms.getPermission().split(Settings.PERMPREFIX + "team.maxsize.");
-                                                    if (permSplit.length == 2 && NumberUtils.isNumber(permSplit[1])) {
+                                                    if (permSplit.length == 2) {
                                                         try {
                                                             maxSize = Integer.valueOf(permSplit[1]);
                                                         } catch (Exception e) {
@@ -2874,6 +2886,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             plugin.getGrid().removePlayersFromIsland(oldIsland, player.getUniqueId());
             //plugin.getLogger().info("DEBUG Deleting old island");
             new DeleteIslandChunk(plugin, oldIsland);
+            //new DeleteIslandByBlock(plugin, oldIsland);
             // Fire event
             final IslandResetEvent event = new IslandResetEvent(player, oldIsland.getCenter());
             plugin.getServer().getPluginManager().callEvent(event);

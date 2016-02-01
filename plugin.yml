@@ -262,6 +262,9 @@ permissions:
           acidisland.mod.removesign:
             description: Gives ability to remove warp signs
             default: false
+          acidisland.mod.team:
+            description: Enables modification of teams via kick and add commands
+            default: false
       acidisland.admin.*:
         children:
           acidisland.mod.clearresetall:

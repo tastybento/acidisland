@@ -191,14 +191,14 @@ public class Challenges implements CommandExecutor, TabCompleter {
                     }
                 }
                 if (checkIfCanCompleteChallenge(player, cmd[1].toLowerCase())) {
-                    int oldLevel = levelDone(player);
+                    int oldLevel = getLevelDone(player);
                     giveReward(player, cmd[1].toLowerCase());
-                    int newLevel = levelDone(player);
+                    int newLevel = getLevelDone(player);
                     // Fire an event if they are different
                     //plugin.getLogger().info("DEBUG: " + oldLevel + " " + newLevel);
                     if (oldLevel < newLevel) {
-                        ChallengeLevelCompleteEvent event = new ChallengeLevelCompleteEvent(player, oldLevel, newLevel);
-                        plugin.getServer().getPluginManager().callEvent(event);
+                        // Update chat
+                        plugin.getChatListener().setPlayerChallengeLevel(player);
                         // Run commands and give rewards
                         //plugin.getLogger().info("DEBUG: old level = " + oldLevel + " new level = " + newLevel);
                         String level = Settings.challengeLevels.get(newLevel);
@@ -214,7 +214,7 @@ public class Challenges implements CommandExecutor, TabCompleter {
                             if (!rewardDesc.isEmpty()) {
                                 player.sendMessage(ChatColor.GOLD + plugin.myLocale(player.getUniqueId()).challengesrewards + ": " + ChatColor.WHITE + rewardDesc);
                             }
-                            giveItems(player, itemReward);
+                            List<ItemStack> rewardedItems = giveItems(player, itemReward);
                             double moneyReward = getChallengeConfig().getDouble("challenges.levelUnlock." + level + ".moneyReward", 0D);
                             int expReward = getChallengeConfig().getInt("challenges.levelUnlock." + level + ".expReward", 0);
                             if (expReward > 0) {
@@ -240,6 +240,10 @@ public class Challenges implements CommandExecutor, TabCompleter {
                             }
                             List<String> commands = getChallengeConfig().getStringList("challenges.levelUnlock." + level + ".commands");
                             runCommands(player,commands);
+                            // Fire event
+                            ChallengeLevelCompleteEvent event = new ChallengeLevelCompleteEvent(player, oldLevel, newLevel, rewardedItems);
+                            plugin.getServer().getPluginManager().callEvent(event);
+
                         }
                     }
                 }
@@ -255,16 +259,15 @@ public class Challenges implements CommandExecutor, TabCompleter {
      * @param player
      * @return level number
      */
-    private int levelDone(Player player) {
-        int level = 0;
-        int done = 0;
-        for (String levelName : Settings.challengeLevels) {
-            if (checkLevelCompletion(player, levelName) <= 0) {
-                level = (done + 1);
+    private int getLevelDone(Player player) {
+        //plugin.getLogger().info("DEBUG: checking level completed");
+        //plugin.getLogger().info("DEBUG: getting challenge level for " + player.getName());
+        for (int result = 0; result < Settings.challengeLevels.size(); result++) {
+            if (checkLevelCompletion(player, Settings.challengeLevels.get(result)) > 0) {
+                return result;
             }
-            done++;
         }
-        return level;
+        return (Math.max(0,Settings.challengeLevels.size()-1));
     }
 
     /**
@@ -339,7 +342,8 @@ public class Challenges implements CommandExecutor, TabCompleter {
             }
         }
         // Give items
-        if (!giveItems(player, itemRewards)) {
+        List<ItemStack> rewardedItems = giveItems(player, itemRewards);
+        if (rewardedItems == null) {
             return false;
         }
 
@@ -359,7 +363,7 @@ public class Challenges implements CommandExecutor, TabCompleter {
         plugin.getPlayers().completeChallenge(player.getUniqueId(), challenge);
         // }
         // Call the Challenge Complete Event
-        final ChallengeCompleteEvent event = new ChallengeCompleteEvent(player, challenge, permList, itemRewards, moneyReward, expReward, rewardText);
+        final ChallengeCompleteEvent event = new ChallengeCompleteEvent(player, challenge, permList, itemRewards, moneyReward, expReward, rewardText, rewardedItems);
         plugin.getServer().getPluginManager().callEvent(event);
         return true;
     }
@@ -399,7 +403,14 @@ public class Challenges implements CommandExecutor, TabCompleter {
         }
     }
 
-    private boolean giveItems(Player player, String[] itemRewards) {
+    /**
+     * Gives player the reward items. 
+     * @param player
+     * @param itemRewards
+     * @return List of ItemStacks that were given to the player or null if there was an error in the interpretation of the rewards
+     */
+    private List<ItemStack> giveItems(Player player, String[] itemRewards) {
+        List<ItemStack> rewardedItems = new ArrayList<ItemStack>();
         Material rewardItem;
         int rewardQty;
         // Build the item stack of rewards to give the player
@@ -413,7 +424,9 @@ public class Challenges implements CommandExecutor, TabCompleter {
                         rewardItem = Material.getMaterial(element[0].toUpperCase());
                     }
                     rewardQty = Integer.parseInt(element[1]);
-                    final HashMap<Integer, ItemStack> leftOvers = player.getInventory().addItem(new ItemStack[] { new ItemStack(rewardItem, rewardQty) });
+                    ItemStack item = new ItemStack(rewardItem, rewardQty);
+                    rewardedItems.add(item);
+                    final HashMap<Integer, ItemStack> leftOvers = player.getInventory().addItem(new ItemStack[] { item });
                     if (!leftOvers.isEmpty()) {
                         player.getWorld().dropItemNaturally(player.getLocation(), leftOvers.get(0));
                     }
@@ -453,7 +466,9 @@ public class Challenges implements CommandExecutor, TabCompleter {
                             plugin.getLogger().severe("Reward potion effect type in config.yml challenges is unknown - skipping!");
                         } else {
                             final Potion rewPotion = new Potion(PotionType.getByEffect(potionType));
-                            final HashMap<Integer, ItemStack> leftOvers = player.getInventory().addItem(new ItemStack[] { rewPotion.toItemStack(rewardQty) });
+                            ItemStack item = rewPotion.toItemStack(rewardQty);
+                            rewardedItems.add(item);
+                            final HashMap<Integer, ItemStack> leftOvers = player.getInventory().addItem(item);
                             if (!leftOvers.isEmpty()) {
                                 player.getWorld().dropItemNaturally(player.getLocation(), leftOvers.get(0));
                             }
@@ -461,8 +476,10 @@ public class Challenges implements CommandExecutor, TabCompleter {
                     } else {
                         // Normal item, not a potion
                         int rewMod = Integer.parseInt(element[1]);
+                        ItemStack item = new ItemStack(rewardItem, rewardQty, (short) rewMod);
+                        rewardedItems.add(item);
                         final HashMap<Integer, ItemStack> leftOvers = player.getInventory().addItem(
-                                new ItemStack[] { new ItemStack(rewardItem, rewardQty, (short) rewMod) });
+                                new ItemStack[] { item });
                         if (!leftOvers.isEmpty()) {
                             player.getWorld().dropItemNaturally(player.getLocation(), leftOvers.get(0));
                         }
@@ -502,7 +519,7 @@ public class Challenges implements CommandExecutor, TabCompleter {
                             plugin.getLogger().severe(materialList.substring(0, materialList.length() - 1));
                         }
                     }
-                    return false;
+                    return null;
                 }
             } else if (element.length == 6) {
                 //plugin.getLogger().info("DEBUG: 6 element reward");
@@ -539,7 +556,9 @@ public class Challenges implements CommandExecutor, TabCompleter {
                                 rewPotion.setSplash(true);
                             }
                             //plugin.getLogger().info("DEBUG: adding items!");
-                            final HashMap<Integer, ItemStack> leftOvers = player.getInventory().addItem(new ItemStack[] { rewPotion.toItemStack(rewardQty) });
+                            ItemStack item = rewPotion.toItemStack(rewardQty);
+                            rewardedItems.add(item);
+                            final HashMap<Integer, ItemStack> leftOvers = player.getInventory().addItem(item);
                             if (!leftOvers.isEmpty()) {
                                 player.getWorld().dropItemNaturally(player.getLocation(), leftOvers.get(0));
                             }
@@ -561,11 +580,11 @@ public class Challenges implements CommandExecutor, TabCompleter {
                         potionNames += p.toString() + ", ";
                     }
                     plugin.getLogger().severe(potionNames.substring(0, potionNames.length()-2));
-                    return false;
+                    return null;
                 }
             }
         }
-        return true;
+        return rewardedItems;
     }
 
     /**
@@ -1511,6 +1530,10 @@ public class Challenges implements CommandExecutor, TabCompleter {
                         iconName = "PUMPKIN";
                     } else if (iconName.equalsIgnoreCase("skull")) {
                         iconName = "SKULL_ITEM";
+                    } else if (iconName.equalsIgnoreCase("COCOA")) {
+                        iconName = "INK_SACK:3";
+                    } else if (iconName.equalsIgnoreCase("NETHER_WARTS")) {
+                        iconName = "NETHER_STALK";
                     }
                     if (StringUtils.isNumeric(iconName)) {
                         icon = new ItemStack(Integer.parseInt(iconName));
@@ -1810,5 +1833,18 @@ public class Challenges implements CommandExecutor, TabCompleter {
      */
     public boolean resetable(String challenge) {
         return getChallengeConfig().getBoolean("challenges.challengeList." + challenge + ".resetallowed", true);
+    }
+
+    /**
+     * Gets the name of the highest challenge level the player has completed
+     * @param player
+     * @return challenge level
+     */
+    public String getChallengeLevel(Player player) {
+        //plugin.getLogger().info("DEBUG: getting challenge level for " + player.getName());
+        if (Settings.challengeLevels.isEmpty()) {
+            return "";
+        }      
+        return Settings.challengeLevels.get(getLevelDone(player));
     }
 }

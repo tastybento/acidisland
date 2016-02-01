@@ -50,7 +50,7 @@ public class Settings {
     public static final String CHALLENGECOMMAND = "aic";
     // Admin command
     public static final String ADMINCOMMAND = "acid";
-    /*
+     /*
     public final static GameType GAMETYPE = GameType.ASKYBLOCK;
     // Permission prefix
     public final static String PERMPREFIX = "askyblock.";
@@ -263,6 +263,7 @@ public class Settings {
     public static HashMap<String,Integer> limitedBlocks;
     public static long pvpRestartCooldown;
     public static long backupDuration;
+    public static boolean cleanUpBlocks;
 
 
 
