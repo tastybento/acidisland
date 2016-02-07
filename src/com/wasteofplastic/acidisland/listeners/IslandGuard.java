@@ -88,9 +88,9 @@ import org.bukkit.util.Vector;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
+import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.SafeBoat;
 import com.wasteofplastic.acidisland.Settings;
-import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.events.IslandEnterEvent;
 import com.wasteofplastic.acidisland.events.IslandExitEvent;
 import com.wasteofplastic.acidisland.util.Util;
@@ -2418,7 +2418,9 @@ public class IslandGuard implements Listener {
                         if (!island.getMembers().contains(e.getPlayer().getUniqueId())) {
                             // Visitor
                             litCreeper.add(e.getRightClicked().getUniqueId());
-                            plugin.getLogger().info("DEBUG: visitor lit creeper");
+                            if (DEBUG) {
+                                plugin.getLogger().info("DEBUG: visitor lit creeper");
+                            }
                         }
                     }
                 }
