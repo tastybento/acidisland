@@ -232,9 +232,15 @@ invite:
   youCanInvite: "Du kannst noch [number] weitere Spieler einladen."
   youCannotInvite: "Du kannst keine weiteren Spieler einladen."
   youHaveJoinedAnIsland: "Du bist einer Insel beigetreten! Benutze /[label] team um die Mitglieder zu sehen."
-island: 
-  cannotTeleport: "Im Fall kannst du dich nicht teleportieren!"
+island:
   donate: "AcidIsland von tastybento."
+  donatecolor: "aqua"
+  subtitle: "von tastybento"
+  subtitlecolor: "blue"
+  title: "AcidIsland"
+  titlecolor: "gold"
+  url: "" 
+  cannotTeleport: "Im Fall kannst du dich nicht teleportieren!"
   errorCouldNotCreateIsland: "Insel konnte nicht erstellt werden, bitte melde das einem Teamler."
   errorInvalidPlayer: "Dieser Spieler ist ungültig oder hat keine Insel!"
   errorLevelNotReady: "Du kannst diesen Befehl gerade nicht nutzen! Versuch es in einigen Sekunden."
@@ -272,10 +278,7 @@ island:
   resetTo: "Resetlimit zurückgesetzt!"
   resetWait: "Du musst noch [time] Sekunden warten."
   resetYouHave: "Es sind noch [number] weitere Resets möglich!"
-  subtitle: "von tastybento"
   teleport: "Du wurdest auf deine Insel teleportiert. (/[label] help für mehr Infos)"
-  title: "AcidIsland"
-  url: ""
 islandProtected: "Insel ist gesichert!"
 islandguardsettings: 
   TNTdamage: "TNT Schaden"
