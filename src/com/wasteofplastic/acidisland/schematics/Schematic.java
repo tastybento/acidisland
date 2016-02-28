@@ -1223,27 +1223,36 @@ public class Schematic {
         int z = islandLoc.getBlockZ();
         World world = islandLoc.getWorld();
         int y = 0;
-        for (int x_space = x - 4; x_space <= x + 4; x_space++) {
-            for (int z_space = z - 4; z_space <= z + 4; z_space++) {
-                final Block b = world.getBlockAt(x_space, y, z_space);
-                b.setType(Material.BEDROCK);
-                b.setBiome(biome);
+        for (int x_space = -4; x_space <=  4; x_space++) {
+            for (int z_space = -4; z_space <= 4; z_space++) {
+                if (!((x_space == -4 && z_space == -4) || (x_space == -4 && z_space == 4) || (x_space == 4 && z_space == -4) || (x_space == 4 && z_space == 4))){
+                    Block b = world.getBlockAt(x + x_space, y, z + z_space);
+                    if (b.isLiquid()) {
+                        b.setType(Material.BEDROCK);
+                    }
+                    b.setBiome(biome);
+                }
             }
         }
         for (y = 1; y < Settings.island_level + 5; y++) {
-            for (int x_space = x - 4; x_space <= x + 4; x_space++) {
-                for (int z_space = z - 4; z_space <= z + 4; z_space++) {
-                    final Block b = world.getBlockAt(x_space, y, z_space);
-                    if (y < (Settings.island_level / 2)) {
-                        b.setType(Material.SANDSTONE);
-                    } else {
-                        b.setType(Material.SAND);
-                        b.setData((byte) 0);
+            for (int x_space = -4; x_space <= 4; x_space++) {
+                for (int z_space = -4; z_space <= 4; z_space++) {
+                    if (!((x_space == -4 && z_space == -4) || (x_space == -4 && z_space == 4) || (x_space == 4 && z_space == -4) || (x_space == 4 && z_space == 4))) {
+                        Block b = world.getBlockAt(x + x_space, y, z + z_space);
+                        if (b.isLiquid()) {
+                            if (y < (Settings.island_level / 2)) {
+                                b.setType(Material.SANDSTONE);
+                            } else {
+                                b.setType(Material.SAND);
+                                b.setData((byte) 0);
+                            }
+                        }
                     }
                 }
             }
         }
         // Then cut off the corners to make it round-ish
+        /*
         for (y = 0; y < Settings.island_level + 5; y++) {
             for (int x_space = x - 4; x_space <= x + 4; x_space += 8) {
                 for (int z_space = z - 4; z_space <= z + 4; z_space += 8) {
@@ -1251,7 +1260,7 @@ public class Schematic {
                     b.setType(Material.STATIONARY_WATER);
                 }
             }
-        }
+        }*/
         // Add some grass
         for (y = Settings.island_level + 4; y < Settings.island_level + 5; y++) {
             for (int x_space = x - 2; x_space <= x + 2; x_space++) {
