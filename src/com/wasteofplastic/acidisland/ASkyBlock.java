@@ -33,6 +33,7 @@ import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.block.Biome;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Animals;
@@ -147,14 +148,19 @@ public class ASkyBlock extends JavaPlugin {
         if (islandWorld == null) {
             //Bukkit.getLogger().info("DEBUG worldName = " + Settings.worldName);
             // 
-            islandWorld = WorldCreator.name(Settings.worldName).type(WorldType.FLAT).environment(World.Environment.NORMAL).generator(new ChunkGeneratorWorld())
-                    .createWorld();
+            if (Settings.useOwnGenerator) {
+                islandWorld = Bukkit.getServer().getWorld(Settings.worldName);
+            } else {
+                islandWorld = WorldCreator.name(Settings.worldName).type(WorldType.FLAT).environment(World.Environment.NORMAL).generator(new ChunkGeneratorWorld())
+                        .createWorld();
+            }
             // Make the nether if it does not exist
             if (Settings.createNether) {
                 getNetherWorld();
             }
             // Multiverse configuration
-            if (Bukkit.getServer().getPluginManager().isPluginEnabled("Multiverse-Core")) {
+
+            if (!Settings.useOwnGenerator && Bukkit.getServer().getPluginManager().isPluginEnabled("Multiverse-Core")) {
                 Bukkit.getLogger().info("Trying to register generator with Multiverse ");
                 try {
                     Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(),
@@ -358,6 +364,7 @@ public class ASkyBlock extends JavaPlugin {
                 // Create the world if it does not exist. This is run after the
                 // server starts.
                 getIslandWorld();
+                /*
                 if (getServer().getWorld(Settings.worldName).getGenerator() == null) {
                     // Check if the world generator is registered correctly
                     getLogger().severe("********* The Generator for " + plugin.getName() + " is not registered so the plugin cannot start ********");
@@ -377,7 +384,7 @@ public class ASkyBlock extends JavaPlugin {
                     }
                     HandlerList.unregisterAll(plugin);
                     return;
-                }
+                }*/
                 // Try to register Herochat
                 if (Bukkit.getServer().getPluginManager().isPluginEnabled("Herochat")) {
                     getServer().getPluginManager().registerEvents(new HeroChatListener(plugin), plugin);
@@ -757,6 +764,8 @@ public class ASkyBlock extends JavaPlugin {
                 } 
             }
         }
+        // Custom generator
+        Settings.useOwnGenerator = getConfig().getBoolean("general.useowngenerator", false);
         // Debug
         Settings.debug = getConfig().getInt("debug", 0);
         // How often the grid will be saved to file. Default is 5 minutes
@@ -1526,6 +1535,9 @@ public class ASkyBlock extends JavaPlugin {
      */
     public static World getNetherWorld() {
         if (netherWorld == null && Settings.createNether) {
+            if (Settings.useOwnGenerator) {
+                return Bukkit.getServer().getWorld(Settings.worldName +"_nether");
+            }
             if (plugin.getServer().getWorld(Settings.worldName + "_nether") == null) {
                 Bukkit.getLogger().info("Creating " + plugin.getName() + "'s Nether...");
             }
