@@ -19,7 +19,6 @@ package com.wasteofplastic.acidisland.schematics;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +39,7 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Sign;
@@ -68,6 +68,7 @@ import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.Settings.GameType;
 import com.wasteofplastic.acidisland.nms.NMSAbstraction;
+import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.org.jnbt.ByteArrayTag;
 import com.wasteofplastic.org.jnbt.ByteTag;
 import com.wasteofplastic.org.jnbt.CompoundTag;
@@ -249,7 +250,7 @@ public class Schematic {
         }
 
         try {
-            nms = checkVersion();
+            nms = Util.checkVersion();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -953,24 +954,26 @@ public class Schematic {
             // Bukkit.getLogger().info("DEBUG welcome sign actual position is:"
             // + welcomeSign.toString());
             blockToChange = ws.toLocation(world).getBlock();
-            blockToChange.setType(Material.SIGN_POST);
-            Sign sign = (Sign) blockToChange.getState();
-            if (sign.getLine(0).isEmpty()) {
-                sign.setLine(0, plugin.myLocale(player.getUniqueId()).signLine1.replace("[player]", player.getName()));
+            BlockState signState = blockToChange.getState();
+            if (signState instanceof Sign) {
+                Sign sign = (Sign) signState;
+                if (sign.getLine(0).isEmpty()) {
+                    sign.setLine(0, plugin.myLocale(player.getUniqueId()).signLine1.replace("[player]", player.getName()));
+                }
+                if (sign.getLine(1).isEmpty()) {
+                    sign.setLine(1, plugin.myLocale(player.getUniqueId()).signLine2.replace("[player]", player.getName()));
+                }
+                if (sign.getLine(2).isEmpty()) {
+                    sign.setLine(2, plugin.myLocale(player.getUniqueId()).signLine3.replace("[player]", player.getName()));
+                }
+                if (sign.getLine(3).isEmpty()) {
+                    sign.setLine(3, plugin.myLocale(player.getUniqueId()).signLine4.replace("[player]", player.getName()));
+                }
+                // BlockFace direction = ((org.bukkit.material.Sign)
+                // sign.getData()).getFacing();
+                //((org.bukkit.material.Sign) sign.getData()).setFacingDirection(BlockFace.NORTH);
+                sign.update();
             }
-            if (sign.getLine(1).isEmpty()) {
-                sign.setLine(1, plugin.myLocale(player.getUniqueId()).signLine2.replace("[player]", player.getName()));
-            }
-            if (sign.getLine(2).isEmpty()) {
-                sign.setLine(2, plugin.myLocale(player.getUniqueId()).signLine3.replace("[player]", player.getName()));
-            }
-            if (sign.getLine(3).isEmpty()) {
-                sign.setLine(3, plugin.myLocale(player.getUniqueId()).signLine4.replace("[player]", player.getName()));
-            }
-            // BlockFace direction = ((org.bukkit.material.Sign)
-            // sign.getData()).getFacing();
-            ((org.bukkit.material.Sign) sign.getData()).setFacingDirection(BlockFace.NORTH);
-            sign.update();
         }
         if (chest != null) {
             Vector ch = chest.clone().subtract(bedrock);
@@ -1223,36 +1226,27 @@ public class Schematic {
         int z = islandLoc.getBlockZ();
         World world = islandLoc.getWorld();
         int y = 0;
-        for (int x_space = -4; x_space <=  4; x_space++) {
-            for (int z_space = -4; z_space <= 4; z_space++) {
-                if (!((x_space == -4 && z_space == -4) || (x_space == -4 && z_space == 4) || (x_space == 4 && z_space == -4) || (x_space == 4 && z_space == 4))){
-                    Block b = world.getBlockAt(x + x_space, y, z + z_space);
-                    if (b.isLiquid()) {
-                        b.setType(Material.BEDROCK);
-                    }
-                    b.setBiome(biome);
-                }
+        for (int x_space = x - 4; x_space <= x + 4; x_space++) {
+            for (int z_space = z - 4; z_space <= z + 4; z_space++) {
+                final Block b = world.getBlockAt(x_space, y, z_space);
+                b.setType(Material.BEDROCK);
+                b.setBiome(biome);
             }
         }
         for (y = 1; y < Settings.island_level + 5; y++) {
-            for (int x_space = -4; x_space <= 4; x_space++) {
-                for (int z_space = -4; z_space <= 4; z_space++) {
-                    if (!((x_space == -4 && z_space == -4) || (x_space == -4 && z_space == 4) || (x_space == 4 && z_space == -4) || (x_space == 4 && z_space == 4))) {
-                        Block b = world.getBlockAt(x + x_space, y, z + z_space);
-                        if (b.isLiquid()) {
-                            if (y < (Settings.island_level / 2)) {
-                                b.setType(Material.SANDSTONE);
-                            } else {
-                                b.setType(Material.SAND);
-                                b.setData((byte) 0);
-                            }
-                        }
+            for (int x_space = x - 4; x_space <= x + 4; x_space++) {
+                for (int z_space = z - 4; z_space <= z + 4; z_space++) {
+                    final Block b = world.getBlockAt(x_space, y, z_space);
+                    if (y < (Settings.island_level / 2)) {
+                        b.setType(Material.SANDSTONE);
+                    } else {
+                        b.setType(Material.SAND);
+                        b.setData((byte) 0);
                     }
                 }
             }
         }
         // Then cut off the corners to make it round-ish
-        /*
         for (y = 0; y < Settings.island_level + 5; y++) {
             for (int x_space = x - 4; x_space <= x + 4; x_space += 8) {
                 for (int z_space = z - 4; z_space <= z + 4; z_space += 8) {
@@ -1260,7 +1254,7 @@ public class Schematic {
                     b.setType(Material.STATIONARY_WATER);
                 }
             }
-        }*/
+        }
         // Add some grass
         for (y = Settings.island_level + 4; y < Settings.island_level + 5; y++) {
             for (int x_space = x - 2; x_space <= x + 2; x_space++) {
@@ -1535,40 +1529,6 @@ public class Schematic {
         return false;
     }
 
-    /**
-     * Checks what version the server is running and picks the appropriate NMS handler, or fallback
-     * @return NMSAbstraction class
-     * @throws ClassNotFoundException
-     * @throws IllegalArgumentException
-     * @throws SecurityException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws NoSuchMethodException
-     */
-    public NMSAbstraction checkVersion() throws ClassNotFoundException, IllegalArgumentException,
-    SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException,
-    NoSuchMethodException {
-        String serverPackageName = plugin.getServer().getClass().getPackage().getName();
-        String pluginPackageName = plugin.getClass().getPackage().getName();
-        String version = serverPackageName.substring(serverPackageName.lastIndexOf('.') + 1);
-        Class<?> clazz;
-        try {
-            //plugin.getLogger().info("Trying " + pluginPackageName + ".nms." + version + ".NMSHandler");
-            clazz = Class.forName(pluginPackageName + ".nms." + version + ".NMSHandler");
-        } catch (Exception e) {
-            plugin.getLogger().info("No NMS Handler found for " + version + ", falling back to Bukkit API.");
-            clazz = Class.forName(pluginPackageName + ".nms.fallback.NMSHandler");
-        }
-        //plugin.getLogger().info("DEBUG: " + serverPackageName);
-        //plugin.getLogger().info("DEBUG: " + pluginPackageName);
-        // Check if we have a NMSAbstraction implementing class at that location.
-        if (NMSAbstraction.class.isAssignableFrom(clazz)) {
-            return (NMSAbstraction) clazz.getConstructor().newInstance();
-        } else {
-            throw new IllegalStateException("Class " + clazz.getName() + " does not implement NMSAbstraction");
-        }
-    }
 
     /**
      * @return the levelHandicap

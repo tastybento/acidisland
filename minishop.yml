@@ -48,7 +48,7 @@ items:
    item7:
       material: MONSTER_EGG
       quantity: 1
-      extra: 90
+      extra: PIG
       price: 300
       description: A pig
    # A dark oak (4 saplings needed)

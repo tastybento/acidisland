@@ -73,6 +73,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -141,7 +142,7 @@ public class IslandGuard implements Listener {
         if (loc.getWorld().equals(ASkyBlock.getIslandWorld())) {
             return true;
         }
-        if (Settings.createNether && Settings.newNether && loc.getWorld().equals(ASkyBlock.getNetherWorld())) {
+        if (Settings.createNether && Settings.newNether && ASkyBlock.getNetherWorld() != null && loc.getWorld().equals(ASkyBlock.getNetherWorld())) {
             return true;
         }
         return false;
@@ -603,11 +604,11 @@ public class IslandGuard implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onAnimalSpawn(final CreatureSpawnEvent e) {
-        //if (debug) {
-        //plugin.getLogger().info("Animal spawn event! " + e.getEventName());
-        // plugin.getLogger().info(e.getSpawnReason().toString());
-        // plugin.getLogger().info(e.getCreatureType().toString());
-        //}
+        if (DEBUG) {
+            plugin.getLogger().info("Animal spawn event! " + e.getEventName());
+            plugin.getLogger().info(e.getSpawnReason().toString());
+            plugin.getLogger().info(e.getEntityType().toString());
+        }
         // If not an animal
         if (!(e.getEntity() instanceof Animals)) {
             return;
@@ -912,7 +913,7 @@ public class IslandGuard implements Listener {
         }
     }
 
-/*    
+    /*    
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = false)
     public void onBlockBreakCheck(final BlockPhysicsEvent e) {
         if (DEBUG) {
@@ -920,8 +921,8 @@ public class IslandGuard implements Listener {
             plugin.getLogger().info("DEBUG: block is " + e.getBlock());
         }
     }
-*/    
-    
+     */    
+
     /**
      * Prevents blocks from being broken
      * 
@@ -1440,7 +1441,7 @@ public class IslandGuard implements Listener {
             e.setCancelled(true);
         }
     }
-    
+
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerLeashHitch(final HangingPlaceEvent e) {
         if (DEBUG) {
@@ -1767,13 +1768,17 @@ public class IslandGuard implements Listener {
                 // Not allowed outside of a protected island
                 if (island != null) {
                     // Check island
-                    if (island.getIgsFlag(Flags.allowBreakBlocks) || island.getMembers().contains(p.getUniqueId())) {
+                    if (island.getIgsFlag(Flags.allowBucketUse) || island.getMembers().contains(p.getUniqueId())) {
                         // Check if biome is Nether and then allow water placement but fizz the water
                         if (e.getBlockClicked().getBiome().equals(Biome.HELL)
                                 && e.getPlayer().getItemInHand().getType().equals(Material.WATER_BUCKET)) {
                             e.setCancelled(true);
                             e.getPlayer().getItemInHand().setType(Material.BUCKET);
-                            e.getPlayer().playSound(e.getPlayer().getLocation(), Sound.FIZZ, 1F, 2F);
+                            if (plugin.getServer().getVersion().contains("(MC: 1.8") || plugin.getServer().getVersion().contains("(MC: 1.7")) {
+                                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.valueOf("FIZZ"), 1F, 2F);
+                            } else {
+                                e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ENTITY_CREEPER_PRIMED, 1F, 2F);
+                            }
                             e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).biomeSet.replace("[biome]", "Nether"));
                         }
                         return;
@@ -1807,7 +1812,11 @@ public class IslandGuard implements Listener {
         // e.getItem().getType().toString());
         if (e.getItem().getType().equals(Material.WATER_BUCKET)) {
             e.setCancelled(true);
-            e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.FIZZ, 1F, 2F);
+            if (plugin.getServer().getVersion().contains("(MC: 1.8") || plugin.getServer().getVersion().contains("(MC: 1.7")) {
+                e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.valueOf("FIZZ"), 1F, 2F);
+            } else {
+                e.getBlock().getWorld().playSound(e.getBlock().getLocation(), Sound.ENTITY_CREEPER_PRIMED, 1F, 2F);
+            }
         }
     }
 
@@ -2603,6 +2612,33 @@ public class IslandGuard implements Listener {
                 return;
             }
         }
+    }
+
+    /**
+     * Handle visitor chicken egg throwing
+     * @param e
+     */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onEggThrow(PlayerEggThrowEvent e) {
+        if (DEBUG) {
+            plugin.getLogger().info("egg throwing = " + e.getEventName());
+        }
+        if (!inWorld(e.getPlayer()) || e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
+                || plugin.getGrid().playerIsOnIsland(e.getPlayer()) || plugin.getGrid().isAtSpawn(e.getPlayer().getLocation())) {
+            return;
+        }
+        // Check island
+        Island island = plugin.getGrid().getProtectedIslandAt(e.getPlayer().getLocation()); 
+        if (island == null) {
+            return;
+        }
+        if (!island.getIgsFlag(Flags.allowBreeding)) {
+            e.setHatching(false);
+            e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
+            //e.getPlayer().updateInventory();
+        }
+
+        return;
     }
 
     /**

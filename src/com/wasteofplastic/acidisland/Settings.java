@@ -266,8 +266,4 @@ public class Settings {
     public static boolean cleanUpBlocks;
     public static boolean acidBottle;
     public static boolean useOwnGenerator;
-
-
-
-
 }

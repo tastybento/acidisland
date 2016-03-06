@@ -107,6 +107,7 @@ public class BiomesPanel implements Listener {
                 }
             } catch (Exception e) {
                 plugin.getLogger().severe("Could not recognize " + biomeName + " as valid Biome! Skipping...");
+                plugin.getLogger().severe("For V1.9, some biome names do not exist anymore. Change config.yml to the latest.");
             }
         }
         // Now create the inventory panel
@@ -194,6 +195,7 @@ public class BiomesPanel implements Listener {
      * @param biomeType
      */
     public boolean setIslandBiome(final Location islandLoc, final Biome biomeType) {
+        //plugin.getLogger().info("DEBUG: Biome is " + biomeType);
         final Island island = plugin.getGrid().getIslandAt(islandLoc);
         if (island != null) {
             // Update the settings so they can be checked later
@@ -204,13 +206,9 @@ public class BiomesPanel implements Listener {
             // If the biome is dry, then we need to remove the water, ice, snow, etc.
             switch (biomeType) {
             case MESA:
-            case MESA_BRYCE:
             case DESERT:
             case JUNGLE:
             case SAVANNA:
-            case SAVANNA_MOUNTAINS:
-            case SAVANNA_PLATEAU:
-            case SAVANNA_PLATEAU_MOUNTAINS:
             case SWAMPLAND:
             case HELL:
                 // Get the chunks
@@ -251,6 +249,7 @@ public class BiomesPanel implements Listener {
                         }
                         // Now get rid of the blocks
                         if (!blocksToRemove.isEmpty()) {
+                            //plugin.getLogger().info("DEBUG: There are blocks to remove "  + blocksToRemove.size());
                             final HashMap<Vector, Integer> blocks = blocksToRemove;
                             // Kick of a sync task
                             plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
@@ -290,13 +289,14 @@ public class BiomesPanel implements Listener {
         if (plugin.getGrid() == null) {
             return;
         }
-        if (e.getWorld() != ASkyBlock.getIslandWorld()) {
+        if (ASkyBlock.getIslandWorld() == null || e.getWorld() != ASkyBlock.getIslandWorld()) {
             //plugin.getLogger().info("DEBUG: not right world");
             return;
         }
         //Island island = plugin.getGrid().getIslandAt(e.getChunk().getX()*16, e.getChunk().getZ()*16);
         //if (island != null && !island.isSpawn()) {
         //    Biome biome = island.getCenter().getBlock().getBiome();
+        //plugin.getLogger().info("DEBUG: Writing the biome");
         for (int x = 0; x< 16; x++) {
             for (int z = 0; z< 16; z++) {
                 Island island = plugin.getGrid().getIslandAt(e.getChunk().getX()*16 + x, e.getChunk().getZ()*16 + z);
@@ -311,13 +311,9 @@ public class BiomesPanel implements Listener {
                         // Check y down for snow etc.
                         switch (biome) {
                         case MESA:
-                        case MESA_BRYCE:
                         case DESERT:
                         case JUNGLE:
                         case SAVANNA:
-                        case SAVANNA_MOUNTAINS:
-                        case SAVANNA_PLATEAU:
-                        case SAVANNA_PLATEAU_MOUNTAINS:
                         case SWAMPLAND:
                             boolean topBlockFound = false;
                             for (int y = e.getWorld().getMaxHeight(); y >= Settings.sea_level; y--) {

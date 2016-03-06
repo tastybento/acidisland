@@ -33,7 +33,6 @@ import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.block.Biome;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Animals;
@@ -150,6 +149,7 @@ public class ASkyBlock extends JavaPlugin {
             // 
             if (Settings.useOwnGenerator) {
                 islandWorld = Bukkit.getServer().getWorld(Settings.worldName);
+                //Bukkit.getLogger().info("DEBUG world is " + islandWorld);
             } else {
                 islandWorld = WorldCreator.name(Settings.worldName).type(WorldType.FLAT).environment(World.Environment.NORMAL).generator(new ChunkGeneratorWorld())
                         .createWorld();
@@ -188,9 +188,11 @@ public class ASkyBlock extends JavaPlugin {
 
         }
         // Set world settings
-        islandWorld.setWaterAnimalSpawnLimit(Settings.waterAnimalSpawnLimit);
-        islandWorld.setMonsterSpawnLimit(Settings.monsterSpawnLimit);
-        islandWorld.setAnimalSpawnLimit(Settings.animalSpawnLimit);
+        if (islandWorld != null) {
+            islandWorld.setWaterAnimalSpawnLimit(Settings.waterAnimalSpawnLimit);
+            islandWorld.setMonsterSpawnLimit(Settings.monsterSpawnLimit);
+            islandWorld.setAnimalSpawnLimit(Settings.animalSpawnLimit);
+        }
 
         return islandWorld;
     }
@@ -364,10 +366,11 @@ public class ASkyBlock extends JavaPlugin {
                 // Create the world if it does not exist. This is run after the
                 // server starts.
                 getIslandWorld();
-                /*
-                if (getServer().getWorld(Settings.worldName).getGenerator() == null) {
+                if (!Settings.useOwnGenerator && getServer().getWorld(Settings.worldName).getGenerator() == null) {
                     // Check if the world generator is registered correctly
                     getLogger().severe("********* The Generator for " + plugin.getName() + " is not registered so the plugin cannot start ********");
+                    getLogger().severe("If you are using your own generator or server.properties, set useowngenerator: true in config.yml");
+                    getLogger().severe("Otherwise:");
                     getLogger().severe("Make sure you have the following in bukkit.yml (case sensitive):");
                     getLogger().severe("worlds:");
                     getLogger().severe("  # The next line must be the name of your world:");
@@ -384,7 +387,7 @@ public class ASkyBlock extends JavaPlugin {
                     }
                     HandlerList.unregisterAll(plugin);
                     return;
-                }*/
+                }
                 // Try to register Herochat
                 if (Bukkit.getServer().getPluginManager().isPluginEnabled("Herochat")) {
                     getServer().getPluginManager().registerEvents(new HeroChatListener(plugin), plugin);
@@ -764,10 +767,10 @@ public class ASkyBlock extends JavaPlugin {
                 } 
             }
         }
-        // Custom generator
-        Settings.useOwnGenerator = getConfig().getBoolean("general.useowngenerator", false);
         // Debug
         Settings.debug = getConfig().getInt("debug", 0);
+        // Custom generator
+        Settings.useOwnGenerator = getConfig().getBoolean("general.useowngenerator", false);
         // How often the grid will be saved to file. Default is 5 minutes
         Settings.backupDuration = (getConfig().getLong("general.backupduration", 5) * 20 * 60);
         // How long a player has to wait after deactivating PVP until they can activate PVP again

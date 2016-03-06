@@ -211,11 +211,6 @@ general:
    # Name of the world - if it does not exist then it will be generated
    worldName: AcidIsland
    
-   # Use own world generator - don't use this unless you know what you are doing.
-   # If set to true, the plugin will not generate its own chunks. You will need to
-   # use another world generator plugin or set generator settings in server.properties.
-   useowngenerator: false
-
    # Maximum number of islands. Set to 0 for unlimited. 
    # If the number of islands is greater than this number, no new islands will be
    # allowed
@@ -583,12 +578,12 @@ biomesettings:
 # remove ice/water/snow - will be done once when the biome is made
 
 biomes:
-  COLD_TAIGA:
+  COLD_BEACH:
     icon: SAPLING
     cost: 700
     description: Snowy and cold. Brrr.
     # Perms can be any string you like!
-    permission: acidisland.biomes.cold_taiga
+    permission: acidisland.biomes.cold_beach
   DESERT:
     icon: DEAD_BUSH
     description: A dry desert. Warning - Ice or snow have to go.
