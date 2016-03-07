@@ -300,3 +300,6 @@ permissions:
           acidisland.admin.topbreeders:
             description: Lists most populated islands current loaded
             default: op
+          acidisland.admin.settingsreset:
+            description: Resets all the islands to default protection settings
+            default: op
