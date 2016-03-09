@@ -59,12 +59,31 @@ island:
    # Must be in Bukkit Materials format. Format is <Material>:<Qty>
    # or <Material>:<Damage>:<Qty>
    # Use <Damage> to set the durability of a item or to select sub-items/colors.
-   # Format for POTION is POTION:<effect>:<qty> or POTION:<effect>:<type>:<qty>
-   # <type> is EXTENDED, SPLASH or EXTENDEDSPLASH. Not all potions can be extended.
+   # 
+   # Spawn Eggs must be defined by name, e.g., MONSTER_EGG:PIG
+   #
+   # The format for POTIONS is as follows:
+   #
+   # Format POTION:NAME:<LEVEL>:<EXTENDED>:<SPLASH/LINGER>:QTY
+   # LEVEL, EXTENDED, SPLASH, LINGER are optional.
+   # LEVEL is a number, 1 or 2
+   # LINGER is for V1.9 servers and later
+   # Examples:
+   # POTION:STRENGTH:1:EXTENDED:SPLASH:1
+   # POTION:INSTANT_HARM:2::LINGER:2
+   # POTION:JUMP:2:NOTEXTENDED:NOSPLASH:1
+   # POTION:WEAKNESS::::1   -  any weakness potion
+   # 
+   # Valid potion names are:
+   # WATER, REGEN, SPEED, FIRE_RESISTANCE, POISON, INSTANT_HEAL, NIGHT_VISION, WEAKNESS,
+   # STRENGTH, SLOWNESS, JUMP, INSTANT_DAMAGE, WATER_BREATHING, INVISIBILITY
+   # For V1.9 these are also available:
+   # LUCK, MUNDANE, THICK, AWKWARD
+   #
    # Check console for errors and guidance after reloading configuration
    # Schematics can override this - see schematicsection
 
-   chestItems: 'MELON:1 TORCH:2 BONE:1 LAVA_BUCKET:1 PUMPKIN_SEEDS:1 SUGAR_CANE:1 RED_MUSHROOM:1 BROWN_MUSHROOM:1 CACTUS:1 BREAD:1 WHEAT:1 POTION:WATER_BREATHING:EXTENDED:1 LEATHER_BOOTS:1 LEATHER_HELMET:1 LEATHER_CHESTPLATE:1 LEATHER_LEGGINGS:1'
+   chestItems: 'MELON:1 TORCH:2 BONE:1 LAVA_BUCKET:1 PUMPKIN_SEEDS:1 SUGAR_CANE:1 RED_MUSHROOM:1 BROWN_MUSHROOM:1 CACTUS:1 BREAD:1 WHEAT:1 POTION:WATER_BREATHING:1:EXTENDED::1 LEATHER_BOOTS:1 LEATHER_HELMET:1 LEATHER_CHESTPLATE:1 LEATHER_LEGGINGS:1'
 
    # Default island companion. Set schematic-specific companions in the schematicsection
    # Options are: COW, PIG, SHEEP, CHICKEN, VILLAGER, HORSE, IRON_GOLEM, OCELOT,
@@ -605,7 +624,7 @@ biomes:
   MUSHROOM_ISLAND:
     icon: RED_MUSHROOM
     # Note, this permission can be anything you like
-    permission: acidisland.biomes.mushoom_island
+    permission: acidisland.biomes.mushroom_island
     description: Mushroom island
     #permission: any.perm.you.want
   PLAINS:
