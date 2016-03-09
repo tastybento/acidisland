@@ -36,6 +36,7 @@ items:
    # If you do not know the potion types, just guess and look in the console
    # If you get it wrong, it will tell you the options
    item6:
+      description: '&bAcid-proof Potion'
       material: POTION
       quantity: 1
       extra: WATER_BREATHING
