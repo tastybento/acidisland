@@ -48,7 +48,6 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.material.SpawnEgg;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -65,7 +64,8 @@ import com.wasteofplastic.acidisland.listeners.AcidInventory;
 import com.wasteofplastic.acidisland.listeners.ChatListener;
 import com.wasteofplastic.acidisland.listeners.HeroChatListener;
 import com.wasteofplastic.acidisland.listeners.IslandGuard;
-import com.wasteofplastic.acidisland.listeners.IslandGuardNew;
+import com.wasteofplastic.acidisland.listeners.IslandGuard1_9;
+import com.wasteofplastic.acidisland.listeners.IslandGuard1_8;
 import com.wasteofplastic.acidisland.listeners.JoinLeaveEvents;
 import com.wasteofplastic.acidisland.listeners.LavaCheck;
 import com.wasteofplastic.acidisland.listeners.NetherPortals;
@@ -78,10 +78,9 @@ import com.wasteofplastic.acidisland.panels.ControlPanel;
 import com.wasteofplastic.acidisland.panels.SchematicsPanel;
 import com.wasteofplastic.acidisland.panels.SettingsPanel;
 import com.wasteofplastic.acidisland.panels.WarpPanel;
-import com.wasteofplastic.acidisland.util.Potion1_9;
+import com.wasteofplastic.acidisland.util.SpawnEgg1_9;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
-import com.wasteofplastic.acidisland.util.SpawnEgg1_9;
 
 /**
  * @author tastybento
@@ -258,6 +257,7 @@ public class ASkyBlock extends JavaPlugin {
         if (clazz != null) {
             onePointEight = true;
         }
+
         saveDefaultConfig();
         // Check to see if island distance is set or not
         if (getConfig().getInt("island.distance", -1) < 1) {
@@ -1395,6 +1395,10 @@ public class ASkyBlock extends JavaPlugin {
         Settings.addCompletedGlow = getConfig().getBoolean("general.addcompletedglow", true);
         // Clean up blocks around edges when deleting islands
         Settings.cleanUpBlocks = getConfig().getBoolean("island.cleanupblocks",false);
+        Settings.cleanRate = getConfig().getInt("island.cleanrate", 2);
+        if (Settings.cleanRate < 1) {
+            Settings.cleanRate = 1;
+        }
         // No acid bottles or buckets
         Settings.acidBottle = getConfig().getBoolean("general.acidbottles", true);
         // All done
@@ -1415,7 +1419,14 @@ public class ASkyBlock extends JavaPlugin {
         manager.registerEvents(new PlayerEvents(this), this);
         // New V1.8 events
         if (onePointEight) {
-            manager.registerEvents(new IslandGuardNew(this), this);
+            manager.registerEvents(new IslandGuard1_8(this), this);
+        }
+        // Check for 1.9 material
+        for (Material m : Material.values()) {
+            if (m.name().equalsIgnoreCase("END_CRYSTAL")) {
+                manager.registerEvents(new IslandGuard1_9(this), this);
+                break;
+            }    
         }
         // Events for when a player joins or leaves the server
         manager.registerEvents(new JoinLeaveEvents(this), this);
