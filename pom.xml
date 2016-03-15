@@ -12,7 +12,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<server.jars>/Users/ben/Documents/MinecraftServers</server.jars>
+		<server.jars>${project.basedir}/lib</server.jars>
 	</properties>
 
 	<build>
