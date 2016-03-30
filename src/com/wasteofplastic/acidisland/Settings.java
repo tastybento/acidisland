@@ -18,7 +18,6 @@ package com.wasteofplastic.acidisland;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -269,4 +268,5 @@ public class Settings {
     public static boolean useOwnGenerator;
     public static List<String> freeLevels = new ArrayList<String>();
     public static int cleanRate;
+    public static boolean allowPushing;
 }

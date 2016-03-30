@@ -233,10 +233,28 @@ public class ControlPanel implements Listener {
             // challenges.size());
             if (slot >= 0 && slot < challenges.size()) {
                 CPItem item = challenges.get(slot);
-                // plugin.getLogger().info("DEBUG: CP Item is " +
-                // item.getItem().toString());
-                // plugin.getLogger().info("DEBUG: Clicked is " +
-                // clicked.toString());
+                // TEST
+                /*
+                ItemStack icon = new ItemStack(Material.POTION);
+                ItemMeta meta = icon.getItemMeta();
+                meta.setDisplayName("Name");
+                List<String> lore = new ArrayList<String>();
+                lore.add("Lore 1");
+                lore.add("Lore 2");
+                meta.setLore(lore);
+                icon.setItemMeta(meta);
+                ItemStack click = new ItemStack(Material.POTION);
+                plugin.getLogger().info("DEBUG: icon is " + icon.toString());
+                plugin.getLogger().info("DEBUG: click is " + click.toString());
+                if (click.equals(icon)) {
+                    plugin.getLogger().info("DEBUG same");
+                } else {
+                    plugin.getLogger().info("DEBUG not same");
+                   
+                }*/
+                // END TEST
+                //plugin.getLogger().info("DEBUG: CP Item is " + item.getItem().toString());
+                //plugin.getLogger().info("DEBUG: Clicked is " + clicked.toString());
                 // Check that it is the top items that are being clicked on
                 // These two should be identical because it is made before
                 if (clicked.equals(item.getItem())) {

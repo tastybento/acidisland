@@ -28,7 +28,6 @@ import net.minecraft.server.v1_8_R1.NBTTagList;
 import net.minecraft.server.v1_8_R1.NBTTagString;
 import net.minecraft.server.v1_8_R1.TileEntityFlowerPot;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -145,7 +144,7 @@ public class NMSHandler implements NMSAbstraction {
                     PotionType type = null;
                     boolean strong = tag.contains("strong");
                     boolean _long = tag.contains("long");
-                    Bukkit.getLogger().info("tag = " + tag);
+                    //Bukkit.getLogger().info("tag = " + tag);
                     if(tag.equals("fire_resistance") || tag.equals("long_fire_resistance")){
                         type = PotionType.FIRE_RESISTANCE;
                     }else if(tag.equals("harming") || tag.equals("strong_harming")){

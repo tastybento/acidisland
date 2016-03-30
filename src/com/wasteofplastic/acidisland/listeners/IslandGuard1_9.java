@@ -19,6 +19,7 @@ package com.wasteofplastic.acidisland.listeners;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -29,17 +30,21 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
-import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.Settings;
+import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
@@ -51,18 +56,59 @@ import com.wasteofplastic.acidisland.util.VaultHelper;
 public class IslandGuard1_9 implements Listener {
     private final ASkyBlock plugin;
     private final static boolean DEBUG = false;
+    private Scoreboard scoreboard;
+    private Team pushTeam;
 
     public IslandGuard1_9(final ASkyBlock plugin) {
         this.plugin = plugin;
-
     }
 
     /**
-     * Handle interaction with armor stands V1.8
+     * Handles Frost Walking on visitor's islands
+     * @param e
+     */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
+    public void onBlockForm(EntityBlockFormEvent e) {
+        if (DEBUG) {
+            plugin.getLogger().info(e.getEventName());
+        }
+        if (e.getEntity() instanceof Player && e.getNewState().getType().equals(Material.FROSTED_ICE)) {
+            Player player= (Player) e.getEntity();
+            if (!IslandGuard.inWorld(player)) {
+                return;
+            }
+            if (player.isOp()) {
+                return;
+            }
+            // This permission bypasses protection
+            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypassprotect")) {
+                return;
+            }
+            // Check island
+            Island island = plugin.getGrid().getIslandAt(player.getLocation());
+            if (island !=null) {
+                if (island.isSpawn()) {
+                    if (Settings.allowSpawnPlaceBlocks) {
+                        return;
+                    }
+                } else {
+                    if (island.getMembers().contains(player.getUniqueId()) || island.getIgsFlag(Flags.allowPlaceBlocks)) {
+                        return;
+                    }
+                }
+            }
+            // Silently cancel the event
+            e.setCancelled(true);
+        }
+    }
+
+
+    /**
+     * Handle interaction with end crystals 1.9
      * 
      * @param e
      */
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
     public void onHitEndCrystal(final PlayerInteractAtEntityEvent e) {
         if (DEBUG) {
             plugin.getLogger().info(e.getEventName());
@@ -97,7 +143,7 @@ public class IslandGuard1_9 implements Listener {
     }
 
     // End crystal
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled=true)
     void placeEndCrystalEvent(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (DEBUG) {
@@ -139,7 +185,11 @@ public class IslandGuard1_9 implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.LOW)
+    /**
+     * Handle end crystal damage by visitors
+     * @param e
+     */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
     public void EndCrystalDamage(EntityDamageByEntityEvent e) {
         if (DEBUG) {
             plugin.getLogger().info("IslandGuard 1_9 " + e.getEventName());
@@ -208,6 +258,10 @@ public class IslandGuard1_9 implements Listener {
 
     }
 
+    /**
+     * Handles end crystal explosions
+     * @param e
+     */
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onExplosion(final EntityExplodeEvent e) {
         if (DEBUG) {
@@ -258,5 +312,48 @@ public class IslandGuard1_9 implements Listener {
 
     }
 
+    /**
+     * Triggers a push protection change or not
+     * @param e
+     */
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPlayerJoin(final PlayerJoinEvent e) {
+        setPush(e.getPlayer());
+    }
 
+    /**
+     * Handles push protection
+     * @param player
+     */
+    public void setPush(Player player) {
+        scoreboard = player.getScoreboard();
+        if (scoreboard == null) {
+            //plugin.getLogger().info("DEBUG: initializing scoreboard");
+            scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        }
+        if (Settings.allowPushing) {
+            if (scoreboard.getTeam("ASkyBlockNP") != null) {
+                //plugin.getLogger().info("DEBUG: unregistering the team");
+                scoreboard.getTeam("ASkyBlockNP").unregister();
+            }
+            return;
+        }
+        // Try and get what team the player is on right now
+        pushTeam = scoreboard.getEntryTeam(player.getName());
+        if (pushTeam == null) {
+            // It doesn't exist yet, so make it
+            pushTeam = scoreboard.getTeam("ASkyBlockNP");
+            if (pushTeam == null) {
+                pushTeam = scoreboard.registerNewTeam("ASkyBlockNP");
+            }
+            // Add the player to the team
+            pushTeam.addEntry(player.getName()); 
+        }
+        if (pushTeam.getName().equals("ASkyBlockNP")) {
+            //plugin.getLogger().info("DEBUG: pushing not allowed");
+            pushTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);               
+        } else {
+            //plugin.getLogger().info("DEBUG: player is already in another team");
+        }
+    }
 }
