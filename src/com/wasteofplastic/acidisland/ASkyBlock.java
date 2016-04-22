@@ -229,7 +229,7 @@ public class ASkyBlock extends JavaPlugin {
             TopTen.topTenSave();
             // Close the name database           
             if (tinyDB != null) {
-                tinyDB.closeDB();
+                tinyDB.saveDB();
             }
         } catch (final Exception e) {
             getLogger().severe("Something went wrong saving files!");
@@ -351,8 +351,10 @@ public class ASkyBlock extends JavaPlugin {
         // Load messages
         messages = new Messages(this);
         messages.loadMessages();
-        // Register events
-        registerEvents();
+        // Register world load event
+        if (getServer().getVersion().contains("(MC: 1.8") || plugin.getServer().getVersion().contains("(MC: 1.7")) {
+            getServer().getPluginManager().registerEvents(new WorldLoader(this), this);
+        }
         // Metrics
         try {
             final Metrics metrics = new Metrics(this);
@@ -407,6 +409,9 @@ public class ASkyBlock extends JavaPlugin {
                         if (grid == null) {
                             grid = new GridManager(plugin);
                         }
+                        // Register events
+                        registerEvents();
+
                         // Load warps
                         getWarpSignsListener().loadWarpList();
                         // Load the warp panel
@@ -433,14 +438,9 @@ public class ASkyBlock extends JavaPlugin {
                         for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
                             tinyDB.savePlayerName(onlinePlayer.getName(), onlinePlayer.getUniqueId());
                         }
-                        // Save grid every 5 minutes
-                        getServer().getScheduler().runTaskTimer(plugin, new Runnable() {
-
-                            @Override
-                            public void run() {
-                                getGrid().saveGrid();
-                            }}, Settings.backupDuration, Settings.backupDuration);
-
+                        if (Settings.backupDuration > 0) {
+                            new AsyncBackup(plugin);
+                        }
                         getLogger().info("All files loaded. Ready to play...");
                     }
                 });
@@ -1460,7 +1460,7 @@ public class ASkyBlock extends JavaPlugin {
             manager.registerEvents(new WitherEvents(this), this);
         }
         // World loader
-        manager.registerEvents(new WorldLoader(this), this);
+        //manager.registerEvents(new WorldLoader(this), this);
     }
 
 
@@ -1600,7 +1600,7 @@ public class ASkyBlock extends JavaPlugin {
 
     /**
      * @return the nameDB
-     */  
+     */    
     public TinyDB getTinyDB() {
         return tinyDB;
     }

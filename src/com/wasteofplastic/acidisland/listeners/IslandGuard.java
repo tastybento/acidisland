@@ -55,6 +55,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
 import org.bukkit.event.block.BlockMultiPlaceEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -101,6 +103,7 @@ import com.wasteofplastic.acidisland.util.VaultHelper;
  * @author tastybento
  *         Provides protection to islands
  */
+@SuppressWarnings("deprecation")
 public class IslandGuard implements Listener {
     private final ASkyBlock plugin;
     private final static boolean DEBUG = false;
@@ -1942,9 +1945,10 @@ public class IslandGuard implements Listener {
 
         // Check for disallowed clicked blocks
         if (e.getClickedBlock() != null) {
-            //plugin.getLogger().info("DEBUG: clicked block " + e.getClickedBlock());
-            //plugin.getLogger().info("DEBUG: Material " + e.getMaterial());
-
+            if (DEBUG) {
+                plugin.getLogger().info("DEBUG: clicked block " + e.getClickedBlock());
+                plugin.getLogger().info("DEBUG: Material " + e.getMaterial());
+            }
             switch (e.getClickedBlock().getType()) {
             case WOODEN_DOOR:
             case SPRUCE_DOOR:
@@ -2250,6 +2254,21 @@ public class IslandGuard implements Listener {
                     return;
                 }
                 break;
+            case MOB_SPAWNER:
+                if (island == null) {
+                    e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
+                    e.setCancelled(true);
+                    return;
+                }
+                if (island.isSpawn()) {
+                    e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
+                    e.setCancelled(true);
+                    return;
+                } else if (!island.getIgsFlag(Flags.allowBreakBlocks)) {
+                    e.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
+                    e.setCancelled(true);
+                    return;
+                }
             default:
                 break;
             }
@@ -2532,6 +2551,25 @@ public class IslandGuard implements Listener {
             e.setCancelled(true);
         }
     }
+    
+    @EventHandler(priority = EventPriority.LOW)
+    public void onBlockIgnite(BlockIgniteEvent e) {
+        if (DEBUG) {
+            plugin.getLogger().info(e.getEventName());
+            plugin.getLogger().info(e.getCause().name());
+        }
+        if (Settings.allowFire || !inWorld(e.getBlock())) {
+            //plugin.getLogger().info("DEBUG: Not in world");
+            return;
+        }
+        if (!Settings.allowFireSpread && e.getCause() != null && e.getCause().equals(IgniteCause.LAVA)) {
+            if (DEBUG) {
+                plugin.getLogger().info("Fire spread not allowed, stopping LAVA ignition");
+            }
+            e.setCancelled(true);
+        }
+    }   
+    
 
     /**
      * Pressure plates

@@ -57,7 +57,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitTask;
@@ -776,30 +775,21 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         // Set the custom protection range if appropriate
         // Dynamic home sizes with permissions
         int range = Settings.island_protectionRange;
-        for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
-            if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.range.")) {
-                range = Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.range.")[1]);
-                // Do some sanity checking
-                if (range % 2 != 0) {
-                    range--;
-                    plugin.getLogger().warning("Protection range must be even, using " + range + " for " + player.getName());
-                }
-                if (range > Settings.islandDistance) {
-                    if (!plugin.getConfig().getBoolean("island.overridelimit", false)) {
-                        if (range > (Settings.islandDistance - 16)) {
-                            range = Settings.islandDistance - 16;
-                            plugin.getLogger().warning(
-                                    "Island protection range must be " + (Settings.islandDistance - 16) + " or less, (island range -16). Setting to: "
-                                            + range);
-                        }
-                    } else {
-                        range = Settings.islandDistance;
-                    }
-                }
-                if (range < 0) {
-                    range = 0;
-                }
+        for (int i = 0; i<= Settings.islandDistance; i++) {
+            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.range." + i)) {
+                range = i;
             }
+        }
+        // Do some sanity checking
+        if (range % 2 != 0) {
+            range--;
+            plugin.getLogger().warning("Protection range must be even, using " + range + " for " + player.getName());
+        }
+        if (range > (Settings.islandDistance - 16) && !plugin.getConfig().getBoolean("island.overridelimit", false)) {
+            range = Settings.islandDistance - 16;
+            plugin.getLogger().warning(
+                    "Island protection range must be " + (Settings.islandDistance - 16) + " or less, (island range -16). Setting to: "
+                            + range);
         }
         myIsland.setProtectionSize(range);
         // Show fancy titles!
@@ -1517,14 +1507,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 }
                 // Dynamic home sizes with permissions
                 int maxHomes = Settings.maxHomes;
-                for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
-                    if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.maxhomes.")) {
-                        // Get the max value should there be more than one
-                        maxHomes = Math.max(maxHomes, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.maxhomes.")[1]));
-                    }
-                    // Do some sanity checking
-                    if (maxHomes < 1) {
-                        maxHomes = 1;
+                // Try the Vault way
+                for (int i = Settings.maxHomes; i< Settings.maxHomes + 100; i++) {
+                    if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.maxhomes." + i)) {
+                        maxHomes = i;
                     }
                 }
                 if (maxHomes > 1 && VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.sethome")) {
@@ -1690,14 +1676,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             // Check to see if the team is already full
                             int maxSize = Settings.maxTeamSize;
                             // Dynamic team sizes with permissions
-                            for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
-                                //plugin.getLogger().info("DEBUG perms: " + perms);
-                                if (perms.getPermission().startsWith(Settings.PERMPREFIX + "team.maxsize.")) {
-                                    maxSize = Math.max(maxSize, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "team.maxsize.")[1]));
-                                }
-                                // Do some sanity checking
-                                if (maxSize < Settings.maxTeamSize) {
-                                    maxSize = Settings.maxTeamSize;
+                            // Try the Vault way
+                            for (int i = maxSize; i< Settings.maxTeamSize + 100; i++) {
+                                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "team.maxsize." + i)) {
+                                    maxSize = i;
                                 }
                             }
                             // Account for deprecated permissions. These will be zero on new installs
@@ -1851,13 +1833,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     if (teamLeader.equals(playerUUID)) {
                         int maxSize = Settings.maxTeamSize;
                         // Dynamic team sizes with permissions
-                        for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
-                            if (perms.getPermission().startsWith(Settings.PERMPREFIX + "team.maxsize.")) {
-                                maxSize = Math.max(maxSize, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "team.maxsize.")[1]));
-                            }
-                            // Do some sanity checking
-                            if (maxSize < Settings.maxTeamSize) {
-                                maxSize = Settings.maxTeamSize;
+                        for (int i = maxSize; i< Settings.maxTeamSize + 100; i++) {
+                            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "team.maxsize." + i)) {
+                                maxSize = i;
                             }
                         }
                         if (teamMembers.size() < maxSize) {
@@ -2028,15 +2006,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                         plugin.getGrid().homeTeleport(player,1);
                                     } else {
                                         int maxHomes = Settings.maxHomes;
-                                        // Dynamic home sizes with permissions
-                                        for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
-                                            if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.maxhomes.")) {
-                                                // Get the max value should there be more than one
-                                                maxHomes = Math.max(maxHomes, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.maxhomes.")[1]));
-                                            }
-                                            // Do some sanity checking
-                                            if (maxHomes < 1) {
-                                                maxHomes = 1;
+                                        // Try the Vault way
+                                        for (int i = Settings.maxHomes; i< Settings.maxHomes + 100; i++) {
+                                            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.maxhomes." + i)) {
+                                                maxHomes = i;
                                             }
                                         }
                                         if (number > maxHomes) {
@@ -2071,11 +2044,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                     return true;
                                 }
                                 int maxHomes = Settings.maxHomes;
-                                // Dynamic home sizes with permissions
-                                for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
-                                    if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.maxhomes.")) {
-                                        // Get the max value should there be more than one
-                                        maxHomes = Math.max(maxHomes, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.maxhomes.")[1]));
+                                // Try the Vault way
+                                for (int i = Settings.maxHomes; i< Settings.maxHomes + 100; i++) {
+                                    if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.maxhomes." + i)) {
+                                        maxHomes = i;
                                     }
                                 }
                                 if (maxHomes > 1) {
@@ -2240,18 +2212,13 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         } else if (split[0].equalsIgnoreCase("invite")) {
                             // Team invite a player command
                             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "team.create")) {
-                                // May return null if not known
-                                final UUID invitedPlayerUUID = plugin.getPlayers().getUUID(split[1]);
-                                // Invited player must be known
-                                if (invitedPlayerUUID == null) {
-                                    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorUnknownPlayer);
-                                    return true;
-                                }
-                                // Player must be online
-                                if (plugin.getServer().getPlayer(invitedPlayerUUID) == null) {
+                                // Only online players can be invited
+                                Player invitedPlayer = plugin.getServer().getPlayer(split[1]);
+                                if (invitedPlayer == null) {
                                     player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
-                                    return true;
-                                }
+                                    return true;  
+                                }                                
+                                UUID invitedPlayerUUID = invitedPlayer.getUniqueId();
                                 // Player issuing the command must have an island
                                 if (!plugin.getPlayers().hasIsland(player.getUniqueId())) {
                                     player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).inviteerrorYouMustHaveIslandToInvite);
@@ -2279,23 +2246,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                             // Player has space in their team
                                             int maxSize = Settings.maxTeamSize;
                                             // Dynamic team sizes with permissions
-                                            for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
-                                                if (perms.getPermission().startsWith(Settings.PERMPREFIX + "team.maxsize.")) {
-                                                    // Prevent the situation where the player has multiple permissions
-                                                    String[] permSplit = perms.getPermission().split(Settings.PERMPREFIX + "team.maxsize.");
-                                                    if (permSplit.length == 2) {
-                                                        try {
-                                                            maxSize = Math.max(maxSize, Integer.valueOf(permSplit[1]));
-                                                        } catch (Exception e) {
-                                                            plugin.getLogger().severe("Max team perm for player " + player.getName() + " cannot be parsed " + perms.getPermission());
-                                                        }
-                                                    } else {
-                                                        plugin.getLogger().severe("Max team perm for player " + player.getName() + " cannot be parsed " + perms.getPermission());
-                                                    }
-                                                }
-                                                // Do some sanity checking
-                                                if (maxSize < Settings.maxTeamSize) {
-                                                    maxSize = Settings.maxTeamSize;
+                                            for (int i = maxSize; i< Settings.maxTeamSize + 100; i++) {
+                                                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "team.maxsize." + i)) {
+                                                    maxSize = i;
                                                 }
                                             }
                                             if (teamMembers.size() < maxSize) {
@@ -2366,46 +2319,39 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         } else if (split[0].equalsIgnoreCase("coop")) {
                             // Give a player coop privileges
                             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "coop")) {
-                                // May return null if not known
-                                final UUID invitedPlayerUUID = plugin.getPlayers().getUUID(split[1]);
-                                // Invited player must be known
-                                if (invitedPlayerUUID == null) {
-                                    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorUnknownPlayer);
-                                    return true;
-                                }
-                                // Player must be online
-                                Player newPlayer = plugin.getServer().getPlayer(invitedPlayerUUID);
-                                if (newPlayer == null) {
+                                // Only online players can be cooped
+                                Player target = plugin.getServer().getPlayer(split[1]);
+                                if (target == null) {
                                     player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
-                                    return true;
-                                }
-                                // Player issuing the command must have an island
+                                    return true;  
+                                }                                
+                                UUID targetPlayerUUID = target.getUniqueId();                                // Player issuing the command must have an island
                                 if (!plugin.getPlayers().hasIsland(playerUUID) && !plugin.getPlayers().inTeam(playerUUID)) {
                                     player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).inviteerrorYouMustHaveIslandToInvite);
                                     return true;
                                 }
                                 // Player cannot invite themselves
-                                if (player.getName().equalsIgnoreCase(split[1])) {
+                                if (playerUUID.equals(targetPlayerUUID)) {
                                     player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).inviteerrorYouCannotInviteYourself);
                                     return true;
                                 }
                                 // If target player is already on the team ignore
-                                if (plugin.getPlayers().getMembers(playerUUID).contains(invitedPlayerUUID)) {
+                                if (plugin.getPlayers().getMembers(playerUUID).contains(targetPlayerUUID)) {
                                     player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).coopOnYourTeam);
                                     return true;
                                 }
                                 // Target has to have an island
-                                if (!plugin.getPlayers().inTeam(invitedPlayerUUID)) {
-                                    if (!plugin.getPlayers().hasIsland(invitedPlayerUUID)) {
+                                if (!plugin.getPlayers().inTeam(targetPlayerUUID)) {
+                                    if (!plugin.getPlayers().hasIsland(targetPlayerUUID)) {
                                         player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoIslandOther);
                                         return true;
                                     }
                                 }
                                 // Add target to coop list
-                                CoopPlay.getInstance().addCoopPlayer(player, newPlayer);
+                                CoopPlay.getInstance().addCoopPlayer(player, target);
                                 // Tell everyone what happened
-                                player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopSuccess.replace("[name]", newPlayer.getDisplayName()));
-                                newPlayer.sendMessage(ChatColor.GREEN + plugin.myLocale(newPlayer.getUniqueId()).coopMadeYouCoop.replace("[name]", player.getDisplayName()));
+                                player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopSuccess.replace("[name]", target.getDisplayName()));
+                                target.sendMessage(ChatColor.GREEN + plugin.myLocale(targetPlayerUUID).coopMadeYouCoop.replace("[name]", player.getDisplayName()));
                                 return true;
 
                             }
@@ -2415,21 +2361,16 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 return true;
                             }
                             // Find out who they want to expel
-                            final UUID targetPlayerUUID = plugin.getPlayers().getUUID(split[1]);
-                            // Player must be known
-                            if (targetPlayerUUID == null) {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorUnknownPlayer);
-                                return true;
-                            }
+                            // Only online players can be expelled
+                            Player target = plugin.getServer().getPlayer(split[1]);
+                            if (target == null) {
+                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
+                                return true;  
+                            }                                
+                            UUID targetPlayerUUID = target.getUniqueId();
                             // Target should not be themselves
                             if (targetPlayerUUID.equals(playerUUID)) {
                                 player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelNotYourself);
-                                return true;
-                            }
-                            // Target must be online
-                            Player target = plugin.getServer().getPlayer(targetPlayerUUID);
-                            if (target == null) {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
                                 return true;
                             }
                             // Target cannot be op
@@ -2478,21 +2419,16 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 return true;
                             }
                             // Find out who they want to uncoop
-                            final UUID targetPlayerUUID = plugin.getPlayers().getUUID(split[1]);
-                            // Player must be known
-                            if (targetPlayerUUID == null) {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorUnknownPlayer);
-                                return true;
-                            }
+                            // Only online players can be uncooped
+                            Player target = plugin.getServer().getPlayer(split[1]);
+                            if (target == null) {
+                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
+                                return true;  
+                            }                                
+                            UUID targetPlayerUUID = target.getUniqueId();
                             // Target should not be themselves
                             if (targetPlayerUUID.equals(playerUUID)) {
                                 player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).banNotYourself);
-                                return true;
-                            }
-                            // Target must be online
-                            Player target = plugin.getServer().getPlayer(targetPlayerUUID);
-                            if (target == null) {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
                                 return true;
                             }
                             // Remove them from the coop list
@@ -2540,7 +2476,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             OfflinePlayer offlineTarget = plugin.getServer().getOfflinePlayer(targetPlayerUUID);
                             // Target cannot be op
                             if (offlineTarget.isOp()) {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).banFail.replace("[name]", offlineTarget.getName()));
+                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).banFail.replace("[name]", split[1]));
                                 return true;
                             }
                             if (target != null) {
@@ -2571,12 +2507,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).banBanned.replace("[name]", player.getDisplayName()));
                             }
                             // Console
-                            plugin.getLogger().info(player.getName() + " banned " + offlineTarget.getName() + " from their island.");
+                            plugin.getLogger().info(player.getName() + " banned " + split[1] + " from their island.");
                             // Player
-                            player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banSuccess.replace("[name]", offlineTarget.getName()));
+                            player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banSuccess.replace("[name]", split[1]));
                             // Tell team
-                            plugin.getMessages().tellTeam(playerUUID, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banSuccess.replace("[name]", offlineTarget.getName()));
-                            plugin.getMessages().tellOfflineTeam(playerUUID, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banSuccess.replace("[name]", offlineTarget.getName()));
+                            plugin.getMessages().tellTeam(playerUUID, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banSuccess.replace("[name]", split[1]));
+                            plugin.getMessages().tellOfflineTeam(playerUUID, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banSuccess.replace("[name]", split[1]));
                             // Ban the sucker
                             plugin.getPlayers().ban(playerUUID, targetPlayerUUID);
                             plugin.getGrid().saveGrid();
@@ -2615,12 +2551,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             }
                             OfflinePlayer offlineTarget = plugin.getServer().getOfflinePlayer(targetPlayerUUID);
                             // Player
-                            player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banLiftedSuccess.replace("[name]", offlineTarget.getName()));
+                            player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banLiftedSuccess.replace("[name]", split[1]));
                             // Console
-                            plugin.getLogger().info(player.getName() + " unbanned " + offlineTarget.getName() + " from their island.");
+                            plugin.getLogger().info(player.getName() + " unbanned " + split[1] + " from their island.");
                             // Tell team
-                            plugin.getMessages().tellTeam(playerUUID, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banLiftedSuccess.replace("[name]", offlineTarget.getName()));
-                            plugin.getMessages().tellOfflineTeam(playerUUID, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banLiftedSuccess.replace("[name]", offlineTarget.getName()));
+                            plugin.getMessages().tellTeam(playerUUID, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banLiftedSuccess.replace("[name]", split[1]));
+                            plugin.getMessages().tellOfflineTeam(playerUUID, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).banLiftedSuccess.replace("[name]", split[1]));
                             // Unban the redeemed one
                             plugin.getPlayers().unBan(playerUUID, targetPlayerUUID);
                             plugin.getGrid().saveGrid();
@@ -3164,7 +3100,14 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.sethome")) {
                 if (args[0].equalsIgnoreCase("go") || args[0].equalsIgnoreCase("sethome")) {
-                    for (int i = 0; i < Settings.maxHomes; i++) {
+                    int maxHomes = Settings.maxHomes;
+                    // Try the Vault way
+                    for (int i = Settings.maxHomes; i< Settings.maxHomes + 100; i++) {
+                        if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.maxhomes." + i)) {
+                            maxHomes = i;
+                        }
+                    }
+                    for (int i = 0; i < maxHomes; i++) {
                         options.add(Integer.toString(i));
                     }
                 }
