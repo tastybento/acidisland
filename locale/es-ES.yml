@@ -368,7 +368,7 @@ minishop:
   outofstock: "No hay existencias"
   sell: "Vender (clic derecho)"
   sellproblem: "No tienes suficiente [description] para vender."
-  title: "&EMinitienda"
+  title: "Minitienda"
   youbought: "Compraste [number] [description] por [price]"
   youcannotafford: "No tienes dinero para [description]!"
   yousold: "Vendiste [number] [description] por [price]"

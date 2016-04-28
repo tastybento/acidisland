@@ -348,7 +348,7 @@ minishop:
   outofstock: "Rupture de Stock"
   sell: "Vendre (Clic droit)"
   sellproblem: "Vous n'avez pas assez de [description] à vendre."
-  title: "&eMiniShop"
+  title: "MiniShop"
   youbought: "Vous avez acheté [number] [description] pour [price]"
   youcannotafford: "Vous ne pouvez pas acquérir [description]!"
   yousold: "Vous avez vendu [number] [description] pour [price]"

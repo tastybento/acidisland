@@ -374,7 +374,7 @@ minishop:
   outofstock: "Nicht genügend Items!"
   sell: "Verkaufen (Rechtsklick)"
   sellproblem: "Du hast nicht genügend von [description] um es zu verkaufen!"
-  title: MiniShop
+  title: "MiniShop"
   youbought: "§aDu hast §c[number] &b[description] §afür §c[price] §aEuro gekauft!"
   youcannnotafford: "Du hast nicht genügend Geld für [description]!"
   yousold: "Du hast [number] [description] für [price] Euro verkauft!"

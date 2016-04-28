@@ -369,7 +369,7 @@ minishop:
   outofstock: "Out Of Stock"
   sell: "Sell(Right click)"
   sellproblem: "You do not have enough [description] to sell."
-  title: "&EMiniShop"
+  title: "MiniShop"
   youbought: "You bought [number] [description] for [price]"
   youcannotafford: "You cannot afford [description]!"
   yousold: "You sold [number] [description] for [price]"

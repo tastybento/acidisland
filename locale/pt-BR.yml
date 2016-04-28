@@ -369,7 +369,7 @@ minishop:
   outofstock: "Sem estoque"
   sell: "Vender(Clique botão direito)"
   sellproblem: "Você não tem [description] para vender."
-  title: "&EMiniShop"
+  title: "MiniShop"
   youbought: "Você comprou [number] [description] por [price]"
   youcannotafford: "Você não tem dinheiro suficiente para comprar [description]!"
   yousold: "Você vendeu [number] [description] por [price]"

@@ -258,7 +258,7 @@ minishop:
   outofstock: "Nie je tovar"
   sell: Predaj
   sellproblem: "Uz asi nemas [description] na predaj."
-  title: "&eMiniShop"
+  title: "MiniShop"
   youbought: "Prave si kupil [number] [description] za [price]"
   youcannotafford: "Nemas dost Sco na [description]!"
   yousold: "Predal si [number] [description] za [price]"

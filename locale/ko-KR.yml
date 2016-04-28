@@ -359,7 +359,7 @@ minishop:
   outofstock: "재고 없음"
   sell: "판매 (우클릭)"
   sellproblem: "[description] 을/를 판매할만큼의 수량을 가지고 있지 않습니다."
-  title: "&E간이상점"
+  title: "간이상점"
   youbought: "[description] x[number] 을/를 [price] 에 구매했습니다"
   youcannotafford: "[description] 을/를 구매할 돈이 부족합니다!"
   yousold: "[description] [number] 을/를 [price] 에 판매했습니다"

@@ -306,7 +306,7 @@ minishop:
   outofstock: §c物品卖完了哟
   sell: §c出售§e
   sellproblem: §c你没有足够的物品.
-  title: §5迷你商店§e-§d左键购买§c右键出售
+  title: "迷你商店§e-§d左键购买§c右键出售"
   youbought: "§a你购买了§e[number]§a个§6[description]§a花费了§b[price]"
   youcannotafford: §c余额不足!
   yousold: "§a你出售了§e[number]§a个[description]§a获得了§b[price]"

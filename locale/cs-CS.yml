@@ -263,7 +263,7 @@ minishop:
   outofstock: "Itemy dosly"
   sell: "Prodavej(klikni pravym)"
   sellproblem: "Nemas dostatek [description] k prodeji."
-  title: "&EMiniShop"
+  title: "MiniShop"
   youbought: "Koupil si [number] [description] za [price]"
   youcannotafford: "Nemuzes si dovolit [description]!"
   yousold: "Prodal si [number] [description] za [price]"

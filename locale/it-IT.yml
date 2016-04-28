@@ -218,7 +218,7 @@ minishop:
   outofstock: Esaurito
   sell: "Vendi(click dx)"
   sellproblem: "Non hai abbastanza [description] per vendere."
-  title: "&ENegozio"
+  title: "Negozio"
   youbought: "Hai acquistato [number] [description] per [price]"
   youcannotafford: "Non ti puoi permrettere [description]!"
   yousold: "Hai venduto[number] [description] per [price]"

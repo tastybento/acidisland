@@ -209,7 +209,7 @@ minishop:
   outofstock: Wyprzedane
   sell: "Sprzedaj(Prawy przycisk myszki)"
   sellproblem: "Nie masz wystarczająco dużo [description] żeby je sprzedać."
-  title: "&EMiniSklep"
+  title: "MiniSklep"
   youbought: "Kupiłeś [number] [description] za [price]"
   youcannotafford: "Nie możesz kupić [description]!"
   yousold: "Sprzedałeś [number] [description] za [price]"

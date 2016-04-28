@@ -267,7 +267,7 @@ minishop:
   outofstock: 物品賣完了喲
   sell: "&c&l出售&e&l"
   sellproblem: 你沒有足夠的物品.
-  title: "&5&l迷你商店&e-&d&l左鍵購買&c&l右鍵出售"
+  title: "&l迷你商店&e-&d&l左鍵購買&c&l右鍵出售"
   youbought: "&a你購買了&e[number]&a個&6[description]&a花費了&b[price]"
   youcannotafford: "&c餘額不足!"
   yousold: "&a你出售了&e[number]&a個[description]&a獲得了&b[price]"

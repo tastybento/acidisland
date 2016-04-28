@@ -353,7 +353,7 @@ minishop:
   outofstock: Uitverkocht
   sell: "Verkopen (Rechter muisknop)"
   sellproblem: "Je hebt niet genoeg [description] om te verkopen."
-  title: "&Minishop"
+  title: "Minishop"
   youbought: "Je kocht [number] [description] voor [price]"
   youcannotafford: "Je kan dat niet betalen [description]!"
   yousold: "Je verkocht [number] [description] voor [price]"
