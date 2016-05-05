@@ -57,6 +57,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitTask;
@@ -774,11 +775,11 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             setResetWaitTime(player);
         }
         // Set the custom protection range if appropriate
-        // Dynamic home sizes with permissions
+        // Dynamic island range sizes with permissions
         int range = Settings.island_protectionRange;
-        for (int i = 0; i<= Settings.islandDistance; i++) {
-            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.range." + i)) {
-                range = i;
+        for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
+            if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.range.")) {
+                range = Math.max(range, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.range.")[1]));
             }
         }
         // Do some sanity checking
@@ -996,40 +997,69 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
      *            - UUID of the player's island that is being requested
      * @return - true if successful.
      */
-    public boolean calculateIslandLevel(final Player asker, final UUID targetPlayer) {
-        if (plugin.isCalculatingLevel()) {
-            asker.sendMessage(ChatColor.RED + plugin.myLocale(asker.getUniqueId()).islanderrorLevelNotReady);
-            return false;
-        }
-        // Player asking for their own island calc
-        if (asker.getUniqueId().equals(targetPlayer) || asker.isOp() || VaultHelper.checkPerm(asker, Settings.PERMPREFIX + "mod.info")) {
-            // Newer better system - uses chunks
-            if (Settings.fastLevelCalc) {
-                if (!onLevelWaitTime(asker) || Settings.levelWait <= 0 || asker.isOp() || VaultHelper.checkPerm(asker, Settings.PERMPREFIX + "mod.info")) {
-                    asker.sendMessage(ChatColor.GREEN + plugin.myLocale(asker.getUniqueId()).levelCalculating);
-                    setLevelWaitTime(asker);
-                    new LevelCalcByChunk(plugin, targetPlayer, asker);
+    public boolean calculateIslandLevel(final CommandSender sender, final UUID targetPlayer) {
+        return calculateIslandLevel(sender, targetPlayer, false);
+    }
+
+    /**
+     * Calculates the island level
+     * @param sender - asker of the level info
+     * @param targetPlayer
+     * @param report - if true, a detailed report will be provided
+     * @return - false if this is cannot be done
+     */
+    public boolean calculateIslandLevel(final CommandSender sender, final UUID targetPlayer, boolean report) {
+        if (sender instanceof Player) {
+            Player asker = (Player)sender;
+            if (plugin.isCalculatingLevel()) {
+                asker.sendMessage(ChatColor.RED + plugin.myLocale(asker.getUniqueId()).islanderrorLevelNotReady);
+                return false;
+            }
+            // Player asking for their own island calc
+            if (asker.getUniqueId().equals(targetPlayer) || asker.isOp() || VaultHelper.checkPerm(asker, Settings.PERMPREFIX + "mod.info")) {
+                // Newer better system - uses chunks
+                if (Settings.fastLevelCalc) {
+                    if (!onLevelWaitTime(asker) || Settings.levelWait <= 0 || asker.isOp() || VaultHelper.checkPerm(asker, Settings.PERMPREFIX + "mod.info")) {
+                        asker.sendMessage(ChatColor.GREEN + plugin.myLocale(asker.getUniqueId()).levelCalculating);
+                        setLevelWaitTime(asker);
+                        new LevelCalcByChunk(plugin, targetPlayer, asker, report);
+                    } else {
+                        asker.sendMessage(ChatColor.YELLOW + plugin.myLocale(asker.getUniqueId()).islandresetWait.replace("[time]", String.valueOf(getLevelWaitTime(asker))));
+                    }
                 } else {
-                    asker.sendMessage(ChatColor.YELLOW + plugin.myLocale(asker.getUniqueId()).islandresetWait.replace("[time]", String.valueOf(getLevelWaitTime(asker))));
+                    // Legacy support - maybe some people still want the old way (shrug)
+                    plugin.setCalculatingLevel(true);
+                    if (!onLevelWaitTime(asker) || Settings.levelWait <= 0 || asker.isOp() || VaultHelper.checkPerm(asker, Settings.PERMPREFIX + "mod.info")) {
+                        asker.sendMessage(ChatColor.GREEN + plugin.myLocale(asker.getUniqueId()).levelCalculating);
+                        LevelCalc levelCalc = new LevelCalc(plugin, targetPlayer, asker, report);
+                        levelCalc.runTaskTimer(plugin, 0L, 5L);
+                        setLevelWaitTime(asker);
+                    } else {
+                        asker.sendMessage(ChatColor.YELLOW + plugin.myLocale(asker.getUniqueId()).islandresetWait.replace("[time]", String.valueOf(getLevelWaitTime(asker))));
+                        plugin.setCalculatingLevel(false);
+                    }
                 }
             } else {
-                // Legacy support - maybe some people still want the old way (shrug)
-                plugin.setCalculatingLevel(true);
-                if (!onLevelWaitTime(asker) || Settings.levelWait <= 0 || asker.isOp() || VaultHelper.checkPerm(asker, Settings.PERMPREFIX + "mod.info")) {
-                    asker.sendMessage(ChatColor.GREEN + plugin.myLocale(asker.getUniqueId()).levelCalculating);
-                    LevelCalc levelCalc = new LevelCalc(plugin, targetPlayer, asker);
-                    levelCalc.runTaskTimer(plugin, 0L, 5L);
-                    setLevelWaitTime(asker);
-                } else {
-                    asker.sendMessage(ChatColor.YELLOW + plugin.myLocale(asker.getUniqueId()).islandresetWait.replace("[time]", String.valueOf(getLevelWaitTime(asker))));
-                    plugin.setCalculatingLevel(false);
-                }
+                // Asking for the level of another player
+                asker.sendMessage(ChatColor.GREEN + plugin.myLocale(asker.getUniqueId()).islandislandLevelis + " " + ChatColor.WHITE + plugin.getPlayers().getIslandLevel(targetPlayer));
             }
         } else {
-            // Asking for the level of another player
-            asker.sendMessage(ChatColor.GREEN + plugin.myLocale(asker.getUniqueId()).islandislandLevelis + " " + ChatColor.WHITE + plugin.getPlayers().getIslandLevel(targetPlayer));
+            // Console request            
+            if (Settings.fastLevelCalc) {
+                sender.sendMessage(ChatColor.GREEN + plugin.myLocale().levelCalculating);
+                new LevelCalcByChunk(plugin, targetPlayer, sender, report);
+            } else {
+                // Legacy support - maybe some people still want the old way (shrug) 
+                if (plugin.isCalculatingLevel()) {
+                    sender.sendMessage(ChatColor.RED + plugin.myLocale().islanderrorLevelNotReady);
+                    return true;
+                }
+                sender.sendMessage(ChatColor.GREEN + plugin.myLocale().levelCalculating);
+                plugin.setCalculatingLevel(true);
+                LevelCalc levelCalc = new LevelCalc(plugin, targetPlayer, sender, report);
+                levelCalc.runTaskTimer(plugin, 0L, 5L);
+            }
         }
-
         return true;
     }
 
@@ -1508,10 +1538,14 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 }
                 // Dynamic home sizes with permissions
                 int maxHomes = Settings.maxHomes;
-                // Try the Vault way
-                for (int i = Settings.maxHomes; i< Settings.maxHomes + 100; i++) {
-                    if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.maxhomes." + i)) {
-                        maxHomes = i;
+                for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
+                    if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.maxhomes.")) {
+                        // Get the max value should there be more than one
+                        maxHomes = Math.max(maxHomes, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.maxhomes.")[1]));
+                    }
+                    // Do some sanity checking
+                    if (maxHomes < 1) {
+                        maxHomes = 1;
                     }
                 }
                 if (maxHomes > 1 && VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.sethome")) {
@@ -2006,11 +2040,16 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                     if (number < 1) {
                                         plugin.getGrid().homeTeleport(player,1);
                                     } else {
+                                        // Dynamic home sizes with permissions
                                         int maxHomes = Settings.maxHomes;
-                                        // Try the Vault way
-                                        for (int i = Settings.maxHomes; i< Settings.maxHomes + 100; i++) {
-                                            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.maxhomes." + i)) {
-                                                maxHomes = i;
+                                        for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
+                                            if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.maxhomes.")) {
+                                                // Get the max value should there be more than one
+                                                maxHomes = Math.max(maxHomes, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.maxhomes.")[1]));
+                                            }
+                                            // Do some sanity checking
+                                            if (maxHomes < 1) {
+                                                maxHomes = 1;
                                             }
                                         }
                                         if (number > maxHomes) {
@@ -2044,11 +2083,16 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                     player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoIsland);
                                     return true;
                                 }
+                                // Dynamic home sizes with permissions
                                 int maxHomes = Settings.maxHomes;
-                                // Try the Vault way
-                                for (int i = Settings.maxHomes; i< Settings.maxHomes + 100; i++) {
-                                    if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.maxhomes." + i)) {
-                                        maxHomes = i;
+                                for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
+                                    if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.maxhomes.")) {
+                                        // Get the max value should there be more than one
+                                        maxHomes = Math.max(maxHomes, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.maxhomes.")[1]));
+                                    }
+                                    // Do some sanity checking
+                                    if (maxHomes < 1) {
+                                        maxHomes = 1;
                                     }
                                 }
                                 if (maxHomes > 1) {
@@ -3101,11 +3145,16 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.sethome")) {
                 if (args[0].equalsIgnoreCase("go") || args[0].equalsIgnoreCase("sethome")) {
+                    // Dynamic home sizes with permissions
                     int maxHomes = Settings.maxHomes;
-                    // Try the Vault way
-                    for (int i = Settings.maxHomes; i< Settings.maxHomes + 100; i++) {
-                        if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.maxhomes." + i)) {
-                            maxHomes = i;
+                    for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
+                        if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.maxhomes.")) {
+                            // Get the max value should there be more than one
+                            maxHomes = Math.max(maxHomes, Integer.valueOf(perms.getPermission().split(Settings.PERMPREFIX + "island.maxhomes.")[1]));
+                        }
+                        // Do some sanity checking
+                        if (maxHomes < 1) {
+                            maxHomes = 1;
                         }
                     }
                     for (int i = 0; i < maxHomes; i++) {

@@ -61,6 +61,7 @@ import com.wasteofplastic.acidisland.commands.IslandCmd;
 import com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld;
 import com.wasteofplastic.acidisland.listeners.AcidEffect;
 import com.wasteofplastic.acidisland.listeners.ChatListener;
+import com.wasteofplastic.acidisland.listeners.CleanSuperFlat;
 import com.wasteofplastic.acidisland.listeners.HeroChatListener;
 import com.wasteofplastic.acidisland.listeners.IslandGuard;
 import com.wasteofplastic.acidisland.listeners.IslandGuard1_8;
@@ -773,8 +774,19 @@ public class ASkyBlock extends JavaPlugin {
                 } 
             }
         }
+        // Recover superflat
+        Settings.recoverSuperFlat = getConfig().getBoolean("general.recoversuperflat");
+        if (Settings.recoverSuperFlat) {
+            getLogger().warning("*********************************************************");
+            getLogger().warning("WARNING: Recover super flat mode is enabled");
+            getLogger().warning("This will regenerate any chunks with bedrock at y=0 when they are loaded");
+            getLogger().warning("Switch off when superflat chunks are cleared");
+            getLogger().warning("You should back up your world before running this");
+            getLogger().warning("*********************************************************");
+        }
         // Debug
         Settings.debug = getConfig().getInt("debug", 0);
+        Settings.levelLogging = getConfig().getBoolean("general.levellogging");
         // Allow pushing
         Settings.allowPushing = getConfig().getBoolean("general.allowpushing", true);
         // Custom generator
@@ -1458,6 +1470,9 @@ public class ASkyBlock extends JavaPlugin {
         // Wither
         if (Settings.restrictWither) {
             manager.registerEvents(new WitherEvents(this), this);
+        }
+        if (Settings.recoverSuperFlat) {
+            manager.registerEvents(new CleanSuperFlat(), this);
         }
         // World loader
         //manager.registerEvents(new WorldLoader(this), this);
