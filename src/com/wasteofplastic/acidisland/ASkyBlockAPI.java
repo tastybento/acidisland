@@ -30,6 +30,8 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
+import com.wasteofplastic.acidisland.panels.SetBiome;
+
 /**
  * Provides a programming interface
  * 
@@ -88,7 +90,7 @@ public class ASkyBlockAPI {
      */
     public boolean calculateIslandLevel(UUID playerUUID) {
         if (plugin.getPlayers().inTeam(playerUUID) && !plugin.getPlayers().hasIsland(playerUUID)) {		
-            new LevelCalcByChunk(plugin, playerUUID, null, true);
+            new LevelCalcByChunk(plugin, playerUUID, null, false);
             return true;
         }
         return false;
@@ -271,7 +273,12 @@ public class ASkyBlockAPI {
      * @return true if the setting was successful
      */
     public boolean setIslandBiome(Location islandLoc, Biome biomeType) {
-        return plugin.getBiomes().setIslandBiome(islandLoc, biomeType);
+        Island island = plugin.getGrid().getIslandAt(islandLoc);
+        if (island != null) {
+            new SetBiome(plugin, island, biomeType);
+            return true;
+        }
+        return false;
     }
 
     /**
