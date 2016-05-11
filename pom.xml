@@ -4,7 +4,7 @@
 
 	<groupId>com.wasteofplastic</groupId>
 	<artifactId>acidisland</artifactId>
-	<version>3.0.0.6</version>
+	<version>3.0.0.8</version>
 	<packaging>jar</packaging>
 
 	<name>com.wasteofplastic</name>
@@ -69,14 +69,15 @@
 	</build>
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.9-R0.1-SNAPSHOT</version>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.9.4-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>VaultAPI</artifactId>
-            <version>1.5</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>com.sk89q</groupId>
@@ -91,6 +92,20 @@
             <scope>system</scope>
             <systemPath>${server.jars}/craftbukkit-1.7.9-R0.3-20140705.002733-4.jar</systemPath>
             <version>1.7.9</version>
+        </dependency>
+        <dependency>
+            <groupId>spigotmc.org</groupId>
+            <artifactId>spigot-1.9.2</artifactId>
+            <scope>system</scope>
+            <systemPath>${server.jars}/spigot-1.9.2.jar</systemPath>
+            <version>1.9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>spigotmc.org</groupId>
+            <artifactId>spigot-1.9.4</artifactId>
+            <scope>system</scope>
+            <systemPath>${server.jars}/spigot-1.9.4.jar</systemPath>
+            <version>1.9.4</version>
         </dependency>
         <dependency>
             <groupId>spigotmc.org</groupId>
@@ -145,14 +160,14 @@
             <groupId>org.dthielke</groupId>
             <artifactId>Herochat</artifactId>
             <scope>system</scope>
-            <systemPath>${server.jars}/Herochat-5.7.0.jar</systemPath>
+            <systemPath>${server.jars}/HeroChat-5.7.0.jar</systemPath>
             <version>5.7.0</version>
         </dependency>
     </dependencies>
     <repositories>
         <repository>
             <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
             <id>vault-repo</id>
