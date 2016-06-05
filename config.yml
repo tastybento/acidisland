@@ -112,6 +112,14 @@ island:
    # allowPvP, allowNetherPvP, allowRedStone, allowShearing
    # Permissions are CASE SENSITIVE!
    
+   # Island naming
+   # Only players with the askyblock.island.name permission can name their island
+   # It is displayed in the top ten and enter and exit announcements
+   # It replaces the owner's name. Players can use & for color coding.
+   # These set the minimum and maximum size of a name. 
+   minnamelength: 0
+   maxnamelength: 20
+
    # Default settings
    # Allow anvil use by visitors
    allowanviluse: true
@@ -173,7 +181,9 @@ island:
    allowredstone: false
    # Allow players to shear sheep
    allowshearing: false
-  
+   # Allow visitors to trade with villagers
+   allowvillagertrading: true
+     
    # System settings - these cannot be changed by players, only viewed
    
    # Allow monsters to be hurt (creepers,slimes, etc.)
@@ -301,6 +311,11 @@ general:
    #- "asadmin lock [player]"
    #- "[SELF] balance"
    #- "some other command"
+
+   # Commands to execute when a player joins a new team island (does /island accept)
+   teamstartcommands:
+   #- "[SELF] balance"
+   #- "some other command"
    
    # Visitor banned commands: Visitors to islands cannot use these commands
    visitorbannedcommands:
@@ -373,7 +388,7 @@ general:
    # Villager limit - this is per team player, so an island of 4 will have 4x this number
    # Note that 10 villagers minimum are required to create an iron farm. Zero is unlimited.
    # Excessive villagers can cause entity lag.
-   villagerlimit: 0
+   villagerlimit: 10
    
    # General entity limiting
    # Use this section to limit how many entities can be added to an island.
@@ -397,7 +412,7 @@ general:
      #BEACON: 12
      #SKULL: 50
      #DAYLIGHT_DETECTOR: 10
-     #HOPPER: 30
+     HOPPER: 30
      #REDSTONE_COMPARATOR: 30
      #FLOWER_POT: 20
      #PAINTING: 5
@@ -496,11 +511,10 @@ general:
    # Use the variable "{ISLAND_LEVEL}" in chat prefixes in other plugins and it will
    # be replaced by the player's island level.
    # Confirmed to work with Essentials Chat, Multiverse Core and Herochat.
-      
-   # Restrict Wither
-   # This allows the Wither to only damage the island where it is spawned.
-   # Damage to any islands or players will not occur.
-   # This prevents griefing-by-wither. 
+
+   # Restrict Wither and other flying mobs
+   # Any flying mobs that exit the island space where they were spawned will be removed.
+   # Includes blaze and ghast.       
    restrictwither: true
    
    # Warp panel - GUI for welcome warp signs. If set to false, old-style
@@ -527,6 +541,11 @@ general:
    # This will regenerate any chunks with bedrock at y=0 when they are loaded.
    recoversuperflat: false
    
+   # Allow coops to be permenant
+   # If you change this, change the text in the locale files about coop ending due to
+   # log out.
+   persistentcoops: false
+
    # Config.yml version. DO NOT EDIT. This number only changes if the latest
    # plugin config has been updated. If a new config is detected, it will be
    # auto-saved to config.new.yml.
@@ -557,6 +576,9 @@ spawn:
   allowredstone: false
   allowanimalkilling: false
   allowmobspawn: false
+  # This allows creepers to hurt players (but not damage blocks) at spawn. e.g. for a mob arena
+  # Note you have to allow mobs to spawn above.
+  allowcreeperpain: false
   allowbeaconaccess: false
   allowspawneggs: false
   alloweggs: false
@@ -704,6 +726,9 @@ schematicsection:
       # Use default chest if true, or use schematic chest contents if false
       useDefaultChest: true
       partnerSchematic: nether
+      #Level handicap zeros the initial island level. Will not retroactively change islands already created. 
+      levelHandicap: 2
+
     # This is the default nether island - do not remove this section!
     nether:
       # Hide or show this schematic to players in the GUI
@@ -724,6 +749,9 @@ schematicsection:
       # Usephysics causes lava or water to flow after being pasted. Change to false
       # if it lags
       usephysics: true
+      #Level handicap zeros the initial island level. Will not retroactively change islands already created. 
+      levelHandicap: 93
+      
     # Additional heading names can be anything you like, but must be unique
     temple:
       icon: CACTUS
@@ -749,3 +777,5 @@ schematicsection:
       # the schematic and will be replaced by air when pasted.
       #spawnblock: SPONGE
       partnerSchematic: nether
+      #Level handicap zeros the initial island level. Will not retroactively change islands already created. 
+      levelHandicap: 1

@@ -85,6 +85,11 @@ public class Island implements Cloneable {
     Biome biome;
     // Island protection settings
     private HashMap<Flags, Boolean> igs = new HashMap<Flags, Boolean>();
+    private int levelHandicap;
+    /**
+     * Island Guard Setting flags
+     *
+     */
     public enum Flags {
         allowAnvilUse,
         allowArmorStandUse,
@@ -114,7 +119,8 @@ public class Island implements Cloneable {
         allowPvP,
         allowNetherPvP,
         allowRedStone,
-        allowShearing
+        allowShearing,
+        allowVillagerTrading
     }
 
 
@@ -188,6 +194,9 @@ public class Island implements Cloneable {
                     int index = 0;
                     // Run through the enum and set
                     for (Flags f : Flags.values()) {
+                        if (split[8].length() == index) {
+                            break;
+                        }
                         this.igs.put(f, split[8].charAt(index++) == '1' ? true : false);
                     }
                 } else {
@@ -203,7 +212,15 @@ public class Island implements Cloneable {
                     } catch (IllegalArgumentException ee) {
                         // Unknown biome
                     }
-                } 
+                }
+                // Get island level handicap
+                if (split.length > 10) {
+                    try {
+                        this.levelHandicap = Integer.valueOf(split[10]);
+                    } catch (Exception e) {
+                        this.levelHandicap = 0;
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -243,6 +260,7 @@ public class Island implements Cloneable {
         this.igs.put(Flags.allowNetherPvP, Settings.allowNetherPvP);
         this.igs.put(Flags.allowRedStone, Settings.allowRedStone);
         this.igs.put(Flags.allowShearing, Settings.allowShearing);
+        this.igs.put(Flags.allowVillagerTrading, Settings.allowVillagerTrading);
     }
 
     /**
@@ -275,7 +293,7 @@ public class Island implements Cloneable {
         // Island Guard Settings
         setDefaults();
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Object#clone()
      */
@@ -301,7 +319,7 @@ public class Island implements Cloneable {
             //plugin.getLogger().info("DEBUG: target x = " + target.getBlockX() + " target z = " + target.getBlockZ());
             //plugin.getLogger().info("DEBUG: min prot x = " + minProtectedX + " min z = " + minProtectedZ);
             //plugin.getLogger().info("DEBUG: max x = " + (minProtectedX + protectionRange) + " max z = " + (minProtectedZ + protectionRange));
-            
+
             if (target.getWorld().equals(world) || (Settings.createNether && Settings.newNether && ASkyBlock.getNetherWorld() != null && target.getWorld().equals(ASkyBlock.getNetherWorld()))) {
                 if (target.getBlockX() >= minProtectedX && target.getBlockX() < (minProtectedX + protectionRange)
                         && target.getBlockZ() >= minProtectedZ && target.getBlockZ() < (minProtectedZ + protectionRange)) {
@@ -310,10 +328,10 @@ public class Island implements Cloneable {
                 /*
                 if (target.getX() >= center.getBlockX() - protectionRange / 2 && target.getX() < center.getBlockX() + protectionRange / 2
                         && target.getZ() >= center.getBlockZ() - protectionRange / 2 && target.getZ() < center.getBlockZ() + protectionRange / 2) {
-                
+
                     return true;
                 }
-                */
+                 */
             }
         }
         return false;
@@ -554,14 +572,18 @@ public class Island implements Cloneable {
         // Personal island protection settings - serialize enum into 1's and 0's representing the boolean values
         try {
             for (Flags f: Flags.values()) {
-                result += this.igs.get(f) ? "1" : "0";
+                if (this.igs.containsKey(f)) {
+                    result += this.igs.get(f) ? "1" : "0";
+                } else {
+                    result += "0";
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
             result = "";
         }
         return center.getBlockX() + ":" + center.getBlockY() + ":" + center.getBlockZ() + ":" + protectionRange + ":" 
-        + islandDistance + ":" + ownerString + ":" + locked + ":" + purgeProtected + ":" + result + ":" + getBiome().toString();
+        + islandDistance + ":" + ownerString + ":" + locked + ":" + purgeProtected + ":" + result + ":" + getBiome().toString() + ":" + levelHandicap;
     }
 
     /**
@@ -795,5 +817,19 @@ public class Island implements Cloneable {
      */
     public void setBiome(Biome biome) {
         this.biome = biome;
+    }
+
+    /**
+     * @return the levelHandicap
+     */
+    public int getLevelHandicap() {
+        return levelHandicap;
+    }
+
+    /**
+     * @param levelHandicap the levelHandicap to set
+     */
+    public void setLevelHandicap(int levelHandicap) {
+        this.levelHandicap = levelHandicap;
     }
 }

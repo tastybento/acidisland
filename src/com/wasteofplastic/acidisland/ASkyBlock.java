@@ -62,6 +62,7 @@ import com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld;
 import com.wasteofplastic.acidisland.listeners.AcidEffect;
 import com.wasteofplastic.acidisland.listeners.ChatListener;
 import com.wasteofplastic.acidisland.listeners.CleanSuperFlat;
+import com.wasteofplastic.acidisland.listeners.FlyingMobEvents;
 import com.wasteofplastic.acidisland.listeners.HeroChatListener;
 import com.wasteofplastic.acidisland.listeners.IslandGuard;
 import com.wasteofplastic.acidisland.listeners.IslandGuard1_8;
@@ -70,7 +71,6 @@ import com.wasteofplastic.acidisland.listeners.JoinLeaveEvents;
 import com.wasteofplastic.acidisland.listeners.LavaCheck;
 import com.wasteofplastic.acidisland.listeners.NetherPortals;
 import com.wasteofplastic.acidisland.listeners.PlayerEvents;
-import com.wasteofplastic.acidisland.listeners.WitherEvents;
 import com.wasteofplastic.acidisland.listeners.WorldEnter;
 import com.wasteofplastic.acidisland.listeners.WorldLoader;
 import com.wasteofplastic.acidisland.panels.BiomesPanel;
@@ -100,7 +100,7 @@ public class ASkyBlock extends JavaPlugin {
     // Challenges object
     private Challenges challenges;
     // Localization Strings
-    private HashMap<String,Locale> availableLocales = new HashMap<String,Locale>();
+    private HashMap<String,ASLocale> availableLocales = new HashMap<String,ASLocale>();
     // Players object
     private PlayerCache players;
     // Listeners
@@ -232,6 +232,8 @@ public class ASkyBlock extends JavaPlugin {
             if (tinyDB != null) {
                 tinyDB.saveDB();
             }
+            // Save the coops
+            CoopPlay.getInstance().saveCoops();
         } catch (final Exception e) {
             getLogger().severe("Something went wrong saving files!");
             e.printStackTrace();
@@ -398,7 +400,7 @@ public class ASkyBlock extends JavaPlugin {
                     try {
                         getServer().getPluginManager().registerEvents(new HeroChatListener(plugin), plugin);
                     } catch (Exception e) {
-                        plugin.getLogger().severe("Could not register with Herochat - old version? This plugin uses 5.7.0.");
+                        plugin.getLogger().severe("Could not register with Herochat");
                     }
                 }
                 getServer().getScheduler().runTask(plugin, new Runnable() {
@@ -441,6 +443,10 @@ public class ASkyBlock extends JavaPlugin {
                         }
                         if (Settings.backupDuration > 0) {
                             new AsyncBackup(plugin);
+                        }
+                        // Load the coops
+                        if (Settings.persistantCoops) {
+                            CoopPlay.getInstance().loadCoops();
                         }
                         getLogger().info("All files loaded. Ready to play...");
                     }
@@ -725,24 +731,20 @@ public class ASkyBlock extends JavaPlugin {
         }
         //CompareConfigs.compareConfigs();
         // Get the localization strings
+        // Look in the locale folder. If it is not there, then 
         //getLocale();
-        // Add this to the config
+        // Add this to the config      
+        FileLister fl = new FileLister(this);
+        try {
+            int index = 1;
+            for (String code: fl.list()) {
+                availableLocales.put(code, new ASLocale(this,code, index++)); 
+            }
+        } catch (IOException e1) {
+            getLogger().severe("Could not add locales!");
+        }
         // Default is locale.yml
-        availableLocales.put("locale", new Locale(this, "locale"));
-        availableLocales.put("de-DE", new Locale(this,"de-DE"));
-        availableLocales.put("en-US", new Locale(this,"en-US"));
-        availableLocales.put("es-ES", new Locale(this,"es-ES"));
-        availableLocales.put("fr-FR", new Locale(this,"fr-FR"));
-        availableLocales.put("it-IT", new Locale(this,"it-IT"));
-        availableLocales.put("ko-KR", new Locale(this,"ko-KR"));
-        availableLocales.put("pl-PL", new Locale(this,"pl-PL"));
-        availableLocales.put("pt-BR", new Locale(this,"pt-BR"));
-        availableLocales.put("zh-CN", new Locale(this,"zh-CN"));
-        availableLocales.put("cs-CS", new Locale(this,"cs-CS"));
-        availableLocales.put("sk-SK", new Locale(this,"sk-SK"));
-        availableLocales.put("zh-TW", new Locale(this,"zh-TW"));
-        availableLocales.put("nl-NL", new Locale(this,"nl-NL"));
-
+        availableLocales.put("locale", new ASLocale(this, "locale", 0));
         // Assign settings
         String configVersion = getConfig().getString("general.version", "");
         //getLogger().info("DEBUG: config ver length " + configVersion.split("\\.").length);
@@ -786,6 +788,9 @@ public class ASkyBlock extends JavaPlugin {
         }
         // Debug
         Settings.debug = getConfig().getInt("debug", 0);
+        // Persistent coops
+        Settings.persistantCoops = getConfig().getBoolean("general.persistentcoops");
+        // Level logging
         Settings.levelLogging = getConfig().getBoolean("general.levellogging");
         // Allow pushing
         Settings.allowPushing = getConfig().getBoolean("general.allowpushing", true);
@@ -827,6 +832,7 @@ public class ASkyBlock extends JavaPlugin {
         Settings.resetCommands = getConfig().getStringList("general.resetcommands");
         Settings.leaveCommands = getConfig().getStringList("general.leavecommands");
         Settings.startCommands = getConfig().getStringList("general.startcommands");
+        Settings.teamStartCommands = getConfig().getStringList("general.teamstartcommands");
         Settings.useControlPanel = getConfig().getBoolean("general.usecontrolpanel", false);
         // Check if /island command is allowed when falling
         Settings.allowTeleportWhenFalling = getConfig().getBoolean("general.allowfallingteleport", true);
@@ -1249,7 +1255,9 @@ public class ASkyBlock extends JavaPlugin {
         Settings.allowPistonPush = getConfig().getBoolean("island.allowpistonpush", true);
         Settings.allowHorseRiding = getConfig().getBoolean("island.allowhorseriding", false);
         Settings.allowHorseInvAccess = getConfig().getBoolean("island.allowhorseinventoryaccess", false);
+        Settings.allowVillagerTrading = getConfig().getBoolean("island.allowvillagertrading", true);
         // Spawn Settings
+        Settings.allowSpawnCreeperPain = getConfig().getBoolean("spawn.allowcreeperpain", false);
         Settings.allowSpawnHorseRiding = getConfig().getBoolean("spawn.allowhorseriding", false);
         Settings.allowSpawnHorseInvAccess = getConfig().getBoolean("spawn.allowhorseinventoryaccess", false);
         Settings.allowSpawnPressurePlate = getConfig().getBoolean("spawn.allowpressureplates", true);
@@ -1297,6 +1305,11 @@ public class ASkyBlock extends JavaPlugin {
         // Get the blockvalues.yml file
         YamlConfiguration blockValuesConfig = Util.loadYamlFile("blockvalues.yml");
         // Get the under water multiplier
+        Settings.deathpenalty = blockValuesConfig.getInt("deathpenalty", 0);
+        Settings.sumTeamDeaths = blockValuesConfig.getBoolean("sumteamdeaths");
+        Settings.maxDeaths = blockValuesConfig.getInt("maxdeaths", 10);
+        Settings.islandResetDeathReset = blockValuesConfig.getBoolean("islandresetdeathreset", true);
+        Settings.teamJoinDeathReset = blockValuesConfig.getBoolean("teamjoindeathreset", true);
         Settings.underWaterMultiplier = blockValuesConfig.getDouble("underwater", 1D);
         Settings.levelCost = blockValuesConfig.getInt("levelcost", 100);
         Settings.blockLimits = new HashMap<MaterialData, Integer>();
@@ -1414,6 +1427,18 @@ public class ASkyBlock extends JavaPlugin {
         }
         // No acid bottles or buckets
         Settings.acidBottle = getConfig().getBoolean("general.acidbottles", true);
+        // Island name length
+        Settings.minNameLength = getConfig().getInt("island.minnamelength", 1);
+        Settings.maxNameLength = getConfig().getInt("island.maxnamelength", 20);
+        if (Settings.minNameLength < 0) {
+            Settings.minNameLength = 0;
+        }
+        if (Settings.maxNameLength < 1) {
+            Settings.maxNameLength = 1;
+        }
+        if (Settings.minNameLength > Settings.maxNameLength) {
+            Settings.minNameLength = Settings.maxNameLength;
+        }
         // All done
         return true;
     }
@@ -1469,7 +1494,7 @@ public class ASkyBlock extends JavaPlugin {
         manager.registerEvents(chatListener, this);
         // Wither
         if (Settings.restrictWither) {
-            manager.registerEvents(new WitherEvents(this), this);
+            manager.registerEvents(new FlyingMobEvents(this), this);
         }
         if (Settings.recoverSuperFlat) {
             manager.registerEvents(new CleanSuperFlat(), this);
@@ -1584,7 +1609,7 @@ public class ASkyBlock extends JavaPlugin {
     /**
      * @return Locale for this player
      */
-    public Locale myLocale(UUID player) {
+    public ASLocale myLocale(UUID player) {
         String locale = players.getLocale(player);
         if (locale.isEmpty() || !availableLocales.containsKey(locale)) {
             return availableLocales.get("locale");
@@ -1595,7 +1620,7 @@ public class ASkyBlock extends JavaPlugin {
     /**
      * @return System locale
      */
-    public Locale myLocale() {
+    public ASLocale myLocale() {
         return availableLocales.get("locale");
     }
 
@@ -1662,5 +1687,12 @@ public class ASkyBlock extends JavaPlugin {
      */
     public SettingsPanel getSettingsPanel() {
         return settingsPanel;
+    }
+
+    /**
+     * @return the availableLocales
+     */
+    public HashMap<String, ASLocale> getAvailableLocales() {
+        return availableLocales;
     }
 }

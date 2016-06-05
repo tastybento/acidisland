@@ -86,7 +86,7 @@ adminSetRange:
   warning: "Warning - range is greater than island range [max]"
   warning2: "Overlapped islands will act like spawn!"
 adminSetSpawn: 
-  center: "Island center [location]"
+  center: "Island centre [location]"
   coords: "Protection coords [min] to [max]"
   limits: "Island limits [min] to [max]"
   locked: "Spawn is locked!"
@@ -137,7 +137,7 @@ biome:
 boats: 
   warning: "It's unsafe to exit the boat right now..."
 challenges: 
-  colors: "Challenges will have different colors depending on if they are:"
+  colors: "Challenges will have different colours depending on if they are:"
   complete: "Complete"
   completeNotRepeatable: "Completed(not repeatable)"
   completeRepeatable: "Completed(repeatable)"
@@ -284,7 +284,7 @@ islandguardsettings:
   TNTdamage: "TNT Damage"
   allowed: "Allowed"
   anvil: "Anvil use"
-  armorstand: "Armor Stand use"
+  armorstand: "Armour Stand use"
   beacon: "Beacon use"
   bed: "Bed use"
   breakblocks: "Break blocks"

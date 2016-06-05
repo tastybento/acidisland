@@ -804,4 +804,50 @@ public class PlayerCache {
         return inTeleport.contains(uniqueId);
     }
 
+    /**
+     * Add death to player
+     * @param playerUUID
+     */
+    public void addDeath(UUID playerUUID) {
+        addPlayer(playerUUID);
+        playerCache.get(playerUUID).addDeath();
+    }
+    
+    /**
+     * Set death number for player
+     * @param playerUUID
+     * @param deaths
+     */
+    public void setDeaths(UUID playerUUID, int deaths) {
+        addPlayer(playerUUID);
+        playerCache.get(playerUUID).setDeaths(deaths);
+    }
+    
+    /**
+     * Get number of times player has died in ASkyBlock worlds since counting began
+     * @param playerUUID
+     * @return
+     */
+    public int getDeaths(UUID playerUUID) {
+        addPlayer(playerUUID);
+        return playerCache.get(playerUUID).getDeaths();
+    }
+    
+    /**
+     * @param playerUUID
+     * @return List of challenges or levels done
+     */
+    public List<String> getChallengesDone(UUID playerUUID) {
+        addPlayer(playerUUID);
+        return playerCache.get(playerUUID).getChallengesDone();
+    }
+    
+    /**
+     * @param playerUUID
+     * @return List of challenges or levels not done
+     */
+    public List<String> getChallengesNotDone(UUID playerUUID) {
+        addPlayer(playerUUID);
+        return playerCache.get(playerUUID).getChallengesNotDone();
+    }
 }

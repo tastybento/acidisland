@@ -63,8 +63,8 @@ import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.PlayerCache;
 import com.wasteofplastic.acidisland.SafeSpotTeleport;
 import com.wasteofplastic.acidisland.Settings;
-import com.wasteofplastic.acidisland.TopTen;
 import com.wasteofplastic.acidisland.Settings.GameType;
+import com.wasteofplastic.acidisland.TopTen;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
@@ -101,7 +101,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
         if (!(sender instanceof Player)) {
             sender.sendMessage(ChatColor.YELLOW  + label + " clearreset <player>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpclearReset);
             sender.sendMessage(ChatColor.YELLOW  + label + " clearresetall:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpclearReset);
-            sender.sendMessage(ChatColor.YELLOW  + label + " completechallenge <challengename> <player>:" + ChatColor.WHITE + " "
+            sender.sendMessage(ChatColor.YELLOW  + label + " completechallenge <player> <challengename>:" + ChatColor.WHITE + " "
                     + plugin.myLocale().adminHelpcompleteChallenge);
             sender.sendMessage(ChatColor.YELLOW  + label + " delete <player>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpdelete);
             sender.sendMessage(ChatColor.YELLOW  + label + " info <player>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpinfo);
@@ -112,12 +112,15 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
             }
             sender.sendMessage(ChatColor.YELLOW  + label + " lock <player>: " + ChatColor.WHITE + " " + plugin.myLocale().adminHelplock);
             sender.sendMessage(ChatColor.YELLOW  + label + " purge [TimeInDays]:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelppurge);
+            sender.sendMessage(ChatColor.YELLOW  + label + " name <player> <island name>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpName);
             sender.sendMessage(ChatColor.YELLOW  + label + " reload:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpreload);
             sender.sendMessage(ChatColor.YELLOW  + label + " resetallchallenges <player>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpresetAllChallenges);
-            sender.sendMessage(ChatColor.YELLOW  + label + " resetchallenge <challengename> <player>:" + ChatColor.WHITE + " "
+            sender.sendMessage(ChatColor.YELLOW  + label + " resetchallenge <player> <challengename>:" + ChatColor.WHITE + " "
                     + plugin.myLocale().adminHelpresetChallenge);
             sender.sendMessage(ChatColor.YELLOW  + label + " resethome <player>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpResetHome);
+            sender.sendMessage(ChatColor.YELLOW  + label + " resetname <player>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpResetName);
             sender.sendMessage(ChatColor.YELLOW  + label + " setbiome <leader> <biome>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpsetBiome);
+            sender.sendMessage(ChatColor.YELLOW  + label + " setdeaths <player> <number>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpsetDeaths);
             sender.sendMessage(ChatColor.YELLOW  + label + " team add <player> <leader>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpadd);
             sender.sendMessage(ChatColor.YELLOW  + label + " team kick <player>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpkick);
             sender.sendMessage(ChatColor.YELLOW  + label + " topbreeders: " + ChatColor.WHITE + " " + plugin.myLocale().adminHelptopBreeders);
@@ -137,7 +140,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 player.sendMessage(ChatColor.YELLOW + "/" + label + " clearresetall:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelpclearReset);
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.challenges") || player.isOp()) {
-                player.sendMessage(ChatColor.YELLOW + "/" + label + " completechallenge <challengename> <player>:" + ChatColor.WHITE + " "
+                player.sendMessage(ChatColor.YELLOW + "/" + label + " completechallenge <player> <challengename>:" + ChatColor.WHITE + " "
                         + plugin.myLocale(player.getUniqueId()).adminHelpcompleteChallenge);
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "admin.delete") || player.isOp()) {
@@ -156,6 +159,9 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.lock") || player.isOp()) {
                 player.sendMessage(ChatColor.YELLOW + "/" + label + " lock <player>: " + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelplock);
             }
+            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.name") || player.isOp()) {
+                player.sendMessage(ChatColor.YELLOW  + "/" + label + " name <player> <island name>:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelpName);
+            }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "admin.purge") || player.isOp()) {
                 player.sendMessage(ChatColor.YELLOW + "/" + label + " purge [TimeInDays]:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelppurge);
                 player.sendMessage(ChatColor.YELLOW + "/" + label + " purge unowned:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelppurgeUnowned);
@@ -172,12 +178,15 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 player.sendMessage(ChatColor.YELLOW + "/" + label + " resethome <player>:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelpResetHome);
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.challenges") || player.isOp()) {
-                player.sendMessage(ChatColor.YELLOW + "/" + label + " resetchallenge <challengename> <player>:" + ChatColor.WHITE + " "
+                player.sendMessage(ChatColor.YELLOW + "/" + label + " resetchallenge <player> <challengename>:" + ChatColor.WHITE + " "
                         + plugin.myLocale(player.getUniqueId()).adminHelpresetChallenge);
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.challenges") || player.isOp()) {
                 player.sendMessage(ChatColor.YELLOW + "/" + label + " resetallchallenges <player>:" + ChatColor.WHITE + " "
                         + plugin.myLocale(player.getUniqueId()).adminHelpresetAllChallenges);
+            }
+            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.resetname") || player.isOp()) {
+                player.sendMessage(ChatColor.YELLOW  + "/" + label + " resetname <player>:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelpResetName);
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.signadmin") || player.isOp()) {
                 player.sendMessage(ChatColor.YELLOW + "/" + label + " resetsign:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelpResetSign);
@@ -188,6 +197,9 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.setbiome") || player.isOp()) {
                 sender.sendMessage(ChatColor.YELLOW + "/" + label + " setbiome <leader> <biome>:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelpsetBiome);
+            }
+            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.setdeaths") || player.isOp()) {
+                sender.sendMessage(ChatColor.YELLOW  + label + " setdeaths <player> <number>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpsetDeaths);
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.resethome") || player.isOp()) {
                 player.sendMessage(ChatColor.YELLOW + "/" + label + " sethome <player>:" + ChatColor.WHITE + " " + plugin.myLocale(player.getUniqueId()).adminHelpSetHome);
@@ -264,176 +276,213 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 }
             }
         }
+        // Island name (can have spaces)
+        if (split.length > 1 && split[0].equalsIgnoreCase("name")) {
+            final UUID playerUUID = plugin.getPlayers().getUUID(split[1], true);
+            // plugin.getLogger().info("DEBUG: console player info UUID = "
+            // + playerUUID);
+            if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
+                sender.sendMessage(ChatColor.RED + plugin.myLocale().errorUnknownPlayer);
+                return true;
+            } else {
+                if (split.length == 2) {
+                    // Say the island name
+                    sender.sendMessage(plugin.getGrid().getIslandName(playerUUID));                    
+                } else {
+                    String name = split[2];
+                    for (int i = 3; i < split.length; i++) {
+                        name = name + " " + split[i];
+                    }
+                    if (name.length() < Settings.minNameLength) {
+                        sender.sendMessage(ChatColor.RED + (plugin.myLocale().errorTooShort).replace("[length]", String.valueOf(Settings.minNameLength)));
+                        return true;
+                    }
+                    if (name.length() > Settings.maxNameLength) {
+                        sender.sendMessage(ChatColor.RED + (plugin.myLocale().errorTooLong).replace("[length]", String.valueOf(Settings.maxNameLength)));
+                        return true;
+                    }
+                    plugin.getGrid().setIslandName(playerUUID, ChatColor.translateAlternateColorCodes('&', name));
+                    sender.sendMessage(ChatColor.GREEN + plugin.myLocale().generalSuccess);
+                }
+                return true;
+            } 
+        }
+
+
         // Check for zero parameters e.g., /asadmin
         switch (split.length) {
         case 0:
             help(sender, label);
             return true;
         case 1:
-            if (split[0].equalsIgnoreCase("settingsreset")) {
-                sender.sendMessage(ChatColor.RED + plugin.myLocale().adminHelpSettingsReset);
+            if (split[0].equalsIgnoreCase("setdeaths")) {
+                sender.sendMessage(ChatColor.YELLOW  + label + " setdeaths <player> <number>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpsetDeaths);
                 return true;
-            }
-            if (Settings.teamChat && split[0].equalsIgnoreCase("spy")) {
-                if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + plugin.myLocale().adminLockerrorInGame);
-                    return true;
-                }
-                player = (Player) sender;
-                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.spy") || player.isOp()) {
-                    if (plugin.getChatListener().toggleSpy(player.getUniqueId())) {
-                        sender.sendMessage(ChatColor.GREEN + plugin.myLocale().teamChatStatusOn);
-                    } else {
-                        sender.sendMessage(ChatColor.GREEN + plugin.myLocale().teamChatStatusOff);
-                    }
-                    return true;
-                }
-            } else if (split[0].equalsIgnoreCase("lock")) {
-                // Just /asadmin lock
-                if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + plugin.myLocale().adminLockerrorInGame);
-                    return true;
-                }
-                player = (Player) sender;
-                Island island = plugin.getGrid().getIslandAt(player.getLocation());
-                // Check if island exists
-                if (island == null) {
-                    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNotOnIsland);
-                    return true;
-                } else {
-                    Player owner = plugin.getServer().getPlayer(island.getOwner());
-                    if (island.isLocked()) {
-                        sender.sendMessage(ChatColor.RED + plugin.myLocale().lockUnlocking);
-                        island.setLocked(false);
-                        if (owner != null) {
-                            owner.sendMessage(plugin.myLocale(owner.getUniqueId()).adminLockadminUnlockedIsland);
-                        } else {
-                            plugin.getMessages().setMessage(island.getOwner(), plugin.myLocale(island.getOwner()).adminLockadminUnlockedIsland);
-                        }
-                    } else {
-                        sender.sendMessage(ChatColor.RED + plugin.myLocale().lockLocking);
-                        island.setLocked(true);
-                        if (owner != null) {
-                            owner.sendMessage(plugin.myLocale(owner.getUniqueId()).adminLockadminLockedIsland);
-                        } else {
-                            plugin.getMessages().setMessage(island.getOwner(), plugin.myLocale(island.getOwner()).adminLockadminLockedIsland);
-                        }
-                    }
-                    return true;
-                }
             } else
-                // Find farms
-                if (split[0].equalsIgnoreCase("topbreeders")) {
-                    // Go through each island and find how many farms there are
-                    sender.sendMessage(plugin.myLocale().adminTopBreedersFinding);
-                    //TreeMap<Integer, List<UUID>> topEntityIslands = new TreeMap<Integer, List<UUID>>();
-                    // Generate the stats
-                    sender.sendMessage(plugin.myLocale().adminTopBreedersChecking.replace("[number]",String.valueOf(plugin.getGrid().getOwnershipMap().size())));
-                    // Try just finding every entity
-                    final List<Entity> allEntities = ASkyBlock.getIslandWorld().getEntities();
-                    final World islandWorld = ASkyBlock.getIslandWorld();
-                    final World netherWorld = ASkyBlock.getNetherWorld();
-                    plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-
-                        @Override
-                        public void run() {
-                            Map<UUID, Multiset<EntityType>> result = new HashMap<UUID, Multiset<EntityType>>();
-                            // Find out where the entities are
-                            for (Entity entity: allEntities) {
-                                //System.out.println("DEBUG " + entity.getType().toString());
-                                if (entity.getLocation().getWorld().equals(islandWorld) || entity.getLocation().getWorld().equals(netherWorld)) {
-                                    //System.out.println("DEBUG in world");
-                                    if (entity instanceof Creature && !(entity instanceof Player)) {
-                                        //System.out.println("DEBUG creature");
-                                        // Find out where it is
-                                        Island island = plugin.getGrid().getIslandAt(entity.getLocation());
-                                        if (island != null && !island.isSpawn()) {
-                                            //System.out.println("DEBUG on island");
-                                            // Add to result
-                                            UUID owner = island.getOwner();
-                                            Multiset<EntityType> count = result.get(owner);
-                                            if (count == null) {
-                                                // New entry for owner
-                                                //System.out.println("DEBUG new entry for owner");
-                                                count = HashMultiset.create();
-                                            }
-                                            count.add(entity.getType());
-                                            result.put(owner, count);
-                                        }
-                                    }
+                if (split[0].equalsIgnoreCase("settingsreset")) {
+                    sender.sendMessage(ChatColor.RED + plugin.myLocale().adminHelpSettingsReset);
+                    return true;
+                } else 
+                    if (Settings.teamChat && split[0].equalsIgnoreCase("spy")) {
+                        if (!(sender instanceof Player)) {
+                            sender.sendMessage(ChatColor.RED + plugin.myLocale().adminLockerrorInGame);
+                            return true;
+                        }
+                        player = (Player) sender;
+                        if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.spy") || player.isOp()) {
+                            if (plugin.getChatListener().toggleSpy(player.getUniqueId())) {
+                                sender.sendMessage(ChatColor.GREEN + plugin.myLocale().teamChatStatusOn);
+                            } else {
+                                sender.sendMessage(ChatColor.GREEN + plugin.myLocale().teamChatStatusOff);
+                            }
+                            return true;
+                        }
+                    } else if (split[0].equalsIgnoreCase("lock")) {
+                        // Just /asadmin lock
+                        if (!(sender instanceof Player)) {
+                            sender.sendMessage(ChatColor.RED + plugin.myLocale().adminLockerrorInGame);
+                            return true;
+                        }
+                        player = (Player) sender;
+                        Island island = plugin.getGrid().getIslandAt(player.getLocation());
+                        // Check if island exists
+                        if (island == null) {
+                            player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNotOnIsland);
+                            return true;
+                        } else {
+                            Player owner = plugin.getServer().getPlayer(island.getOwner());
+                            if (island.isLocked()) {
+                                sender.sendMessage(ChatColor.RED + plugin.myLocale().lockUnlocking);
+                                island.setLocked(false);
+                                if (owner != null) {
+                                    owner.sendMessage(plugin.myLocale(owner.getUniqueId()).adminLockadminUnlockedIsland);
+                                } else {
+                                    plugin.getMessages().setMessage(island.getOwner(), plugin.myLocale(island.getOwner()).adminLockadminUnlockedIsland);
+                                }
+                            } else {
+                                sender.sendMessage(ChatColor.RED + plugin.myLocale().lockLocking);
+                                island.setLocked(true);
+                                if (owner != null) {
+                                    owner.sendMessage(plugin.myLocale(owner.getUniqueId()).adminLockadminLockedIsland);
+                                } else {
+                                    plugin.getMessages().setMessage(island.getOwner(), plugin.myLocale(island.getOwner()).adminLockadminLockedIsland);
                                 }
                             }
-                            // Sort by the number of entities on each island
-                            TreeMap<Integer, List<UUID>> topEntityIslands = new TreeMap<Integer, List<UUID>>();
-                            for (Entry<UUID, Multiset<EntityType>> entry : result.entrySet()) {
-                                int numOfEntities = entry.getValue().size();
-                                List<UUID> players = topEntityIslands.get(numOfEntities);
-                                if (players == null) {
-                                    players = new ArrayList<UUID>();
-                                }
-                                players.add(entry.getKey());
-                                topEntityIslands.put(numOfEntities, players);
-                            }
-                            final TreeMap<Integer, List<UUID>> topBreeders = topEntityIslands;
-                            final Map<UUID, Multiset<EntityType>> finalResult = result;
-                            // Now display results in sync thread
-                            plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+                            return true;
+                        }
+                    } else
+                        // Find farms
+                        if (split[0].equalsIgnoreCase("topbreeders")) {
+                            // Go through each island and find how many farms there are
+                            sender.sendMessage(plugin.myLocale().adminTopBreedersFinding);
+                            //TreeMap<Integer, List<UUID>> topEntityIslands = new TreeMap<Integer, List<UUID>>();
+                            // Generate the stats
+                            sender.sendMessage(plugin.myLocale().adminTopBreedersChecking.replace("[number]",String.valueOf(plugin.getGrid().getOwnershipMap().size())));
+                            // Try just finding every entity
+                            final List<Entity> allEntities = ASkyBlock.getIslandWorld().getEntities();
+                            final World islandWorld = ASkyBlock.getIslandWorld();
+                            final World netherWorld = ASkyBlock.getNetherWorld();
+                            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 
                                 @Override
                                 public void run() {
-                                    if (topBreeders.isEmpty()) {
-                                        sender.sendMessage(plugin.myLocale().adminTopBreedersNothing);
-                                        return;
-                                    }
-                                    int rank = 1;
-                                    // Display, largest first
-                                    for (int numOfEntities : topBreeders.descendingKeySet()) {
-                                        // Only bother if there's more that 5 animals
-                                        if (numOfEntities > 5) {
-                                            // There can be multiple owners in the same position
-                                            List<UUID> owners = topBreeders.get(numOfEntities);
-                                            // Go through the owners one by one
-                                            for (UUID owner : owners) {
-                                                sender.sendMessage("#" + rank + " " + plugin.getPlayers().getName(owner) + " = " + numOfEntities);
-                                                String content = "";
-                                                Multiset<EntityType> entityCount = finalResult.get(owner);
-                                                for (EntityType entity: entityCount.elementSet()) {
-                                                    int num = entityCount.count(entity);
-                                                    String color = ChatColor.GREEN.toString();
-                                                    if (num > 10 && num <= 20) {
-                                                        color = ChatColor.YELLOW.toString();
-                                                    } else if (num > 20 && num <= 40) {
-                                                        color = ChatColor.GOLD.toString();
-                                                    } else if (num > 40) {
-                                                        color = ChatColor.RED.toString();
+                                    Map<UUID, Multiset<EntityType>> result = new HashMap<UUID, Multiset<EntityType>>();
+                                    // Find out where the entities are
+                                    for (Entity entity: allEntities) {
+                                        //System.out.println("DEBUG " + entity.getType().toString());
+                                        if (entity.getLocation().getWorld().equals(islandWorld) || entity.getLocation().getWorld().equals(netherWorld)) {
+                                            //System.out.println("DEBUG in world");
+                                            if (entity instanceof Creature && !(entity instanceof Player)) {
+                                                //System.out.println("DEBUG creature");
+                                                // Find out where it is
+                                                Island island = plugin.getGrid().getIslandAt(entity.getLocation());
+                                                if (island != null && !island.isSpawn()) {
+                                                    //System.out.println("DEBUG on island");
+                                                    // Add to result
+                                                    UUID owner = island.getOwner();
+                                                    Multiset<EntityType> count = result.get(owner);
+                                                    if (count == null) {
+                                                        // New entry for owner
+                                                        //System.out.println("DEBUG new entry for owner");
+                                                        count = HashMultiset.create();
                                                     }
-                                                    content += Util.prettifyText(entity.toString()) + " x " + color + num + ChatColor.WHITE + ", ";
+                                                    count.add(entity.getType());
+                                                    result.put(owner, count);
                                                 }
-                                                int lastComma = content.lastIndexOf(",");
-                                                // plugin.getLogger().info("DEBUG: last comma " +
-                                                // lastComma);
-                                                if (lastComma > 0) {
-                                                    content = content.substring(0, lastComma);
-                                                }
-                                                sender.sendMessage("  " + content);
-
-                                            }
-                                            rank++;
-                                            if (rank > 10) {
-                                                break;
                                             }
                                         }
                                     }
-                                    // If we didn't show anything say so
-                                    if (rank == 1) {
-                                        sender.sendMessage(plugin.myLocale().adminTopBreedersNothing);
+                                    // Sort by the number of entities on each island
+                                    TreeMap<Integer, List<UUID>> topEntityIslands = new TreeMap<Integer, List<UUID>>();
+                                    for (Entry<UUID, Multiset<EntityType>> entry : result.entrySet()) {
+                                        int numOfEntities = entry.getValue().size();
+                                        List<UUID> players = topEntityIslands.get(numOfEntities);
+                                        if (players == null) {
+                                            players = new ArrayList<UUID>();
+                                        }
+                                        players.add(entry.getKey());
+                                        topEntityIslands.put(numOfEntities, players);
                                     }
+                                    final TreeMap<Integer, List<UUID>> topBreeders = topEntityIslands;
+                                    final Map<UUID, Multiset<EntityType>> finalResult = result;
+                                    // Now display results in sync thread
+                                    plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            if (topBreeders.isEmpty()) {
+                                                sender.sendMessage(plugin.myLocale().adminTopBreedersNothing);
+                                                return;
+                                            }
+                                            int rank = 1;
+                                            // Display, largest first
+                                            for (int numOfEntities : topBreeders.descendingKeySet()) {
+                                                // Only bother if there's more that 5 animals
+                                                if (numOfEntities > 5) {
+                                                    // There can be multiple owners in the same position
+                                                    List<UUID> owners = topBreeders.get(numOfEntities);
+                                                    // Go through the owners one by one
+                                                    for (UUID owner : owners) {
+                                                        sender.sendMessage("#" + rank + " " + plugin.getPlayers().getName(owner) + " = " + numOfEntities);
+                                                        String content = "";
+                                                        Multiset<EntityType> entityCount = finalResult.get(owner);
+                                                        for (EntityType entity: entityCount.elementSet()) {
+                                                            int num = entityCount.count(entity);
+                                                            String color = ChatColor.GREEN.toString();
+                                                            if (num > 10 && num <= 20) {
+                                                                color = ChatColor.YELLOW.toString();
+                                                            } else if (num > 20 && num <= 40) {
+                                                                color = ChatColor.GOLD.toString();
+                                                            } else if (num > 40) {
+                                                                color = ChatColor.RED.toString();
+                                                            }
+                                                            content += Util.prettifyText(entity.toString()) + " x " + color + num + ChatColor.WHITE + ", ";
+                                                        }
+                                                        int lastComma = content.lastIndexOf(",");
+                                                        // plugin.getLogger().info("DEBUG: last comma " +
+                                                        // lastComma);
+                                                        if (lastComma > 0) {
+                                                            content = content.substring(0, lastComma);
+                                                        }
+                                                        sender.sendMessage("  " + content);
+
+                                                    }
+                                                    rank++;
+                                                    if (rank > 10) {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            // If we didn't show anything say so
+                                            if (rank == 1) {
+                                                sender.sendMessage(plugin.myLocale().adminTopBreedersNothing);
+                                            }
+
+                                        }});
 
                                 }});
-
-                        }});
-                    return true;
-                }
+                            return true;
+                        }
             // Delete island
             if (split[0].equalsIgnoreCase("deleteisland")) {
                 sender.sendMessage(ChatColor.RED + plugin.myLocale().adminDeleteIslandError);
@@ -822,6 +871,23 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                     deleteIslands(island, sender);
                     return true;
                 }
+            } else if (split[0].equalsIgnoreCase("resetname")) {
+                // Convert name to a UUID
+                final UUID playerUUID = plugin.getPlayers().getUUID(split[1], true);
+                if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
+                    sender.sendMessage(ChatColor.RED + plugin.myLocale().errorUnknownPlayer);
+                } else {
+                    // Check if this player has an island
+                    if (!plugin.getPlayers().hasIsland(playerUUID) && !plugin.getPlayers().inTeam(playerUUID)) {
+                        // No island
+                        sender.sendMessage(ChatColor.RED + plugin.myLocale().errorNoIslandOther);
+                        return true;
+                    }
+                    // Has an island
+                    plugin.getGrid().setIslandName(playerUUID, null);
+                    sender.sendMessage(plugin.myLocale().generalSuccess);
+                }
+                return true;
             } else if (split[0].equalsIgnoreCase("resethome")) {
                 // Convert name to a UUID
                 final UUID playerUUID = plugin.getPlayers().getUUID(split[1], true);
@@ -1117,6 +1183,17 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                     }
                     return true;
                 }
+            } else if (split[0].equalsIgnoreCase("setdeaths")) {
+                // Convert name to a UUID
+                final UUID playerUUID = plugin.getPlayers().getUUID(split[1], true);
+                if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
+                    sender.sendMessage(ChatColor.RED + plugin.myLocale().errorUnknownPlayer);
+                    return true;
+                } else {
+                    sender.sendMessage(ChatColor.GREEN + plugin.getPlayers().getName(playerUUID) + " " + plugin.getPlayers().getDeaths(playerUUID) + " " + plugin.myLocale().deaths);
+                    sender.sendMessage(ChatColor.YELLOW  + label + " setdeaths <player> <number>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpsetDeaths);
+                    return true;
+                }
             } else if (split[0].equalsIgnoreCase("clearreset")) {
                 // Convert name to a UUID
                 final UUID playerUUID = plugin.getPlayers().getUUID(split[1], true);
@@ -1376,6 +1453,25 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                     plugin.getGrid().saveGrid();
                     return true;
                 }
+            } else if (split[0].equalsIgnoreCase("setdeaths")) {
+                // Convert name to a UUID
+                final UUID playerUUID = plugin.getPlayers().getUUID(split[1], true);
+                if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
+                    sender.sendMessage(ChatColor.RED + plugin.myLocale().errorUnknownPlayer);
+                    return true;
+                } else {
+                    try {
+                        int newDeaths = Integer.valueOf(split[2]);
+                        int oldDeaths = plugin.getPlayers().getDeaths(playerUUID);
+                        plugin.getPlayers().setDeaths(playerUUID, newDeaths);
+                        sender.sendMessage(ChatColor.GREEN + plugin.getPlayers().getName(playerUUID) + " " + oldDeaths + " >>> " + newDeaths + " " + plugin.myLocale().deaths);
+                    } catch (Exception e) {
+                        sender.sendMessage(ChatColor.GREEN + plugin.getPlayers().getName(playerUUID) + " " + plugin.getPlayers().getDeaths(playerUUID) + " " + plugin.myLocale().deaths);
+                        sender.sendMessage(ChatColor.YELLOW  + label + " setdeaths <player> <number>:" + ChatColor.WHITE + " " + plugin.myLocale().adminHelpsetDeaths);
+                        return true;
+                    }
+                    return true;
+                }
             }
             // Change biomes
             if (split[0].equalsIgnoreCase("setbiome")) {
@@ -1490,35 +1586,35 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                     }
                 } else if (split[0].equalsIgnoreCase("completechallenge")) {
                     // Convert name to a UUID
-                    final UUID playerUUID = plugin.getPlayers().getUUID(split[2], true);
+                    final UUID playerUUID = plugin.getPlayers().getUUID(split[1], true);
                     if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
                         sender.sendMessage(ChatColor.RED + plugin.myLocale().errorUnknownPlayer);
                         return true;
                     }
-                    if (plugin.getPlayers().checkChallenge(playerUUID, split[1].toLowerCase())
-                            || !plugin.getPlayers().get(playerUUID).challengeExists(split[1].toLowerCase())) {
+                    if (plugin.getPlayers().checkChallenge(playerUUID, split[2].toLowerCase())
+                            || !plugin.getPlayers().get(playerUUID).challengeExists(split[2].toLowerCase())) {
                         sender.sendMessage(ChatColor.RED + plugin.myLocale().completeChallengeerrorChallengeDoesNotExist);
                         return true;
                     }
-                    plugin.getPlayers().get(playerUUID).completeChallenge(split[1].toLowerCase());
+                    plugin.getPlayers().get(playerUUID).completeChallenge(split[2].toLowerCase());
                     sender.sendMessage(ChatColor.YELLOW
-                            + plugin.myLocale().completeChallengechallangeCompleted.replace("[challengename]", split[1].toLowerCase()).replace("[name]", split[2]));
+                            + plugin.myLocale().completeChallengechallangeCompleted.replace("[challengename]", split[2].toLowerCase()).replace("[name]", split[1]));
                     return true;
                 } else if (split[0].equalsIgnoreCase("resetchallenge")) {
                     // Convert name to a UUID
-                    final UUID playerUUID = plugin.getPlayers().getUUID(split[2], true);
+                    final UUID playerUUID = plugin.getPlayers().getUUID(split[1], true);
                     if (!plugin.getPlayers().isAKnownPlayer(playerUUID)) {
                         sender.sendMessage(ChatColor.RED + plugin.myLocale().errorUnknownPlayer);
                         return true;
                     }
-                    if (!plugin.getPlayers().checkChallenge(playerUUID, split[1].toLowerCase())
-                            || !plugin.getPlayers().get(playerUUID).challengeExists(split[1].toLowerCase())) {
+                    if (!plugin.getPlayers().checkChallenge(playerUUID, split[2].toLowerCase())
+                            || !plugin.getPlayers().get(playerUUID).challengeExists(split[2].toLowerCase())) {
                         sender.sendMessage(ChatColor.RED + plugin.myLocale().resetChallengeerrorChallengeDoesNotExist);
                         return true;
                     }
-                    plugin.getPlayers().resetChallenge(playerUUID, split[1].toLowerCase());
+                    plugin.getPlayers().resetChallenge(playerUUID, split[2].toLowerCase());
                     sender.sendMessage(ChatColor.YELLOW
-                            + plugin.myLocale().resetChallengechallengeReset.replace("[challengename]", split[1].toLowerCase()).replace("[name]", split[2]));
+                            + plugin.myLocale().resetChallengechallengeReset.replace("[challengename]", split[2].toLowerCase()).replace("[name]", split[1]));
                     return true;
                 } else if (split[0].equalsIgnoreCase("info") && split[1].equalsIgnoreCase("challenges")) {
                     // Convert name to a UUID
@@ -1791,6 +1887,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
             sender.sendMessage(ChatColor.GOLD + plugin.myLocale().adminInfoLastLogin + ": " + d.toString());
         } catch (Exception e) {
         }
+        sender.sendMessage(ChatColor.GREEN + plugin.myLocale().deaths + ": " + plugin.getPlayers().getDeaths(playerUUID));
         Location islandLoc = null;
         // Teams
         if (plugin.getPlayers().inTeam(playerUUID)) {
@@ -2006,9 +2103,14 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 options.addAll(Arrays.asList("reload", "topten", "unregister",
                         "delete", "completechallenge", "resetchallenge",
                         "resetallchallenges", "purge", "info", "info", "info",
-                        "clearreset", "clearresetall", "setbiome", "topbreeders", "team"));
+                        "clearreset", "clearresetall", "setbiome", "topbreeders", "team",
+                        "name", "setdeaths",
+                        "resetname"));
                 break;
             case 2:
+                if (args[0].equalsIgnoreCase("name") || args[0].equalsIgnoreCase("resetname") || args[0].equalsIgnoreCase("setdeaths")) {
+                    options.addAll(Util.getOnlinePlayerList());
+                }
                 if (args[0].equalsIgnoreCase("lock")) {
                     options.addAll(Util.getOnlinePlayerList());
                 }
@@ -2018,14 +2120,10 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 if (args[0].equalsIgnoreCase("unregister")) {
                     options.addAll(Util.getOnlinePlayerList());
                 }
-                if (args[0].equalsIgnoreCase("delete")) {
+                if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("resetchallenge")) {
                     options.addAll(Util.getOnlinePlayerList());
                 }
-                if (args[0].equalsIgnoreCase("completechallenge")
-                        || args[0].equalsIgnoreCase("resetchallenge")) {
-                    options.addAll(plugin.getChallenges().getAllChallenges());
-                }
-                if (args[0].equalsIgnoreCase("resetallchallenges")) {
+                if (args[0].equalsIgnoreCase("completechallenge") || args[0].equalsIgnoreCase("resetallchallenges")) {
                     options.addAll(Util.getOnlinePlayerList());
                 }
                 if (args[0].equalsIgnoreCase("info")) {
@@ -2044,9 +2142,23 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 }
                 break;
             case 3:
-                if (args[0].equalsIgnoreCase("completechallenge")
-                        || args[0].equalsIgnoreCase("resetchallenge")) {
-                    options.addAll(Util.getOnlinePlayerList());
+                if (args[0].equalsIgnoreCase("completechallenge")) {
+                    UUID uuid = plugin.getPlayers().getUUID(args[1]);
+                    //plugin.getLogger().info("DEBUG: uuid = " + uuid);
+                    if (uuid != null)  {
+                        options.addAll(plugin.getPlayers().getChallengesNotDone(uuid));
+                    } else {
+                        options.addAll(plugin.getChallenges().getAllChallenges());  
+                    }
+                }
+                if (args[0].equalsIgnoreCase("resetchallenge")) {
+                    UUID uuid = plugin.getPlayers().getUUID(args[1]);
+                    //plugin.getLogger().info("DEBUG: uuid = " + uuid);
+                    if (uuid != null)  {
+                        options.addAll(plugin.getPlayers().getChallengesDone(uuid));
+                    } else {
+                        options.addAll(plugin.getChallenges().getAllChallenges());  
+                    }
                 }
                 if (args[0].equalsIgnoreCase("info")
                         && args[1].equalsIgnoreCase("challenges")) {
@@ -2115,6 +2227,9 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.clearreset") || player.isOp()) {
                     options.add("clearreset");
                 }
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.setdeaths") || player.isOp()) {
+                    options.add("setdeaths");
+                }
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "admin.clearresetall") || player.isOp()) {
                     options.add("clearresetall");
                 }
@@ -2148,10 +2263,12 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 }
                 break;
             case 2:
-                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.lock") || player.isOp()) {
+                if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.lock") || player.isOp())
+                        && args[0].equalsIgnoreCase("lock")) {
                     options.addAll(Util.getOnlinePlayerList());
                 }
-                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.signadmin") || player.isOp()) {
+                if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.signadmin") || player.isOp())
+                        && args[0].equalsIgnoreCase("signadmin")) {
                     options.addAll(Util.getOnlinePlayerList());
                 }
                 if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "admin.unregister") || player.isOp())
@@ -2164,7 +2281,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 }
                 if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.challenges") || player.isOp())
                         && (args[0].equalsIgnoreCase("completechallenge") || args[0].equalsIgnoreCase("resetchallenge"))) {
-                    options.addAll(plugin.getChallenges().getAllChallenges());
+                    options.addAll(Util.getOnlinePlayerList());
                 }
                 if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.challenges") || player.isOp())
                         && args[0].equalsIgnoreCase("resetallchallenges")) {
@@ -2173,11 +2290,14 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.info") || player.isOp())
                         && args[0].equalsIgnoreCase("info")) {
                     options.add("challenges");
-
                     options.addAll(Util.getOnlinePlayerList());
                 }
                 if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.clearreset") || player.isOp())
                         && args[0].equalsIgnoreCase("clearreset")) {
+                    options.addAll(Util.getOnlinePlayerList());
+                }
+                if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.setdeaths") || player.isOp())
+                        && args[0].equalsIgnoreCase("setdeaths")) {
                     options.addAll(Util.getOnlinePlayerList());
                 }
                 if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.tp") || player.isOp())
@@ -2195,9 +2315,25 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 }
                 break;
             case 3:
-                if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.challenges") || player.isOp())
-                        && (args[0].equalsIgnoreCase("completechallenge") || args[0].equalsIgnoreCase("resetchallenge"))) {
-                    options.addAll(Util.getOnlinePlayerList());
+                if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.challenges") || player.isOp())) {
+                    if (args[0].equalsIgnoreCase("completechallenge")) {
+                        UUID uuid = plugin.getPlayers().getUUID(args[1]);
+                        //plugin.getLogger().info("DEBUG: uuid = " + uuid);
+                        if (uuid != null)  {
+                            options.addAll(plugin.getPlayers().getChallengesNotDone(uuid));
+                        } else {
+                            options.addAll(plugin.getChallenges().getAllChallenges());  
+                        }
+                    }
+                    if (args[0].equalsIgnoreCase("resetchallenge")) {
+                        UUID uuid = plugin.getPlayers().getUUID(args[1]);
+                        //plugin.getLogger().info("DEBUG: uuid = " + uuid);
+                        if (uuid != null)  {
+                            options.addAll(plugin.getPlayers().getChallengesDone(uuid));
+                        } else {
+                            options.addAll(plugin.getChallenges().getAllChallenges());  
+                        }
+                    }
                 }
                 if ((VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.info") || player.isOp())
                         && args[0].equalsIgnoreCase("info")

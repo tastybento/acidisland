@@ -109,6 +109,9 @@ permissions:
           acidisland.command.challengeexempt:
             description: Player is exempt from commands run when a challenge is completed
             default: false
+          acidisland.command.newteamexempt:
+            description: Player is exempt from commands run when accepting a team invite
+            default: false
       acidisland.coop:
         description: Allows player to use the coop command
         default: false    
@@ -241,6 +244,9 @@ permissions:
           acidisland.mod.bypassprotect:
             description: Allow moderator to bypass island protection
             default: op
+          acidisland.mod.bypassexpel:
+            description: Allow moderator to bypass island expulsion
+            default: op
           acidisland.mod.setbiome:
             description: Allows setting player island biomes
             default: op
@@ -264,6 +270,15 @@ permissions:
             default: false
           acidisland.mod.team:
             description: Enables modification of teams via kick and add commands
+            default: false
+          acidisland.mod.name:
+            description: Enables naming of player's islands
+            default: false
+          acidisland.mod.resetname:
+            description: Enables reset of player's island names
+            default: false
+          acidisland.mod.setdeaths:
+            description: Sets how many deaths the player has
             default: false
       acidisland.admin.*:
         children:

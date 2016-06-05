@@ -425,4 +425,22 @@ public class ASkyBlockAPI {
         return new HashMap<UUID, Island>();
 
     }
+
+    /**
+     * Get name of the island owned by owner
+     * @param owner
+     * @return Returns the name of owner's island, or the owner's name if there is none.
+     */
+    public String getIslandName(UUID owner) {
+        return plugin.getGrid().getIslandName(owner);
+    }
+
+    /**
+     * Set the island name
+     * @param owner
+     * @param name
+     */
+    public void setIslandName(UUID owner, String name) {
+        plugin.getGrid().setIslandName(owner, name);
+    }
 }

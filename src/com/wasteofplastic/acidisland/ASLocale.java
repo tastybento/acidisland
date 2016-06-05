@@ -19,6 +19,7 @@ package com.wasteofplastic.acidisland;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import org.bukkit.ChatColor;
@@ -32,8 +33,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
  * 
  * @author tastybento
  */
-public class Locale {
-    
+public class ASLocale {
+
     private final static Set<String> TITLE_COLORS = new HashSet<String>(Arrays.asList(
             "black",
             "dark_blue",
@@ -57,6 +58,7 @@ public class Locale {
     private FileConfiguration locale = null;
     private File localeFile = null;
     private ASkyBlock plugin;
+    private Locale localeObject;
 
     public String changingObsidiantoLava;
     public String acidLore;
@@ -494,6 +496,7 @@ public class Locale {
     public String igsSettingsIslandDesc;
     public String igsSettingsSpawnTitle;
     public String igsSettingsSpawnDesc;
+    public String igsVillagerTrading;
 
 
     public String setHomeerrorNumHomes;
@@ -603,16 +606,47 @@ public class Locale {
 
     public String adminHelplevel;
 
+    public String islandhelpListCoops;
+
+    public String islandHelpName;
+
+    public String errorTooShort;
+
+    public String errorTooLong;
+
+    public String islandhelpResetName;
+
+    public String adminHelpName;
+
+    public String adminHelpResetName;
+
+    public String deaths;
+    public String deathsDied;
+    public String adminHelpsetDeaths;
+
+    public String levelDeaths;
+
+    private String localeName;
+
+    private int index;
+
+
 
     /**
      * Creates a locale object full of localized strings for a language
      * @param plugin
      * @param localeName - name of the yml file that will be used
+     * @param index 
      */
-    public Locale(ASkyBlock plugin, String localeName) {
+    public ASLocale(ASkyBlock plugin, String localeName, int index) {
         this.plugin = plugin;
+        this.index = index;
+        this.localeName = localeName;
         getLocale(localeName);
         loadLocale();
+        if (!localeName.equalsIgnoreCase("locale")) {
+            localeObject = new Locale(localeName.substring(0, 2), localeName.substring(3, 5));
+        }       
     }
 
     /**
@@ -695,8 +729,14 @@ public class Locale {
         acidLore = ChatColor.translateAlternateColorCodes('&', locale.getString("acidLore", "Poison!\nBeware!\nDo not drink!"));
         acidBucket = ChatColor.translateAlternateColorCodes('&', locale.getString("acidBucket", "Acid Bucket"));
         acidBottle = ChatColor.translateAlternateColorCodes('&', locale.getString("acidBottle", "Bottle O' Acid"));
+        deaths = ChatColor.translateAlternateColorCodes('&', locale.getString("deaths.deaths", "Deaths"));
+        deathsDied = ChatColor.translateAlternateColorCodes('&', locale.getString("deaths.died", "died!"));
+        levelDeaths = ChatColor.translateAlternateColorCodes('&', locale.getString("deaths.leveldeaths", "&c[[number] deaths]"));
+
         drankAcidAndDied = ChatColor.translateAlternateColorCodes('&', locale.getString("drankAcidAndDied", "drank acid and died."));
         drankAcid = ChatColor.translateAlternateColorCodes('&', locale.getString("drankAcid", "drank acid."));
+        errorTooShort = ChatColor.translateAlternateColorCodes('&', locale.getString("error.tooShort", "Too short. Minimum size is [length]."));
+        errorTooLong = ChatColor.translateAlternateColorCodes('&', locale.getString("error.tooLong", "Too long. Maximum size is [length]."));
         errorUnknownPlayer = ChatColor.translateAlternateColorCodes('&', locale.getString("error.unknownPlayer", "That player is unknown."));
         errorNoPermission = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("error.noPermission", "You don't have permission to use that command!"));
@@ -776,6 +816,7 @@ public class Locale {
         igsHorseInvAccess = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.horseinventoryaccess", "Horse inv access when riding"));	
         igsPressurePlate = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.pressureplate", "Activate pressure plates"));	
         igsPistonPush = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.pistonpush", "Pistons can push blocks outside island area"));	
+        igsVillagerTrading = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.villagertrading", "Villager trading")); 
 
         lavaTip = ChatColor.translateAlternateColorCodes('&', locale.getString("lavaTip", "Changing obsidian back into lava. Be careful!"));
         warpswelcomeLine = ChatColor.translateAlternateColorCodes('&', locale.getString("warps.welcomeLine", "[WELCOME]"));
@@ -921,6 +962,7 @@ public class Locale {
         islandhelpIsland = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("island.helpIsland", "start an island, or teleport to your island."));
         islandhelpTeleport = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpTeleport", "teleport to your island."));
+        islandhelpResetName = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpResetName", "reset your island name."));
         islandhelpControlPanel = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpControlPanel", "open the island GUI."));
         islandhelpRestart = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("island.helpRestart", "restart your island and remove the old one."));
@@ -943,16 +985,21 @@ public class Locale {
         islandHelpSettings = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("island.helpSettings", "see island protection and game settings"));
         islandHelpChallenges = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpChallenges", "/challenges: &fshow challenges"));
-        adminHelpHelp = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.help", "Acid Admin Commands:"));
+        adminHelpHelp = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.help", "Admin Commands:"));
+        adminHelpName = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.name", "Set name of player's island"));
+        adminHelpResetName = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.resetname", "Reset name of player's island"));
         islandhelpAcceptReject = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("island.helpAcceptReject", "accept or reject an invitation."));
         islandhelpMakeLeader = ChatColor
                 .translateAlternateColorCodes('&', locale.getString("island.helpMakeLeader", "transfer the island to <player>."));
+        islandHelpName = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpName", "Set a name for your island"));
+
         islanderrorLevelNotReady = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("island.errorLevelNotReady", "Can't use that command right now! Try again in a few seconds."));
         islanderrorInvalidPlayer = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("island.errorInvalidPlayer", "That player is invalid or does not have an island!"));
         islandislandLevelis = ChatColor.translateAlternateColorCodes('&', locale.getString("island.islandLevelis", "Island level is"));
+
         invitehelp = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("invite.help", "Use [/[label] invite <playername>] to invite a player to your island.").replace("[label]", Settings.ISLANDCOMMAND));
         inviteyouCanInvite = ChatColor.translateAlternateColorCodes('&',
@@ -1059,6 +1106,8 @@ public class Locale {
                 .translateAlternateColorCodes('&', locale.getString("adminHelp.setrange", "changes the island's protection range"));
         adminHelpsetBiome = ChatColor
                 .translateAlternateColorCodes('&', locale.getString("adminHelp.setbiome", "sets leader's island biome"));
+        adminHelpsetDeaths = ChatColor
+                .translateAlternateColorCodes('&', locale.getString("adminHelp.setdeaths", "sets player's death count"));
         adminHelptopBreeders = ChatColor
                 .translateAlternateColorCodes('&', locale.getString("adminHelp.topbreeders", "lists most populated islands currently loaded"));
         adminHelplock = ChatColor
@@ -1221,6 +1270,7 @@ public class Locale {
         coopNotInCoop = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.notincoop", "[name] is not in your coop!"));
         islandhelpCoop = ChatColor.translateAlternateColorCodes('&',locale.getString("coop.help", "temporarily give a player full access to your island"));
         islandhelpUnCoop = ChatColor.translateAlternateColorCodes('&',locale.getString("coop.uncoop", "remove full island access from player"));
+        islandhelpListCoops = ChatColor.translateAlternateColorCodes('&',locale.getString("coop.listcoops", "list coop players"));
         coopInvited = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.invited", "[name] made [player] a coop player!"));
         coopUseExpel = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.useexpel", "Use expel to remove."));
         lockIslandLocked = ChatColor.translateAlternateColorCodes('&', locale.getString("lock.islandlocked", "Island is locked to visitors"));
@@ -1330,5 +1380,33 @@ public class Locale {
             plugin.getLogger().severe(color);
         }
         return "white";
+    }
+
+    /**
+     * @return the languageName
+     */
+    public String getLanguageName() {
+        if (localeObject == null) {
+            return "unknown";
+        }
+        return localeObject.getDisplayLanguage(localeObject);
+    }
+
+    public String getCountryName() {
+        if (localeObject == null) {
+            return "unknown";
+        }
+        return localeObject.getDisplayCountry(localeObject);
+    }
+
+    public String getLocaleName() {
+        return this.localeName;        
+    }
+
+    /**
+     * @return the index
+     */
+    public int getIndex() {
+        return index;
     }
 }

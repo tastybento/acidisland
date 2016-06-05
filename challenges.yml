@@ -7,7 +7,7 @@
 # inventory - means the player must have the items on them
 # island - means the items have to be on the island and within 10 blocks of the player
 #          entities are also supported, e.g., COW.
-# level - means the island level has to be equal or over this amount
+# level - means the island level has to be equal or over this amount.
 #         If level is set as nothing '', then the challenge is a free challenge and can be
 #         done at any time.
 # Challenges can be repeatable only if they are inventory challenges
@@ -29,13 +29,34 @@
 #      - heal [player]
 #      - warp winner_circle [player]
 # If a command fails, it will be noted in the console.
+#
+# The format for POTIONS is as follows:
+#
+# Format POTION:NAME:<LEVEL>:<EXTENDED>:<SPLASH/LINGER>:QTY
+# LEVEL, EXTENDED, SPLASH, LINGER are optional.
+# LEVEL is a number, 1 or 2
+# LINGER is for V1.9 servers and later
+# Examples:
+# POTION:STRENGTH:1:EXTENDED:SPLASH:1
+# POTION:INSTANT_HARM:2::LINGER:2
+# POTION:JUMP:2:NOTEXTENDED:NOSPLASH:1
+# POTION:WEAKNESS::::1   -  any weakness potion
+# 
+# Valid potion names are:
+# WATER, REGEN, SPEED, FIRE_RESISTANCE, POISON, INSTANT_HEAL, NIGHT_VISION, WEAKNESS,
+# STRENGTH, SLOWNESS, JUMP, INSTANT_DAMAGE, WATER_BREATHING, INVISIBILITY
+# For V1.9 these are also available:
+# LUCK, MUNDANE, THICK, AWKWARD
+#
+#
 # Reseting islands and challenges - usually challenges are reset when a player resets
 # their island (see resetchallenges in config.yml). You can stop some challenges from
 # being reset by using resetallowed:false in the challenge.
 ##########################################################################################
 
 challenges:
-  # Challenge levels - list as many as you like
+  # Challenge levels - list as many as you like. If a challenge's level is '' it can
+  # be done anytime. You cannot name a challenge the same as a level.
   levels: 'Novice Competent Expert Advanced Elite'
 
   # The number of undone tasks that can be left on a level before unlocking next level
@@ -103,7 +124,7 @@ challenges:
       #- some other command
       
   # Challenge list
-  # Challenge names must be in lowercase.
+  # Challenge names must be in lowercase. Do not use the same name as a level!
   challengeList:
     glassmaker:
       friendlyname: 'Glass Maker'

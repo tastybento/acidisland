@@ -32,11 +32,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -63,16 +65,17 @@ import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import com.wasteofplastic.acidisland.ASLocale;
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.CoopPlay;
 import com.wasteofplastic.acidisland.DeleteIslandChunk;
 import com.wasteofplastic.acidisland.GridManager;
 import com.wasteofplastic.acidisland.Island;
+import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.LevelCalc;
 import com.wasteofplastic.acidisland.LevelCalcByChunk;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.TopTen;
-import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.events.IslandJoinEvent;
 import com.wasteofplastic.acidisland.events.IslandLeaveEvent;
 import com.wasteofplastic.acidisland.events.IslandNewEvent;
@@ -744,7 +747,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         plugin.setNewIsland(false);
         // Add to the grid
         Island myIsland = plugin.getGrid().addIsland(next.getBlockX(), next.getBlockZ(), playerUUID);
-
+        myIsland.setLevelHandicap(schematic.getLevelHandicap());
         // Save the player so that if the server is reset weird things won't happen
         plugin.getPlayers().save(playerUUID);
         /*
@@ -1107,6 +1110,33 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         if (teamLeader != null) {
             teamMembers = plugin.getPlayers().getMembers(teamLeader);
         }
+        // Island name (can have spaces)
+        if (split.length > 1 && split[0].equalsIgnoreCase("name")) {
+            // Naming of island
+            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.name")
+                    && plugin.getPlayers().hasIsland(playerUUID)) {
+                String name = split[1];
+                for (int i = 2; i < split.length; i++) {
+                    name = name + " " + split[i];
+                }
+                if (name.length() < Settings.minNameLength) {
+                    player.sendMessage(ChatColor.RED + (plugin.myLocale(player.getUniqueId()).errorTooShort).replace("[length]", String.valueOf(Settings.minNameLength)));
+                    return true;
+                }
+                if (name.length() > Settings.maxNameLength) {
+                    player.sendMessage(ChatColor.RED + (plugin.myLocale(player.getUniqueId()).errorTooLong).replace("[length]", String.valueOf(Settings.maxNameLength)));
+                    return true;
+                }
+                plugin.getGrid().setIslandName(playerUUID, ChatColor.translateAlternateColorCodes('&', name));
+                player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).generalSuccess);
+                return true;
+            } else {
+                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoPermission);
+                return true;
+            }
+        }
+
+
         // The target player's UUID
         UUID targetPlayer = null;
         // Check if a player has an island or is in a team
@@ -1142,6 +1172,23 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 return true;
             }
         case 1:
+            if (split[0].equalsIgnoreCase("name")) {
+                // Explain command
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.name")
+                        && plugin.getPlayers().hasIsland(playerUUID)) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " name <name>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandHelpName);
+                    return true;
+                }
+            } else if (split[0].equalsIgnoreCase("resetname")) {
+                // Convert name to a UUID
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.name")
+                        && plugin.getPlayers().hasIsland(playerUUID)) {
+                    // Has an island
+                    plugin.getGrid().setIslandName(playerUUID, null);
+                    sender.sendMessage(plugin.myLocale().generalSuccess);
+                }
+                return true;
+            }
             if (split[0].equalsIgnoreCase("coop")) {
                 // Explain command
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "coop")) {
@@ -1232,21 +1279,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             } else 
                 if (split[0].equalsIgnoreCase("lang")) {
                     if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lang")) {
-                        player.sendMessage("/" + label + " lang <locale>");
-                        player.sendMessage("English");
-                        player.sendMessage("Français");
-                        player.sendMessage("Deutsch");
-                        player.sendMessage("Español");
-                        player.sendMessage("Italiano");
-                        player.sendMessage("한국의 / Korean");
-                        player.sendMessage("Polski");
-                        player.sendMessage("Brasil");
-                        player.sendMessage("中国 / SimplifiedChinese");
-                        player.sendMessage("Čeština");
-                        player.sendMessage("Slovenčina");
-                        player.sendMessage("繁體中文 / TraditionalChinese");
-                        player.sendMessage("Nederlands");
-                    } else {
+                        player.sendMessage("/" + label + " lang <#>");
+                        displayLocales(player);
+                   } else {
                         player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).errorNoPermission);
                     }
                     return true;
@@ -1571,6 +1606,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " level: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpLevel);
                     player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " level <player>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpLevelPlayer);
                 }
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.name")
+                        && plugin.getPlayers().hasIsland(playerUUID)) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " name <name>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandHelpName);
+                }
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.topten")) {
                     player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " top: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpTop);
                 }
@@ -1613,9 +1652,15 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "coop")) {
                     player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " coop <player>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpCoop);
                     player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " uncoop <player>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpUnCoop);
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " listcoops: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpListCoops);
+
                 }
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lock")) {
                     player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " lock: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandHelpLock);
+                }
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.name")
+                        && plugin.getPlayers().hasIsland(playerUUID)) {
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " resetname: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpResetName);
                 }
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.settings")) {
                     player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " settings: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandHelpSettings);
@@ -1624,9 +1669,24 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + plugin.myLocale(player.getUniqueId()).islandHelpChallenges);
                 }
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lang")) {
-                    player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " lang <locale> - select language");
+                    player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " lang <#> - select language");
                 }
                 return true;
+            } else if (split[0].equalsIgnoreCase("listcoops")) {
+                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "coop")) {
+                    Island island = plugin.getGrid().getIsland(playerUUID);
+                    boolean none = true;
+                    for (UUID uuid: CoopPlay.getInstance().getCoopPlayers(island.getCenter())) {
+                        player.sendMessage(ChatColor.GREEN + plugin.getPlayers().getName(uuid));
+                        none = false;
+                    }
+                    if (none) {
+                        player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " coop <player>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpCoop);
+                    } else {
+                        player.sendMessage(plugin.myLocale(player.getUniqueId()).helpColor + plugin.myLocale(playerUUID).coopUseExpel);
+                    }
+                    return true;
+                }
             } else if (split[0].equalsIgnoreCase("biomes")) {
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.biomes")) {
                     // Only the team leader can do this
@@ -1772,12 +1832,15 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             addPlayertoTeam(inviteList.get(playerUUID), inviteList.get(playerUUID));
                         }
                         setResetWaitTime(player);
-
+                        if (Settings.teamJoinDeathReset) {
+                            plugin.getPlayers().setDeaths(player.getUniqueId(), 0);
+                        }
                         plugin.getGrid().homeTeleport(player);
                         plugin.resetPlayer(player);
-                        // Reset reset limit - note that a player can get around the reset
-                        // limit by begging someone to invite them to an island and then leaving
-                        plugin.getPlayers().setResetsLeft(playerUUID, Settings.resetLimit);
+                        if (!player.hasPermission(Settings.PERMPREFIX + "command.newteamexempt")) {
+                            //plugin.getLogger().info("DEBUG: Executing new island commands");
+                            runCommands(Settings.teamStartCommands, player);
+                        }
                         player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).inviteyouHaveJoinedAnIsland);
                         if (Bukkit.getPlayer(inviteList.get(playerUUID)) != null) {
                             Bukkit.getPlayer(inviteList.get(playerUUID)).sendMessage(
@@ -1982,51 +2045,33 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         }
                     } else if (split[0].equalsIgnoreCase("lang")) {
                         if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lang")) {
-                            if (split[1].equalsIgnoreCase("english")) {
-                                plugin.getPlayers().setLocale(playerUUID, "en-US"); 
-                            } else if (split[1].equalsIgnoreCase("Français") || split[1].equalsIgnoreCase("Francais")) {
-                                plugin.getPlayers().setLocale(playerUUID, "fr-FR"); 
-                            } else if (split[1].equalsIgnoreCase("Deutsch")) {
-                                plugin.getPlayers().setLocale(playerUUID, "de-DE");  
-                            } else if (split[1].equalsIgnoreCase("español") || split[1].equalsIgnoreCase("espanol")) {
-                                plugin.getPlayers().setLocale(playerUUID, "es-ES");  
-                            } else if (split[1].equalsIgnoreCase("italiano")) {
-                                plugin.getPlayers().setLocale(playerUUID, "it-IT");  
-                            } else if (split[1].equalsIgnoreCase("Korean") || split[1].equalsIgnoreCase("한국의")) {
-                                plugin.getPlayers().setLocale(playerUUID, "ko-KR");  
-                            } else if (split[1].equalsIgnoreCase("polski")) {
-                                plugin.getPlayers().setLocale(playerUUID, "pl-PL");  
-                            } else if (split[1].equalsIgnoreCase("Brasil")) {
-                                plugin.getPlayers().setLocale(playerUUID, "pt-BR");  
-                            } else if (split[1].equalsIgnoreCase("SimplifiedChinese") || split[1].equalsIgnoreCase("中国")) {
-                                plugin.getPlayers().setLocale(playerUUID, "zh-CN");  
-                            } else if (split[1].equalsIgnoreCase("Čeština") || split[1].equalsIgnoreCase("Cestina")) {
-                                plugin.getPlayers().setLocale(playerUUID, "cs-CS");  
-                            } else if (split[1].equalsIgnoreCase("Slovenčina") || split[1].equalsIgnoreCase("Slovencina")) {
-                                plugin.getPlayers().setLocale(playerUUID, "sk-SK");  
-                            } else if (split[1].equalsIgnoreCase("TraditionalChinese") || split[1].equalsIgnoreCase("繁體中文")) {
-                                plugin.getPlayers().setLocale(playerUUID, "nl-NL");  
-                            } else if (split[1].equalsIgnoreCase("Nederlands") || split[1].equalsIgnoreCase("Dutch")) {
-                                plugin.getPlayers().setLocale(playerUUID, "nl-NL");  
-                            } else {
-                                // Typed it in wrong
-                                player.sendMessage("/" + label + " lang <locale>");
-                                player.sendMessage("English");
-                                player.sendMessage("Français");
-                                player.sendMessage("Deutsch");
-                                player.sendMessage("Español");
-                                player.sendMessage("Italiano");
-                                player.sendMessage("한국의 / Korean");
-                                player.sendMessage("Polski");
-                                player.sendMessage("Brasil");
-                                player.sendMessage("中国 / SimplifiedChinese");
-                                player.sendMessage("Čeština");
-                                player.sendMessage("Slovenčina");
-                                player.sendMessage("繁體中文 / TraditionalChinese");
-                                player.sendMessage("Nederlands");
+                            if (!NumberUtils.isDigits(split[1])) {
+                                player.sendMessage(ChatColor.RED + "/" + label + " lang <#>");
+                                displayLocales(player);
                                 return true;
-                            }
-                            player.sendMessage("OK!");
+                            } else {
+                                try {
+                                    int index = Integer.valueOf(split[1]);
+                                    if (index < 1 || index > (plugin.getAvailableLocales().size()-1)) {
+                                        player.sendMessage(ChatColor.RED + "/" + label + " lang <#>");
+                                        displayLocales(player);
+                                        return true;
+                                    }
+                                    for (ASLocale locale : plugin.getAvailableLocales().values()) {
+                                        if (locale.getIndex() == index) {
+                                            plugin.getPlayers().setLocale(playerUUID, locale.getLocaleName());
+                                            player.sendMessage(ChatColor.GREEN + plugin.myLocale(playerUUID).generalSuccess);
+                                            return true;
+                                        }
+                                    }
+                                    // Not in the list
+                                    player.sendMessage(ChatColor.RED + "/" + label + " lang <#>");
+                                    displayLocales(player);
+                                } catch (Exception e) {
+                                    player.sendMessage(ChatColor.RED + "/" + label + " lang <#>");
+                                    displayLocales(player);
+                                }
+                            }                            
                             return true;
                         } else {
                             player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).errorNoPermission);
@@ -2419,31 +2464,37 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 return true;
                             }
                             // Find out who they want to expel
-                            // Only online players can be expelled
-                            Player target = plugin.getServer().getPlayer(split[1]);
-                            if (target == null) {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
+                            UUID targetPlayerUUID = plugin.getPlayers().getUUID(split[1]);
+                            if (targetPlayerUUID == null) {
+                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorUnknownPlayer);
                                 return true;  
-                            }                                
-                            UUID targetPlayerUUID = target.getUniqueId();
+                            }                                                            
                             // Target should not be themselves
                             if (targetPlayerUUID.equals(playerUUID)) {
                                 player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelNotYourself);
                                 return true;
                             }
                             // Target cannot be op
-                            if (target.isOp() || VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypassprotect")) {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelFail.replace("[name]", target.getDisplayName()));
-                                return true;
+                            Player target = plugin.getServer().getPlayer(targetPlayerUUID);
+                            if (target != null) {
+                                if (target.isOp() || VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypassprotect")
+                                        || VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypassexpel")) {
+                                    player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelFail.replace("[name]", target.getDisplayName()));
+                                    return true;
+                                }
                             }
                             // Remove them from the coop list
-                            boolean coop = CoopPlay.getInstance().removeCoopPlayer(player, target);
+                            boolean coop = CoopPlay.getInstance().removeCoopPlayer(player, targetPlayerUUID);
                             if (coop) {
-                                target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getDisplayName()));
-                                player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopRemoveSuccess.replace("[name]", target.getDisplayName()));
+                                if (target != null) {
+                                    target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getDisplayName()));
+                                } else {
+                                    plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).coopRemoved.replace("[name]", player.getDisplayName()));
+                                }
+                                player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopRemoveSuccess.replace("[name]", plugin.getPlayers().getName(targetPlayerUUID)));
                             }
                             // See if target is on this player's island
-                            if (plugin.getGrid().isOnIsland(player, target)) {
+                            if (target != null && plugin.getGrid().isOnIsland(player, target)) {
                                 // Check to see if this player has an island or is just
                                 // helping out
                                 if (plugin.getPlayers().inTeam(targetPlayerUUID) || plugin.getPlayers().hasIsland(targetPlayerUUID)) {
@@ -2477,23 +2528,26 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 return true;
                             }
                             // Find out who they want to uncoop
-                            // Only online players can be uncooped
-                            Player target = plugin.getServer().getPlayer(split[1]);
-                            if (target == null) {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
+                            UUID targetPlayerUUID = plugin.getPlayers().getUUID(split[1]);
+                            if (targetPlayerUUID == null) {
+                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorUnknownPlayer);
                                 return true;  
-                            }                                
-                            UUID targetPlayerUUID = target.getUniqueId();
+                            }                                                            
                             // Target should not be themselves
                             if (targetPlayerUUID.equals(playerUUID)) {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).banNotYourself);
+                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelNotYourself);
                                 return true;
                             }
+                            Player target = plugin.getServer().getPlayer(targetPlayerUUID);
                             // Remove them from the coop list
-                            boolean coop = CoopPlay.getInstance().removeCoopPlayer(player, target);
+                            boolean coop = CoopPlay.getInstance().removeCoopPlayer(player, targetPlayerUUID);
                             if (coop) {
-                                target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getDisplayName()));
-                                player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopRemoveSuccess.replace("[name]", target.getDisplayName()));
+                                if (target != null) {
+                                    target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getDisplayName()));
+                                } else {
+                                    plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).coopRemoved.replace("[name]", player.getDisplayName()));
+                                }
+                                player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopRemoveSuccess.replace("[name]", plugin.getPlayers().getName(targetPlayerUUID)));
                             } else {
                                 player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).coopNotInCoop.replace("[name]", target.getDisplayName()));
                             }
@@ -2800,11 +2854,28 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).errorUnknownCommand);
                             return true;
                         }
+            break;
         }
         player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).errorUnknownCommand);
         return true;
     }
 
+
+    /**
+     * Shows available languages to the player
+     * @param player
+     */
+    private void displayLocales(Player player) {
+        TreeMap<Integer,String> langs = new TreeMap<Integer,String>();
+        for (ASLocale locale : plugin.getAvailableLocales().values()) {
+            if (!locale.getLocaleName().equalsIgnoreCase("locale")) {
+                langs.put(locale.getIndex(), locale.getLanguageName() + " (" + locale.getCountryName() + ")"); 
+            }
+        }
+        for (Entry<Integer, String> entry: langs.entrySet()) {
+            player.sendMessage(entry.getKey() + ": " + entry.getValue());
+        }
+    }
 
     /**
      * Warps a player to a spot in front of a sign
@@ -2878,6 +2949,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
     private void resetPlayer(Player player, Island oldIsland) {
         // Deduct the reset
         plugin.getPlayers().setResetsLeft(player.getUniqueId(), plugin.getPlayers().getResetsLeft(player.getUniqueId()) - 1);
+        // Reset deaths
+        if (Settings.islandResetDeathReset) {
+            plugin.getPlayers().setDeaths(player.getUniqueId(), 0);
+        }
         // Clear any coop inventories
         // CoopPlay.getInstance().returnAllInventories(player);
         // Remove any coop invitees and grab their stuff
@@ -3067,6 +3142,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.sethome")) {
                 options.add("go");
             }
+            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.name") && plugin.getPlayers().hasIsland(player.getUniqueId())) {
+                options.add("name");
+            }
             options.add("about"); //No permission needed. :-) Indeed.
             if (plugin.getGrid() != null && plugin.getGrid().getSpawn() != null) {
                 options.add("spawn");
@@ -3120,6 +3198,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "coop")) {
                 options.add("coop");
                 options.add("uncoop");
+                options.add("listcoops");
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lock")) {
                 options.add("lock");
@@ -3135,26 +3214,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         case 2: 
             if (args[0].equalsIgnoreCase("make")) {
                 options.addAll(schematics.keySet());
-            }
-            if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.lang")) {
-                if (args[0].equalsIgnoreCase("lang")) {
-                    options.add("English");
-                    options.add("Français");
-                    options.add("Deutsch");
-                    options.add("Español");
-                    options.add("Italiano");
-                    options.add("한국의");
-                    options.add("Korean");
-                    options.add("Polski");
-                    options.add("Brasil");
-                    options.add("中国");
-                    options.add("SimplifiedChinese");
-                    options.add("繁體中文");
-                    options.add("TraditionalChinese");
-                    options.add("Čeština");
-                    options.add("Slovenčina");
-                    options.add("Nederlands");
-                }
             }
             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.sethome")) {
                 if (args[0].equalsIgnoreCase("go") || args[0].equalsIgnoreCase("sethome")) {

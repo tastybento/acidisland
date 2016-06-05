@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -59,6 +58,7 @@ public class Players {
     private String locale;
     private int startIslandRating;
     private boolean useControlPanel;
+    private int deaths;
 
     /**
      * @param uuid
@@ -164,8 +164,13 @@ public class Players {
         // Run through all challenges available
         for (String challenge : Settings.challengeList) {
             // If they are in the list, then use the value, otherwise use false
-            challengeList.put(challenge, playerInfo.getBoolean("challenges.status." + challenge, false));
-            challengeListTimes.put(challenge, playerInfo.getInt("challenges.times." + challenge, 0));
+            challengeList.put(challenge.toLowerCase(), playerInfo.getBoolean("challenges.status." + challenge.toLowerCase(), false));
+            challengeListTimes.put(challenge.toLowerCase(), playerInfo.getInt("challenges.times." + challenge.toLowerCase(), 0));
+        }
+        for (String challenge : Settings.challengeLevels) {
+            // If they are in the list, then use the value, otherwise use false
+            challengeList.put(challenge.toLowerCase(), playerInfo.getBoolean("challenges.status." + challenge.toLowerCase(), false));
+            challengeListTimes.put(challenge.toLowerCase(), playerInfo.getInt("challenges.times." + challenge.toLowerCase(), 0));
         }
         // Load reset limit
         this.resetsLeft = playerInfo.getInt("resetsLeft", Settings.resetLimit);
@@ -173,6 +178,8 @@ public class Players {
         if (Settings.resetLimit > 0 && this.resetsLeft == -1) {
             resetsLeft = Settings.resetLimit;
         }
+        // Deaths
+        this.deaths = playerInfo.getInt("deaths", 0);
         // Load control panel setting
         useControlPanel = playerInfo.getBoolean("useControlPanel", Settings.useControlPanel);
         // Load the invite cool downs
@@ -256,6 +263,7 @@ public class Players {
             this.resetsLeft = Settings.resetLimit;
         }
         playerInfo.set("resetsLeft", this.resetsLeft);
+        playerInfo.set("deaths", deaths);
         // Save invite cooldown timers
         playerInfo.set("invitecooldown", null);
         for (Entry<Location, Date> en : kickedList.entrySet()) {
@@ -283,6 +291,9 @@ public class Players {
         }
         // Control panel
         playerInfo.set("useControlPanel", useControlPanel);
+
+        //playerInfo.set("coops", value);
+
         // Actually save the file
         Util.saveYamlFile(playerInfo, "players/" + uuid.toString() + ".yml");
     }
@@ -296,37 +307,6 @@ public class Players {
     }
 
     /**
-     * A maintenance function. Rebuilds the challenge list for this player.
-     * Should be used when the challenges change, e.g. config.yml changes.
-     */
-    public void updateChallengeList() {
-        // If it does not exist, then make it
-        if (challengeList == null) {
-            challengeList = new HashMap<String, Boolean>();
-        }
-        // Iterate through all the challenges in the config.yml and if they are
-        // not in the list the add them as yet to be done
-        final Iterator<?> itr = Settings.challengeList.iterator();
-        while (itr.hasNext()) {
-            final String current = (String) itr.next();
-            if (!challengeList.containsKey(current.toLowerCase())) {
-                challengeList.put(current.toLowerCase(), Boolean.valueOf(false));
-            }
-        }
-        // If the challenge list is bigger than the number of challenges in the
-        // config.yml (some were removed?)
-        // then remove the old ones - the ones that are no longer in Settings
-        if (challengeList.size() > Settings.challengeList.size()) {
-            final Object[] challengeArray = challengeList.keySet().toArray();
-            for (int i = 0; i < challengeArray.length; i++) {
-                if (!Settings.challengeList.contains(challengeArray[i].toString())) {
-                    challengeList.remove(challengeArray[i].toString());
-                }
-            }
-        }
-    }
-
-    /**
      * Checks if a challenge exists in the player's challenge list
      * 
      * @param challenge
@@ -334,14 +314,7 @@ public class Players {
      *         otherwise false
      */
     public boolean challengeExists(final String challenge) {
-        if (challengeList.containsKey(challenge.toLowerCase())) {
-            return true;
-        }
-        // for (String s : challengeList.keySet()) {
-        // ASkyBlock.getInstance().getLogger().info("DEBUG: challenge list: " +
-        // s);
-        // }
-        return false;
+        return challengeList.containsKey(challenge.toLowerCase());
     }
 
     /**
@@ -388,25 +361,16 @@ public class Players {
      */
     public void completeChallenge(final String challenge) {
         // plugin.getLogger().info("DEBUG: Complete challenge");
-        if (!challengeList.containsKey(challenge)) {
-           // Add it if it is not there
-           updateChallengeList(); 
+        challengeList.put(challenge.toLowerCase(), true);
+        // Count how many times the challenge has been done
+        int times = 0;
+        if (challengeListTimes.containsKey(challenge.toLowerCase())) {
+            times = challengeListTimes.get(challenge.toLowerCase());
         }
-        if (challengeList.containsKey(challenge)) {
-            challengeList.remove(challenge);
-            challengeList.put(challenge, Boolean.valueOf(true));
-            // Count how many times the challenge has been done
-            int times = 0;
-            if (challengeListTimes.containsKey(challenge)) {
-                times = challengeListTimes.get(challenge);
-            }
-            times++;
-            challengeListTimes.put(challenge, times);
-            // plugin.getLogger().info("DEBUG: complete " + challenge + ":" +
-            // challengeListTimes.get(challenge.toLowerCase()).intValue() );
-        } else {
-            plugin.getLogger().severe("Attempt to complete a challenge that does not exist: " + challenge + " for player " + playerName);
-        }
+        times++;
+        challengeListTimes.put(challenge.toLowerCase(), times);
+        // plugin.getLogger().info("DEBUG: complete " + challenge + ":" +
+        // challengeListTimes.get(challenge.toLowerCase()).intValue() );
     }
 
     public boolean hasIsland() {
@@ -581,20 +545,15 @@ public class Players {
     public void resetAllChallenges() {
         challengeList.clear();
         challengeListTimes.clear();
-        updateChallengeList();
     }
 
     /**
-     * Resets a specific challenge. Will not reset a challenge that does not
-     * exist in the player's list TODO: Add a success or failure return
-     * 
+     * Resets a specific challenge.
      * @param challenge
      */
     public void resetChallenge(final String challenge) {
-        if (challengeList.containsKey(challenge)) {
-            challengeList.put(challenge, Boolean.valueOf(false));
-            challengeListTimes.put(challenge, 0);
-        }
+        challengeList.put(challenge, false);
+        challengeListTimes.put(challenge, 0);
     }
 
     public void setHasIsland(final boolean b) {
@@ -833,5 +792,60 @@ public class Players {
      */
     public boolean getControlPanel() {
         return useControlPanel;
+    }
+
+    /**
+     * @return the deaths
+     */
+    public int getDeaths() {
+        return deaths;
+    }
+
+    /**
+     * @param deaths the deaths to set
+     */
+    public void setDeaths(int deaths) {
+        this.deaths = deaths;
+        if (this.deaths > Settings.maxDeaths) {
+            this.deaths = Settings.maxDeaths;
+        }
+    }
+
+    /**
+     * Add death
+     */
+    public void addDeath() {
+        this.deaths++;
+        if (this.deaths > Settings.maxDeaths) {
+            this.deaths = Settings.maxDeaths;
+        }
+    }
+
+    /**
+     * @return a list of challenges this player has completed
+     * Used by the reset admin command
+     */
+    public List<String> getChallengesDone() {
+        List<String> result = new ArrayList<String>();
+        for (Entry<String, Boolean> en : challengeList.entrySet()) {
+           if (en.getValue()) {
+               result.add(en.getKey());
+           }
+        }
+        return result;
+    }
+    
+    /**
+     * @return a list of challenges this player has not completed
+     * Used by the complete admin command
+     */
+    public List<String> getChallengesNotDone() {
+        List<String> result = new ArrayList<String>();
+        for (Entry<String, Boolean> en : challengeList.entrySet()) {
+           if (!en.getValue()) {
+               result.add(en.getKey());
+           }
+        }
+        return result;
     }
 }

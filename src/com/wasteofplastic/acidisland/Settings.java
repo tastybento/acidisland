@@ -106,6 +106,7 @@ public class Settings {
     public static boolean allowNetherPvP;
     public static boolean allowRedStone;
     public static boolean allowShearing;
+    public static boolean allowVillagerTrading;
 
     // System settings
     public static boolean allowChestDamage;
@@ -271,4 +272,14 @@ public class Settings {
     public static boolean allowPushing;
     public static boolean recoverSuperFlat;
     protected static boolean levelLogging;
+    public static boolean persistantCoops;
+    public static boolean allowSpawnCreeperPain;
+    public static List<String> teamStartCommands;
+    public static int minNameLength;
+    public static int maxNameLength;
+    public static int deathpenalty;
+    public static boolean sumTeamDeaths;
+    public static int maxDeaths;
+    public static boolean islandResetDeathReset;
+    public static boolean teamJoinDeathReset;
 }
