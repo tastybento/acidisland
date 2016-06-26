@@ -71,11 +71,11 @@ import com.wasteofplastic.acidisland.CoopPlay;
 import com.wasteofplastic.acidisland.DeleteIslandChunk;
 import com.wasteofplastic.acidisland.GridManager;
 import com.wasteofplastic.acidisland.Island;
-import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.LevelCalc;
 import com.wasteofplastic.acidisland.LevelCalcByChunk;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.TopTen;
+import com.wasteofplastic.acidisland.Island.Flags;
 import com.wasteofplastic.acidisland.events.IslandJoinEvent;
 import com.wasteofplastic.acidisland.events.IslandLeaveEvent;
 import com.wasteofplastic.acidisland.events.IslandNewEvent;
@@ -2052,7 +2052,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             } else {
                                 try {
                                     int index = Integer.valueOf(split[1]);
-                                    if (index < 1 || index > (plugin.getAvailableLocales().size()-1)) {
+                                    if (index < 1 || index > plugin.getAvailableLocales().size()) {
                                         player.sendMessage(ChatColor.RED + "/" + label + " lang <#>");
                                         displayLocales(player);
                                         return true;
