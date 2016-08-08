@@ -38,7 +38,7 @@ public class Settings {
     public enum GameType {
         ASKYBLOCK, ACIDISLAND
     }
-    
+   
     public final static GameType GAMETYPE = GameType.ACIDISLAND;
     // The spawn command (Essentials spawn for example)
     public final static String SPAWNCOMMAND = "spawn";
@@ -107,6 +107,7 @@ public class Settings {
     public static boolean allowRedStone;
     public static boolean allowShearing;
     public static boolean allowVillagerTrading;
+    public static boolean allowChorusFruit;
 
     // System settings
     public static boolean allowChestDamage;
@@ -181,6 +182,7 @@ public class Settings {
     public static boolean allowSpawnEnderPearls;
     public static boolean allowSpawnLeashUse;
     public static boolean allowSpawnShearing;
+    public static boolean allowSpawnChorusFruit;
 
     // Levels
     public static HashMap<MaterialData, Integer> blockLimits;
@@ -285,4 +287,8 @@ public class Settings {
     public static boolean allowAutoActivator;
     public static boolean netherRoof;
     public static boolean allowSpawnVillagerTrading;
+    public static String chatLevelPrefix;
+    public static String chatChallengeLevelPrefix;
+    public static String chatIslandPlayer;
+    public static boolean allowObsidianScooping;
 }

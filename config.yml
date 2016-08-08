@@ -513,9 +513,12 @@ general:
    # The prefix [Team Chat] that goes in front of team chats is in the locale files
    teamchat: true
 
-   # Use the variable "{ISLAND_LEVEL}" in chat prefixes in other plugins and it will
-   # be replaced by the player's island level.
+   # Variables to use as chat prefixes. You can change them to be what you want.
+   # "{ISLAND_LEVEL}" is replaced by the player's island level.
+   # "{ISLAND_CHALLENGE_LEVEL}" is replaced by the player's challenge level.
    # Confirmed to work with Essentials Chat, Multiverse Core and Herochat.
+   chatlevelprefix: "{ISLAND_LEVEL}"
+   chatchallengelevelprefix: "{ISLAND_CHALLENGE_LEVEL}"
 
    # Restrict Wither and other flying mobs
    # Any flying mobs that exit the island space where they were spawned will be removed.
@@ -546,13 +549,19 @@ general:
    # This will regenerate any chunks with bedrock at y=0 when they are loaded.
    recoversuperflat: false
    
-   # Allow coops to be permenant
+   # Allow coops to be permanent
    # If you change this, change the text in the locale files about coop ending due to
    # log out.
    persistentcoops: false
 
    # Allow FTB Autonomous Activator to work (will allow player
    autoactivator: false
+   
+   # Allow obsidian to be scooped up with an empty bucket back into lava
+   # This only works if there is a single block of obsidian (no obsidian within 10 blocks)
+   # Recommendation is to keep this true so that newbies don't bother you or reset their
+   # island unnecessarily.
+   allowobsidianscooping: true
    
    # Config.yml version. DO NOT EDIT. This number only changes if the latest
    # plugin config has been updated. If a new config is detected, it will be

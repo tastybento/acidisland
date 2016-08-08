@@ -120,7 +120,8 @@ public class Island implements Cloneable {
         allowNetherPvP,
         allowRedStone,
         allowShearing,
-        allowVillagerTrading
+        allowVillagerTrading,
+        allowChorusFruit
     }
 
 
@@ -261,6 +262,7 @@ public class Island implements Cloneable {
         this.igs.put(Flags.allowRedStone, Settings.allowRedStone);
         this.igs.put(Flags.allowShearing, Settings.allowShearing);
         this.igs.put(Flags.allowVillagerTrading, Settings.allowVillagerTrading);
+        this.igs.put(Flags.allowChorusFruit, Settings.allowChorusFruit);
     }
 
     /**
@@ -618,7 +620,9 @@ public class Island implements Cloneable {
         List<UUID> result = new ArrayList<UUID>();
         // Add any coop members for this island
         result.addAll(CoopPlay.getInstance().getCoopPlayers(center.toVector().toLocation(ASkyBlock.getIslandWorld())));
-        result.addAll(CoopPlay.getInstance().getCoopPlayers(center.toVector().toLocation(ASkyBlock.getNetherWorld())));
+        if (Settings.createNether && Settings.newNether && ASkyBlock.getNetherWorld() != null) {
+            result.addAll(CoopPlay.getInstance().getCoopPlayers(center.toVector().toLocation(ASkyBlock.getNetherWorld())));
+        }
         if (owner == null) {
             return result;
         }
