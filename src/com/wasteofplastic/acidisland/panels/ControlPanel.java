@@ -217,6 +217,11 @@ public class ControlPanel implements Listener {
         // Challenges
         if (inventory.getName().equals(plugin.myLocale(player.getUniqueId()).challengesguiTitle)) {
             event.setCancelled(true);
+            if (event.getClick().equals(ClickType.SHIFT_RIGHT)) {                    
+                player.closeInventory();
+                player.updateInventory();
+                return;
+            }
             if (event.getSlotType() == SlotType.OUTSIDE) {
                 player.closeInventory();
                 return;
@@ -276,6 +281,7 @@ public class ControlPanel implements Listener {
                     }
                 }
             }
+            return;
         }
         /*
          * Minishop section
@@ -291,6 +297,11 @@ public class ControlPanel implements Listener {
             event.setCancelled(true); // Don't let them pick it up
             if (!Settings.useEconomy || slot == -999) {
                 player.closeInventory();
+                return;
+            }
+            if (event.getClick().equals(ClickType.SHIFT_RIGHT)) {                    
+                player.closeInventory();
+                player.updateInventory();
                 return;
             }
             if (store.containsKey(slot)) {
@@ -354,6 +365,7 @@ public class ControlPanel implements Listener {
                     }
                 }
             }
+            return;
         }
         // Check control panels
         for (String panelName : controlPanel.keySet()) {
@@ -364,6 +376,11 @@ public class ControlPanel implements Listener {
                 // plugin.getLogger().info("DEBUG: panel name " + panelName);
                 if (slot == -999) {
                     player.closeInventory(); 
+                    return;
+                }
+                if (event.getClick().equals(ClickType.SHIFT_RIGHT)) {                    
+                    player.closeInventory();
+                    player.updateInventory();
                     return;
                 }
                 HashMap<Integer, CPItem> thisPanel = panels.get(panelName);
