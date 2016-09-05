@@ -4,7 +4,7 @@
 
 	<groupId>com.wasteofplastic</groupId>
 	<artifactId>acidisland</artifactId>
-	<version>3.0.3.2</version>
+	<version>3.0.3.3</version>
 	<packaging>jar</packaging>
 
 	<name>com.wasteofplastic</name>
