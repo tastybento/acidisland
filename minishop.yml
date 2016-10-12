@@ -33,8 +33,18 @@ items:
       price: 200
 
    # Potions can be different types and Extended, Splash or ExtendedSplash.
-   # If you do not know the potion types, just guess and look in the console
-   # If you get it wrong, it will tell you the options
+   # Format extra: NAME:<LEVEL>:<EXTENDED/NOTEXTENDED>:<SPLASH/NOSPLASH>:QTY
+   # LEVEL, EXTENDED and SPLASH are optional. If they are left blank, any is acceptable
+   # LEVEL is a number, normally 1 or 2
+   # Examples:
+   # POTION:STRENGTH:1:EXTENDED:SPLASH:1
+   # POTION:JUMP:2:NOTEXTENDED:NOSPLASH:1
+   # POTION:WEAKNESS::::1   -  any weakness potion
+   # 
+   # Valid potion names are:
+   # WATER, REGEN, SPEED, FIRE_RESISTANCE, POISON, INSTANT_HEAL, NIGHT_VISION, WEAKNESS,
+   # STRENGTH, SLOWNESS, JUMP, INSTANT_DAMAGE, WATER_BREATHING, INVISIBILITY
+   #
    item6:
       description: '&bAcid-proof Potion'
       material: POTION

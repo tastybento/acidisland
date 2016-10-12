@@ -57,6 +57,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -64,6 +65,7 @@ import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import org.bukkit.entity.Item;
 
 import com.wasteofplastic.acidisland.ASLocale;
 import com.wasteofplastic.acidisland.ASkyBlock;
@@ -2596,18 +2598,18 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelNotYourself);
                                 return true;
                             }
-                            Player target = plugin.getServer().getPlayer(targetPlayerUUID);
+                            OfflinePlayer target = plugin.getServer().getOfflinePlayer(targetPlayerUUID);
                             // Remove them from the coop list
                             boolean coop = CoopPlay.getInstance().removeCoopPlayer(player, targetPlayerUUID);
                             if (coop) {
-                                if (target != null) {
-                                    target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getDisplayName()));
+                                if (target != null && target.isOnline()) {
+                                    target.getPlayer().sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getDisplayName()));
                                 } else {
                                     plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).coopRemoved.replace("[name]", player.getDisplayName()));
                                 }
                                 player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopRemoveSuccess.replace("[name]", plugin.getPlayers().getName(targetPlayerUUID)));
                             } else {
-                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).coopNotInCoop.replace("[name]", target.getDisplayName()));
+                                player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).coopNotInCoop.replace("[name]", plugin.getPlayers().getName(targetPlayerUUID)));
                             }
                             return true;
                         } else if (split[0].equalsIgnoreCase("ban")) {
@@ -2779,11 +2781,15 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                         CoopPlay.getInstance().clearMyCoops(target);
                                         // Clear the player out and throw their stuff at the
                                         // leader
-                                        if (target.getWorld().equals(ASkyBlock.getIslandWorld())) {                     
+                                        if (target.getWorld().equals(ASkyBlock.getIslandWorld())) {                        
                                             for (ItemStack i : target.getInventory().getContents()) {
                                                 if (i != null) {
-                                                    try {                                                        
-                                                        player.getWorld().dropItemNaturally(player.getLocation(), i);
+                                                    try { 
+                                                        // Fire an event to see if this item should be dropped or not
+                                                        // Some plugins may not want items to be dropped
+                                                        Item drop = player.getWorld().dropItemNaturally(player.getLocation(), i);
+                                                        PlayerDropItemEvent event = new PlayerDropItemEvent(target, drop);
+                                                        plugin.getServer().getPluginManager().callEvent(event);                                                        
                                                     } catch (Exception e) {
                                                     }
                                                 }

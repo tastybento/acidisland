@@ -16,20 +16,17 @@
  *******************************************************************************/
 package com.wasteofplastic.acidisland;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.UUID;
+import com.wasteofplastic.acidisland.events.TeamJoinEvent;
+import com.wasteofplastic.acidisland.events.TeamLeaveEvent;
+import com.wasteofplastic.acidisland.util.Util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import com.wasteofplastic.acidisland.util.Util;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Tracks the following info on the player
@@ -617,9 +614,15 @@ public class Players {
      *            String in this function)
      */
     public void setJoinTeam(final UUID leader, final Location l) {
+        if(inTeam) {
+            Bukkit.getPluginManager().callEvent(new TeamLeaveEvent(uuid, teamLeader));
+        }
+
         inTeam = true;
         teamLeader = leader;
         teamIslandLocation = Util.getStringLocation(l);
+
+        Bukkit.getPluginManager().callEvent(new TeamJoinEvent(uuid, leader));
     }
 
     /**
@@ -628,11 +631,15 @@ public class Players {
      */
 
     public void setLeaveTeam() {
+        if(inTeam) {
+            Bukkit.getPluginManager().callEvent(new TeamLeaveEvent(uuid, teamLeader));
+        }
+
         inTeam = false;
         teamLeader = null;
         islandLevel = 0;
         teamIslandLocation = null;
-        members = new ArrayList<UUID>();
+        members = new ArrayList<>();
     }
 
     /**
@@ -648,7 +655,15 @@ public class Players {
      *            a String name of the team leader
      */
     public void setTeamLeader(final UUID leader) {
+        if(inTeam) {
+            // Changing team leader changes the team identifier
+            Bukkit.getPluginManager().callEvent(new TeamLeaveEvent(uuid, teamLeader));
+        }
+
         teamLeader = leader;
+        if(leader != null) {
+            Bukkit.getPluginManager().callEvent(new TeamJoinEvent(uuid, leader));
+        }
     }
 
     /**

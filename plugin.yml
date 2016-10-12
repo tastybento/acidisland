@@ -76,6 +76,9 @@ permissions:
           acidisland.island.lang:
             description: Player can select a language
             default: true
+          acidisland.island.name:
+            description: Player can set the name of their island
+            default: false
       acidisland.team.*:
         children:
           acidisland.team.create:
