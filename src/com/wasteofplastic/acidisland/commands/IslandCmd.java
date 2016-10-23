@@ -323,9 +323,18 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             rating = 100;
                         }
                         newSchem.setRating(rating);
+                        // Cost
+                        double cost = schemSection.getDouble("schematics." + key + ".cost", 0D);
+                        if (cost < 0) {
+                            cost = 0;
+                        }
+                        newSchem.setCost(cost);
                         // Description
                         String description = ChatColor.translateAlternateColorCodes('&', schemSection.getString("schematics." + key + ".description",""));
                         description = description.replace("[rating]",String.valueOf(rating));
+                        if (Settings.useEconomy) {
+                            description = description.replace("[cost]", String.valueOf(cost));
+                        }
                         newSchem.setDescription(description);
                         // Permission
                         String perm = schemSection.getString("schematics." + key + ".permission","");
@@ -1326,7 +1335,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             for (Player target : plugin.getServer().getOnlinePlayers()) {
                                 // See if target is on this player's island, not a mod, no bypass, and not a coop player
                                 if (!player.equals(target) && !target.isOp() && !VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypassprotect")
-                                        && (target.getWorld().equals(ASkyBlock.getIslandWorld()) || target.getWorld().equals(ASkyBlock.getNetherWorld()))
                                         && plugin.getGrid().isOnIsland(player, target)
                                         && !CoopPlay.getInstance().getCoopPlayers(island.getCenter()).contains(target.getUniqueId())) {
                                     // Send them home
@@ -1342,7 +1350,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                     plugin.getLogger().info(player.getName() + " expelled " + target.getName() + " from their island when locking.");
                                     // Yes they are
                                     player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).expelSuccess.replace("[name]", target.getDisplayName()));
-                                }
+                                }                              
                             }
                             player.sendMessage(ChatColor.GREEN + plugin.myLocale(playerUUID).lockLocking);
                             plugin.getMessages().tellOfflineTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerLocked.replace("[name]", player.getDisplayName()));
