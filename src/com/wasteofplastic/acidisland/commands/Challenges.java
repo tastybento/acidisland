@@ -72,7 +72,7 @@ public class Challenges implements CommandExecutor, TabCompleter {
     private ASkyBlock plugin;
     private static final boolean DEBUG = false;
     // Database of challenges
-    private LinkedHashMap<String, List<String>> challengeList = new LinkedHashMap<String, List<String>>();
+    private static LinkedHashMap<String, List<String>> challengeList = new LinkedHashMap<String, List<String>>();
     private HashMap<UUID, List<CPItem>> playerChallengeGUI = new HashMap<UUID, List<CPItem>>();
     // Where challenges are stored
     private static FileConfiguration challengeFile = null;
@@ -1193,10 +1193,10 @@ public class Challenges implements CommandExecutor, TabCompleter {
                                     if (DEBUG)
                                         plugin.getLogger().info("DEBUG: name check " + part[1]);
                                     // Name check
-                                    if (!part[1].isEmpty()) {
+                                    if (potion != null && potionType != null && !part[1].isEmpty()) {
                                         // There is a name
                                         // Custom potions may not have names
-                                        if (PotionType.valueOf(part[1]) != null) {
+                                        if (potionType.name() != null) {
                                             if (!part[1].equalsIgnoreCase(potionType.name())) {
                                                 match = false;
                                                 if (DEBUG)
@@ -2071,4 +2071,12 @@ public class Challenges implements CommandExecutor, TabCompleter {
         }      
         return Settings.challengeLevels.get(getLevelDone(player));
     }
+    
+    	/**
+	 * Get the challenge list
+	 * @return challenge list
+	 */
+	public static LinkedHashMap<String, List<String>> getChallengeList(){
+		return challengeList;
+	}
 }

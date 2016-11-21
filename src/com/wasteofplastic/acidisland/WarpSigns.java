@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -38,7 +39,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 
+import com.wasteofplastic.acidisland.events.WarpCreateEvent;
 import com.wasteofplastic.acidisland.events.WarpListEvent;
+import com.wasteofplastic.acidisland.events.WarpRemoveEvent;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
@@ -88,10 +91,12 @@ public class WarpSigns implements Listener {
                             if ((warpList.containsKey(player.getUniqueId()) && warpList.get(player.getUniqueId()).equals(s.getLocation()))) {
                                 // Player removed sign
                                 removeWarp(s.getLocation());
+                                Bukkit.getPluginManager().callEvent(new WarpRemoveEvent(plugin, s.getLocation(), player.getUniqueId()));
                             } else if (player.isOp()  || player.hasPermission(Settings.PERMPREFIX + "mod.removesign")) {
                                 // Op or mod removed sign
                                 player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).warpsremoved);
                                 removeWarp(s.getLocation());
+                                Bukkit.getPluginManager().callEvent(new WarpRemoveEvent(plugin, s.getLocation(), player.getUniqueId()));
                             } else {
                                 // Someone else's sign - not allowed
                                 player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).warpserrorNoRemove);
@@ -127,6 +132,10 @@ public class WarpSigns implements Listener {
                     if (!(VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.addwarp"))) {
                         player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).warpserrorNoPerm);
                         return;
+                    }
+                    if(!(ASkyBlockAPI.getInstance().getIslandLevel(player.getUniqueId()) > Settings.warpLevelsRestriction)){
+                        player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).warpserrorNotEnoughLevel);
+                    	return;
                     }
                     // Check that the player is on their island
                     if (!(plugin.getGrid().playerIsOnIsland(player))) {
@@ -171,6 +180,7 @@ public class WarpSigns implements Listener {
                                     oldSign.update();
                                     player.sendMessage(ChatColor.RED + plugin.myLocale(player.getUniqueId()).warpsdeactivate);
                                     removeWarp(player.getUniqueId());
+                                    Bukkit.getPluginManager().callEvent(new WarpRemoveEvent(plugin, oldSign.getLocation(), player.getUniqueId()));
                                 }
                             }
                         }
@@ -270,7 +280,7 @@ public class WarpSigns implements Listener {
      * @param player
      * @param loc
      */
-    public boolean addWarp(final UUID player, Location loc) {
+    public boolean addWarp(final UUID player, final Location loc) {
         // Do not allow warps to be in the same location
         if (warpList.containsValue(loc)) {
             return false;
@@ -289,7 +299,7 @@ public class WarpSigns implements Listener {
             public void run() {
                 plugin.getWarpPanel().addWarp(player);
                 plugin.getWarpPanel().updatePanel();
-
+                Bukkit.getPluginManager().callEvent(new WarpCreateEvent(plugin, loc, player));
             }});
         return true;
     }

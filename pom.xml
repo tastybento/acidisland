@@ -4,7 +4,7 @@
 
 	<groupId>com.wasteofplastic</groupId>
 	<artifactId>acidisland</artifactId>
-	<version>3.0.3.3</version>
+	<version>3.0.4</version>
 	<packaging>jar</packaging>
 
 	<name>com.wasteofplastic</name>
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.10-R0.1-SNAPSHOT</version>
+            <version>1.11-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -92,6 +92,13 @@
             <scope>system</scope>
             <systemPath>${server.jars}/craftbukkit-1.7.9-R0.3-20140705.002733-4.jar</systemPath>
             <version>1.7.9</version>
+        </dependency>
+        <dependency>
+            <groupId>spigotmc.org</groupId>
+            <artifactId>spigot-1.11</artifactId>
+            <scope>system</scope>
+            <systemPath>${server.jars}/spigot-1.11.jar</systemPath>
+            <version>1.11</version>
         </dependency>
         <dependency>
             <groupId>spigotmc.org</groupId>

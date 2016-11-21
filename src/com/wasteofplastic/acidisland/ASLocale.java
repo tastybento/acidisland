@@ -91,6 +91,7 @@ public class ASLocale {
     public String warpsdeactivate;
     public String warpserrorNoRemove;
     public String warpserrorNoPerm;
+    public String warpserrorNotEnoughLevel;
     public String warpserrorNoPlace;
     public String warpserrorDuplicate;
     public String warpserrorDoesNotExist;
@@ -104,6 +105,7 @@ public class ASLocale {
 
     // ASkyBlock
     public String topTenheader;
+    public String topTenGuiTitle;
     public String topTenerrorNotReady;
     public String levelislandLevel;
     public String levelerrornotYourIsland;
@@ -367,7 +369,8 @@ public class ASLocale {
     public String minishopYouSold;
     public String minishopBuyProblem;
     public String minishopYouCannotAfford;
-
+    public String errorMinishopDisabled;
+    
     // Sign
     public String signLine1;
     public String signLine2;
@@ -498,7 +501,7 @@ public class ASLocale {
     public String igsSettingsSpawnDesc;
     public String igsVillagerTrading;
     public String igsChorusFruit;
-
+    public String igsJoinLeaveIslandMessage;
 
     public String setHomeerrorNumHomes;
     public String schematicsTitle;
@@ -633,8 +636,6 @@ public class ASLocale {
 
     public String islandHelpSelectLanguage;
 
-
-
     /**
      * Creates a locale object full of localized strings for a language
      * @param plugin
@@ -754,6 +755,7 @@ public class ASLocale {
         errorUnknownCommand = ChatColor.translateAlternateColorCodes('&', locale.getString("error.unknownCommand", "Unknown command."));
         errorNoTeam = ChatColor.translateAlternateColorCodes('&', locale.getString("error.noTeam", "That player is not in a team."));
         errorWrongWorld = ChatColor.translateAlternateColorCodes('&', locale.getString("error.wrongWorld", "You cannot do that in this world."));
+        errorMinishopDisabled = ChatColor.translateAlternateColorCodes('&', locale.getString("error.minishopDisabled", "Minishop is disabled."));
         islandProtected = ChatColor.translateAlternateColorCodes('&', locale.getString("islandProtected", "Island protected."));
         targetInNoPVPArea = ChatColor.translateAlternateColorCodes('&', locale.getString("targetInPVPArea", "Target is in a no-PVP area!"));
         igsTitle = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.title", "Island Guard Settings"));
@@ -821,7 +823,8 @@ public class ASLocale {
         igsPistonPush = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.pistonpush", "Pistons can push blocks outside island area"));	
         igsVillagerTrading = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.villagertrading", "Villager trading"));
         igsChorusFruit = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.chorusfruit", "Chorus Fruit Use"));
-
+        igsJoinLeaveIslandMessage = ChatColor.translateAlternateColorCodes('&', locale.getString("islandguardsettings.joinleaveislandmessages", "Enable Join & Leave Island Messages"));
+        
         lavaTip = ChatColor.translateAlternateColorCodes('&', locale.getString("lavaTip", "Changing obsidian back into lava. Be careful!"));
         warpswelcomeLine = ChatColor.translateAlternateColorCodes('&', locale.getString("warps.welcomeLine", "[WELCOME]"));
         warpswarpTip = ChatColor.translateAlternateColorCodes('&',
@@ -834,6 +837,8 @@ public class ASLocale {
                 locale.getString("warps.errorNoRemove", "You can only remove your own Welcome Sign!"));
         warpserrorNoPerm = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("warps.errorNoPerm", "You do not have permission to place Welcome Signs yet!"));
+        warpserrorNotEnoughLevel = ChatColor.translateAlternateColorCodes('&', 
+        		locale.getString("warps.errorNotEnoughLevel", "You do not have enough island levels to create a Welcome Sign!"));
         warpserrorNoPlace = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("warps.errorNoPlace", "You must be on your island to place a Welcome Sign!"));
         warpserrorDuplicate = ChatColor.translateAlternateColorCodes('&',
@@ -856,6 +861,10 @@ public class ASLocale {
             warpsTitle = warpsTitle.substring(0, 29);
         }
         topTenheader = ChatColor.translateAlternateColorCodes('&', locale.getString("topTen.header", "These are the Top 10 islands:"));
+        topTenGuiTitle = ChatColor.translateAlternateColorCodes('&', locale.getString("topTen.guiTitle", "Top 10 Islands"));
+        if (topTenGuiTitle.length() > 30) {
+            topTenGuiTitle = topTenGuiTitle.substring(0, 29);
+        }
         topTenerrorNotReady = ChatColor.translateAlternateColorCodes('&', locale.getString("topTen.errorNotReady", "Top ten list not generated yet!"));
         levelislandLevel = ChatColor.translateAlternateColorCodes('&', locale.getString("level.islandLevel", "Island level"));
         levelerrornotYourIsland = ChatColor.translateAlternateColorCodes('&',

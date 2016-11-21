@@ -118,6 +118,8 @@ public class ASkyBlock extends JavaPlugin {
 	private TinyDB tinyDB;
 	// Warp panel
 	private WarpPanel warpPanel;
+	// Top Ten
+	private TopTen topTen;
 	// V1.8 or later
 	private boolean onePointEight;
 
@@ -427,6 +429,11 @@ public class ASkyBlock extends JavaPlugin {
 						if (Settings.useWarpPanel) {
 							warpPanel = new WarpPanel(plugin);
 							getServer().getPluginManager().registerEvents(warpPanel, plugin);
+						}						
+						// Load the TopTen GUI
+						if (!Settings.displayIslandTopTenInChat){
+						    topTen = new TopTen(plugin);
+							getServer().getPluginManager().registerEvents(topTen, plugin);
 						}
 						// Minishop - must wait for economy to load before we can use
 						// econ
@@ -824,6 +831,8 @@ public class ASkyBlock extends JavaPlugin {
         Settings.maxIslands = getConfig().getInt("general.maxIslands",0);
         // Mute death messages
         Settings.muteDeathMessages = getConfig().getBoolean("general.mutedeathmessages", false);
+        // Warp Restriction
+        Settings.warpLevelsRestriction = getConfig().getInt("general.warplevelrestriction", 10);
         // Warp panel
         Settings.useWarpPanel = getConfig().getBoolean("general.usewarppanel", true);
         // Fast level calculation (this is really fast)
@@ -832,6 +841,7 @@ public class ASkyBlock extends JavaPlugin {
         Settings.restrictWither = getConfig().getBoolean("general.restrictwither", true);
         // Team chat
         Settings.teamChat = getConfig().getBoolean("general.teamchat", true);
+        Settings.logTeamChat = getConfig().getBoolean("general.logteamchat", true);
         // TEAMSUFFIX as island level
         Settings.setTeamName = getConfig().getBoolean("general.setteamsuffix", false);
         Settings.teamSuffix = getConfig().getString("general.teamsuffix","([level])");
@@ -841,11 +851,15 @@ public class ASkyBlock extends JavaPlugin {
         Settings.makeIslandIfNone = getConfig().getBoolean("general.makeislandifnone", false);
         // Use physics when pasting island block schematics
         Settings.usePhysics = getConfig().getBoolean("general.usephysics", false);
+        // Use old display (chat instead of GUI) for Island top ten
+        Settings.displayIslandTopTenInChat = getConfig().getBoolean("general.islandtopteninchat", false);
         // Run level calc at login
         Settings.loginLevel = getConfig().getBoolean("general.loginlevel", false);
         // Use economy or not
         // In future expand to include internal economy
         Settings.useEconomy = getConfig().getBoolean("general.useeconomy", true);
+        // Use the minishop or not
+        Settings.useMinishop = getConfig().getBoolean("general.useminishop", true);
         // Check for updates
         Settings.updateCheck = getConfig().getBoolean("general.checkupdates", true);
         // Island reset commands
@@ -1260,6 +1274,7 @@ public class ASkyBlock extends JavaPlugin {
 		Settings.allowBreeding = getConfig().getBoolean("island.allowbreeding", false);
 		Settings.allowFire = getConfig().getBoolean("island.allowfire", false);
 		Settings.allowFireSpread = getConfig().getBoolean("island.allowfirespread", false);
+		Settings.allowFireExtinguish = getConfig().getBoolean("island.allowfireextinguish", false);
 		Settings.allowChestDamage = getConfig().getBoolean("island.allowchestdamage", false);
 		Settings.allowLeashUse = getConfig().getBoolean("island.allowleashuse", false);
 		Settings.allowHurtMonsters = getConfig().getBoolean("island.allowhurtmonsters", true);
@@ -1277,6 +1292,9 @@ public class ASkyBlock extends JavaPlugin {
 		Settings.allowHorseInvAccess = getConfig().getBoolean("island.allowhorseinventoryaccess", false);
 		Settings.allowVillagerTrading = getConfig().getBoolean("island.allowvillagertrading", true);
 		Settings.allowChorusFruit = getConfig().getBoolean("island.allowchorusfruit", false);
+	    Settings.enableJoinAndLeaveIslandMessages = getConfig().getBoolean("island.enablejoinandleaveislandmessages", true);
+	    Settings.allowMobDamageToItemFrames = getConfig().getBoolean("island.allowitemframedamage", false);
+
 		// Spawn Settings
 		Settings.allowSpawnCreeperPain = getConfig().getBoolean("spawn.allowcreeperpain", false);
 		Settings.allowSpawnHorseRiding = getConfig().getBoolean("spawn.allowhorseriding", false);
@@ -1317,6 +1335,7 @@ public class ASkyBlock extends JavaPlugin {
 		Settings.allowSpawnLeashUse = getConfig().getBoolean("spawn.allowleashuse",false);
 		Settings.allowSpawnVillagerTrading = getConfig().getBoolean("spawn.allowvillagertrading", false);
 		Settings.allowSpawnChorusFruit = getConfig().getBoolean("spawn.allowchorusfruit", false);
+		Settings.allowSpawnFireExtinguish = getConfig().getBoolean("spawn.allowfireextinguish", false);
 
         // Challenges
         getChallenges();
@@ -1460,6 +1479,16 @@ public class ASkyBlock extends JavaPlugin {
         }
         if (Settings.minNameLength > Settings.maxNameLength) {
             Settings.minNameLength = Settings.maxNameLength;
+	}
+        // Magic Cobble Generator
+        Settings.useMagicCobbleGen = getConfig().getBoolean("general.usemagiccobblegen", false);
+        if(Settings.useMagicCobbleGen && getConfig().isSet("general.magiccobblegenchances")){
+            Settings.magicCobbleGenChances = new HashMap<Material, Double>();
+            for(String block : getConfig().getConfigurationSection("general.magiccobblegenchances").getKeys(false)){
+        	double chance = getConfig().getDouble("general.magiccobblegenchances." + block, 0D);
+        	if(chance < 0) chance = 0; 
+        	if(Material.getMaterial(block) != null && Material.getMaterial(block).isBlock()) Settings.magicCobbleGenChances.put(Material.getMaterial(block), chance);
+            }
         }
         // All done
         return true;
@@ -1688,7 +1717,7 @@ public class ASkyBlock extends JavaPlugin {
 		}
 		return warpPanel;
 	}
-
+		
 	/**
 	 * @return the schematicsPanel
 	 */

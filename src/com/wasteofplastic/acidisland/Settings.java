@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
@@ -108,6 +109,7 @@ public class Settings {
     public static boolean allowShearing;
     public static boolean allowVillagerTrading;
     public static boolean allowChorusFruit;
+    public static boolean enableJoinAndLeaveIslandMessages;
 
     // System settings
     public static boolean allowChestDamage;
@@ -206,6 +208,9 @@ public class Settings {
     public static List<String> resetCommands = new ArrayList<String>();
     // Mob limits
     public static int breedingLimit;
+    
+    // Console shows teamchat messages
+    public static boolean logTeamChat;
 
     // Challenges - show or remove completed on-time challenges
     public static boolean removeCompleteOntimeChallenges;
@@ -220,13 +225,26 @@ public class Settings {
 
     // Use Economy
     public static boolean useEconomy;
+    
+    // Use Minishop
+    public static boolean useMinishop;
 
     // Wait between being invited to same team island
     public static int inviteWait;
 
     // Use physics when pasting schematic blocks
     public static boolean usePhysics;
+    
+    // Use old display (chat instead of GUI) for Island top ten
+    public static boolean displayIslandTopTenInChat;
 
+    // Need a certain amount of island levels to create a warp sign
+    public static int warpLevelsRestriction;
+    
+    // Magic Cobble Generator
+    public static boolean useMagicCobbleGen;
+    public static HashMap<Material, Double> magicCobbleGenChances;
+    
     // Falling blocked commands
     public static List<String> fallingCommandBlockList;
     public static List<String> leaveCommands;
@@ -291,4 +309,7 @@ public class Settings {
     public static String chatChallengeLevelPrefix;
     public static String chatIslandPlayer;
     public static boolean allowObsidianScooping;
+    public static boolean allowFireExtinguish;
+    public static boolean allowSpawnFireExtinguish;
+    public static boolean allowMobDamageToItemFrames;
 }
