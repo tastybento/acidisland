@@ -224,6 +224,15 @@ permissions:
           acidisland.settings.allowVillagerTrading:
             description: Allow player to change this island guard setting
             default: false 
+          acidisland.settings.allowChorusFruit:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.enableJoinAndLeaveIslandMessages:
+            description: Allow player to change this island guard setting
+            default: false
+          acidisland.settings.allowMobSpawning:
+            description: Allow player to change this island guard settings
+            default: false
       acidisland.mod.*:
         children:
           acidisland.mod.topten:
@@ -324,6 +333,13 @@ permissions:
           acidisland.admin.topbreeders:
             description: Lists most populated islands current loaded
             default: op
+          acidisland.admin.reserve:
+            description: Reserves an empty spot for a player's next island
+            default: op
           acidisland.admin.settingsreset:
             description: Resets all the islands to default protection settings
             default: op
+          acidisland.admin.noban:
+            description: Player cannot be banned from an island
+            default: op
+

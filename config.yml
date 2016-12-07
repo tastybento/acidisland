@@ -183,7 +183,9 @@ island:
    allowshearing: false
    # Allow visitors to trade with villagers
    allowvillagertrading: true
-     
+   # Allow mobs to spawn on player's island
+   allowmobspawning: true
+
    # System settings - these cannot be changed by players, only viewed
    
    # Allow monsters to be hurt (creepers,slimes, etc.)
@@ -331,6 +333,42 @@ general:
 
    # Ops receive damage from acid (Set to true if you want Ops to play properly)
    damageops: false
+
+   # Invincible visitors - Prevent players from killing them (intentionally or by accident)
+   # If they fall to the void, they get TP'd to their island.
+   invinciblevisitors: false
+
+   # Only used if invinciblevisitors is set to TRUE
+   # This allow you to customize what kind of damage visitors should not receive
+   # If you want visitors to receive a listed damage, put a "#" at the start of the line
+   # See this for more info about options : https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/event/entity/EntityDamageEvent.DamageCause.html
+   invinciblevisitorsoptions:
+   - BLOCK_EXPLOSION
+   - CONTACT
+   - CUSTOM
+   - DROWNING
+   - ENTITY_ATTACK
+   - ENTITY_EXPLOSION
+   - FALL
+   - FALLING_BLOCK
+   - FIRE
+   - FIRE_TICK
+   - LAVA
+   - LIGHTNING
+   - MAGIC
+   - POISON
+   - PROJECTILE
+   - STARVATION
+   - SUFFOCATION
+   - THORNS
+   - WITHER
+   # 1.9+ only
+   - DRAGON_BREATH
+   - FLY_INTO_WALL
+   # 1.10+ only
+   - HOT_FLOOR
+   # 1.11+ only
+   - CRAMMING
 
    # Acid damage to player per second by being in acid if they have no armor on.
    # A fully health player has 20 health points. Players will regen some health
@@ -567,6 +605,46 @@ general:
    # Recommendation is to keep this true so that newbies don't bother you or reset their
    # island unnecessarily.
    allowobsidianscooping: true
+
+   # By default, island top ten (/is top) is displayed as a GUI.
+   # If this option is set to TRUE, the top ten will be displayed
+   # in chat, like in older versions (up to V3.0.3.3), which can
+   # be a little spammy.
+   # Recommendation is to keep this false.
+   islandtopteninchat: false
+   
+   # Toggle Magic Cobblestone Generator
+   # If set to true, a cobble generator will not just generate cobblestone, but
+   # also blocks you have specified.
+   # Default is false, because it highly changes the gameplay.
+   usemagiccobblegen: false
+   
+   # This won't be considered if usemagiccobblegen is set to false.
+   # You can add, remove a block or modify its probability to be generated.
+   # You can also set different probabilities from specified minimum levels
+   magiccobblegenchances:
+     # These probabilities will apply by default
+     default:
+       COBBLESTONE: 75.0
+       STONE: 10.0
+       COAL_ORE: 7.5
+       IRON_ORE: 5.0
+       DIAMOND_ORE: 2.0
+       EMERALD_ORE: 0.5
+     #These probabilities will apply if island level is higher than 500.
+     500:
+       COBBLESTONE: 50.0
+       STONE: 20.0
+       COAL_ORE: 10.0
+       IRON_ORE: 10.0
+       REDSTONE_ORE: 5.0
+       DIAMOND_ORE: 4.0
+       EMERALD_ORE: 1.0
+   
+   # Disable redstone operation on islands unless a team member is online.
+   # This may reduce lag but it can cause problems with visitors needing to use a redstone system.
+   # Default is false
+   disableofflineredstone: false
    
    # Config.yml version. DO NOT EDIT. This number only changes if the latest
    # plugin config has been updated. If a new config is detected, it will be

@@ -18,12 +18,15 @@ package com.wasteofplastic.acidisland;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.EntityType;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.potion.PotionEffectType;
@@ -113,6 +116,7 @@ public class Settings {
     public static boolean allowVillagerTrading;
     public static boolean allowChorusFruit;
     public static boolean enableJoinAndLeaveIslandMessages;
+    public static boolean allowMobSpawning;
 
     // System settings
     public static boolean allowChestDamage;
@@ -143,6 +147,10 @@ public class Settings {
     public static boolean resetMoney;
     public static boolean damageOps;
     public static boolean endermanDeathDrop;
+    
+    // Invincible visitor
+    public static boolean invincibleVisitors;
+    public static HashSet<DamageCause> visitorDamagePrevention;
 
     // public static boolean ultraSafeBoats;
     public static boolean logInRemoveMobs;
@@ -246,7 +254,10 @@ public class Settings {
     
     // Magic Cobble Generator
     public static boolean useMagicCobbleGen;
-    public static HashMap<Material, Double> magicCobbleGenChances;
+    public static TreeMap<Integer,TreeMap<Double,Material>> magicCobbleGenChances;
+    
+    // Disable offline redstone
+    public static boolean disableOfflineRedstone;
     
     // Falling blocked commands
     public static List<String> fallingCommandBlockList;
