@@ -109,7 +109,8 @@ island:
    # allowCropTrample, allowDoorUse, allowEnchanting, allowEnderPearls, allowFurnaceUse, 
    # allowGateUse, allowHorseInvAccess, allowHorseRiding, allowHurtMobs, allowLeashUse,
    # allowLeverButtonUse, allowMusic, allowPlaceBlocks, allowPortalUse, allowPressurePlate,
-   # allowPvP, allowNetherPvP, allowRedStone, allowShearing
+   # allowPvP, allowNetherPvP, allowRedStone, allowShearing, allowVillagerTrading
+   # allowChorusFruit, enableJoinAndLeaveIslandMessages, allowMobSpawning
    # Permissions are CASE SENSITIVE!
    
    # Island naming
