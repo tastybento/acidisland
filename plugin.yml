@@ -126,7 +126,7 @@ permissions:
       acidisland.craft.dirt:
             description: Allows tilling of coarse dirt into dirt
             default: false
-      askyblock.intopten:
+      acidisland.intopten:
         description: Includes player in top ten
         default: true
       acidisland.nohunger:
