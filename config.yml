@@ -788,22 +788,27 @@ biomes:
     #permission: any.perm.you.want
     
 schematicsection:
-   # All schematics should be put in the schematics folder
+  # All schematics should be put in the schematics folder
 
-   # Schematic panel - if more than one schematic is available to the player
-   # Show a panel to choose. If this is false, no panel is shown and the starter 
-   # island is picked by permission. If a player has more than one permission
-   # the island selected is undefined - the plugin will pick one.
-   # Permissions are taken from the below schematics section even if the GUI is
-   # not used.
+  # Schematic panel - if more than one schematic is available to the player
+  # Show a panel to choose. If this is false, no panel is shown and the starter 
+  # island is picked by permission. If a player has more than one permission
+  # the island selected is undefined - the plugin will pick one.
+  # Permissions are taken from the below schematics section even if the GUI is
+  # not used.
   useschematicspanel: true
 
-   # Random island, only apply when useschematicspanel is false - if set to false
-   # the plugin will choose the first island it found with the user permissions
-   # to generate a new island. If set to true, the plugin will generate an island
-   # randomly from the list of all islands available to the player.
+  # Random island, only apply when useschematicspanel is false - if set to false
+  # the plugin will choose the first island it found with the user permissions
+  # to generate a new island. If set to true, the plugin will generate an island
+  # randomly from the list of all islands available to the player.
   chooseislandrandomly: false
 
+  # Hack skeleton spawners to also spawn wither skeletons in 1.11. This helps with
+  # older schematics that do not have explicit wither skeleton spawners. This setting
+  # is ignored by older servers.
+  hackskeletonspawners: true
+  
   # This section lists all the schematics available
   # Settings are:
   # show - whether this island will show in the GUI or not. Typically used for partner
