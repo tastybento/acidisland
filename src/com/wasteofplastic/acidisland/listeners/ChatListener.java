@@ -17,6 +17,7 @@
 
 package com.wasteofplastic.acidisland.listeners;
 
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Settings;
+import com.wasteofplastic.acidisland.util.Util;
 
 /**
  * This class is to catch chats and do two things: (1) substitute in the island level to the chat string
@@ -75,7 +77,8 @@ public class ChatListener implements Listener {
     }
 
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChat(final AsyncPlayerChatEvent event) {
         if (DEBUG)
             plugin.getLogger().info("DEBUG: " + event.getEventName());
@@ -83,16 +86,35 @@ public class ChatListener implements Listener {
         String level = "";
         if (playerLevels.containsKey(event.getPlayer().getUniqueId())) {
             level = playerLevels.get(event.getPlayer().getUniqueId());
+            if(Settings.fancyIslandLevelDisplay) {
+                if (Integer.valueOf(level) > 1000){
+                    // 1052 -> 1.0k
+                    level = new DecimalFormat("#.#").format(Double.valueOf(level)/1000.0) + "k";
+                }
+            }
+        }
+        if (DEBUG) {
+            plugin.getLogger().info("DEBUG: player level = " + level);
+            plugin.getLogger().info("DEBUG: getFormat = " + event.getFormat());
+            plugin.getLogger().info("DEBUG: getMessage = " + event.getMessage());
         }
         String format = event.getFormat().replace(Settings.chatLevelPrefix, level);
+        if (DEBUG)
+            plugin.getLogger().info("DEBUG: format (island level substitute) = " + format);
         level = "";
         if (playerChallengeLevels.containsKey(event.getPlayer().getUniqueId())) {
             level = playerChallengeLevels.get(event.getPlayer().getUniqueId());
         }
         format = format.replace(Settings.chatChallengeLevelPrefix, level);
+        if (DEBUG)
+            plugin.getLogger().info("DEBUG: format (challenge level sub) = " + format);
         event.setFormat(format);
+        if (DEBUG)
+            plugin.getLogger().info("DEBUG: format set");
         // Team chat
         if (Settings.teamChat && teamChatUsers.containsKey(event.getPlayer().getUniqueId())) {
+            if (DEBUG)
+                plugin.getLogger().info("DEBUG: team chat");
             // Cancel the event
             event.setCancelled(true);
             // Queue the sync task because you cannot use HashMaps asynchronously. Delaying to the next tick
@@ -120,7 +142,7 @@ public class ChatListener implements Listener {
             for (UUID teamMember : teamMembers) {
                 Player teamPlayer = plugin.getServer().getPlayer(teamMember);
                 if (teamPlayer != null) {
-                    teamPlayer.sendMessage(message);
+                    Util.sendMessage(teamPlayer, message);
                     if (!teamMember.equals(playerUUID)) {
                         onLine = true;
                     }
@@ -130,20 +152,20 @@ public class ChatListener implements Listener {
             if (onLine) {
                 for (Player onlinePlayer: plugin.getServer().getOnlinePlayers()) {
                     if (spies.contains(onlinePlayer.getUniqueId()) && onlinePlayer.hasPermission(Settings.PERMPREFIX + "mod.spy")) {
-                        onlinePlayer.sendMessage(ChatColor.RED + "[TCSpy] " + ChatColor.WHITE + message);
+                        Util.sendMessage(onlinePlayer, ChatColor.RED + "[TCSpy] " + ChatColor.WHITE + message);
                     }
                 }
                 //Log teamchat
                 if(Settings.logTeamChat) plugin.getLogger().info(ChatColor.stripColor(message));
             }
             if (!onLine) {
-                player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).teamChatNoTeamAround);
-                player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).teamChatStatusOff);
+                Util.sendMessage(player, ChatColor.RED + plugin.myLocale(playerUUID).teamChatNoTeamAround);
+                Util.sendMessage(player, ChatColor.RED + plugin.myLocale(playerUUID).teamChatStatusOff);
                 teamChatUsers.remove(playerUUID);
             }
         } else {
-            player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).teamChatNoTeamAround);
-            player.sendMessage(ChatColor.RED + plugin.myLocale(playerUUID).teamChatStatusOff);
+            Util.sendMessage(player, ChatColor.RED + plugin.myLocale(playerUUID).teamChatNoTeamAround);
+            Util.sendMessage(player, ChatColor.RED + plugin.myLocale(playerUUID).teamChatStatusOff);
             // Not in a team any more so delete
             teamChatUsers.remove(playerUUID);
         }
@@ -192,7 +214,7 @@ public class ChatListener implements Listener {
         //plugin.getLogger().info("DEBUG: setting player's challenge level to " + plugin.getChallenges().getChallengeLevel(player));
         playerChallengeLevels.put(player.getUniqueId(), plugin.getChallenges().getChallengeLevel(player));
     }
-    
+
     /**
      * Return the player's level for use in chat - async safe
      * @param playerUUID

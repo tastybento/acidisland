@@ -23,35 +23,42 @@ import org.bukkit.event.Cancellable;
 
 import com.wasteofplastic.acidisland.Island;
 
-
 /**
- * Fired when a player is leaves an island coop
+ * This event is fired after ASkyBlock calculates an island level but before it is communicated
+ * to the player.
+ * Use getLevel() to see the level calculated and setLevel() to change it.
+ * Canceling this event will result in no change in level and no communication with the player.
+ * 
  * @author tastybento
- *
+ * 
  */
-public class CoopLeaveEvent extends ASkyBlockEvent implements Cancellable {
-    private final UUID expeller;
+public class IslandPreLevelEvent extends ASkyBlockEvent implements Cancellable {
+    private int level;
     private boolean cancelled;
+    private int points;
 
     /**
-     * Note that not all coop leaving events can be cancelled because they could be due to bigger events than
-     * coop, e.g., an island being reset.
-     * @param expelledPlayer
-     * @param expellingPlayer
+     * @param player
      * @param island
+     * @param level
      */
-    public CoopLeaveEvent(UUID expelledPlayer, UUID expellingPlayer, Island island) {
-        super(expellingPlayer, island);
-        this.expeller = expellingPlayer;
-        //Bukkit.getLogger().info("DEBUG: Coop leave event " + Bukkit.getServer().getOfflinePlayer(expelledPlayer).getName() + " was expelled from " 
-        //	+ Bukkit.getServer().getOfflinePlayer(expellingPlayer).getName() + "'s island.");
+    public IslandPreLevelEvent(UUID player, Island island, int level) {
+        super(player, island);
+        this.level = level;
     }
 
     /**
-     * @return the expelling player
+     * @return the level
      */
-    public UUID getExpeller() {
-        return expeller;
+    public int getLevel() {
+        return level;
+    }
+
+    /**
+     * @param level the level to set
+     */
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     @Override
@@ -59,12 +66,27 @@ public class CoopLeaveEvent extends ASkyBlockEvent implements Cancellable {
         return cancelled;
     }
 
-    /* (non-Javadoc)
-     * @see org.bukkit.event.Cancellable#setCancelled(boolean)
-     */
     @Override
     public void setCancelled(boolean cancel) {
-        this.cancelled = cancel;   
+        this.cancelled = cancel;
+    }
+
+    /**
+     * Set the number of blocks the player requires to reach the next level.
+     * If this is set to a negative number, the player will not be informed of
+     * how many points they need to reach the next level.
+     * @param points
+     */
+    public void setPointsToNextLevel(int points) {
+        this.points = points;
+        
+    }
+
+    /**
+     * @return the number of points
+     */
+    public int getPointsToNextLevel() {
+        return points;
     }
 
 }

@@ -345,3 +345,6 @@ permissions:
           acidisland.admin.cobblestats:
             description: Displays magic cobble gen stats
             default: op
+          acidisland.admin.setlanguage:
+            description: Resets all player languages and sets the default language
+            default: op

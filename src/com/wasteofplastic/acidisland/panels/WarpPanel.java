@@ -44,7 +44,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.Settings;
-import com.wasteofplastic.acidisland.Island.Flags;
+import com.wasteofplastic.acidisland.Island.SettingsFlag;
+import com.wasteofplastic.acidisland.util.Util;
 
 public class WarpPanel implements Listener {
     private ASkyBlock plugin;
@@ -161,10 +162,10 @@ public class WarpPanel implements Listener {
             // Check for PVP and add warning
             Island island = plugin.getGrid().getIsland(playerUUID);
             if (island != null) {
-                if ((signLocation.getWorld().equals(ASkyBlock.getIslandWorld()) && island.getIgsFlag(Flags.allowPvP))
-                        || (signLocation.getWorld().equals(ASkyBlock.getNetherWorld()) && island.getIgsFlag(Flags.allowNetherPvP))) {
+                if ((signLocation.getWorld().equals(ASkyBlock.getIslandWorld()) && island.getIgsFlag(SettingsFlag.PVP))
+                        || (signLocation.getWorld().equals(ASkyBlock.getNetherWorld()) && island.getIgsFlag(SettingsFlag.NETHER_PVP))) {
                     //plugin.getLogger().info("DEBUG: pvp warning added");
-                    lines.add(ChatColor.RED + plugin.myLocale().igsPVP);
+                    lines.add(ChatColor.RED + plugin.myLocale().igs.get(SettingsFlag.PVP));
                 }
             }
             meta.setLore(lines);
@@ -185,8 +186,9 @@ public class WarpPanel implements Listener {
         // Create the warp panels
         if (DEBUG)
             plugin.getLogger().info("DEBUG: warps size = " + activeWarps.size());
-        int panelNumber = activeWarps.size() / (PANELSIZE-2);
-        int remainder = (activeWarps.size() % (PANELSIZE-2)) + 8 + 2;
+        int size = activeWarps.size();
+        int panelNumber = size / (PANELSIZE-2);
+        int remainder = (size % (PANELSIZE-2)) + 8 + 2;
         remainder -= (remainder % 9);
         if (DEBUG)
             plugin.getLogger().info("DEBUG: panel number = " + panelNumber + " remainder = " + remainder);
@@ -208,6 +210,7 @@ public class WarpPanel implements Listener {
             ItemStack icon = cachedWarps.get(playerUUID);
             if (icon != null) {
                 warpPanel.get(panelNumber).setItem(slot++, icon);
+
                 // Check if the panel is full
                 if (slot == PANELSIZE-2) {
                     // Add navigation buttons
@@ -280,15 +283,15 @@ public class WarpPanel implements Listener {
             if (DEBUG)
                 plugin.getLogger().info("DEBUG: command = " + command);
             if (command != null) {
-                if (command.equalsIgnoreCase(plugin.myLocale().warpsNext)) {
+                if (command.equalsIgnoreCase(ChatColor.stripColor(plugin.myLocale().warpsNext))) {
                     player.closeInventory();
                     player.performCommand(Settings.ISLANDCOMMAND + " warps " + (panelNumber+1));
-                } else if (command.equalsIgnoreCase(plugin.myLocale().warpsPrevious)) {
+                } else if (command.equalsIgnoreCase(ChatColor.stripColor(plugin.myLocale().warpsPrevious))) {
                     player.closeInventory();
                     player.performCommand(Settings.ISLANDCOMMAND + " warps " + (panelNumber-1));
                 } else {
                     player.closeInventory();
-                    player.sendMessage(ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).warpswarpToPlayersSign.replace("<player>", command));
+                    Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).warpswarpToPlayersSign.replace("<player>", command));
                     player.performCommand(Settings.ISLANDCOMMAND + " warp " + command);
                 }
             }
