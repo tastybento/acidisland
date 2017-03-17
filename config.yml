@@ -49,7 +49,7 @@ island:
 
    # Island level - the height of the island.
    # Lowest level is 5
-   islandlevel: 55
+   islandlevel: 50
 
    #How many resets a player is allowed (override with /asadmin clearreset <player>
    #Value of -1 means unlimited, 0 means hardcore - no resets.

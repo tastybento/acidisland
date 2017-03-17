@@ -79,6 +79,15 @@ permissions:
           acidisland.island.name:
             description: Player can set the name of their island
             default: false
+          acidisland.island.value:
+            description: Player can see the value of a block
+            default: true
+          acidisland.island.spawn:
+            description: Player can use the island spawn command if spawn exists
+            default: true
+          acidisland.island.reset:
+            description: Player can use the island reset or restart command
+            default: true  
       acidisland.team.*:
         children:
           acidisland.team.create:
@@ -132,107 +141,19 @@ permissions:
       acidisland.nohunger:
         description: Excludes player from hunger if on island
         default: false   
+      acidisland.islandfly:
+        description: Allow player to fly inside his island boundaries
+        default: false
       acidisland.settings.*:
-        children:
-          acidisland.settings.allowAnvilUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowArmorStandUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowBeaconAccess:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowBedUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowBreakBlocks:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowBreeding:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowBrewing:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowBucketUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowChestAccess:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowCrafting:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowCropTrample:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowDoorUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowEnchanting:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowEnderPearls:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowFurnaceUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowGateUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowHorseInvAccess:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowHorseRiding:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowHurtMobs:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowLeashUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowLeverButtonUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowMusic:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowPlaceBlocks:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowPortalUse:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowPressurePlate:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowPvP:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowNetherPvP:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowRedStone:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowShearing:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowVillagerTrading:
-            description: Allow player to change this island guard setting
-            default: false 
-          acidisland.settings.allowChorusFruit:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.enableJoinAndLeaveIslandMessages:
-            description: Allow player to change this island guard setting
-            default: false
-          acidisland.settings.allowMobSpawning:
-            description: Allow player to change this island guard settings
-            default: false
+        description: Ability to change settings in GUI
+        default: false
+        # ACID_DAMAGE, ANVIL, ARMOR_STAND, BEACON, BED, BREAK_BLOCKS, BREEDING, BREWING, 
+        # BUCKET, COLLECT_LAVA, COLLECT_WATER, CHEST, CHORUS_FRUIT, CRAFTING, CROP_TRAMPLE, 
+        # DOOR, EGGS, ENCHANTING, ENDER_PEARL, ENTER_EXIT_MESSAGES, FIRE, FIRE_EXTINGUISH, 
+        # FIRE_SPREAD, FURNACE, GATE, HORSE_INVENTORY, HORSE_RIDING, HURT_MOBS, LEASH,
+        # LEVER_BUTTON, MOB_SPAWN, MUSIC, PLACE_BLOCKS, PORTAL, PRESSURE_PLATE, PVP,
+        # MILKING, NETHER_PVP, REDSTONE, SPAWN_EGGS, SHEARING, VILLAGER_TRADING,
+        # VISITOR_ITEM_DROP, VISITOR_ITEM_PICKUP
       acidisland.mod.*:
         children:
           acidisland.mod.topten:
