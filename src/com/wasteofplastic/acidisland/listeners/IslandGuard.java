@@ -311,7 +311,9 @@ public class IslandGuard implements Listener {
             // Entering
             if (islandTo.isSpawn()) {
                 if (!plugin.myLocale(player.getUniqueId()).lockEnteringSpawn.isEmpty()) {
-                    Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).lockEnteringSpawn);
+                    if(islandTo.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
+                        Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).lockEnteringSpawn);
+                    }
                 }
             } else {
                 if (!plugin.myLocale(player.getUniqueId()).lockNowEntering.isEmpty()) {
@@ -325,7 +327,9 @@ public class IslandGuard implements Listener {
             if (islandFrom.isSpawn()) {
                 // Leaving
                 if (!plugin.myLocale(player.getUniqueId()).lockLeavingSpawn.isEmpty()) {
-                    Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).lockLeavingSpawn);
+                    if(islandFrom.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
+                        Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).lockLeavingSpawn);
+                    }
                 }
             } else {
                 if (!plugin.myLocale(player.getUniqueId()).lockNowLeaving.isEmpty()) {
@@ -339,7 +343,9 @@ public class IslandGuard implements Listener {
             if (islandFrom.isSpawn()) {
                 // Leaving
                 if (!plugin.myLocale(player.getUniqueId()).lockLeavingSpawn.isEmpty()) {
-                    Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).lockLeavingSpawn);
+                    if(islandFrom.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
+                        Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).lockLeavingSpawn);
+                    }
                 }
             } else if (islandFrom.getOwner() != null){
                 if (!plugin.myLocale(player.getUniqueId()).lockNowLeaving.isEmpty()) {
@@ -350,7 +356,9 @@ public class IslandGuard implements Listener {
             }
             if (islandTo.isSpawn()) {
                 if (!plugin.myLocale(player.getUniqueId()).lockEnteringSpawn.isEmpty()) {
-                    Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).lockEnteringSpawn);
+                    if(islandTo.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
+                        Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).lockEnteringSpawn);
+                    }
                 }
             } else if (islandTo.getOwner() != null) {
                 if (!plugin.myLocale(player.getUniqueId()).lockNowEntering.isEmpty()) {
@@ -431,7 +439,9 @@ public class IslandGuard implements Listener {
             }
             if (islandTo.isSpawn()) {
                 if (!plugin.myLocale(e.getPlayer().getUniqueId()).lockEnteringSpawn.isEmpty()) {
-                    Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockEnteringSpawn);
+                    if(islandTo.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
+                        Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockEnteringSpawn);
+                    }
                 }
             } else {
                 if (!plugin.myLocale(e.getPlayer().getUniqueId()).lockNowEntering.isEmpty()) {
@@ -448,7 +458,9 @@ public class IslandGuard implements Listener {
             if (islandFrom.isSpawn()) {
                 // Leaving
                 if (!plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn.isEmpty()) {
-                    Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn);
+                    if(islandFrom.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
+                        Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn);
+                    }
                 }
             } else {
                 if (!plugin.myLocale(e.getPlayer().getUniqueId()).lockNowLeaving.isEmpty()) {
@@ -463,17 +475,21 @@ public class IslandGuard implements Listener {
             // Adjacent islands or overlapping protections
             if (islandFrom.isSpawn()) {
                 // Leaving
-                Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn);
+                if(islandFrom.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
+                    Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn);
+                }
             } else if (islandFrom.getOwner() != null) {
                 if(islandFrom.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
-                    sendEnterExit(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockLeavingSpawn.replace("[name]", plugin.getGrid().getIslandName(islandFrom.getOwner())));
+                    sendEnterExit(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockNowLeaving.replace("[name]", plugin.getGrid().getIslandName(islandFrom.getOwner())));
                 }
             }
             if (islandTo.isSpawn()) {
-                Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockEnteringSpawn);
+                if(islandTo.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
+                    Util.sendMessage(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockEnteringSpawn);
+                }
             } else if (islandTo.getOwner() != null) {
                 if(islandTo.getIgsFlag(SettingsFlag.ENTER_EXIT_MESSAGES)) {
-                    sendEnterExit(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockEnteringSpawn.replace("[name]", plugin.getGrid().getIslandName(islandTo.getOwner())));
+                    sendEnterExit(e.getPlayer(), plugin.myLocale(e.getPlayer().getUniqueId()).lockNowEntering.replace("[name]", plugin.getGrid().getIslandName(islandTo.getOwner())));
                 }
             }
             // Fire exit event
@@ -555,7 +571,8 @@ public class IslandGuard implements Listener {
             if (e.getSpawnReason().equals(SpawnReason.CURED)) {
                 // Easter Egg. Or should I say Easter Apple?
                 ItemStack goldenApple = new ItemStack(Material.GOLDEN_APPLE);
-                goldenApple.setDurability((short)1);
+                // Nerfed
+                //goldenApple.setDurability((short)1);
                 e.getLocation().getWorld().dropItemNaturally(e.getLocation(), goldenApple);
             }
             e.setCancelled(true);

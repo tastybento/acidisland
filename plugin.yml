@@ -1,5 +1,5 @@
 name: AcidIsland
-main: com.wasteofplastic.acidisland.acidisland
+main: com.wasteofplastic.acidisland.ASkyBlock
 version: ${version}
 description: AcidIsland
 author: Tastybento
@@ -288,7 +288,8 @@ permissions:
             default: false
           acidisland.settings.VISITOR_ITEM_PICKUP:
             description: Can configure the Visitor Item Pickup setting
-            default: false      acidisland.mod.*:
+            default: false
+      acidisland.mod.*:
         children:
           acidisland.mod.topten:
             description: Let a moderator update the top ten list

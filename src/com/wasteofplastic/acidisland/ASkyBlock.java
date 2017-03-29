@@ -18,7 +18,6 @@
 package com.wasteofplastic.acidisland;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -38,6 +37,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.NotSetup.Reason;
 import com.wasteofplastic.acidisland.Settings.GameType;
 import com.wasteofplastic.acidisland.Updater.UpdateResult;
@@ -301,7 +301,6 @@ public class ASkyBlock extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
-
         // This can no longer be run in onEnable because the plugin is loaded at
         // startup and so key variables are
         // not known to the server. Instead it is run one tick after startup.

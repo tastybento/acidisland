@@ -1,12 +1,18 @@
 package com.wasteofplastic.acidisland;
 
 
-import java.io.BufferedReader;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import javax.net.ssl.HttpsURLConnection;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Timer;
@@ -14,15 +20,6 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
-
-import javax.net.ssl.HttpsURLConnection;
-
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.ServicePriority;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 /**
  * bStats collects some data for plugin authors.
@@ -88,7 +85,7 @@ public class MetricsLite {
                             "To honor their work, you should not disable it.\n" +
                             "This has nearly no effect on the server performance!\n" +
                             "Check out https://bStats.org/ to learn more :)"
-                    ).copyDefaults(true);
+            ).copyDefaults(true);
             try {
                 config.save(configFile);
             } catch (IOException ignored) { }
@@ -137,7 +134,7 @@ public class MetricsLite {
                     }
                 });
             }
-        }, 1000*5, 1000*60*30);
+        }, 1000*60*5, 1000*60*30);
         // Submit the data every 30 minutes, first time after 5 minutes to give other plugins enough time to start
         // WARNING: Changing the frequency has no effect but your plugin WILL be blocked/deleted!
         // WARNING: Just don't do it!
@@ -273,7 +270,6 @@ public class MetricsLite {
         outputStream.close();
 
         connection.getInputStream().close(); // We don't care about the response - Just send our data :)
-        
     }
 
     /**
