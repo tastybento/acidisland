@@ -94,8 +94,8 @@ import org.bukkit.util.Vector;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
-import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.Island.SettingsFlag;
+import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.events.IslandEnterEvent;
 import com.wasteofplastic.acidisland.events.IslandExitEvent;
 import com.wasteofplastic.acidisland.util.Util;

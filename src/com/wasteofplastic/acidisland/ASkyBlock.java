@@ -37,7 +37,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.NotSetup.Reason;
 import com.wasteofplastic.acidisland.Settings.GameType;
 import com.wasteofplastic.acidisland.Updater.UpdateResult;

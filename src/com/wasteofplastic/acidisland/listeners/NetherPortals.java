@@ -37,15 +37,14 @@ import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.world.StructureGrowEvent;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.util.Vector;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.GridManager;
 import com.wasteofplastic.acidisland.Island;
+import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.SafeSpotTeleport;
 import com.wasteofplastic.acidisland.Settings;
-import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.commands.IslandCmd;
 import com.wasteofplastic.acidisland.schematics.Schematic;
 import com.wasteofplastic.acidisland.util.Util;
