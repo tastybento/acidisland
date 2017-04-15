@@ -48,8 +48,8 @@ import org.bukkit.util.Vector;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
-import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.Settings;
+import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.Settings.GameType;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
@@ -294,9 +294,15 @@ public class AcidEffect implements Listener {
             return true;
         }
         // In liquid
-        if (!player.getLocation().getBlock().isLiquid() && !player.getLocation().getBlock().getRelative(BlockFace.UP).isLiquid()) {
+        Material bodyMat = player.getLocation().getBlock().getType();
+        Material headMat = player.getLocation().getBlock().getRelative(BlockFace.UP).getType();
+          if (bodyMat.equals(Material.STATIONARY_WATER))
+              bodyMat = Material.WATER;
+          if (headMat.equals(Material.STATIONARY_WATER))
+              headMat = Material.WATER;
+        if (bodyMat != Material.WATER && headMat != Material.WATER) {
             if (DEBUG)
-                plugin.getLogger().info("DEBUG: not in liquid " + player.getLocation().getBlock().isLiquid() + " " + player.getLocation().getBlock().getRelative(BlockFace.UP).isLiquid());
+                plugin.getLogger().info("DEBUG: not in water " + player.getLocation().getBlock().isLiquid() + " " + player.getLocation().getBlock().getRelative(BlockFace.UP).isLiquid());
             return true;
         }
         // Check if player is in a boat

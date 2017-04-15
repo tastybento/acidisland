@@ -71,10 +71,10 @@ import com.wasteofplastic.acidisland.CoopPlay;
 import com.wasteofplastic.acidisland.DeleteIslandChunk;
 import com.wasteofplastic.acidisland.GridManager;
 import com.wasteofplastic.acidisland.Island;
-import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.LevelCalcByChunk;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.TopTen;
+import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.events.IslandJoinEvent;
 import com.wasteofplastic.acidisland.events.IslandLeaveEvent;
 import com.wasteofplastic.acidisland.events.IslandNewEvent;
@@ -85,7 +85,9 @@ import com.wasteofplastic.acidisland.schematics.Schematic;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
+@SuppressWarnings("deprecation")
 public class IslandCmd implements CommandExecutor, TabCompleter {
+    private static final boolean DEBUG = false;
     public boolean levelCalcFreeFlag = true;
     private static HashMap<String, Schematic> schematics = new HashMap<String, Schematic>();
     private ASkyBlock plugin;
@@ -130,7 +132,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
      * Loads schematics from the config.yml file. If the default
      * island is not included, it will be made up
      */
-    @SuppressWarnings("deprecation")
     public void loadSchematics() {
         // Check if there is a schematic folder and make it if it does not exist
         File schematicFolder = new File(plugin.getDataFolder(), "schematics");
@@ -719,7 +720,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 next = next.toVector().toLocation(ASkyBlock.getNetherWorld());
                 // Set the player's island location to this new spot
                 plugin.getPlayers().setIslandLocation(playerUUID, next);
-                // TODO: work through the implications of this!
                 schematic.pasteSchematic(next, player, true);
             } else {
                 // Over world start
@@ -977,7 +977,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
      * org.bukkit.command.CommandExecutor#onCommand(org.bukkit.command.CommandSender
      * , org.bukkit.command.Command, java.lang.String, java.lang.String[])
      */
-    @SuppressWarnings("deprecation")
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] split) {
         if (!(sender instanceof Player)) {
@@ -1080,7 +1079,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNotOnIsland);
                         return true;
                     }
-                    @SuppressWarnings("deprecation")
                     ItemStack item = player.getItemInHand();
                     double multiplier = 1;
                     if (item != null && item.getType().isBlock()) {
@@ -1254,8 +1252,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         try {
                             player.openInventory(plugin.getSettingsPanel().islandGuardPanel(player));
                         } catch (Exception e) {
-                            // TODO: remove debug
-                            //e.printStackTrace();
+                            if (DEBUG)
+                                e.printStackTrace();
                             Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorCommandNotReady);
                         }
                     } else {
@@ -1295,17 +1293,17 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                     target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).expelExpelled);
                                     plugin.getLogger().info(player.getName() + " expelled " + target.getName() + " from their island when locking.");
                                     // Yes they are
-                                    Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).expelSuccess.replace("[name]", target.getDisplayName()));
+                                    Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).expelSuccess.replace("[name]", target.getName()));
                                 }                              
                             }
                             Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(playerUUID).lockLocking);
-                            plugin.getMessages().tellOfflineTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerLocked.replace("[name]", player.getDisplayName()));
-                            plugin.getMessages().tellTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerLocked.replace("[name]", player.getDisplayName()));
+                            plugin.getMessages().tellOfflineTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerLocked.replace("[name]", player.getName()));
+                            plugin.getMessages().tellTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerLocked.replace("[name]", player.getName()));
                             island.setLocked(true);
                         } else {
                             Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(playerUUID).lockUnlocking);
-                            plugin.getMessages().tellOfflineTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerUnlocked.replace("[name]", player.getDisplayName()));
-                            plugin.getMessages().tellTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerUnlocked.replace("[name]", player.getDisplayName()));
+                            plugin.getMessages().tellOfflineTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerUnlocked.replace("[name]", player.getName()));
+                            plugin.getMessages().tellTeam(playerUUID, plugin.myLocale(playerUUID).lockPlayerUnlocked.replace("[name]", player.getName()));
                             island.setLocked(false);
                         }
                         return true;
@@ -2517,8 +2515,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             // Add target to coop list
                             if (CoopPlay.getInstance().addCoopPlayer(player, target)) {
                                 // Tell everyone what happened
-                                Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopSuccess.replace("[name]", target.getDisplayName()));
-                                target.sendMessage(ChatColor.GREEN + plugin.myLocale(targetPlayerUUID).coopMadeYouCoop.replace("[name]", player.getDisplayName()));
+                                Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopSuccess.replace("[name]", target.getName()));
+                                target.sendMessage(ChatColor.GREEN + plugin.myLocale(targetPlayerUUID).coopMadeYouCoop.replace("[name]", player.getName()));
                                 // TODO: Give perms if the player is on the coop island
                             } // else fail silently
                             return true;
@@ -2543,7 +2541,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             if (target != null) {
                                 if (target.isOp() || VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypassprotect")
                                         || VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypassexpel")) {
-                                    Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelFail.replace("[name]", target.getDisplayName()));
+                                    Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelFail.replace("[name]", target.getName()));
                                     return true;
                                 }
                             }
@@ -2551,9 +2549,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             boolean coop = CoopPlay.getInstance().removeCoopPlayer(player, targetPlayerUUID);
                             if (coop) {
                                 if (target != null) {
-                                    target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getDisplayName()));
+                                    target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getName()));
                                 } else {
-                                    plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).coopRemoved.replace("[name]", player.getDisplayName()));
+                                    plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).coopRemoved.replace("[name]", player.getName()));
                                 }
                                 Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopRemoveSuccess.replace("[name]", plugin.getPlayers().getName(targetPlayerUUID)));
                             }
@@ -2580,7 +2578,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).expelExpelled);
                                 plugin.getLogger().info(player.getName() + " expelled " + target.getName() + " from their island.");
                                 // Yes they are
-                                Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).expelSuccess.replace("[name]", target.getDisplayName()));
+                                Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).expelSuccess.replace("[name]", target.getName()));
                             } else if (!coop) {
                                 // No they're not
                                 Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelNotOnIsland);
@@ -2607,9 +2605,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             boolean coop = CoopPlay.getInstance().removeCoopPlayer(player, targetPlayerUUID);
                             if (coop) {
                                 if (target != null && target.isOnline()) {
-                                    Util.sendMessage(target.getPlayer(), ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getDisplayName()));
+                                    Util.sendMessage(target.getPlayer(), ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getName()));
                                 } else {
-                                    plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).coopRemoved.replace("[name]", player.getDisplayName()));
+                                    plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).coopRemoved.replace("[name]", player.getName()));
                                 }
                                 Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopRemoveSuccess.replace("[name]", plugin.getPlayers().getName(targetPlayerUUID)));
                             } else {
@@ -2664,8 +2662,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 // Remove them from the coop list
                                 boolean coop = CoopPlay.getInstance().removeCoopPlayer(player, target);
                                 if (coop) {
-                                    target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getDisplayName()));
-                                    Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopRemoveSuccess.replace("[name]", target.getDisplayName()));
+                                    target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).coopRemoved.replace("[name]", player.getName()));
+                                    Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).coopRemoveSuccess.replace("[name]", target.getName()));
                                 }
                                 // See if target is on this player's island and if so send them away
                                 if (plugin.getGrid().isOnIsland(player, target)) {
@@ -2682,10 +2680,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                 }
                                 // Notifications
                                 // Target
-                                target.sendMessage(ChatColor.RED + plugin.myLocale(targetPlayerUUID).banBanned.replace("[name]", player.getDisplayName()));
+                                target.sendMessage(ChatColor.RED + plugin.myLocale(targetPlayerUUID).banBanned.replace("[name]", player.getName()));
                             } else {
                                 // Offline notification
-                                plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).banBanned.replace("[name]", player.getDisplayName()));
+                                plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.RED + plugin.myLocale(targetPlayerUUID).banBanned.replace("[name]", player.getName()));
                             }
                             // Console
                             plugin.getLogger().info(player.getName() + " banned " + split[1] + " from their island.");
@@ -2726,9 +2724,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             // Target
                             if (target != null) {
                                 // Online
-                                target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).banLifted.replace("[name]", player.getDisplayName()));
+                                target.sendMessage(ChatColor.RED + plugin.myLocale(target.getUniqueId()).banLifted.replace("[name]", player.getName()));
                             } else {
-                                plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.GREEN + plugin.myLocale(targetPlayerUUID).banLifted.replace("[name]", player.getDisplayName()));
+                                plugin.getMessages().setMessage(targetPlayerUUID, ChatColor.GREEN + plugin.myLocale(targetPlayerUUID).banLifted.replace("[name]", player.getName()));
                             }
                             //OfflinePlayer offlineTarget = plugin.getServer().getOfflinePlayer(targetPlayerUUID);
                             // Player
@@ -2774,20 +2772,28 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                         Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).leaveerrorLeadersCannotLeave);
                                         return true;
                                     }
+                                    // Try to kick player
+                                    if (!removePlayerFromTeam(targetPlayer, teamLeader)) {
+                                        //Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).leaveerrorYouCannotLeaveIsland);
+                                        // If this is canceled, fail silently
+                                        return true;
+                                    }
+                                    // Log the location that this player left so they
+                                    // cannot join again before the cool down ends
+                                    plugin.getPlayers().startInviteCoolDownTimer(targetPlayer, plugin.getPlayers().getIslandLocation(playerUUID));
+                                    if (Settings.resetChallenges) {
+                                        // Reset the player's challenge status
+                                        plugin.getPlayers().resetAllChallenges(targetPlayer, false);
+                                    }
+                                    // Reset the island level
+                                    plugin.getPlayers().setIslandLevel(targetPlayer, 0);
+                                    TopTen.topTenAddEntry(playerUUID, 0);
+
                                     // If target is online
                                     Player target = plugin.getServer().getPlayer(targetPlayer);
                                     if (target != null) {
-                                        // Try to kick player
-                                        if (!removePlayerFromTeam(targetPlayer, teamLeader)) {
-                                            //Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).leaveerrorYouCannotLeaveIsland);
-                                            // If this is canceled, fail silently
-                                            return true;
-                                        }
                                         // plugin.getLogger().info("DEBUG: player is online");
                                         target.sendMessage(ChatColor.RED + plugin.myLocale(targetPlayer).kicknameRemovedYou.replace("[name]", player.getName()));
-                                        // Log the location that this player left so they
-                                        // cannot join again before the cool down ends
-                                        plugin.getPlayers().startInviteCoolDownTimer(targetPlayer, plugin.getPlayers().getIslandLocation(playerUUID));
                                         // Clear any coop inventories
                                         // CoopPlay.getInstance().returnAllInventories(target);
                                         // Remove any of the target's coop invitees and
@@ -2828,22 +2834,14 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                                 // Update the inventory
                                                 target.updateInventory();
                                             }
-                                            if (Settings.resetChallenges) {
-                                                // Reset the player's challenge status
-                                                plugin.getPlayers().resetAllChallenges(target.getUniqueId(), false);
-                                            }
-                                            // Reset the island level
-                                            plugin.getPlayers().setIslandLevel(target.getUniqueId(), 0);
-                                            plugin.getPlayers().save(target.getUniqueId());
-                                            TopTen.topTenAddEntry(playerUUID, 0);
                                         }
                                         if (!target.performCommand(Settings.SPAWNCOMMAND)) {
                                             target.teleport(ASkyBlock.getIslandWorld().getSpawnLocation());
                                         }
                                     } else {
                                         // Offline
-                                        // plugin.getLogger().info("DEBUG: player is offline "
-                                        // + targetPlayer.toString());
+                                        if (DEBUG)
+                                            plugin.getLogger().info("DEBUG: player is offline "+ targetPlayer.toString());
                                         // Tell offline player they were kicked
                                         plugin.getMessages().setMessage(targetPlayer, ChatColor.RED + plugin.myLocale(player.getUniqueId()).kicknameRemovedYou.replace("[name]", player.getName()));
                                     }
@@ -3035,7 +3033,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         }
         Player warpOwner = plugin.getServer().getPlayer(foundWarp);
         if (warpOwner != null && !warpOwner.equals(player)) {
-            warpOwner.sendMessage(plugin.myLocale(foundWarp).warpsPlayerWarped.replace("[name]", player.getDisplayName()));
+            warpOwner.sendMessage(plugin.myLocale(foundWarp).warpsPlayerWarped.replace("[name]", player.getName()));
         }
     }
 

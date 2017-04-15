@@ -65,12 +65,12 @@ import com.wasteofplastic.acidisland.DeleteIslandChunk;
 import com.wasteofplastic.acidisland.FileLister;
 import com.wasteofplastic.acidisland.GridManager;
 import com.wasteofplastic.acidisland.Island;
-import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.PluginConfig;
 import com.wasteofplastic.acidisland.SafeSpotTeleport;
 import com.wasteofplastic.acidisland.Settings;
-import com.wasteofplastic.acidisland.Settings.GameType;
 import com.wasteofplastic.acidisland.TopTen;
+import com.wasteofplastic.acidisland.Island.SettingsFlag;
+import com.wasteofplastic.acidisland.Settings.GameType;
 import com.wasteofplastic.acidisland.listeners.LavaCheck;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
 import com.wasteofplastic.acidisland.util.Util;
@@ -2346,7 +2346,7 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                     Player target = plugin.getServer().getPlayer(uuid);
                     if (target != null) {
                         //online
-                        list += target.getDisplayName() + ", ";
+                        list += target.getName() + ", ";
                     } else {
                         list += plugin.getPlayers().getName(uuid) + ", ";
                     }
