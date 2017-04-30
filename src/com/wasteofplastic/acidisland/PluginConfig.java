@@ -56,17 +56,17 @@ public class PluginConfig {
             Settings.islandDistance = 50;
             plugin.getLogger().info("Setting minimum island distance to 50");
         }
-        Settings.island_protectionRange = plugin.getConfig().getInt("island.protectionRange", 100);
-        if (Settings.island_protectionRange % 2 != 0) {
-            Settings.island_protectionRange--;
-            plugin.getLogger().warning("Protection range must be even, using " + Settings.island_protectionRange);
+        Settings.islandProtectionRange = plugin.getConfig().getInt("island.protectionRange", 100);
+        if (Settings.islandProtectionRange % 2 != 0) {
+            Settings.islandProtectionRange--;
+            plugin.getLogger().warning("Protection range must be even, using " + Settings.islandProtectionRange);
         }
-        if (Settings.island_protectionRange > Settings.islandDistance) {
+        if (Settings.islandProtectionRange > Settings.islandDistance) {
             plugin.getLogger().warning("Protection range cannot be > island distance. Setting them to be equal.");
-            Settings.island_protectionRange = Settings.islandDistance;
+            Settings.islandProtectionRange = Settings.islandDistance;
         }
-        if (Settings.island_protectionRange < 0) {
-            Settings.island_protectionRange = 0;
+        if (Settings.islandProtectionRange < 0) {
+            Settings.islandProtectionRange = 0;
         }
 
         // xoffset and zoffset are not public and only used for IslandWorld compatibility
@@ -787,7 +787,13 @@ public class PluginConfig {
             } catch (Exception e) {
                 plugin.getLogger().severe("Unknown setting in config.yml:protection.world " + setting.toUpperCase() + " skipping...");
             }
-
+        }
+        // Establish defaults if they are missing in the config file.
+        for (SettingsFlag flag: SettingsFlag.values()) {
+            if (!Settings.defaultWorldSettings.containsKey(flag)) {
+                plugin.getLogger().warning("config.yml:protection.world."+flag.name() + " is missing. You should add it to the config file. Setting to false by default");
+                Settings.defaultWorldSettings.put(flag, false);
+            }
         }
         ConfigurationSection protectionIsland = plugin.getConfig().getConfigurationSection("protection.island");
         for (String setting: protectionIsland.getKeys(false)) {
