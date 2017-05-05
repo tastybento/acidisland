@@ -400,7 +400,12 @@ public class Island implements Cloneable {
                 // Default default
                 this.igs.put(flag, false);
             } else {
-                this.igs.put(flag, Settings.defaultIslandSettings.get(flag));
+                if (Settings.defaultIslandSettings.get(flag) == null) {
+                    //plugin.getLogger().info("DEBUG: null flag " + flag);
+                    this.igs.put(flag, false);
+                } else {
+                    this.igs.put(flag, Settings.defaultIslandSettings.get(flag));
+                }
             }
         }
     }
@@ -414,7 +419,11 @@ public class Island implements Cloneable {
                 // Default default
                 this.igs.put(flag, false);
             } else {
-                this.igs.put(flag, Settings.defaultSpawnSettings.get(flag));
+                if (Settings.defaultSpawnSettings.get(flag) == null) {
+                    this.igs.put(flag, false);
+                } else {
+                    this.igs.put(flag, Settings.defaultSpawnSettings.get(flag));
+                }
             }
         }
     }
@@ -436,7 +445,7 @@ public class Island implements Cloneable {
         this.minZ = z - Settings.islandDistance / 2;
         this.minProtectedX = x - Settings.islandProtectionRange / 2;
         this.minProtectedZ = z - Settings.islandProtectionRange / 2;
-        this.y = Settings.island_level;
+        this.y = Settings.islandHeight;
         this.islandDistance = Settings.islandDistance;
         this.protectionRange = Settings.islandProtectionRange;
         this.world = ASkyBlock.getIslandWorld();

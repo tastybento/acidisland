@@ -874,7 +874,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         }
         // Find the next free spot
         if (last == null) {
-            last = new Location(ASkyBlock.getIslandWorld(), Settings.islandXOffset + Settings.islandStartX, Settings.island_level, Settings.islandZOffset + Settings.islandStartZ);
+            last = new Location(ASkyBlock.getIslandWorld(), Settings.islandXOffset + Settings.islandStartX, Settings.islandHeight, Settings.islandZOffset + Settings.islandStartZ);
         }
         Location next = last.clone();
 
@@ -1120,7 +1120,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             }
                         }
                         // Player height
-                        if (player.getLocation().getBlockY() < Settings.sea_level) {
+                        if (player.getLocation().getBlockY() < Settings.seaHeight) {
                             multiplier *= Settings.underWaterMultiplier;
                         }
                         // Get the value. Try the specific item
@@ -1698,6 +1698,11 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 return true;
             } else if (split[0].equalsIgnoreCase("listcoops")) {
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "coop")) {
+                    if (!plugin.getPlayers().hasIsland(playerUUID)) {
+                        // Player has no island
+                        Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNoIsland);
+                        return true;
+                    }
                     Island island = plugin.getGrid().getIsland(playerUUID);
                     boolean none = true;
                     for (UUID uuid: CoopPlay.getInstance().getCoopPlayers(island.getCenter())) {
@@ -1705,9 +1710,9 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         none = false;
                     }
                     if (none) {
-                        Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + " coop <player>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpCoop);
+                        Util.sendMessage(player, plugin.myLocale(playerUUID).helpColor + "/" + label + " coop <player>: " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpCoop);
                     } else {
-                        Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + plugin.myLocale(playerUUID).coopUseExpel);
+                        Util.sendMessage(player, plugin.myLocale(playerUUID).helpColor + plugin.myLocale(playerUUID).coopUseExpel);
                     }
                     return true;
                 }
