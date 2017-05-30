@@ -455,6 +455,7 @@ purge:
   finished: 成功清除了閒置島嶼
   noneFound: 沒有找到閒置的島嶼
   nowWaiting: "Now waiting..."
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: "Island is protected from purging"
   purgeCancelled: 清除取消
   removingAt: "Removing island at location [location]"

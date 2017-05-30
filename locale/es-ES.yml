@@ -455,6 +455,7 @@ purge:
   finished: "Limpieza de islas inactivas finalizada."
   noneFound: "No hay islas inactivas que eliminar."
   nowWaiting: "Ahora espera..."
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: "Isla protegida de ser eliminada"
   purgeCancelled: "Limpieza cancelada."
   removingAt: "Extracción de isla en la ubicación [location]"

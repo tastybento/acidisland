@@ -718,7 +718,6 @@ public class Island implements Cloneable {
      */
     public String save() {
         // x:height:z:protection range:island distance:owner UUID
-        String result = "";
         String ownerString = "null";
         if (isSpawn) {
             // Bukkit.getLogger().info("DEBUG: island is spawn");
@@ -1020,12 +1019,17 @@ public class Island implements Cloneable {
             return;
         }
         for (int i = 0; i < settingsKey.size(); i++) {
-            if (settings.charAt(i) == '0') {
-                this.setIgsFlag(SettingsFlag.valueOf(settingsKey.get(i)), false);
-            } else {
-                this.setIgsFlag(SettingsFlag.valueOf(settingsKey.get(i)), true);
+            try {
+                if (settings.charAt(i) == '0') {
+                    this.setIgsFlag(SettingsFlag.valueOf(settingsKey.get(i)), false);
+                } else {
+                    this.setIgsFlag(SettingsFlag.valueOf(settingsKey.get(i)), true);
+                }
+            } catch (Exception e) {
+                // do nothing - bad value, probably a downgrade
             }
         }
 
     }
+
 }

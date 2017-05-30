@@ -455,6 +455,7 @@ purge:
   finished: "Очистка неактивных островов окончена."
   noneFound: "Нет неактивных островов для удаления."
   nowWaiting: "Подождите..."
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: "Остров защищен от очистки"
   purgeCancelled: "Очистка отменена."
   removingAt: "Удаление острова по координатам [location]"

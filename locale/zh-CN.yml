@@ -455,6 +455,7 @@ purge:
   finished: §a清理不活跃岛屿完成.
   noneFound: §c没有不活跃的岛屿被移除.
   nowWaiting: "Now waiting..."
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: §c岛是免受清除的
   purgeCancelled: §a取消清理.
   removingAt: "Removing island at location [location]"

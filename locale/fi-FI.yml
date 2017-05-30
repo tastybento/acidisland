@@ -455,6 +455,7 @@ purge:
   finished: "Epäaktiivisten saarten puhdistus suoritettu loppuun."
   noneFound: "Epäaktiivisia saaria poistettavaksi ei löytynyt."
   nowWaiting: "Nyt odotellaan..."
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: "Saari on suojattu puhdistukselta"
   purgeCancelled: "Puhdistus estetty."
   removingAt: "Poistetaan saari koordinaateista [location]"

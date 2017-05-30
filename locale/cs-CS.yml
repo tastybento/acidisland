@@ -455,6 +455,7 @@ purge:
   finished: "Dokoncovani cisteni neaktivnich ostrovu."
   noneFound: "Zadne neaktivni ostrovy k odstraneni."
   nowWaiting: "Now waiting..."
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: "Island is protected from purging"
   purgeCancelled: "Cisteni zruseno."
   removingAt: "Removing island at location [location]"

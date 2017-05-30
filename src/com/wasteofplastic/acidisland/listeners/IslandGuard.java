@@ -1115,7 +1115,7 @@ public class IslandGuard implements Listener {
                 return;
             }
             // Else not allowed
-            attacker.sendMessage(ChatColor.RED + plugin.myLocale(attacker.getUniqueId()).islandProtected);
+            Util.sendMessage(attacker, ChatColor.RED + plugin.myLocale(attacker.getUniqueId()).islandProtected);
             if (flamingArrow)
                 e.getEntity().setFireTicks(0);
             if (projectile)
@@ -1145,7 +1145,7 @@ public class IslandGuard implements Listener {
                 return;
             }
             // Not allowed
-            attacker.sendMessage(ChatColor.RED + plugin.myLocale(attacker.getUniqueId()).islandProtected);
+            Util.sendMessage(attacker, ChatColor.RED + plugin.myLocale(attacker.getUniqueId()).islandProtected);
             if (flamingArrow)
                 e.getEntity().setFireTicks(0);
             if (projectile)
@@ -1163,7 +1163,7 @@ public class IslandGuard implements Listener {
             if (DEBUG)
                 plugin.getLogger().info("DEBUG: Mobs not allowed to be hurt. Blocking");
             // Else not allowed
-            attacker.sendMessage(ChatColor.RED + plugin.myLocale(attacker.getUniqueId()).islandProtected);
+            Util.sendMessage(attacker, ChatColor.RED + plugin.myLocale(attacker.getUniqueId()).islandProtected);
             if (flamingArrow)
                 e.getEntity().setFireTicks(0);
             if (projectile)
@@ -2329,6 +2329,8 @@ public class IslandGuard implements Listener {
                 }
                 break;
             case LLAMA:
+            case SKELETON_HORSE:
+            case ZOMBIE_HORSE:
             case HORSE:
                 //plugin.getLogger().info("Horse riding");
                 if (island == null && !Settings.defaultWorldSettings.get(SettingsFlag.HORSE_RIDING)) {
@@ -2450,7 +2452,7 @@ public class IslandGuard implements Listener {
                 transparent.add(Material.AIR);
                 if (DEBUG) {
                     plugin.getLogger().info("DEBUG: block = " + e.getBlock());
-                    plugin.getLogger().info("DEBUG: target block = " + e.getPlayer().getTargetBlock(transparent, 10));
+                    //plugin.getLogger().info("DEBUG: target block = " + e.getPlayer().getTargetBlock(transparent, 10));
                 }
                 // Check if this is allowed
                 if (e.getPlayer() != null && (e.getPlayer().isOp() || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypass"))) {
@@ -2686,7 +2688,7 @@ public class IslandGuard implements Listener {
                         // Only say it once a second
                         // Debounce event (it can be called twice for the same action)
                         if (!tntBlocks.contains(e.getBlock().getLocation())) {
-                            shooter.sendMessage(ChatColor.RED + plugin.myLocale(shooter.getUniqueId()).islandProtected);
+                            Util.sendMessage(shooter, ChatColor.RED + plugin.myLocale(shooter.getUniqueId()).islandProtected);
                             tntBlocks.add(e.getBlock().getLocation());
                             plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
 

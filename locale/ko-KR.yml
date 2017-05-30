@@ -455,6 +455,7 @@ purge:
   finished: "사용되지 않은 섬들의 초기화가 완료되었습니다."
   noneFound: "사용되지 않은 섬이 없어 제거할 수 없었습니다."
   nowWaiting: "이제 기다리는 중..."
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: "섬이 초기화로부터 보호되었습니다"
   purgeCancelled: "초기화가 취소됨."
   removingAt: "[location] 에 있는 섬을 제거 중"

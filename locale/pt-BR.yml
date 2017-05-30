@@ -455,6 +455,7 @@ purge:
   finished: "As ilhas inativas foram removidas."
   noneFound: "Não há ilhas inativas para remover."
   nowWaiting: "Aguardando..."  
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: "Esta ilha está protegida contra purga"
   purgeCancelled: "Processo de purga cancelado."
   removingAt: "Removendo a ilha na posição [location]"  
