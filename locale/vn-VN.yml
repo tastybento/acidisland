@@ -452,7 +452,11 @@ teamchat:
   statusOff: "Team chat is off"
   statusOn: "Team chat is on"
 topTen:
+  errorExcluded: "FYI: You are excluded from the top ten as you do not have [perm]"
+  guiHeading: "&E&L<!> Island: &6&N[name]&7 (#[rank])"
+  guiTitle: "Top 10 Islands"
   errorNotReady: "Danh sách top 10 không được tạo ra chưa!"
+  guiHeading: "&E&L<!> Island: &6&N[name]&7 (#[rank])"
   header: "Đây là Top 10 hòn đảo:"
 warps:
   deactivate: "Việc tắt dấu cũ!"
@@ -475,3 +479,4 @@ warps:
   warpToPlayersSign: "Warp đến đảo <player>"
   warpsAvailable: "Các warps sau đây có sẵn"
   welcomeLine: "[WELCOME]"
+needRelog: "You need to logout and login again to see the changes."

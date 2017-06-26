@@ -515,6 +515,7 @@ teamchat:
 topTen: 
   errorExcluded: "FYI: You are excluded from the top ten as you do not have [perm]"
   errorNotReady: "TOP 10 zatial nebol vygenerovany!"
+  guiHeading: "&E&L<!> Island: &6&N[name]&7 (#[rank])"
   guiTitle: "Top 10 Islands"
   header: "Toto je TOP 10 ostrovov:"
 warps: 
@@ -539,3 +540,4 @@ warps:
   warpToPlayersSign: "Warp k uvitacej cedulke hraca <player>."
   warpsAvailable: "Nasledovne warpy su povolene"
   welcomeLine: "[WELCOME]"
+needRelog: "You need to logout and login again to see the changes."

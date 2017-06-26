@@ -57,6 +57,7 @@ public class ASLocale {
             "white"
             ));
 
+
     // Localization Strings
     private FileConfiguration locale = null;
     private File localeFile = null;
@@ -109,6 +110,7 @@ public class ASLocale {
     // ASkyBlock
     public String topTenheader;
     public String topTenGuiTitle;
+    public String topTenGuiHeading;
     public String topTenerrorNotReady;
     public String levelislandLevel;
     public String levelerrornotYourIsland;
@@ -656,6 +658,8 @@ public class ASLocale {
     public String adminHelpsetLanguage;
 
     public String purgeLimit;
+    
+    public String needRelog;
 
 
     /**
@@ -890,6 +894,7 @@ public class ASLocale {
         if (topTenGuiTitle.length() > 30) {
             topTenGuiTitle = topTenGuiTitle.substring(0, 29);
         }
+        topTenGuiHeading = ChatColor.translateAlternateColorCodes('&', locale.getString("topTen.guiHeading", "&E&L<!> Island: &6&N[name]&7 (#[rank])"));
         topTenerrorNotReady = ChatColor.translateAlternateColorCodes('&', locale.getString("topTen.errorNotReady", "Top ten list not generated yet!"));
         topTenerrorExcluded = ChatColor.translateAlternateColorCodes('&', locale.getString("topTen.errorExcluded", "FYI: You are excluded from the top ten as you do not have [perm]"));
         levelislandLevel = ChatColor.translateAlternateColorCodes('&', locale.getString("level.islandLevel", "Island level"));
@@ -1434,7 +1439,8 @@ public class ASLocale {
         adminHelpReserve = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.reserve", "reserves this spot for player's next island"));
         adminReserveIslandExists = ChatColor.translateAlternateColorCodes('&', locale.getString("adminReserve.islandExists", "There is an island here already! Register the player instead!"));
         adminSetRangeUpdated = ChatColor.translateAlternateColorCodes('&', locale.getString("adminSetRange.updated", "Island range updated to [number]"));
-
+        
+        needRelog = ChatColor.translateAlternateColorCodes('&', locale.getString("needRelog", "You need to relog in order to see the changes."));
     }
 
     /**

@@ -515,6 +515,7 @@ teamchat:
 topTen: 
   errorExcluded: "FYI: You are excluded from the top ten as you do not have [perm]"
   errorNotReady: 前十名單未生成!
+  guiHeading: "&E&L<!> Island: &6&N[name]&7 (#[rank])"
   guiTitle: "Top 10 Islands"
   header: "排名前10的島嶼:"
 warps: 
@@ -539,3 +540,4 @@ warps:
   warpToPlayersSign: "傳送到玩家: &b<player>&e的島嶼傳送點."
   warpsAvailable: 以下的傳送點可用
   welcomeLine: "[WELCOME]"
+needRelog: "You need to logout and login again to see the changes."

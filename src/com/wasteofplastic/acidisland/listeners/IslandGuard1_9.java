@@ -17,22 +17,35 @@
 package com.wasteofplastic.acidisland.listeners;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Slime;
+import org.bukkit.entity.Snowman;
+import org.bukkit.entity.Squid;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -61,9 +74,11 @@ public class IslandGuard1_9 implements Listener {
     private final static String NO_PUSH_TEAM_NAME = "ASkyBlockNP";
     private Scoreboard scoreboard;
     private Team pushTeam;
+    private HashMap<Integer, UUID> thrownPotions;
 
     public IslandGuard1_9(final ASkyBlock plugin) {
         this.plugin = plugin;
+        this.thrownPotions = new HashMap<Integer, UUID>();
         if (!Settings.allowPushing) {
             // try to remove the team from the scoreboard
             try {
@@ -173,32 +188,33 @@ public class IslandGuard1_9 implements Listener {
         }
 
         // Check if they are holding armor stand
-        ItemStack inHand = e.getPlayer().getItemInHand();
-        if (inHand != null && inHand.getType().equals(Material.END_CRYSTAL)) {
-            // Check island
-            Island island = plugin.getGrid().getIslandAt(e.getPlayer().getLocation());
-            if (island == null && Settings.defaultWorldSettings.get(SettingsFlag.PLACE_BLOCKS)) {
-                return;
-            }
-            if (island !=null && (island.getMembers().contains(p.getUniqueId()) || island.getIgsFlag(SettingsFlag.PLACE_BLOCKS))) {
-                //plugin.getLogger().info("1.9 " +"DEBUG: armor stand place check");
-                if (Settings.limitedBlocks.containsKey("END_CRYSTAL") && Settings.limitedBlocks.get("END_CRYSTAL") > -1) {
-                    //plugin.getLogger().info("1.9 " +"DEBUG: count armor stands");
-                    int count = island.getTileEntityCount(Material.END_CRYSTAL,e.getPlayer().getWorld());
-                    //plugin.getLogger().info("1.9 " +"DEBUG: count is " + count + " limit is " + Settings.limitedBlocks.get("ARMOR_STAND"));
-                    if (Settings.limitedBlocks.get("END_CRYSTAL") <= count) {
-                        Util.sendMessage(e.getPlayer(), ChatColor.RED + (plugin.myLocale(e.getPlayer().getUniqueId()).entityLimitReached.replace("[entity]",
-                                Util.prettifyText(Material.END_CRYSTAL.toString()))).replace("[number]", String.valueOf(Settings.limitedBlocks.get("END_CRYSTAL"))));
-                        e.setCancelled(true);
-                        return;
-                    }
+        for (ItemStack inHand : Util.getPlayerInHandItems(e.getPlayer())) {
+            if (inHand.getType().equals(Material.END_CRYSTAL)) {
+                // Check island
+                Island island = plugin.getGrid().getIslandAt(e.getPlayer().getLocation());
+                if (island == null && Settings.defaultWorldSettings.get(SettingsFlag.PLACE_BLOCKS)) {
+                    return;
                 }
-                return;
+                if (island !=null && (island.getMembers().contains(p.getUniqueId()) || island.getIgsFlag(SettingsFlag.PLACE_BLOCKS))) {
+                    //plugin.getLogger().info("1.9 " +"DEBUG: armor stand place check");
+                    if (Settings.limitedBlocks.containsKey("END_CRYSTAL") && Settings.limitedBlocks.get("END_CRYSTAL") > -1) {
+                        //plugin.getLogger().info("1.9 " +"DEBUG: count armor stands");
+                        int count = island.getTileEntityCount(Material.END_CRYSTAL,e.getPlayer().getWorld());
+                        //plugin.getLogger().info("1.9 " +"DEBUG: count is " + count + " limit is " + Settings.limitedBlocks.get("ARMOR_STAND"));
+                        if (Settings.limitedBlocks.get("END_CRYSTAL") <= count) {
+                            Util.sendMessage(e.getPlayer(), ChatColor.RED + (plugin.myLocale(e.getPlayer().getUniqueId()).entityLimitReached.replace("[entity]",
+                                    Util.prettifyText(Material.END_CRYSTAL.toString()))).replace("[number]", String.valueOf(Settings.limitedBlocks.get("END_CRYSTAL"))));
+                            e.setCancelled(true);
+                            return;
+                        }
+                    }
+                    return;
+                }
+                // plugin.getLogger().info("1.9 " +"DEBUG: stand place cancelled");
+                e.setCancelled(true);
+                Util.sendMessage(e.getPlayer(), ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
+                e.getPlayer().updateInventory();
             }
-            // plugin.getLogger().info("1.9 " +"DEBUG: stand place cancelled");
-            e.setCancelled(true);
-            Util.sendMessage(e.getPlayer(), ChatColor.RED + plugin.myLocale(e.getPlayer().getUniqueId()).islandProtected);
-            e.getPlayer().updateInventory();
         }
 
     }
@@ -414,5 +430,199 @@ public class IslandGuard1_9 implements Listener {
             plugin.getLogger().severe(player.getName() + " : " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Handle blocks that need special treatment
+     * Tilling of coarse dirt into dirt using off-hand (regular hand is in 1.8)
+     * Usually prevented because it could lead to an endless supply of dirt with gravel
+     * 
+     * @param e
+     */
+    @SuppressWarnings("deprecation")
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
+    public void onPlayerInteract(final PlayerInteractEvent e) {
+        if (DEBUG) {
+            plugin.getLogger().info("1.9 " + e.getEventName());
+        }
+        if (!e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+            return;
+        }
+        if (!IslandGuard.inWorld(e.getPlayer())) {
+            return;
+        }
+        if (e.getPlayer().isOp()) {
+            return;
+        }
+        // This permission bypasses protection
+        if (VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")
+                || VaultHelper.checkPerm(e.getPlayer(), Settings.PERMPREFIX + "craft.dirt")) {
+            return;
+        }
+        // Prevents tilling of coarse dirt into dirt
+        ItemStack inHand = e.getPlayer().getInventory().getItemInOffHand();
+        if (inHand.getType() == Material.WOOD_HOE || inHand.getType() == Material.IRON_HOE || inHand.getType() == Material.GOLD_HOE
+                || inHand.getType() == Material.DIAMOND_HOE || inHand.getType() == Material.STONE_HOE) {
+            // plugin.getLogger().info("1.8 " + "DEBUG: hoe in hand");
+            Block block = e.getClickedBlock();
+            // plugin.getLogger().info("1.8 " + "DEBUG: block is " + block.getType() +
+            // ":" + block.getData());
+            // Check if coarse dirt
+            if (block.getType() == Material.DIRT && block.getData() == (byte) 1) {
+                // plugin.getLogger().info("1.8 " + "DEBUG: hitting coarse dirt!");
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
+    public void onLingeringPotionSplash(final LingeringPotionSplashEvent e) {
+        if (DEBUG) {
+            plugin.getLogger().info("1.9 " + e.getEventName());
+            plugin.getLogger().info("1.9 entity = " + e.getEntity());
+            plugin.getLogger().info("1.9 entity type = " + e.getEntityType());
+            plugin.getLogger().info("1.9 radius = " + e.getAreaEffectCloud().getRadius());
+            plugin.getLogger().info("1.9 id = " + e.getAreaEffectCloud().getEntityId());
+            plugin.getLogger().info("1.9 hit entity = " + e.getHitEntity());
+        }
+        if (!IslandGuard.inWorld(e.getEntity().getLocation())) {
+            return;
+        }
+        // Try to get the shooter
+        Projectile projectile = (Projectile) e.getEntity();
+        plugin.getLogger().info("shooter = " + projectile.getShooter());
+        if (projectile.getShooter() != null && projectile.getShooter() instanceof Player) {
+            UUID uuid = ((Player)projectile.getShooter()).getUniqueId();
+            // Store it and remove it when the effect is gone
+            thrownPotions.put(e.getAreaEffectCloud().getEntityId(), uuid);
+            plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+
+                @Override
+                public void run() {
+                    if (DEBUG)
+                        plugin.getLogger().info("DEBUG: Effect finished");
+                    thrownPotions.remove(e.getAreaEffectCloud().getEntityId());
+
+                }}, e.getAreaEffectCloud().getDuration());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
+    public void onLingeringPotionDamage(final EntityDamageByEntityEvent e) {
+        if (DEBUG) {
+            plugin.getLogger().info("1.9 lingering potion damage " + e.getEventName());
+            plugin.getLogger().info("1.9 lingering potion entity = " + e.getEntity());
+            plugin.getLogger().info("1.9 lingering potion entity type = " + e.getEntityType());
+            plugin.getLogger().info("1.9 lingering potion cause = " + e.getCause());
+            plugin.getLogger().info("1.9 lingering potion damager = " + e.getDamager());
+        }
+        if (!IslandGuard.inWorld(e.getEntity().getLocation())) {
+            return;
+        }
+        if (e.getEntity() == null || e.getEntity().getUniqueId() == null) {
+            return;
+        }
+        if (e.getCause().equals(DamageCause.ENTITY_ATTACK) && thrownPotions.containsKey(e.getDamager().getEntityId())) {
+            UUID attacker = thrownPotions.get(e.getDamager().getEntityId());
+            // Self damage
+            if (attacker.equals(e.getEntity().getUniqueId())) {
+                if (DEBUG)
+                    plugin.getLogger().info("DEBUG: Self damage from lingering potion!");
+                return;
+            }
+            Island island = plugin.getGrid().getIslandAt(e.getEntity().getLocation());
+            boolean inNether = false;
+            if (e.getEntity().getWorld().equals(ASkyBlock.getNetherWorld())) {
+                inNether = true;
+            }
+            // Monsters being hurt
+            if (e.getEntity() instanceof Monster || e.getEntity() instanceof Slime || e.getEntity() instanceof Squid) {
+                // Normal island check
+                if (island != null && island.getMembers().contains(attacker)) {
+                    // Members always allowed
+                    return;
+                }
+                if (actionAllowed(attacker, e.getEntity().getLocation(), SettingsFlag.HURT_MONSTERS)) {
+                    return;
+                }
+                // Not allowed
+                e.setCancelled(true);
+                return;
+            }
+
+            // Mobs being hurt
+            if (e.getEntity() instanceof Animals || e.getEntity() instanceof IronGolem || e.getEntity() instanceof Snowman
+                    || e.getEntity() instanceof Villager) {
+                if (island != null && (island.getIgsFlag(SettingsFlag.HURT_MOBS) || island.getMembers().contains(attacker))) {
+                    return;
+                }
+                if (DEBUG)
+                    plugin.getLogger().info("DEBUG: Mobs not allowed to be hurt. Blocking");
+                e.setCancelled(true);
+                return;
+            }
+
+            // Establish whether PVP is allowed or not.
+            boolean pvp = false;
+            if ((inNether && island != null && island.getIgsFlag(SettingsFlag.NETHER_PVP) || (!inNether && island != null && island.getIgsFlag(SettingsFlag.PVP)))) {
+                if (DEBUG) plugin.getLogger().info("DEBUG: PVP allowed");
+                pvp = true;
+            }
+
+            // Players being hurt PvP
+            if (e.getEntity() instanceof Player) {
+                if (pvp) {
+                    if (DEBUG) plugin.getLogger().info("DEBUG: PVP allowed");
+                    return;
+                } else {
+                    if (DEBUG) plugin.getLogger().info("DEBUG: PVP not allowed");
+                    e.setCancelled(true);
+                    return;
+                }
+            }
+        }
+    }
+    
+    /**
+     * Checks if action is allowed for player in location for flag
+     * @param uuid
+     * @param location
+     * @param flag
+     * @return true if allowed
+     */
+    private boolean actionAllowed(UUID uuid, Location location, SettingsFlag flag) {
+        Player player = plugin.getServer().getPlayer(uuid);
+        if (player == null) {
+            return actionAllowed(location, flag);
+        }
+        // This permission bypasses protection
+        if (player.isOp() || VaultHelper.checkPerm(player, Settings.PERMPREFIX + "mod.bypassprotect")) {
+            return true;
+        }
+        Island island = plugin.getGrid().getProtectedIslandAt(location);
+        if (island != null && (island.getIgsFlag(flag) || island.getMembers().contains(player.getUniqueId()))){
+            return true;
+        }
+        if (island == null && Settings.defaultWorldSettings.get(flag)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Action allowed in this location
+     * @param location
+     * @param flag
+     * @return true if allowed
+     */
+    private boolean actionAllowed(Location location, SettingsFlag flag) {
+        Island island = plugin.getGrid().getProtectedIslandAt(location);
+        if (island != null && island.getIgsFlag(flag)){
+            return true;
+        }
+        if (island == null && Settings.defaultWorldSettings.get(flag)) {
+            return true;
+        }
+        return false;
     }
 }

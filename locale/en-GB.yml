@@ -515,6 +515,7 @@ teamchat:
 topTen:
   errorExcluded: "FYI: You are excluded from the top ten as you do not have [perm]"
   errorNotReady: "Top ten list not generated yet!"
+  guiHeading: "&E&L<!> Island: &6&N[name]&7 (#[rank])"
   guiTitle: "&eTop 10 Islands"
   header: "These are the Top 10 islands:"
 warps: 
@@ -539,3 +540,4 @@ warps:
   warpToPlayersSign: "Warping to <player>'s welcome sign."
   warpsAvailable: "The following warps are available"
   welcomeLine: "[WELCOME]"
+needRelog: "You need to logout and login again to see the changes."

@@ -47,6 +47,7 @@ import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.commands.IslandCmd;
 import com.wasteofplastic.acidisland.schematics.Schematic;
+import com.wasteofplastic.acidisland.schematics.Schematic.PasteReason;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
@@ -237,7 +238,7 @@ public class NetherPortals implements Listener {
                             if (nether != null) {
                                 if (DEBUG)
                                     plugin.getLogger().info("DEBUG: pasting at " + island.getCenter().toVector());
-                                plugin.getIslandCmd().pasteSchematic(nether, netherIsland, event.getPlayer());
+                                plugin.getIslandCmd().pasteSchematic(nether, netherIsland, event.getPlayer(), PasteReason.PARTNER);
                             } else {
                                 plugin.getLogger().severe("Cannot teleport player to nether because there is no nether schematic");
                                 event.setCancelled(true);

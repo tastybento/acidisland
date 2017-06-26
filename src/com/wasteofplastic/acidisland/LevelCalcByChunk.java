@@ -42,11 +42,11 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multiset.Entry;
-import com.google.common.collect.Multisets;
 import com.wasteofplastic.acidisland.events.IslandLevelEvent;
 import com.wasteofplastic.acidisland.events.IslandPostLevelEvent;
 import com.wasteofplastic.acidisland.events.IslandPreLevelEvent;
 import com.wasteofplastic.acidisland.util.Util;
+import com.google.common.collect.Multisets;
 
 /**
  * A class that calculates the level of an island very quickly by copying island

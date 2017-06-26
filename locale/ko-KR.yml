@@ -515,6 +515,7 @@ teamchat:
 topTen: 
   errorExcluded: "FYI: You are excluded from the top ten as you do not have [perm]"
   errorNotReady: "상위 10 목록이 아직 생성되지 않았습니다!"
+  guiHeading: "&E&L<!> Island: &6&N[name]&7 (#[rank])"
   guiTitle: "Top 10 Islands"
   header: "상위 10개의 섬:"
 warps: 
@@ -539,3 +540,4 @@ warps:
   warpToPlayersSign: "<player> 의 환영 표지판으로 순간이동합니다."
   warpsAvailable: "다음 워프들은 사용가능합니다"
   welcomeLine: "[WELCOME]"
+needRelog: "You need to logout and login again to see the changes."

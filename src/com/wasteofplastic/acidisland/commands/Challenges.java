@@ -65,7 +65,6 @@ import com.wasteofplastic.acidisland.panels.CPItem;
 import com.wasteofplastic.acidisland.util.SpawnEgg1_9;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
-//import com.wasteofplastic.askyblock.util.Potion1_9;
 
 /**
  * Handles challenge commands and related methods
