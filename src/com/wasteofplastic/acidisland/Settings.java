@@ -68,7 +68,7 @@ public class Settings {
     public final static String SPAWNCOMMAND = "spawn";
     // Admin command
     public static final String ADMINCOMMAND = "asadmin";
-*/
+    */
     public static Set<String> challengeList;
     public static int waiverAmount;
     public static List<String> challengeLevels;

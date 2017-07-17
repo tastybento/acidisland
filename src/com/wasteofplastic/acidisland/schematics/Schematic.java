@@ -313,7 +313,7 @@ public class Schematic {
 
             Map<String, Tag> schematic = schematicTag.getValue();
 
-            Vector origin = null;
+            Vector origin = new Vector(0,0,0);
             try {
                 int originX = getChildTag(schematic, "WEOriginX", IntTag.class).getValue();
                 int originY = getChildTag(schematic, "WEOriginY", IntTag.class).getValue();
@@ -407,10 +407,14 @@ public class Schematic {
                             List<Tag> pos = new ArrayList<Tag>();
                             pos = ((ListTag) entry.getValue()).getValue();
                             //Bukkit.getLogger().info("DEBUG pos: " + pos);
-                            double x = (double)pos.get(0).getValue() - origin.getX();
-                            double y = (double)pos.get(1).getValue() - origin.getY();
-                            double z = (double)pos.get(2).getValue() - origin.getZ();
-                            ent.setLocation(new BlockVector(x,y,z));
+                            if (pos.size() == 3) {                               
+                                double x = (double)pos.get(0).getValue() - origin.getX();
+                                double y = (double)pos.get(1).getValue() - origin.getY();
+                                double z = (double)pos.get(2).getValue() - origin.getZ();
+                                ent.setLocation(new BlockVector(x,y,z));
+                            } else {
+                                ent.setLocation(new BlockVector(0,0,0));
+                            }
                         }
                     } else if (entry.getKey().equals("Motion")) {
                         //Bukkit.getLogger().info("DEBUG Pos fond");
@@ -419,8 +423,12 @@ public class Schematic {
                             List<Tag> pos = new ArrayList<Tag>();
                             pos = ((ListTag) entry.getValue()).getValue();
                             //Bukkit.getLogger().info("DEBUG pos: " + pos);
-                            ent.setMotion(new Vector((double)pos.get(0).getValue(), (double)pos.get(1).getValue()
-                                    ,(double)pos.get(2).getValue()));
+                            if (pos.size() == 3) {
+                                ent.setMotion(new Vector((double)pos.get(0).getValue(), (double)pos.get(1).getValue()
+                                        ,(double)pos.get(2).getValue()));
+                            } else {
+                                ent.setMotion(new Vector(0,0,0));
+                            }
                         }
                     } else if (entry.getKey().equals("Rotation")) {
                         //Bukkit.getLogger().info("DEBUG Pos fond");
@@ -429,8 +437,13 @@ public class Schematic {
                             List<Tag> pos = new ArrayList<Tag>();
                             pos = ((ListTag) entry.getValue()).getValue();
                             //Bukkit.getLogger().info("DEBUG pos: " + pos);
-                            ent.setYaw((float)pos.get(0).getValue());
-                            ent.setPitch((float)pos.get(1).getValue());
+                            if (pos.size() == 2) {
+                                ent.setYaw((float)pos.get(0).getValue());
+                                ent.setPitch((float)pos.get(1).getValue());
+                            } else {
+                                ent.setYaw(0F);
+                                ent.setPitch(0F);
+                            }
                         }
                     } else if (entry.getKey().equals("Color")) {
                         if (entry.getValue() instanceof ByteTag) {
@@ -1161,6 +1174,7 @@ public class Schematic {
                             }
                             // Tile Entities
                             if (tileEntitiesMap.containsKey(new BlockVector(x, y, z))) {
+                                //plugin.getLogger().info("DEBUG: tile entity = " + Material.getMaterial(block.getTypeId()).name());
                                 if (plugin.isOnePointEight()) {
                                     if (block.getTypeId() == Material.STANDING_BANNER.getId()) {
                                         block.setBanner(tileEntitiesMap.get(new BlockVector(x, y, z)));
@@ -1177,9 +1191,21 @@ public class Schematic {
                                     block.setSpawnerType(tileEntitiesMap.get(new BlockVector(x, y, z)));
                                 } else if ((block.getTypeId() == Material.SIGN_POST.getId())) {
                                     block.setSign(tileEntitiesMap.get(new BlockVector(x, y, z)));
-                                } else if (block.getTypeId() == Material.CHEST.getId()) {
+                                } else if (block.getTypeId() == Material.CHEST.getId()
+                                        || block.getTypeId() == Material.TRAPPED_CHEST.getId()
+                                        || block.getTypeId() == Material.FURNACE.getId()
+                                        || block.getTypeId() == Material.BURNING_FURNACE.getId()
+                                        || block.getTypeId() == Material.DISPENSER.getId()
+                                        || block.getTypeId() == Material.HOPPER.getId()
+                                        || block.getTypeId() == Material.DROPPER.getId()
+                                        || block.getTypeId() == Material.STORAGE_MINECART.getId()
+                                        || block.getTypeId() == Material.HOPPER_MINECART.getId()
+                                        || block.getTypeId() == Material.POWERED_MINECART.getId()
+                                        || Material.getMaterial(block.getTypeId()).name().contains("SHULKER_BOX")
+                                        ) {
+                                    //plugin.getLogger().info("DEBUG: Block is inventory holder, id = " + Material.getMaterial(block.getTypeId()));
                                     block.setChest(nms, tileEntitiesMap.get(new BlockVector(x, y, z)));
-                                }
+                                } 
                             }
                             islandBlocks.add(block);
                         }

@@ -135,8 +135,7 @@ adminTp:
   manualWarp: "No safe spot found. Manually warp to somewhere near [location]."
 adminUnregister: 
   keepBlocks: "Removing player from world, but keeping island at [location]"
-  onTeam: "Player is in a team - disband it first."
-ban: 
+  onTeam: "Player is in a team - disband it first." 
 ban: 
   alreadybanned: "§e[name]§c早就列入了黑名单!"
   banned: "§c你被列入§e[name]§c的岛屿的黑名单!"

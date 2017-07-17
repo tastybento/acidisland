@@ -365,11 +365,11 @@ public class TopTen implements Listener{
         if (inventory.getName() == null) {
             return;
         }
-        if (!inventory.getTitle().equals(plugin.myLocale().topTenGuiTitle)) {
-            return;
-        }
         // The player that clicked the item
         Player player = (Player) event.getWhoClicked();
+        if (!inventory.getTitle().equals(plugin.myLocale(player.getUniqueId()).topTenGuiTitle)) {
+            return;
+        }
         event.setCancelled(true);
         player.updateInventory();
         if(event.getCurrentItem() != null && event.getCurrentItem().getType().equals(Material.SKULL_ITEM) && event.getCurrentItem().hasItemMeta()){
