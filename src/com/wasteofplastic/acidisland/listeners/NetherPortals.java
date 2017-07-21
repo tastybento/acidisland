@@ -46,6 +46,7 @@ import com.wasteofplastic.acidisland.SafeSpotTeleport;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.commands.IslandCmd;
+import com.wasteofplastic.acidisland.events.IslandEnterEvent;
 import com.wasteofplastic.acidisland.schematics.Schematic;
 import com.wasteofplastic.acidisland.schematics.Schematic.PasteReason;
 import com.wasteofplastic.acidisland.util.Util;
@@ -182,7 +183,7 @@ public class NetherPortals implements Listener {
                     if (homeWorld.getEnvironment().equals(Environment.NORMAL)) {
                         // Home world is over world
                         event.setTo(ASkyBlock.getNetherWorld().getSpawnLocation());
-                        event.useTravelAgent(true); 
+                        event.useTravelAgent(true);
                     } else {
                         // Home world is nether - going home
                         event.useTravelAgent(false);
@@ -202,9 +203,17 @@ public class NetherPortals implements Listener {
                         Location dest = plugin.getGrid().getSafeHomeLocation(playerUUID,1);
                         if (dest != null) {
                             event.setTo(dest);
+                            // Fire entry event
+                            Island islandTo = plugin.getGrid().getIslandAt(dest);
+                            final IslandEnterEvent event2 = new IslandEnterEvent(event.getPlayer().getUniqueId(), islandTo, dest);
+                            plugin.getServer().getPluginManager().callEvent(event2);
                         } else {
                             event.setCancelled(true);
                             new SafeSpotTeleport(plugin, event.getPlayer(), plugin.getPlayers().getIslandLocation(playerUUID), 1);
+                            // Fire entry event
+                            Island islandTo = plugin.getGrid().getIslandAt(plugin.getPlayers().getIslandLocation(playerUUID));
+                            final IslandEnterEvent event2 = new IslandEnterEvent(event.getPlayer().getUniqueId(), islandTo, plugin.getPlayers().getIslandLocation(playerUUID));
+                            plugin.getServer().getPluginManager().callEvent(event2);
                         }
                     } else {
                         // Home world is nether 
@@ -239,6 +248,10 @@ public class NetherPortals implements Listener {
                                 if (DEBUG)
                                     plugin.getLogger().info("DEBUG: pasting at " + island.getCenter().toVector());
                                 plugin.getIslandCmd().pasteSchematic(nether, netherIsland, event.getPlayer(), PasteReason.PARTNER);
+                                if (nether.isPlayerSpawn()) {
+                                    // Set partner home
+                                    plugin.getPlayers().setHomeLocation(event.getPlayer().getUniqueId(), nether.getPlayerSpawn(netherIsland), -2);
+                                }
                             } else {
                                 plugin.getLogger().severe("Cannot teleport player to nether because there is no nether schematic");
                                 event.setCancelled(true);
@@ -250,24 +263,6 @@ public class NetherPortals implements Listener {
                     if (DEBUG)
                         plugin.getLogger().info("DEBUG: Teleporting to " + event.getFrom().toVector().toLocation(ASkyBlock.getNetherWorld()));
                     event.setCancelled(true);
-                    // Find out if there's a spawn point in the bedrock
-                    // TODO: use different location to store this info
-                    /*
-                    if (netherIsland.getBlock().hasMetadata("playerSpawn")) {
-                        for (MetadataValue meta : netherIsland.getBlock().getMetadata("playerSpawn")) {
-                            if (meta.getOwningPlugin().equals(plugin)) {
-                                Location spawnLoc = Util.getLocationString(meta.asString());
-                                if (spawnLoc != null) {
-                                    plugin.getGrid();
-                                    if (GridManager.isSafeLocation(spawnLoc)) {
-                                        event.getPlayer().teleport(spawnLoc);
-                                        return;
-                                    }
-                                }
-                            }
-                        } 
-                    }
-                    */
                     // Teleport using the new safeSpot teleport
                     new SafeSpotTeleport(plugin, event.getPlayer(), netherIsland);
                     return;

@@ -18,7 +18,9 @@
 package com.wasteofplastic.acidisland;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.ChunkSnapshot;
@@ -76,8 +78,11 @@ public class SafeSpotTeleport {
      * Teleport to a safe spot on an island
 
      * @param plugin
-     * @param entity
-     * @param islandLoc
+     * @param entity that is being teleported
+     * @param islandLoc - the location of the island
+     * @param homeNumber - the home number to set if setHome is true
+     * @param failureMessage - the message to show the player if this cannot be done
+     * @param setHome - if true, the resulting teleport location should become the player's home
      */
     public SafeSpotTeleport(final ASkyBlock plugin, final Entity entity, final Location islandLoc, final int homeNumber, final String failureMessage, final boolean setHome) {
         //this.plugin = plugin;
@@ -114,6 +119,23 @@ public class SafeSpotTeleport {
             }
             final int worldHeight = maxHeight;
             //plugin.getLogger().info("DEBUG:world height = " + worldHeight);
+
+            // Convert any spawn locations 
+            ChunkSnapshot spawnChunk = null;
+            Location spawnLoc = null;
+            if (island.getOwner() != null) {
+                HashMap<Integer,Location> teleport = plugin.getPlayers().getHomeLocations(island.getOwner());
+                for (Entry<Integer, Location> loc : teleport.entrySet()) {
+                    if (loc.getKey() < 0 && loc.getValue().getWorld().equals(islandLoc.getWorld())) {
+                        spawnChunk = loc.getValue().getChunk().getChunkSnapshot();
+                        spawnLoc = loc.getValue();
+                        break;
+                    }
+                }
+            }
+            final ChunkSnapshot spawnChunkFinal = spawnChunk;
+            final Location spawnLocFinal = spawnLoc;
+            
             plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 
                 @SuppressWarnings("deprecation")
@@ -127,12 +149,6 @@ public class SafeSpotTeleport {
                     ChunkSnapshot safeChunk = null;
                     ChunkSnapshot portalChunk = null;
                     boolean safeSpotFound = false;
-                    /*
-		    try {
-			nms = checkVersion();
-		    } catch (Exception e) {
-			e.printStackTrace();
-		    }*/
                     Vector safeSpotInChunk = null;
                     Vector portalPart = null;
                     double distance = 0D;
@@ -142,7 +158,6 @@ public class SafeSpotTeleport {
                             for (z = 0; z < 16; z++) {
                                 // Work down from the entry point up
                                 for (y = Math.min(chunk.getHighestBlockYAt(x, z), worldHeight); y >= 0; y--) {
-                                    //System.out.println("Trying " + (16 * chunk.getX() + x) + " " + y + " " + (16 * chunk.getZ() + z));
                                     // Check for portal - only if this is not a safe home search
                                     if (!setHome && chunk.getBlockTypeId(x, y, z) == Material.PORTAL.getId()) {
                                         if (portalPart == null || (distance > islandLoc.toVector().distanceSquared(new Vector(x,y,z)))) {
@@ -190,7 +205,30 @@ public class SafeSpotTeleport {
                             safeSpotFound = true;
                             safeSpotInChunk = new Vector(x,y,z);
                             safeChunk = portalChunk;
-                            // TODO: Add safe portal spot to island
+                        } else {
+                            // Not safe, so ignore this portal
+                            portalPart = null;
+                        }
+                    }
+                    if (portalPart == null && spawnChunkFinal != null) {
+                        // If no portal or it's not safe, try the spawn point of the schematic
+                        x = spawnLocFinal.getBlockX() - spawnChunkFinal.getX() * 16;
+                        y = spawnLocFinal.getBlockY();
+                        z = spawnLocFinal.getBlockZ() - spawnChunkFinal.getZ() * 16;
+                        if (checkBlock(spawnChunkFinal, x, y, z, worldHeight)) {
+                         // Return to main thread and teleport the player
+                            plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    if (setHome) {
+                                        plugin.getPlayers().setHomeLocation(entity.getUniqueId(), spawnLocFinal, homeNumber);
+                                    }
+                                    Vector velocity = entity.getVelocity();
+                                    entity.teleport(spawnLocFinal);
+                                    entity.setVelocity(velocity);
+                                }});
+                            return;  
                         }
                     }
                     //System.out.print("Seconds = " + ((System.nanoTime() - time) * 0.000000001));
@@ -204,28 +242,6 @@ public class SafeSpotTeleport {
                             public void run() {
                                 Location destination = spot.toLocation(islandLoc.getWorld());
                                 //plugin.getLogger().info("DEBUG: safe spot found = " + destination);
-
-                                // Create a portal
-                                // TODO Add if statement here
-                                //Block b = player.getLocation().getBlock();
-                                //if (b.getType() != Material.PORTAL) {
-                                /*
-				if (world.equals(ASkyBlock.getNetherWorld())) {
-				    for (int x = -1; x < 3; x++) {
-					for (int y = -1; y< 4; y++) {
-					    Location l = new Location(islandLoc.getWorld(), destination.getBlockX() + x, destination.getBlockY() + y, destination.getBlockZ() -1);
-					    if (x == -1 || x == 2 || y == -1 || y == 3) {
-						//nms.setBlockSuperFast(l.getBlock(), Material.OBSIDIAN.getId(), (byte)0, false);
-						//l.getBlock().setType(Material.OBSIDIAN);
-						//plugin.getLogger().info("DEBUG: obsidian at "+ l);
-					    } else {
-						//plugin.getLogger().info("DEBUG: Portal at "+ l);
-						nms.setBlockSuperFast(l.getBlock(), Material.PORTAL.getId(), (byte)0, false);
-						//l.getBlock().setType(Material.PORTAL);
-					    }
-					}
-				    }
-				}*/
                                 if (setHome && entity instanceof Player) {
                                     plugin.getPlayers().setHomeLocation(entity.getUniqueId(), destination, homeNumber);
                                 }
@@ -262,7 +278,10 @@ public class SafeSpotTeleport {
                  */
                 @SuppressWarnings("deprecation")
                 private boolean checkBlock(ChunkSnapshot chunk, int x, int y, int z, int worldHeight) {
+                    //plugin.getLogger().info("DEBUG: chunk = " + chunk.getX() + "," + chunk.getZ());
+                    //plugin.getLogger().info("DEBUG: x,y,z = " + x + "," + y +"," + z);
                     int type = chunk.getBlockTypeId(x, y, z);
+                    //plugin.getLogger().info("DEBUG:block type = " + type);
                     if (type != 0) { // AIR
                         int space1 = chunk.getBlockTypeId(x, Math.min(y + 1, worldHeight), z);
                         int space2 = chunk.getBlockTypeId(x, Math.min(y + 2, worldHeight), z);
@@ -306,7 +325,7 @@ public class SafeSpotTeleport {
                                     break;
                                 default:
                                     // Safe
-                                    // System.out.println("Block is safe " + mat.toString());
+                                    //System.out.println("Block is safe " + mat.toString());
                                     return true;
                                 }
                             }
