@@ -60,6 +60,8 @@ import com.wasteofplastic.acidisland.listeners.LavaCheck;
 import com.wasteofplastic.acidisland.listeners.NetherPortals;
 import com.wasteofplastic.acidisland.listeners.NetherSpawning;
 import com.wasteofplastic.acidisland.listeners.PlayerEvents;
+import com.wasteofplastic.acidisland.listeners.PlayerEvents2;
+import com.wasteofplastic.acidisland.listeners.PlayerEvents3;
 import com.wasteofplastic.acidisland.listeners.WorldEnter;
 import com.wasteofplastic.acidisland.listeners.WorldLoader;
 import com.wasteofplastic.acidisland.panels.BiomesPanel;
@@ -681,6 +683,14 @@ public class ASkyBlock extends JavaPlugin {
         // Player events
         playerEvents = new PlayerEvents(this);
         manager.registerEvents(playerEvents, this);
+        try {
+            Class<?> clazz = Class.forName("org.bukkit.event.entity.EntityPickupItemEvent", false, getClassLoader());
+            if (clazz != null) {
+                manager.registerEvents(new PlayerEvents3(this), this);
+            }
+        } catch (ClassNotFoundException e) {
+            manager.registerEvents(new PlayerEvents2(this), this);
+        }
         // New V1.8 events
         if (onePointEight) {
             manager.registerEvents(new IslandGuard1_8(this), this);

@@ -310,6 +310,7 @@ public class ASLocale {
     public String purgecalculating;
     public String purgenoneFound;
     public String purgethisWillRemove;
+    public String purgeEstimatedRunTime;
     public String purgewarning;
     public String purgetypeConfirm;
     public String purgepurgeCancelled;
@@ -432,6 +433,7 @@ public class ASLocale {
     public String lockUnlocking;
     public String islandHelpLock;
     public String helpColor;
+    public String helpHeader;
     public String lockPlayerLocked;
     public String lockPlayerUnlocked;
     public String lockEnteringSpawn;
@@ -1038,7 +1040,7 @@ public class ASLocale {
         adminHelpHelp = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.help", "Admin Commands:"));
         adminHelpName = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.name", "Set name of player's island"));
         adminHelpResetName = ChatColor.translateAlternateColorCodes('&', locale.getString("adminHelp.resetname", "Reset name of player's island"));
-        islandHelpSelectLanguage = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpSelectlanguage", "Select Language"));
+        islandHelpSelectLanguage = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpSelectLanguage", "Select Language"));
 
         islandhelpAcceptReject = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("island.helpAcceptReject", "accept or reject an invitation."));
@@ -1050,7 +1052,7 @@ public class ASLocale {
                 locale.getString("island.errorLevelNotReady", "Can't use that command right now! Try again in a few seconds."));
         islanderrorInvalidPlayer = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("island.errorInvalidPlayer", "That player is invalid or does not have an island!"));
-        islandislandLevelis = ChatColor.translateAlternateColorCodes('&', locale.getString("island.islandLevelis", "Island level is"));
+        islandislandLevelis = ChatColor.translateAlternateColorCodes('&', locale.getString("island.islandLevelis", "Island level is : [level]"));
         islandrequiredPointsToNextLevel = ChatColor.translateAlternateColorCodes('&', locale.getString("island.requiredPointsToNextLevel", "You need [points] more points to reach level [next]!"));
 
         invitehelp = ChatColor.translateAlternateColorCodes('&',
@@ -1210,6 +1212,7 @@ public class ASLocale {
         purgenoneFound = ChatColor.translateAlternateColorCodes('&', locale.getString("purge.noneFound", "No inactive islands to remove."));
         purgethisWillRemove = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("purge.thisWillRemove", "[number] inactive islands found. Islands with level < [level] will be removed."));
+        purgeEstimatedRunTime = ChatColor.translateAlternateColorCodes('&', locale.getString("purge.estimatedRunTime", "Estimated run time is : [time]."));
         purgewarning = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("purge.warning", "DANGER! Do not run this with players on the server! MAKE BACKUP OF WORLD!"));
         purgetypeConfirm = ChatColor.translateAlternateColorCodes('&',
@@ -1332,9 +1335,9 @@ public class ASLocale {
         coopRemoved = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.removed", "[name] remove your coop status!"));
         coopRemoveSuccess = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.removesuccess", "[name] is no longer a coop player."));
         coopSuccess = ChatColor.translateAlternateColorCodes('&',
-                locale.getString("coop.success", "[name] is now a coop player until they log out or you expel them."));
+                locale.getString("coop.success", "[name] is now a coop player until you log out, uncoop or expel him."));
         coopMadeYouCoop = ChatColor.translateAlternateColorCodes('&',
-                locale.getString("coop.madeyoucoopy", "[name] made you a coop player until you log out or they expel you."));
+                locale.getString("coop.madeyoucoopy", "[name] made you a coop player until he logs out or expels you."));
         coopOnYourTeam = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.onyourteam", "Player is already on your team!"));
         coopNotInCoop = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.notincoop", "[name] is not in your coop!"));
         islandhelpCoop = ChatColor.translateAlternateColorCodes('&',locale.getString("coop.help", "temporarily give a player full access to your island"));
@@ -1350,6 +1353,7 @@ public class ASLocale {
         lockUnlocking = ChatColor.translateAlternateColorCodes('&', locale.getString("lock.unlocking", "Unlocking island"));
         islandHelpLock = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpLock", "Locks island so visitors cannot enter it"));
         helpColor = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpColor", "&e"));
+        helpHeader = ChatColor.translateAlternateColorCodes('&', locale.getString("island.helpHeader", "[plugin] v[version] help:"));
         lockPlayerLocked = ChatColor.translateAlternateColorCodes('&', locale.getString("lock.playerlocked", "[name] locked the island"));
         lockPlayerUnlocked = ChatColor.translateAlternateColorCodes('&', locale.getString("lock.playerunlocked", "[name] unlocked the island"));
         lockEnteringSpawn = ChatColor.translateAlternateColorCodes('&', locale.getString("lock.enteringspawn", "Entering Spawn"));

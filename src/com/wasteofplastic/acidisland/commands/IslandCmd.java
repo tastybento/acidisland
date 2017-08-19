@@ -207,15 +207,18 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         }
         // Set up some basic settings just in case the schematics section is missing
         if (schematics.containsKey("default")) {
-            schematics.get("default").setName("Island");
+            schematics.get("default").setIcon(Material.GRASS);
+            schematics.get("default").setOrder(1);
+            schematics.get("default").setName("The Original");
             schematics.get("default").setDescription("");
             schematics.get("default").setPartnerName("nether");
             schematics.get("default").setBiome(Settings.defaultBiome);
             schematics.get("default").setIcon(Material.GRASS);
             if (Settings.chestItems.length == 0) {
                 schematics.get("default").setUseDefaultChest(false);
+            } else {
+                schematics.get("default").setUseDefaultChest(true);
             }
-            schematics.get("default").setOrder(0);
         }
         if (schematics.containsKey("nether")) {
             schematics.get("nether").setName("NetherBlock Island");
@@ -232,36 +235,12 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 
         // Load the schematics from config.yml
         ConfigurationSection schemSection = plugin.getConfig().getConfigurationSection("schematicsection");
-        if (plugin.getConfig().contains("general.schematics")) {
-            tip();
-            // Load the schematics in this section 
-            int count = 1;
-            for (String perms: plugin.getConfig().getConfigurationSection("general.schematics").getKeys(true)) {
-                // See if the file exists
-                String fileName = plugin.getConfig().getString("general.schematics." + perms);
-                File schem = new File(plugin.getDataFolder(), fileName);
-                if (schem.exists()) {
-                    plugin.getLogger().info("Loading schematic " + fileName + " for permission " + perms);
-                    Schematic schematic;
-                    try {
-                        schematic = new Schematic(plugin, schem);
-                        schematic.setPerm(perms);
-                        schematic.setHeading(perms);
-                        schematic.setName("#" + count++);
-                        if (!schematic.isVisible()) {
-                            plugin.getLogger().info("Schematic " + fileName + " will not be shown on the GUI");  
-                        }
-                        schematics.put(perms, schematic);
-                    } catch (IOException e) {
-                        plugin.getLogger().severe("Could not load schematic " + fileName + " due to error. Skipping...");
-                    }
-                } // Cannot declare a not-found because get keys gets some additional non-wanted strings
-            }
-        } else if (plugin.getConfig().contains("schematicsection")) {
+        if (plugin.getConfig().contains("schematicsection")) {
             Settings.useSchematicPanel = schemSection.getBoolean("useschematicspanel", false);
             Settings.chooseIslandRandomly = schemSection.getBoolean("chooseislandrandomly", false);
+            ConfigurationSection schematicsSection = schemSection.getConfigurationSection("schematics");
             // Section exists, so go through the various sections
-            for (String key : schemSection.getConfigurationSection("schematics").getKeys(false)) {
+            for (String key : schematicsSection.getKeys(false)) {
                 try {
                     Schematic newSchem = null;
                     // Check the file exists
@@ -966,7 +945,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
 
             } else {
                 // Asking for the level of another player
-                Util.sendMessage(asker, ChatColor.GREEN + plugin.myLocale(asker.getUniqueId()).islandislandLevelis + " " + ChatColor.WHITE + plugin.getPlayers().getIslandLevel(targetPlayer));
+                Util.sendMessage(asker, ChatColor.GREEN + plugin.myLocale(asker.getUniqueId()).islandislandLevelis.replace("[level]", String.valueOf(plugin.getPlayers().getIslandLevel(targetPlayer))));
             }
         } else {
             // Console request            
@@ -1359,6 +1338,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     }
                     return true;
                 } else if (split[0].equalsIgnoreCase("about")) {
+                    Util.sendMessage(player, ChatColor.GOLD + "About " + ChatColor.GREEN + plugin.getDescription().getName() + ChatColor.GOLD + " v" + ChatColor.AQUA + plugin.getDescription().getVersion() + ChatColor.GOLD + ":");
                     Util.sendMessage(player, ChatColor.GOLD + "This plugin is free software: you can redistribute");
                     Util.sendMessage(player, ChatColor.GOLD + "it and/or modify it under the terms of the GNU");
                     Util.sendMessage(player, ChatColor.GOLD + "General Public License as published by the Free");
@@ -1373,7 +1353,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     Util.sendMessage(player, ChatColor.GOLD + "General Public License along with this plugin.");
                     Util.sendMessage(player, ChatColor.GOLD + "If not, see <http://www.gnu.org/licenses/>.");
                     Util.sendMessage(player, ChatColor.GOLD + "Souce code is available on GitHub.");
-                    Util.sendMessage(player, ChatColor.GOLD + "(c) 2014 - 2015 by tastybento");
+                    Util.sendMessage(player, ChatColor.GOLD + "(c) 2014 - 2017 by tastybento, Poslovitch");
                     return true;
                     // Spawn enderman
                     // Enderman enderman = (Enderman)
@@ -1578,7 +1558,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     return true;
                 }
             } else if (split[0].equalsIgnoreCase("help")) {
-                Util.sendMessage(player, ChatColor.GREEN + plugin.getName() + " " + plugin.getDescription().getVersion() + " help:");
+                Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + plugin.myLocale(player.getUniqueId()).helpHeader.replace("[plugin]", plugin.getDescription().getName()).replace("[version]", plugin.getDescription().getVersion()));
                 if (Settings.useControlPanel) {
                     Util.sendMessage(player, plugin.myLocale(player.getUniqueId()).helpColor + "/" + label + ": " + ChatColor.WHITE + plugin.myLocale(player.getUniqueId()).islandhelpControlPanel);
                 } else {
@@ -2450,7 +2430,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                     return true;
                                 }
                                 // Player cannot invite themselves
-                                if (player.getName().equalsIgnoreCase(split[1])) {
+                                if (player.getUniqueId().equals(invitedPlayer.getUniqueId())) {
                                     Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).inviteerrorYouCannotInviteYourself);
                                     return true;
                                 }
@@ -2509,7 +2489,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                                 // then this invite will overwrite the
                                                 // previous invite!
                                                 inviteList.put(invitedPlayerUUID, player.getUniqueId());
-                                                Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).inviteinviteSentTo.replace("[name]", split[1]));
+                                                Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).inviteinviteSentTo.replace("[name]", invitedPlayer.getName()));
                                                 // Send message to online player
                                                 Util.sendMessage(Bukkit.getPlayer(invitedPlayerUUID), plugin.myLocale(invitedPlayerUUID).invitenameHasInvitedYou.replace("[name]", player.getName()));
                                                 Util.sendMessage(Bukkit.getPlayer(invitedPlayerUUID),
@@ -2538,7 +2518,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                         }
                                         // Place the player and invitee on the invite list
                                         inviteList.put(invitedPlayerUUID, player.getUniqueId());
-                                        Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).inviteinviteSentTo.replace("[name]", split[1]));
+                                        Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).inviteinviteSentTo.replace("[name]", invitedPlayer.getName()));
                                         Util.sendMessage(Bukkit.getPlayer(invitedPlayerUUID), plugin.myLocale(invitedPlayerUUID).invitenameHasInvitedYou.replace("[name]", player.getName()));
                                         Util.sendMessage(Bukkit.getPlayer(invitedPlayerUUID),
                                                 ChatColor.WHITE + "/" + label + " [accept/reject]" + ChatColor.YELLOW + " " + plugin.myLocale(invitedPlayerUUID).invitetoAcceptOrReject);

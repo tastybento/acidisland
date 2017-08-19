@@ -40,6 +40,7 @@ import com.wasteofplastic.acidisland.util.VaultHelper;
 public class EntityLimits implements Listener {
     private static final boolean DEBUG = false;
     private static final boolean DEBUG2 = false;
+    private static final boolean DEBUG3 = false;
     private ASkyBlock plugin;
 
     /**
@@ -222,7 +223,7 @@ public class EntityLimits implements Listener {
     }
 
     /**
-     * Prevents mobs spawning at spawn or in an island
+     * Prevents mobs spawning natually at spawn or in an island
      *
      * @param e
      */
@@ -240,20 +241,17 @@ public class EntityLimits implements Listener {
             return;
         }
         // Deal with natural spawning
-        if (e.getEntity() instanceof Monster || e.getEntity() instanceof Slime) {
-            if (!actionAllowed(e.getLocation(), SettingsFlag.MONSTER_SPAWN)) {
-                if (!e.getSpawnReason().equals(SpawnReason.SPAWNER_EGG) || !actionAllowed(e.getLocation(), SettingsFlag.SPAWN_EGGS)) {
+        if (e.getSpawnReason().equals(SpawnReason.NATURAL)) {
+            if (e.getEntity() instanceof Monster || e.getEntity() instanceof Slime) {
+                if (!actionAllowed(e.getLocation(), SettingsFlag.MONSTER_SPAWN)) {                
                     if (DEBUG2)
                         plugin.getLogger().info("Natural monster spawn cancelled.");
                     // Mobs not allowed to spawn
                     e.setCancelled(true);
                     return;
                 }
-            }
-        }
-        if (e.getEntity() instanceof Animals) {
-            if (!actionAllowed(e.getLocation(), SettingsFlag.MOB_SPAWN)) {
-                if (!e.getSpawnReason().equals(SpawnReason.SPAWNER_EGG) || !actionAllowed(e.getLocation(), SettingsFlag.SPAWN_EGGS)) {
+            } else if (e.getEntity() instanceof Animals) {
+                if (!actionAllowed(e.getLocation(), SettingsFlag.MOB_SPAWN)) {
                     // Animals are not allowed to spawn
                     if (DEBUG2)
                         plugin.getLogger().info("Natural animal spawn cancelled.");
@@ -263,6 +261,7 @@ public class EntityLimits implements Listener {
             }
         }
     }
+
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerBlockPlace(final BlockMultiPlaceEvent e) {
@@ -275,9 +274,8 @@ public class EntityLimits implements Listener {
             }
             plugin.getLogger().info("DEBUG: Block is " + e.getBlock().toString());
         }
-        if (Settings.allowAutoActivator && e.getPlayer().getName().equals("[CoFH]")) {
-            return;
-        }
+        if (Settings.allowedFakePlayers.contains(e.getPlayer().getName())) return;
+        
         // plugin.getLogger().info(e.getEventName());
         if (IslandGuard.inWorld(e.getPlayer())) {
             // This permission bypasses protection
@@ -340,9 +338,9 @@ public class EntityLimits implements Listener {
             }
             plugin.getLogger().info("DEBUG: Block is " + e.getBlock().toString());
         }
-        if (Settings.allowAutoActivator && e.getPlayer().getName().equals("[CoFH]")) {
-            return;
-        }
+        
+        if (Settings.allowedFakePlayers.contains(e.getPlayer().getName())) return;
+        
         // plugin.getLogger().info(e.getEventName());
         if (IslandGuard.inWorld(e.getPlayer())) {
             // This permission bypasses protection
@@ -398,9 +396,9 @@ public class EntityLimits implements Listener {
             plugin.getLogger().info("DEBUG: block placed " + e.getBlock().getType());
             plugin.getLogger().info("DEBUG: entity " + e.getEntity().getType());
         }
-        if (Settings.allowAutoActivator && e.getPlayer().getName().equals("[CoFH]")) {
-            return;
-        }
+        
+        if (Settings.allowedFakePlayers.contains(e.getPlayer().getName())) return;
+        
         // plugin.getLogger().info(e.getEventName());
         if (IslandGuard.inWorld(e.getPlayer())) {
             // This permission bypasses protection
@@ -473,14 +471,14 @@ public class EntityLimits implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onVillagerSpawn(final CreatureSpawnEvent e) {
-        if (DEBUG2) {
-            plugin.getLogger().info("Villager spawn event! " + e.getEventName());
-            plugin.getLogger().info(e.getSpawnReason().toString());
-            plugin.getLogger().info(e.getEntityType().toString());
-        }
         // If not an villager
         if (!(e.getEntity() instanceof Villager)) {
             return;
+        }
+        if (DEBUG3) {
+            plugin.getLogger().info("Villager spawn event! " + e.getEventName());
+            plugin.getLogger().info("Reason:" + e.getSpawnReason().toString());
+            plugin.getLogger().info("Entity:" + e.getEntityType().toString());
         }
         // Only cover overworld
         if (!e.getEntity().getWorld().equals(ASkyBlock.getIslandWorld())) {
