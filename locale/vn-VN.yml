@@ -3,7 +3,6 @@
 # the one at http://yaml-online-parser.appspot.com                                        #
 ###########################################################################################
 #Locale Vietsubs by Locale
-#IP : SV.MINE95.NET
  
 ---
 acidBottle: "Acid Bottle"
@@ -239,7 +238,7 @@ invite:
   youHaveJoinedAnIsland: "Bạn đã tham gia một hòn đảo! sử dụng /[label] team để xem các thành viên khác."
 island:
   cannotTeleport: "Bạn không thể dịch chuyển khi rơi!"
-  donate: ""
+  donate: "Chào mừng đến AcidIsland by tastybento"
   donatecolor: "aqua"
   errorCouldNotCreateIsland: "Không thể tạo Đảo của bạn. Hãy liên hệ với người điều hành máy chủ."
   errorInvalidPlayer: "player đó là không hợp lệ hoặc không có một hòn đảo!"
@@ -268,7 +267,7 @@ island:
   helpWarp: "Warp đến <player> từ bảng welcome."
   helpWarps: "Xem danh sách welcome"
   islandDeletedLifeboats: "Đảo xóa! Đi đến các xuồng cứu sinh!"
-  islandLevelis: "Island Level"
+  islandLevelis: "Island Level : [level]"
   new: "Tạo một hòn đảo mới cho bạn..."
   resetConfirm: "Sử dụng /[label] confirm trong [seconds] giây để xóa đảo và reset!"
   resetMustRemovePlayers: "Bạn phải kick tất cả player từ hòn đảo của mình trước khi bạn có thể khởi động lại nó (/[label] kick <player>). Xem danh sách các player hiện một phần của hòn đảo của bạn bằng cách sử /[label] team."
@@ -278,7 +277,7 @@ island:
   resetTo: "giới hạn reset xóa"
   resetWait: "Ybạn phải đợi [time] giây trước khi bạn có thể làm điều đó một lần nữa."
   resetYouHave: "you have [number] reset lại."
-  subtitle: "by MINE95"
+  subtitle: "by tastybento"
   subtitlecolor: "blue"
   teleport: "Dịch chuyển bạn đến hòn đảo của bạn. (/[label] help để xem thông tin)"
   title: "AcidIsland"
@@ -453,10 +452,9 @@ teamchat:
   statusOn: "Team chat is on"
 topTen:
   errorExcluded: "FYI: You are excluded from the top ten as you do not have [perm]"
-  guiHeading: "&E&L<!> Island: &6&N[name]&7 (#[rank])"
-  guiTitle: "Top 10 Islands"
   errorNotReady: "Danh sách top 10 không được tạo ra chưa!"
   guiHeading: "&E&L<!> Island: &6&N[name]&7 (#[rank])"
+  guiTitle: "Top 10 Islands"
   header: "Đây là Top 10 hòn đảo:"
 warps:
   deactivate: "Việc tắt dấu cũ!"
@@ -479,4 +477,4 @@ warps:
   warpToPlayersSign: "Warp đến đảo <player>"
   warpsAvailable: "Các warps sau đây có sẵn"
   welcomeLine: "[WELCOME]"
-needRelog: "You need to logout and login again to see the changes."
+needRelog: "You need to relog in order to see the changes."

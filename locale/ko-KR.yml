@@ -1,5 +1,5 @@
 ###########################################################
-# 이것은 YML 파일입니다. 수정할 때 조심하세요. 수정 후에 문법 확인을 확인          #
+# 이것은 YML 파일입니다. 수정할 때 조심하세요. 수정 후에 문법 확인을 확인 #
 # 하려면 다음 링크로 가세요: http://yaml-online-parser.appspot.com #
 ###########################################################
  
@@ -173,7 +173,7 @@ challenges:
   erroryouaremissing: "당신은 손실되었습니다"
   expReward: "경험치 보상"
   firstTimeRewards: "첫번째 보상(들)"
-  guititle: "산성 섬 도전과제"
+  guititle: "스카이블록 도전과제"
   help1: "/c <도전과제> 을 입력해 특정 도전 과제 정보를 봅니다."
   help2: "/c complete <도전과제> 을 입력해 도전과제 완료를 시도합니다."
   incomplete: 미완료
@@ -271,7 +271,7 @@ island:
   blockValue: "[name] placed here may be worth [value]"
   blockWorthless: "[name] is worthless"
   cannotTeleport: "낙하 중에 텔레포트할 수 없습니다!"
-  donate: "tastybento 의 A SkyBlock 에 오신것을 환영합니다"
+  donate: "tastybento 의 AcidIsland 에 오신것을 환영합니다"
   donatecolor: aqua
   errorCouldNotCreateIsland: "섬을 만들 수 없었습니다. 서버 관리자에게 문의해주세요."
   errorInvalidPlayer: "그 유저는 유효하지 않거나 섬을 가지고 있지 않습니다!"
@@ -304,7 +304,7 @@ island:
   helpWarp: "<플레이어>의 환영 표지판으로 순간이동하기."
   helpWarps: "사용가능한 모든 환영 표지판 워프 목록을 보기."
   islandDeletedLifeboats: "섬이 제거되었습니다! 생명의 보트를 향해서..!"
-  islandLevelis: "섬 레벨:"
+  islandLevelis: "섬 레벨: [level]"
   new: "새로운 섬을 생성하는 중입니다..."
   requiredPointsToNextLevel: "You need [points] more points to reach level [next]!"
   resetConfirm: "/[label] confirm 을 [seconds] 초 안에 입력해 당신의 섬을 초기화할 수 있습니다!"
@@ -319,7 +319,7 @@ island:
   subtitle: "by tastybento"
   subtitlecolor: blue
   teleport: "당신의 섬으로 순간이동 중입니다. (섬 도움말: /[label] help)"
-  title: "A SkyBlock"
+  title: "AcidIsland"
   titlecolor: gold
   unlimited: Unlimited
   url: ""
@@ -453,14 +453,14 @@ purge:
   calculating: "[time] 일 이상 사용되지 않은 섬들을 계산 중입니다."
   countingUnowned: "주인없는 섬의 갯수와 유저 데이터 파일을 확인중입니다. 시간이 걸릴 수 있습니다..."
   finished: "사용되지 않은 섬들의 초기화가 완료되었습니다."
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   noneFound: "사용되지 않은 섬이 없어 제거할 수 없었습니다."
   nowWaiting: "이제 기다리는 중..."
-  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: "섬이 초기화로부터 보호되었습니다"
   purgeCancelled: "초기화가 취소됨."
   removingAt: "[location] 에 있는 섬을 제거 중"
   removingName: "초기화: [name] 의 섬을 초기화 중"
-  skyblockFound: "현재 [number] 개의 주인없는 섬이 있습니다. '/acid purge unowned confirm' 을 20초 내에 입력하면 제거됩니다."
+  skyblockFound: "현재 [number] 개의 주인없는 섬이 있습니다. '/asadmin purge unowned confirm' 을 20초 내에 입력하면 제거됩니다."
   stillChecking: "아직 유저 데이터 파일을 확인 중..."
   thisWillRemove: "사용되지 않은 섬이 [number] 개 발견되었습니다. 레벨 [level] 이하의 섬은 제거됩니다."
   typeConfirm: "/[label] confirm 을 10초 내에 입력하면 처리됩니다."
@@ -540,4 +540,4 @@ warps:
   warpToPlayersSign: "<player> 의 환영 표지판으로 순간이동합니다."
   warpsAvailable: "다음 워프들은 사용가능합니다"
   welcomeLine: "[WELCOME]"
-needRelog: "You need to logout and login again to see the changes."
+needRelog: "You need to relog in order to see the changes."

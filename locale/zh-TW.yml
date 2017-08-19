@@ -304,7 +304,7 @@ island:
   helpWarp: "&e傳送到玩家的傳送點."
   helpWarps: "&b列出所有可用的傳送點."
   islandDeletedLifeboats: "&c島嶼已&4&l刪除!"
-  islandLevelis: "&6島嶼等級為&b&l"
+  islandLevelis: "&6島嶼等級為&b&l : [level]"
   new: "&b&l正在為你創建一個新的島嶼..."
   requiredPointsToNextLevel: "You need [points] more points to reach level [next]!"
   resetConfirm: "請在&e10&c秒內輸入&e/[label] confirm &c來確認你的操作,然後重新開始!"
@@ -452,15 +452,15 @@ purge:
   alreadyRunning: "清除已在運行中, 請稍後至它完成!"
   calculating: "計算島嶼閒置時間超過 [time] 天者"
   countingUnowned: "Counting unowned islands and checking player files. This could take some time..."
+  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   finished: 成功清除了閒置島嶼
   noneFound: 沒有找到閒置的島嶼
   nowWaiting: "Now waiting..."
-  maxPurge: "Max purge is [number] islands. Run purge again afterwards to purge more."
   preventPurge: "Island is protected from purging"
   purgeCancelled: 清除取消
   removingAt: "Removing island at location [location]"
   removingName: "閒置島嶼清除: 移除了 [name] 的島嶼"
-  skyblockFound: "There are [number] unowned islands. Do '/acid purge unowned confirm' to delete them within 20 seconds."
+  skyblockFound: "There are [number] unowned islands. Do '/asadmin purge unowned confirm' to delete them within 20 seconds."
   stillChecking: "Still checking player files..."
   thisWillRemove: "這將會移除 [number] 座島嶼!"
   typeConfirm: "請在10秒內輸入 /[label] confirm 來確認"
@@ -540,4 +540,4 @@ warps:
   warpToPlayersSign: "傳送到玩家: &b<player>&e的島嶼傳送點."
   warpsAvailable: 以下的傳送點可用
   welcomeLine: "[WELCOME]"
-needRelog: "You need to logout and login again to see the changes."
+needRelog: "You need to relog in order to see the changes."
