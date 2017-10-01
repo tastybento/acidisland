@@ -167,6 +167,10 @@ public class WarpPanel implements Listener {
         ItemMeta meta = playerSkull.getItemMeta();
         //get the sign info
         Location signLocation = plugin.getWarpSignsListener().getWarp(playerUUID);
+        if (signLocation == null) {
+            plugin.getWarpSignsListener().removeWarp(playerUUID);
+            return playerSkull;
+        }            
         //plugin.getLogger().info("DEBUG: block type = " + signLocation.getBlock().getType());
         // Get the sign info if it exists
         if (signLocation.getBlock().getType().equals(Material.SIGN_POST) || signLocation.getBlock().getType().equals(Material.WALL_SIGN)) {
@@ -261,7 +265,7 @@ public class WarpPanel implements Listener {
             return;
         }
         // The player that clicked the item
-        Player player = (Player) event.getWhoClicked();
+        final Player player = (Player) event.getWhoClicked();
         String title = inventory.getTitle();
         if (!inventory.getTitle().startsWith(plugin.myLocale(player.getUniqueId()).warpsTitle + " #")) {
             return;
@@ -299,14 +303,14 @@ public class WarpPanel implements Listener {
             if (command != null) {
                 if (command.equalsIgnoreCase(ChatColor.stripColor(plugin.myLocale().warpsNext))) {
                     player.closeInventory();
-                    player.performCommand(Settings.ISLANDCOMMAND + " warps " + (panelNumber+1));
+                    Util.runCommand(player, Settings.ISLANDCOMMAND + " warps " + (panelNumber+1));
                 } else if (command.equalsIgnoreCase(ChatColor.stripColor(plugin.myLocale().warpsPrevious))) {
                     player.closeInventory();
-                    player.performCommand(Settings.ISLANDCOMMAND + " warps " + (panelNumber-1));
+                    Util.runCommand(player, Settings.ISLANDCOMMAND + " warps " + (panelNumber-1));
                 } else {
                     player.closeInventory();
                     Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).warpswarpToPlayersSign.replace("<player>", command));
-                    player.performCommand(Settings.ISLANDCOMMAND + " warp " + command);
+                    Util.runCommand(player, Settings.ISLANDCOMMAND + " warp " + command);
                 }
             }
         }
