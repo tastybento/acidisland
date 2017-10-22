@@ -54,6 +54,7 @@ import com.wasteofplastic.acidisland.util.VaultHelper;
 
 public class NetherPortals implements Listener {
     private final ASkyBlock plugin;
+    private boolean DEBUG2;
     private final static boolean DEBUG = false;
 
     public NetherPortals(ASkyBlock plugin) {
@@ -72,9 +73,13 @@ public class NetherPortals implements Listener {
             plugin.getLogger().info("DEBUG: nether portal entity " + event.getFrom().getBlock().getType());
         // If the nether is disabled then quit immediately
         if (!Settings.createNether || ASkyBlock.getNetherWorld() == null) {
+            if (DEBUG)
+                plugin.getLogger().info("DEBUG: Disabled nether: Settings create nether = " + Settings.createNether + " " + (ASkyBlock.getNetherWorld() == null ? "Nether world is null": "Nether world is not null"));
             return;
         }
         if (event.getEntity() == null) {
+            if (DEBUG)
+                plugin.getLogger().info("DEBUG: entity is null");
             return;
         }
         if (event.getFrom() != null && event.getFrom().getBlock().getType().equals(Material.ENDER_PORTAL)) {
@@ -96,10 +101,14 @@ public class NetherPortals implements Listener {
         String currentWorld = currentLocation.getWorld().getName();
         // Only operate if this is Island territory
         if (!currentWorld.equalsIgnoreCase(Settings.worldName) && !currentWorld.equalsIgnoreCase(Settings.worldName + "_nether")) {
+            if (DEBUG)
+                plugin.getLogger().info("DEBUG: not an island world");
             return;
         }
         // No entities may pass with the old nether
         if (!Settings.newNether) {
+            if (DEBUG)
+                plugin.getLogger().info("DEBUG: no entities may pass with old nether");
             event.setCancelled(true);
             return;
         }
@@ -121,16 +130,20 @@ public class NetherPortals implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onPlayerPortal(PlayerPortalEvent event) {
         if (DEBUG)
-            plugin.getLogger().info("Player portal event - reason =" + event.getCause());
+            plugin.getLogger().info("DEBUG: Player portal event - reason = " + event.getCause());
         UUID playerUUID = event.getPlayer().getUniqueId();
         // If the nether is disabled then quit immediately
         if (!Settings.createNether || ASkyBlock.getNetherWorld() == null) {
+            if (DEBUG)
+                plugin.getLogger().info("DEBUG: Disabled nether: Settings create nether = " + Settings.createNether + " " + (ASkyBlock.getNetherWorld() == null ? "Nether world is null": "Nether world is not null"));
             return;
         }
         Location currentLocation = event.getFrom().clone();
         String currentWorld = currentLocation.getWorld().getName();
         if (!currentWorld.equalsIgnoreCase(Settings.worldName) && !currentWorld.equalsIgnoreCase(Settings.worldName + "_nether")
                 && !currentWorld.equalsIgnoreCase(Settings.worldName + "_the_end")) {
+            if (DEBUG)
+                plugin.getLogger().info("DEBUG: not island world");
             return;
         }
         // Check if player has permission
@@ -138,10 +151,25 @@ public class NetherPortals implements Listener {
         if ((island == null && !Settings.defaultWorldSettings.get(SettingsFlag.PORTAL)) 
                 || (island != null && !(island.getIgsFlag(SettingsFlag.PORTAL) || island.getMembers().contains(event.getPlayer().getUniqueId())))) {
             // Portals use is not allowed
+            if (DEBUG)
+                plugin.getLogger().info("DEBUG: portal use not allowed");
             if (!event.getPlayer().isOp() && !VaultHelper.checkPerm(event.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect")) {
                 Util.sendMessage(event.getPlayer(), ChatColor.RED + plugin.myLocale(event.getPlayer().getUniqueId()).islandProtected);
                 event.setCancelled(true);
                 return;
+            }
+        }
+        if (DEBUG) {
+            plugin.getLogger().info("DEBUG: portal use allowed");
+            if (island != null) {
+                plugin.getLogger().info("DEBUG: island is not null, portal flag is " + island.getIgsFlag(SettingsFlag.PORTAL));
+                plugin.getLogger().info("DEBUG: player is a member? " + island.getMembers().contains(event.getPlayer().getUniqueId()));
+                plugin.getLogger().info("DEBUG: player is op? " + event.getPlayer().isOp());
+                plugin.getLogger().info("DEBUG: player has bypass perm? " + VaultHelper.checkPerm(event.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect"));
+            } else {
+                plugin.getLogger().info("DEBUG: island is null, default portal flag is " + Settings.defaultWorldSettings.get(SettingsFlag.PORTAL));
+                plugin.getLogger().info("DEBUG: player is op? " + event.getPlayer().isOp());
+                plugin.getLogger().info("DEBUG: player has bypass perm? " + VaultHelper.checkPerm(event.getPlayer(), Settings.PERMPREFIX + "mod.bypassprotect"));
             }
         }
         // Determine what portal it is
@@ -302,7 +330,7 @@ public class NetherPortals implements Listener {
      */
     @EventHandler(priority = EventPriority.LOW)
     public void onBlockBreak(final BlockBreakEvent e) {
-        if (DEBUG)
+        if (DEBUG2)
             plugin.getLogger().info("DEBUG: " + e.getEventName());
         // plugin.getLogger().info("Block break");
         if ((e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName + "_nether") && !Settings.newNether)
@@ -327,7 +355,7 @@ public class NetherPortals implements Listener {
      */
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerBlockPlace(final BlockPlaceEvent e) {
-        if (DEBUG)
+        if (DEBUG2)
             plugin.getLogger().info("DEBUG: " + e.getEventName());
         if (!Settings.newNether) {
             if (e.getPlayer().getWorld().getName().equalsIgnoreCase(Settings.worldName + "_nether")

@@ -1916,6 +1916,12 @@ public class IslandGuard implements Listener {
         Island island = plugin.getGrid().getProtectedIslandAt(e.getCaught().getLocation());
         // PVP check
         if (e.getCaught() instanceof Player) {
+            // Check if this is the player who is holding the rod
+            if (e.getCaught().equals(e.getPlayer())) {
+                if (DEBUG)
+                    plugin.getLogger().info("DEBUG: player cught themselves!");
+                return;
+            }
             if (island == null 
                     && (e.getCaught().getWorld().getEnvironment().equals(Environment.NORMAL) 
                             && !Settings.defaultWorldSettings.get(SettingsFlag.PVP))
@@ -2561,7 +2567,7 @@ public class IslandGuard implements Listener {
                 // Monsters being hurt
                 if (entity instanceof Monster || entity instanceof Slime || entity instanceof Squid) {
                     // Normal island check
-                    if (island != null && island.getMembers().contains(attacker)) {
+                    if (island != null && island.getMembers().contains(attacker.getUniqueId())) {
                         // Members always allowed
                         continue;
                     }
@@ -2577,7 +2583,7 @@ public class IslandGuard implements Listener {
                 // Mobs being hurt
                 if (entity instanceof Animals || entity instanceof IronGolem || entity instanceof Snowman
                         || entity instanceof Villager) {
-                    if (island != null && (island.getIgsFlag(SettingsFlag.HURT_MOBS) || island.getMembers().contains(attacker))) {
+                    if (island != null && (island.getIgsFlag(SettingsFlag.HURT_MOBS) || island.getMembers().contains(attacker.getUniqueId()))) {
                         continue;
                     }
                     if (DEBUG)

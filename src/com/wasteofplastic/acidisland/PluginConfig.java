@@ -135,6 +135,10 @@ public class PluginConfig {
         if (Settings.inviteWait < 0) {
             Settings.inviteWait = 0;
         }
+        // Invite timeout before accept/reject timesout
+        Settings.inviteTimeout = plugin.getConfig().getInt("island.invitetimeout", 60);
+        Settings.inviteTimeout *= 20; // Convert to ticks
+        
         // Max team size
         Settings.maxTeamSize = plugin.getConfig().getInt("island.maxteamsize", 4);
         // Deprecated settings - use permission askyblock.team.maxsize.<number> instead
@@ -824,7 +828,7 @@ public class PluginConfig {
             try {
                 SettingsFlag flag = SettingsFlag.valueOf(setting.toUpperCase());
                 // Only items in the config.yml can be per island customized
-                Settings.visitorSettings.put(flag, Settings.defaultIslandSettings.get(flag));
+                Settings.visitorSettings.put(flag, protectionIsland.getBoolean(setting));
                 //plugin.getLogger().info("DEBUG: visitor flag added " + flag);
                 Settings.defaultIslandSettings.put(flag, Settings.visitorSettings.get(flag));
             } catch (Exception e) {
