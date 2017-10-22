@@ -962,6 +962,8 @@ public class AdminCmd implements CommandExecutor, TabCompleter {
                 return true;
             } else
                 if (split[0].equalsIgnoreCase("settingsreset")) {
+                    plugin.reloadConfig();
+                    PluginConfig.loadPluginConfig(plugin);
                     if (split[1].equalsIgnoreCase("all")) {
                         Util.sendMessage(sender, ChatColor.GREEN + plugin.myLocale().settingsResetInProgress);
                         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
