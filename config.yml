@@ -28,8 +28,8 @@ island:
 
    # Default protection range (even number). Min = 0, Recommended = 100
    # Larger values will take longer to calculate the island level
-   # Admins can change protection sizes for players individually using /asadmin setrange
-   # or set this permission: askyblock.island.range.<number>
+   # Admins can change protection sizes for players individually using /acid setrange
+   # or set this permission: acidisland.island.range.<number>
    # For optimal performance, keep protection range at leat 16 blocks less than distance.
    protectionRange: 100
 
@@ -71,7 +71,7 @@ island:
    invitetimeout: 60
 
    # Default max team size
-   # Use this permission to set for specific user groups: askyblock.team.maxsize.<number> 
+   # Use this permission to set for specific user groups: acidisland.team.maxsize.<number> 
    # Permission size cannot be less than the default. 
    maxteamsize: 4
    
@@ -123,14 +123,14 @@ island:
    - "&aD&6a&di&6s&9y"
    
    # Island naming
-   # Only players with the askyblock.island.name permission can name their island
+   # Only players with the acidisland.island.name permission can name their island
    # It is displayed in the top ten and enter and exit announcements
    # It replaces the owner's name. Players can use & for color coding.
    # These set the minimum and maximum size of a name. 
    minnamelength: 0
    maxnamelength: 20
       
-   # Players with askyblock.islandfly permission can fly on their island. This setting is
+   # Players with acidisland.islandfly permission can fly on their island. This setting is
    # how many seconds the player keeps fly mode while flying outside his island before it
    # is removed (and they fall).
    # Negative value will be considered as 0.
@@ -289,7 +289,7 @@ general:
    # 1.11+ only
    - CRAMMING
 
-   # Acid Section - for AcidIsland, but can be used in ASkyBlock as well.
+   # Acid Section
    #
    # Acid damage to player per second by being in acid if they have no armor on.
    # A fully health player has 20 health points. Players will regen some health
@@ -486,8 +486,8 @@ general:
    # Reset Ender Chest - if true, the player's Ender Chest will be cleared when they
    # start or restart their island. Default is false.
    # NOTE: Ender Chests span worlds, so it will clear ALL chests. In general,
-   # Enderchests should not be allowed in ASkyblock unless you only run the ASkyblock
-   # world. Ender Chest crafting and use is governed by the askyblock.craft.enderchest
+   # Enderchests should not be allowed in AcidIsland unless you only run the AcidIsland
+   # world. Ender Chest crafting and use is governed by the acidisland.craft.enderchest
    # permission.
    resetenderchest: false
 
@@ -514,7 +514,7 @@ general:
    
    # Default maximum number of homes a player can have. Min = 1
    # Accessed via sethome <number> or go <number>
-   # Use this permission to set for specific user groups: askyblock.island.maxhomes.<number>  
+   # Use this permission to set for specific user groups: acidisland.island.maxhomes.<number>  
    maxhomes: 1
 
    # Make island if player teleports to the island world and does not have one
@@ -593,7 +593,7 @@ general:
    # Island members wont be able to coop other players.
    onlyleadercancoop: false
       
-   # Below you can list all account names that ASkyBlock will ignore for some protection.
+   # Below you can list all account names that AcidIsland will ignore for some protection.
    # Configure it at your own risk!!
    # This option is mainly for compatibility with mods.
    fakeplayers:
@@ -671,7 +671,7 @@ protection:
    # VISITOR_ITEM_DROP, VISITOR_ITEM_PICKUP
    #
    # Players can be given the ability to change settings in the GUI with permissions
-   # e.g. askyblock.settings.PVP or all settings with askyblock.settings.*
+   # e.g. acidisland.settings.PVP or all settings with acidisland.settings.*
    # Permissions are not case sensitive.
    #
    # -- World defaults --
