@@ -101,6 +101,7 @@ public class JoinLeaveEvents implements Listener {
 
         if (players == null) {
             plugin.getLogger().severe("players is NULL");
+            return;
         }
 
         // If this player is not an island player just skip all this
@@ -279,7 +280,7 @@ public class JoinLeaveEvents implements Listener {
         if (Settings.loginLevel) {
             if (DEBUG)
                 plugin.getLogger().info("DEBUG: Run level calc");
-            new LevelCalcByChunk(plugin, playerUUID, player, false);
+            new LevelCalcByChunk(plugin, plugin.getGrid().getIsland(playerUUID), playerUUID, player, false);
         }
         // Reset resets if the admin changes it to or from unlimited
         if (Settings.resetLimit < players.getResetsLeft(playerUUID)  || (Settings.resetLimit >= 0 && players.getResetsLeft(playerUUID) < 0)) {
@@ -392,12 +393,15 @@ public class JoinLeaveEvents implements Listener {
     public String getLanguage(Player p){
         Object ep;
         try {
-            ep = getMethod("getHandle", p.getClass()).invoke(p, (Object[]) null);
-            Field f = ep.getClass().getDeclaredField("locale");
-            f.setAccessible(true);
-            String language = (String) f.get(ep);
-            language.replace('_', '-');
-            return language;
+            Method method = getMethod("getHandle", p.getClass());
+            if (method != null) {
+                ep = method.invoke(p, (Object[]) null);
+                Field f = ep.getClass().getDeclaredField("locale");
+                f.setAccessible(true);
+                String language = (String) f.get(ep);
+                language = language.replace('_', '-');
+                return language;
+            }
         } catch (Exception e) {
             //nothing
         }

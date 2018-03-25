@@ -40,7 +40,7 @@ import com.wasteofplastic.acidisland.util.Util;
  * 
  */
 public class DeleteIslandChunk {
-    private Set<Pair> chunksToClear = new HashSet<Pair>();
+    private Set<Pair<Integer, Integer>> chunksToClear = new HashSet<Pair<Integer, Integer>>();
     //private HashMap<Location, Material> blocksToClear = new HashMap<Location,Material>();
     private NMSAbstraction nms = null;
 
@@ -115,7 +115,7 @@ public class DeleteIslandChunk {
                 } else {
                     // Add to clear up list if requested
                     if (cleanUpBlocks) {
-                        chunksToClear.add(new Pair(x,z));
+                        chunksToClear.add(new Pair<Integer, Integer>(x,z));
                     }
                 }
             }
@@ -131,29 +131,29 @@ public class DeleteIslandChunk {
                 return;
             }
             plugin.getLogger().info("Island delete: There are " + chunksToClear.size() + " chunks that need to be cleared up.");
-            plugin.getLogger().info("Clean rate is " + Settings.cleanRate + " chunks per second. Should take ~" + Math.round(chunksToClear.size()/Settings.cleanRate) + "s");
+            plugin.getLogger().info("Clean rate is " + Settings.cleanRate + " chunks per second. Should take ~" + Math.round((float)chunksToClear.size()/Settings.cleanRate) + "s");
             new BukkitRunnable() {
                 @SuppressWarnings("deprecation")
                 @Override
                 public void run() {
-                    Iterator<Pair> it = chunksToClear.iterator();
+                    Iterator<Pair<Integer, Integer>> it = chunksToClear.iterator();
                     int count = 0;
                     while (it.hasNext() && count++ < Settings.cleanRate) {                    
-                        Pair pair = it.next();
+                        Pair<Integer, Integer> pair = it.next();
                         //plugin.getLogger().info("DEBUG: There are " + chunksToClear.size() + " chunks that need to be cleared up");
                         //plugin.getLogger().info("DEBUG: Deleting chunk " + pair.getLeft() + ", " + pair.getRight());                       
                         // Check if coords are in island space
                         for (int x = 0; x < 16; x ++) {
                             for (int z = 0; z < 16; z ++) {
-                                int xCoord = pair.getLeft() * 16 + x;
-                                int zCoord = pair.getRight() * 16 + z;
+                                int xCoord = pair.x * 16 + x;
+                                int zCoord = pair.z * 16 + z;
                                 if (island.inIslandSpace(xCoord, zCoord)) {                                 
                                     //plugin.getLogger().info(xCoord + "," + zCoord + " is in island space - deleting column");
                                     // Delete all the blocks here
                                     for (int y = 0; y < ASkyBlock.getIslandWorld().getMaxHeight(); y ++) {
                                         // Overworld
-                                        Block b = ASkyBlock.getIslandWorld().getBlockAt(xCoord, y, zCoord);                                       
-                                        Material bt = b.getType();
+                                        Block block = ASkyBlock.getIslandWorld().getBlockAt(xCoord, y, zCoord);                                       
+                                        Material blockType = block.getType();
                                         Material setTo = Material.AIR;
                                         // Split depending on below or above water line
                                         if (y < Settings.seaHeight) {
@@ -161,48 +161,50 @@ public class DeleteIslandChunk {
                                         }
                                         // Grab anything out of containers (do that it is
                                         // destroyed)                                  
-                                        switch (bt) {
+                                        switch (blockType) {
                                         case CHEST:
                                         case TRAPPED_CHEST:                                           
                                         case FURNACE:
                                         case DISPENSER:
                                         case HOPPER:
-                                            final InventoryHolder ih = ((InventoryHolder)b.getState());
+                                            final InventoryHolder ih = ((InventoryHolder)block.getState());
                                             ih.getInventory().clear();                                            
-                                            b.setType(setTo);
+                                            block.setType(setTo);
                                             break;
                                         case AIR:   
                                             if (setTo.equals(Material.STATIONARY_WATER)) {
-                                                nms.setBlockSuperFast(b, setTo.getId(), (byte)0, false);
+                                                nms.setBlockSuperFast(block, setTo.getId(), (byte)0, false);
                                             }
+                                            break;
                                         case STATIONARY_WATER:
                                             if (setTo.equals(Material.AIR)) {
-                                                nms.setBlockSuperFast(b, setTo.getId(), (byte)0, false);
+                                                nms.setBlockSuperFast(block, setTo.getId(), (byte)0, false);
                                             }
+                                            break;
                                         default:
-                                            nms.setBlockSuperFast(b, setTo.getId(), (byte)0, false);
+                                            nms.setBlockSuperFast(block, setTo.getId(), (byte)0, false);
                                             break;
                                         }
                                         // Nether, if it exists
                                         if (Settings.newNether && Settings.createNether && y < ASkyBlock.getNetherWorld().getMaxHeight() - 8) {
-                                            b = ASkyBlock.getNetherWorld().getBlockAt(xCoord, y, zCoord);                                       
-                                            bt = b.getType();
-                                            if (!b.equals(Material.AIR)) {
+                                            block = ASkyBlock.getNetherWorld().getBlockAt(xCoord, y, zCoord);                                       
+                                            blockType = block.getType();
+                                            if (!blockType.equals(Material.AIR)) {
                                                 setTo = Material.AIR;                                            
                                                 // Grab anything out of containers (do that it is
                                                 // destroyed)                                  
-                                                switch (bt) {
+                                                switch (blockType) {
                                                 case CHEST:
                                                 case TRAPPED_CHEST:                                           
                                                 case FURNACE:
                                                 case DISPENSER:
                                                 case HOPPER:
-                                                    final InventoryHolder ih = ((InventoryHolder)b.getState());
+                                                    final InventoryHolder ih = ((InventoryHolder)block.getState());
                                                     ih.getInventory().clear();                                            
-                                                    b.setType(setTo);
+                                                    block.setType(setTo);
                                                     break;
                                                  default:
-                                                    nms.setBlockSuperFast(b, setTo.getId(), (byte)0, false);
+                                                    nms.setBlockSuperFast(block, setTo.getId(), (byte)0, false);
                                                     break;
                                                 }
                                             }

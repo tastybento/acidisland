@@ -18,8 +18,7 @@ package com.wasteofplastic.acidisland.panels;
 
 import java.util.HashMap;
 import java.util.List;
-
-import net.milkbowl.vault.economy.EconomyResponse;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -43,6 +42,8 @@ import com.wasteofplastic.acidisland.events.MiniShopEvent.TransactionType;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
+import net.milkbowl.vault.economy.EconomyResponse;
+
 /**
  * @author tastybento
  *         Provides a handy control panel and minishop
@@ -58,7 +59,7 @@ public class ControlPanel implements Listener {
     private static final boolean DEBUG = false;
 
     /**
-     * @param plugin
+     * @param plugin - ASkyBlock plugin object
      */
     public ControlPanel(ASkyBlock plugin) {
         this.plugin = plugin;
@@ -352,7 +353,12 @@ public class ControlPanel implements Listener {
                                     message = plugin.myLocale().minishopYouBought.replace("[number]", Integer.toString(item.getQuantity()));
                                     message = message.replace("[description]", item.getDescription());
                                     message = message.replace("[price]", VaultHelper.econ.format(item.getPrice()));
-                                    player.getInventory().addItem(item.getItemClean());
+                                    Map<Integer, ItemStack> items = player.getInventory().addItem(item.getItemClean());
+                                    if (!items.isEmpty()) {
+                                        for (ItemStack i : items.values()) {
+                                            player.getWorld().dropItem(player.getLocation(), i);
+                                        }
+                                    }
                                     // Fire event
                                     MiniShopEvent shopEvent = new MiniShopEvent(player.getUniqueId(), item, TransactionType.BUY);
                                     plugin.getServer().getPluginManager().callEvent(shopEvent);

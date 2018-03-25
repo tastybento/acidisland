@@ -54,15 +54,38 @@ import com.wasteofplastic.acidisland.util.Util;
 public class TopTen implements Listener{
     private static ASkyBlock plugin = ASkyBlock.getPlugin();
     // Top ten list of players
-    private static Map<UUID, Long> topTenList = new HashMap<UUID, Long>();
+    private static Map<UUID, Long> topTenList = new HashMap<>();
     private static final int GUISIZE = 27; // Must be a multiple of 9
     private static final int[] SLOTS = new int[] {4, 12, 14, 19, 20, 21, 22, 23, 24, 25};
     private static final boolean DEBUG = false;
     // Store this as a static because it's the same for everyone and saves memory cleanup
     private static Inventory gui;
+    private static Map<UUID, ItemStack> topTenHeads = new HashMap<>();
+    private static Map<UUID, String> names = new HashMap<>();
 
     public TopTen(ASkyBlock plugin) {
         TopTen.plugin = plugin;
+        runPlayerHeadGetter();
+        plugin.getLogger().info("Loading player heads for Top Ten...");
+    }
+
+    @SuppressWarnings("deprecation")
+    private void runPlayerHeadGetter() {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            Iterator<Entry<UUID,String>> it = names.entrySet().iterator();
+            if (it.hasNext()) {
+                Entry<UUID,String> en = it.next();
+                ItemStack playerSkull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                topTenHeads.put(en.getKey(), playerSkull);
+                SkullMeta meta = (SkullMeta) playerSkull.getItemMeta();
+                meta.setOwner(en.getValue());
+                playerSkull.setItemMeta(meta);
+                // Update
+                topTenHeads.put(en.getKey(), playerSkull);
+                it.remove();
+            }
+        }, 0L, 20L);
+
     }
 
     /**
@@ -72,6 +95,9 @@ public class TopTen implements Listener{
      * @param l
      */
     public static void topTenAddEntry(UUID ownerUUID, long l) {
+        if (DEBUG) {
+            plugin.getLogger().info("DEBUG: adding top ten entry " + ownerUUID + " " + l);
+        }
         // Special case for removals. If a level of zero is given the player
         // needs to be removed from the list
         if (l < 1) {
@@ -91,6 +117,13 @@ public class TopTen implements Listener{
         }
         topTenList.put(ownerUUID, l);
         topTenList = MapUtil.sortByValue(topTenList);
+        // Add head to cache
+        if (!topTenHeads.containsKey(ownerUUID)) {
+            String name = plugin.getPlayers().getName(ownerUUID);
+            if (name != null && !name.isEmpty()) {
+                names.put(ownerUUID, name);
+            }
+       }
     }
 
     /**
@@ -144,10 +177,7 @@ public class TopTen implements Listener{
                             int islandLevel = player.getInt("islandLevel", 0);
                             String teamLeaderUUID = player.getString("teamLeader", "");
                             if (islandLevel > 0) {
-                                if (!player.getBoolean("hasTeam")) {
-                                    // Single player
-                                    topTenAddEntry(playerUUID, islandLevel);
-                                } else if (!teamLeaderUUID.isEmpty() && teamLeaderUUID.equals(playerUUIDString)) {
+                                if (!player.getBoolean("hasTeam") || (!teamLeaderUUID.isEmpty() && teamLeaderUUID.equals(playerUUIDString))) {
                                     // Only enter team leaders into the top ten
                                     topTenAddEntry(playerUUID, islandLevel);
                                 }
@@ -325,7 +355,7 @@ public class TopTen implements Listener{
                 } else {
                     if (DEBUG)
                         plugin.getLogger().info("DEBUG: player not online, so no per check");
-                    
+
                 }
                 if (show) {
                     gui.setItem(SLOTS[i-1], getSkull(i, m.getValue(), playerUUID));
@@ -338,19 +368,23 @@ public class TopTen implements Listener{
         return true;
     }
 
+
     static ItemStack getSkull(int rank, Long long1, UUID player){
         if (DEBUG)
             plugin.getLogger().info("DEBUG: Getting the skull");
         String playerName = plugin.getPlayers().getName(player);
         if (DEBUG) {
             plugin.getLogger().info("DEBUG: playername = " + playerName);
-            
+
             plugin.getLogger().info("DEBUG: second chance = " + plugin.getPlayers().getName(player));
         }
         ItemStack playerSkull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
         if (playerName == null) return null;
         SkullMeta meta = (SkullMeta) playerSkull.getItemMeta();
-        meta.setOwner(playerName);
+        if (topTenHeads.containsKey(player)) {
+            playerSkull = topTenHeads.get(player);
+            meta = (SkullMeta) playerSkull.getItemMeta();
+        }
         meta.setDisplayName((plugin.myLocale(player).topTenGuiHeading.replace("[name]", plugin.getGrid().getIslandName(player))).replace("[rank]", String.valueOf(rank)));
         //meta.setDisplayName(ChatColor.YELLOW + "" + ChatColor.BOLD + "<!> " + ChatColor.YELLOW + "Island: " + ChatColor.GOLD + ChatColor.UNDERLINE + plugin.getGrid().getIslandName(player) + ChatColor.GRAY + " (#" + rank + ")");
         List<String> lore = new ArrayList<String>();
@@ -364,8 +398,7 @@ public class TopTen implements Listener{
             }
             lore.addAll(memberList);
         }
-        //else lore.add(ChatColor.AQUA + playerName);
-        
+
         meta.setLore(lore);
         playerSkull.setItemMeta(meta);
         return playerSkull;
@@ -391,8 +424,8 @@ public class TopTen implements Listener{
         player.updateInventory();
         if(event.getCurrentItem() != null && event.getCurrentItem().getType().equals(Material.SKULL_ITEM) && event.getCurrentItem().hasItemMeta()){
             Util.runCommand(player, "is warp " + ((SkullMeta)event.getCurrentItem().getItemMeta()).getOwner());
-        	player.closeInventory();
-        	return;
+            player.closeInventory();
+            return;
         }
         if (event.getSlotType().equals(SlotType.OUTSIDE)) {
             player.closeInventory();

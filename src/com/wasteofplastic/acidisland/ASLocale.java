@@ -667,11 +667,17 @@ public class ASLocale {
     public String visitorsProtected;
 
 
+    public String biomePleaseWait;
+
+
+    public String coopHasInvited;
+
+
     /**
      * Creates a locale object full of localized strings for a language
-     * @param plugin
+     * @param plugin - ASkyBlock plugin object - ASkyBlock plugin
      * @param localeName - name of the yml file that will be used
-     * @param index 
+     * @param index - index number of the locale
      */
     public ASLocale(ASkyBlock plugin, String localeName, int index) {
         this.plugin = plugin;
@@ -685,6 +691,7 @@ public class ASLocale {
     }
 
     /**
+     * @param localeName requested locale name
      * @return locale FileConfiguration object
      */
     public FileConfiguration getLocale(String localeName) {
@@ -696,6 +703,7 @@ public class ASLocale {
 
     /**
      * Reloads the locale file
+     * @param localeName - locale to reload
      */
     public void reloadLocale(String localeName) {
         //plugin.getLogger().info("DEBUG: loading local file " + localeName + ".yml");
@@ -1315,6 +1323,7 @@ public class ASLocale {
         if (biomePanelTitle.length() > 30) {
             biomePanelTitle = biomePanelTitle.substring(0, 29);
         }
+        biomePleaseWait = ChatColor.translateAlternateColorCodes('&', locale.getString("biome.pleasewait", "Please wait, changing biome..."));
         expelNotOnIsland = ChatColor.translateAlternateColorCodes('&',
                 locale.getString("expel.notonisland", "Player is not trespassing on your island!"));
         expelSuccess = ChatColor.translateAlternateColorCodes('&', locale.getString("expel.success", "You expelled [name]!"));
@@ -1347,6 +1356,7 @@ public class ASLocale {
         islandhelpUnCoop = ChatColor.translateAlternateColorCodes('&',locale.getString("coop.uncoop", "remove full island access from player"));
         islandhelpListCoops = ChatColor.translateAlternateColorCodes('&',locale.getString("coop.listcoops", "list coop players"));
         coopInvited = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.invited", "[name] made [player] a coop player!"));
+        coopHasInvited = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.nameHasInvitedYou", "[name] has invited you to coop on their island!"));
         coopUseExpel = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.useexpel", "Use expel to remove."));
         cannotCoop = ChatColor.translateAlternateColorCodes('&', locale.getString("coop.cannotcoop", "Only island leader can coop a player."));
         lockIslandLocked = ChatColor.translateAlternateColorCodes('&', locale.getString("lock.islandlocked", "Island is locked to visitors"));

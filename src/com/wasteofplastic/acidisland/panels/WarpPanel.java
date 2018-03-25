@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -53,28 +56,57 @@ public class WarpPanel implements Listener {
     private static final int PANELSIZE = 45; // Must be a multiple of 9
     // The list of all players who have warps and their corresponding inventory icon
     // A stack of zero amount will mean they are not active
-    private HashMap<UUID, ItemStack> cachedWarps;
+    private Map<UUID, ItemStack> cachedWarps;
     private final static boolean DEBUG = false;
+    private Map<UUID,String> names = new HashMap<>();
 
     /**
-     * @param plugin
+     * @param plugin - ASkyBlock plugin object
      */
     public WarpPanel(ASkyBlock plugin) {
         this.plugin = plugin;
         warpPanel = new ArrayList<Inventory>();
         cachedWarps = new HashMap<UUID,ItemStack>();
+        // Start the Skull getter
+        runPlayerHeadGetter();       
         //plugin.getLogger().info("DEBUG: loading the warp panel of size " + plugin.getWarpSignsListener().listSortedWarps().size());
         // Load the cache
         for (UUID playerUUID : plugin.getWarpSignsListener().listSortedWarps()) {
             addWarp(playerUUID);
         }
-        // Make the panels
-        updatePanel();
+    }
+
+    @SuppressWarnings("deprecation")
+    private void runPlayerHeadGetter() {
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            if (names.size() > 0 && names.size() % 10 == 0) {
+                plugin.getLogger().info("Loading player heads for warps: " + names.size() + " to go...");
+            }
+            Iterator<Entry<UUID,String>> it = names.entrySet().iterator();
+            if (it.hasNext()) {
+                Entry<UUID,String> en = it.next();
+                ItemStack playerSkull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                cachedWarps.put(en.getKey(), playerSkull);
+                SkullMeta meta = (SkullMeta) playerSkull.getItemMeta();
+                meta.setOwner(en.getValue());
+                meta.setDisplayName(ChatColor.WHITE + en.getValue());
+                playerSkull.setItemMeta(meta);
+                // Update
+                cachedWarps.put(en.getKey(), playerSkull);
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    ItemStack skull = cachedWarps.get(en.getKey());
+                    skull = updateText(skull, en.getKey());
+                    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.getWarpPanel().updatePanel());
+                });
+                it.remove();
+            }
+        }, 200L, 20L);
+
     }
 
     /**
      * Only change the text of the warp
-     * @param playerUUID
+     * @param playerUUID - the player's UUID
      */
     public void updateWarp(UUID playerUUID) {
         if (DEBUG)
@@ -105,7 +137,7 @@ public class WarpPanel implements Listener {
     }
     /**
      * Adds a new warp to the cache. Does NOT update the panels
-     * @param playerUUID
+     * @param playerUUID - the player's UUID
      */
     public void addWarp(UUID playerUUID) {
         if (DEBUG)
@@ -117,48 +149,28 @@ public class WarpPanel implements Listener {
             // Get the item
             ItemStack playerSkull = cachedWarps.get(playerUUID);
             playerSkull = updateText(playerSkull, playerUUID);
+            plugin.getWarpPanel().updatePanel();
             return;
         }
         //plugin.getLogger().info("DEBUG: New skull");
-        // Get the item
-        ItemStack playerSkull = getSkull(playerUUID);
-        if (playerSkull == null) {
-            // Nothing found and not available on the server
-            return;
-        }
-        // Update the sign text
-        playerSkull = updateText(playerSkull, playerUUID);
-        cachedWarps.put(playerUUID, playerSkull);
-    }
-
-    /**
-     * Gets the skull for this player UUID
-     * @param playerUUID
-     * @return Player skull item
-     */
-    private ItemStack getSkull(UUID playerUUID) {
         String playerName = plugin.getPlayers().getName(playerUUID);
         if (DEBUG)
             plugin.getLogger().info("DEBUG: name of warp = " + playerName);
-        ItemStack playerSkull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
         if (playerName == null) {
             if (DEBUG)
                 plugin.getLogger().warning("Warp for Player: UUID " + playerUUID.toString() + " is unknown on this server, skipping...");
-            return null;
+            return;
             //playerName = playerUUID.toString().substring(0, 10);
         }
-        SkullMeta meta = (SkullMeta) playerSkull.getItemMeta();
-        meta.setOwner(playerName);
-        meta.setDisplayName(ChatColor.WHITE + playerName);
-        playerSkull.setItemMeta(meta);
-        return playerSkull;
+        // Get the skull
+        names.put(playerUUID, playerName);
     }
 
     /**
      * Updates the meta text on the skull by looking at the warp sign
      * This MUST be run 1 TICK AFTER the sign has been created otherwise the sign is blank
      * @param playerSkull
-     * @param playerUUID
+     * @param playerUUID - the player's UUID
      * @return updated skull item stack
      */
     private ItemStack updateText(ItemStack playerSkull, final UUID playerUUID) {
@@ -223,7 +235,7 @@ public class WarpPanel implements Listener {
         warpPanel.add(Bukkit.createInventory(null, remainder, plugin.myLocale().warpsTitle + " #" + (i+1)));
         panelNumber = 0;
         int slot = 0;
-        // Run through all the warps and add them to the inventories with nav buttons
+        // Run through all the warps and add them to the inventories with anv buttons
         for (UUID playerUUID: activeWarps) {
             ItemStack icon = cachedWarps.get(playerUUID);
             if (icon != null) {

@@ -30,7 +30,6 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Hopper;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Villager;
 
 import com.google.common.collect.HashMultiset;
@@ -44,7 +43,7 @@ import com.wasteofplastic.acidisland.util.Util;
  * @author tastybento
  * 
  */
-public class Island implements Cloneable {
+public class Island {
     ASkyBlock plugin;
     // Coordinates of the island area
     private int minX;
@@ -82,16 +81,6 @@ public class Island implements Cloneable {
     // Biome
     Biome biome;
 
-    // Legacy settings up to V3.0.5.1 for backwards compatibility. In new islands.yml, the key is stored in the file.
-    // This is the order of the 0's and 1's in the settings field of the islands.yml file. New settings will follow the SettingsFlag enum.
-    private enum LegacySettingsFlag {
-        ANVIL, ARMOR_STAND, BEACON,BED, BREAK_BLOCKS, BREEDING, BREWING, 
-        BUCKET, COLLECT_LAVA, COLLECT_WATER, CHEST, CRAFTING, 
-        CROP_TRAMPLE, DOOR, ENCHANTING, ENDERPEARL, FURNACE, 
-        GATE, HORSE_INVENTORY, HORSE_RIDING, HURT_MOBS, LEASH, LEVER_BUTTON, MUSIC, 
-        PLACE_BLOCKS, PORTAL, PRESSURE_PLATE, PVP, NETHER_PVP, REDSTONE, SHEARING,
-        VILLAGER_TRADING, CHORUS_FRUIT, ENTER_EXIT_MESSAGES, MONSTER_SPAWN;
-    }
     // Island protection settings
     private static List<String> islandSettingsKey = new ArrayList<String>();
     static {
@@ -298,7 +287,7 @@ public class Island implements Cloneable {
 
     /**
      * New island by loading islands.yml
-     * @param plugin
+     * @param plugin - ASkyBlock plugin object
      * @param serial
      * @param settingsKey 
      */
@@ -444,7 +433,7 @@ public class Island implements Cloneable {
 
     /**
      * Add a new island using the island center method
-     * @param plugin
+     * @param plugin - ASkyBlock plugin object
      * @param x
      * @param z
      */
@@ -473,44 +462,50 @@ public class Island implements Cloneable {
         setIgsDefaults();
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#clone()
+    /**
+     * Copy constructor
+     * @param island - island to copy
      */
-    public Object clone() {
-        try {
-            return super.clone();
-        }
-        catch (CloneNotSupportedException e) {
-            // This should never happen
-            throw new InternalError(e.toString());
-        }
+    public Island(Island island) {
+        this.plugin = island.plugin;
+        this.biome = island.biome;
+        this.center = island.center;
+        this.createdDate = island.createdDate;
+        this.igs = island.igs;
+        this.islandDistance = island.islandDistance;
+        this.isSpawn = island.isSpawn;
+        this.locked = island.locked;
+        this.levelHandicap = island.levelHandicap;
+        this.minProtectedX = island.minProtectedX;
+        this.minProtectedZ = island.minProtectedZ;
+        this.minX = island.minX;
+        this.minZ = island.minZ;
+        this.owner = island.owner;
+        this.password = island.password;
+        this.protectionRange = island.protectionRange;
+        this.purgeProtected = island.purgeProtected;
+        this.spawnPoint = island.spawnPoint;
+        this.tileEntityCount = island.tileEntityCount;
+        this.updatedDate = island.updatedDate;
+        this.votes = island.votes;
+        this.world = island.world;
+        this.y = island.y;
     }
 
     /**
      * Checks if a location is within this island's protected area
      * 
-     * @param target
+     * @param target location to query
      * @return true if it is, false if not
      */
     public boolean onIsland(Location target) {
         if (world != null) {
             // If the new nether is being used, islands exist in the nether too
-            //plugin.getLogger().info("DEBUG: target x = " + target.getBlockX() + " target z = " + target.getBlockZ());
-            //plugin.getLogger().info("DEBUG: min prot x = " + minProtectedX + " min z = " + minProtectedZ);
-            //plugin.getLogger().info("DEBUG: max x = " + (minProtectedX + protectionRange) + " max z = " + (minProtectedZ + protectionRange));
-
             if (target.getWorld().equals(world) || (Settings.createNether && Settings.newNether && ASkyBlock.getNetherWorld() != null && target.getWorld().equals(ASkyBlock.getNetherWorld()))) {
                 if (target.getBlockX() >= minProtectedX && target.getBlockX() < (minProtectedX + protectionRange)
                         && target.getBlockZ() >= minProtectedZ && target.getBlockZ() < (minProtectedZ + protectionRange)) {
                     return true;
                 }
-                /*
-                if (target.getX() >= center.getBlockX() - protectionRange / 2 && target.getX() < center.getBlockX() + protectionRange / 2
-                        && target.getZ() >= center.getBlockZ() - protectionRange / 2 && target.getZ() < center.getBlockZ() + protectionRange / 2) {
-
-                    return true;
-                }
-                 */
             }
         }
         return false;
@@ -519,7 +514,7 @@ public class Island implements Cloneable {
     /**
      * Checks if location is anywhere in the island space (island distance)
      * 
-     * @param target
+     * @param target location to query
      * @return true if in the area
      */
     public boolean inIslandSpace(Location target) {
@@ -779,7 +774,7 @@ public class Island implements Cloneable {
 
     /**
      * Get the Island Guard flag status
-     * @param flag
+     * @param flag - settings flag to check
      * @return true or false, or false if flag is not in the list
      */
     public boolean getIgsFlag(SettingsFlag flag) {
@@ -792,8 +787,8 @@ public class Island implements Cloneable {
 
     /**
      * Set the Island Guard flag
-     * @param flag
-     * @param value
+     * @param flag - settings flag to check
+     * @param value - value to set true or false
      */
     public void setIgsFlag(SettingsFlag flag, boolean value) {
         this.igs.put(flag, value);
@@ -886,7 +881,8 @@ public class Island implements Cloneable {
     }
 
     /**
-     * @param material
+     * @param material Bukkit material to check
+     * @param world - world to check
      * @return count of how many tile entities of type mat are on the island at last count. Counts are done when a player places
      * a tile entity.
      */
@@ -946,7 +942,7 @@ public class Island implements Cloneable {
 
     /**
      * Toggles the Island Guard Flag
-     * @param flag
+     * @param flag  - settings flag to toggle
      */
     public void toggleIgs(SettingsFlag flag) {
         if (igs.containsKey(flag)) {
@@ -988,8 +984,8 @@ public class Island implements Cloneable {
 
     /**
      * Sets the settings for the island.
-     * @param settings
-     * @param settingsKey
+     * @param settings - string of 0 and 1's that define the settings for the island
+     * @param settingsKey - a list showing the order and what flags each digit refers to
      */
     public void setSettings(String settings, List<String> settingsKey) {
 
