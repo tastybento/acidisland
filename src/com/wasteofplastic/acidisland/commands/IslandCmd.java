@@ -1353,13 +1353,13 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     Util.sendMessage(player, ChatColor.GOLD + "This plugin is distributed in the hope that it");
                     Util.sendMessage(player, ChatColor.GOLD + "will be useful, but WITHOUT ANY WARRANTY; without");
                     Util.sendMessage(player, ChatColor.GOLD + "even the implied warranty of MERCHANTABILITY or");
-                    Util.sendMessage(player, ChatColor.GOLD + "FITNESS FOR A PARTICULAR PURPOSE.  See the");
+                    Util.sendMessage(player, ChatColor.GOLD + "FITNESS FOR A PARTICULAR PURPOSE. See the");
                     Util.sendMessage(player, ChatColor.GOLD + "GNU General Public License for more details.");
                     Util.sendMessage(player, ChatColor.GOLD + "You should have received a copy of the GNU");
                     Util.sendMessage(player, ChatColor.GOLD + "General Public License along with this plugin.");
                     Util.sendMessage(player, ChatColor.GOLD + "If not, see <http://www.gnu.org/licenses/>.");
-                    Util.sendMessage(player, ChatColor.GOLD + "Souce code is available on GitHub.");
-                    Util.sendMessage(player, ChatColor.GOLD + "(c) 2014 - 2017 by tastybento, Poslovitch");
+                    Util.sendMessage(player, ChatColor.GOLD + "Source code is available on GitHub.");
+                    Util.sendMessage(player, ChatColor.GOLD + "(c) 2014 - 2018 by tastybento, Poslovitch");
                     return true;
                     // Spawn enderman
                     // Enderman enderman = (Enderman)
@@ -1766,7 +1766,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 return true;
             } else if (split[0].equalsIgnoreCase("top")) {
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.topten")) {
-                    TopTen.topTenShow(player);
+                    plugin.getTopTen().topTenShow(player);
                     return true;
                 } else {
                     Util.sendMessage(player, ChatColor.RED + plugin.myLocale(playerUUID).errorNoPermission);
@@ -2373,8 +2373,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                             }
                                         }
                                         boolean pvp = false;
-                                        if ((warpSpot.getWorld().equals(ASkyBlock.getIslandWorld()) && island.getIgsFlag(SettingsFlag.PVP)) 
-                                                || (warpSpot.getWorld().equals(ASkyBlock.getNetherWorld()) && island.getIgsFlag(SettingsFlag.NETHER_PVP))) {
+                                        if (island != null && ((warpSpot.getWorld().equals(ASkyBlock.getIslandWorld()) && island.getIgsFlag(SettingsFlag.PVP)) 
+                                                || (warpSpot.getWorld().equals(ASkyBlock.getNetherWorld()) && island.getIgsFlag(SettingsFlag.NETHER_PVP)))) {
                                             pvp = true;
                                         }
                                         // Find out which direction the warp is facing
@@ -2671,8 +2671,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                     @Override
                                     public void run() {
 
-                                        if (coopInviteList.containsKey(targetPlayerUUID) && inviteList.get(targetPlayerUUID).equals(playerUUID)) {
-                                            inviteList.remove(targetPlayerUUID);
+                                        if (coopInviteList.containsKey(targetPlayerUUID) && coopInviteList.get(targetPlayerUUID).equals(playerUUID)) {
+                                            coopInviteList.remove(targetPlayerUUID);
                                             if (plugin.getServer().getPlayer(playerUUID) != null) {
                                                 Util.sendMessage(plugin.getServer().getPlayer(playerUUID), ChatColor.YELLOW + plugin.myLocale(player.getUniqueId()).inviteremovingInvite);
                                             }
@@ -2951,7 +2951,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                                     }
                                     // Reset the island level
                                     plugin.getPlayers().setIslandLevel(targetPlayer, 0);
-                                    TopTen.topTenAddEntry(playerUUID, 0);
+                                    plugin.getTopTen().topTenAddEntry(playerUUID, 0);
 
                                     // If target is online
                                     Player target = plugin.getServer().getPlayer(targetPlayer);

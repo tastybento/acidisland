@@ -43,7 +43,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import com.wasteofplastic.acidisland.util.MapUtil;
+import com.wasteofplastic.acidisland.util.Requester;
 import com.wasteofplastic.acidisland.util.Util;
+import com.wasteofplastic.acidisland.util.HeadGetter.HeadInfo;
 
 /**
  * Handles all Top Ten List functions
@@ -51,41 +53,19 @@ import com.wasteofplastic.acidisland.util.Util;
  * @author tastybento
  * 
  */
-public class TopTen implements Listener{
-    private static ASkyBlock plugin = ASkyBlock.getPlugin();
+public class TopTen implements Listener, Requester {
+    private  ASkyBlock plugin = ASkyBlock.getPlugin();
     // Top ten list of players
-    private static Map<UUID, Long> topTenList = new HashMap<>();
-    private static final int GUISIZE = 27; // Must be a multiple of 9
-    private static final int[] SLOTS = new int[] {4, 12, 14, 19, 20, 21, 22, 23, 24, 25};
-    private static final boolean DEBUG = false;
+    private Map<UUID, Long> topTenList = new HashMap<>();
+    private final int GUISIZE = 27; // Must be a multiple of 9
+    private final int[] SLOTS = new int[] {4, 12, 14, 19, 20, 21, 22, 23, 24, 25};
+    private final boolean DEBUG = false;
     // Store this as a static because it's the same for everyone and saves memory cleanup
-    private static Inventory gui;
-    private static Map<UUID, ItemStack> topTenHeads = new HashMap<>();
-    private static Map<UUID, String> names = new HashMap<>();
+    private Inventory gui;
+    private Map<UUID, ItemStack> topTenHeads = new HashMap<>();
 
     public TopTen(ASkyBlock plugin) {
-        TopTen.plugin = plugin;
-        runPlayerHeadGetter();
-        plugin.getLogger().info("Loading player heads for Top Ten...");
-    }
-
-    @SuppressWarnings("deprecation")
-    private void runPlayerHeadGetter() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            Iterator<Entry<UUID,String>> it = names.entrySet().iterator();
-            if (it.hasNext()) {
-                Entry<UUID,String> en = it.next();
-                ItemStack playerSkull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-                topTenHeads.put(en.getKey(), playerSkull);
-                SkullMeta meta = (SkullMeta) playerSkull.getItemMeta();
-                meta.setOwner(en.getValue());
-                playerSkull.setItemMeta(meta);
-                // Update
-                topTenHeads.put(en.getKey(), playerSkull);
-                it.remove();
-            }
-        }, 0L, 20L);
-
+        this.plugin = plugin;
     }
 
     /**
@@ -94,7 +74,7 @@ public class TopTen implements Listener{
      * @param ownerUUID
      * @param l
      */
-    public static void topTenAddEntry(UUID ownerUUID, long l) {
+    public void topTenAddEntry(UUID ownerUUID, long l) {
         if (DEBUG) {
             plugin.getLogger().info("DEBUG: adding top ten entry " + ownerUUID + " " + l);
         }
@@ -121,9 +101,15 @@ public class TopTen implements Listener{
         if (!topTenHeads.containsKey(ownerUUID)) {
             String name = plugin.getPlayers().getName(ownerUUID);
             if (name != null && !name.isEmpty()) {
-                names.put(ownerUUID, name);
+                ItemStack playerSkull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+                SkullMeta meta = (SkullMeta) playerSkull.getItemMeta();
+                meta.setDisplayName(name);
+                playerSkull.setItemMeta(meta);
+                topTenHeads.put(ownerUUID, playerSkull);
+                // Get skull async
+                plugin.getHeadGetter().getHead(ownerUUID, this);
             }
-       }
+        } 
     }
 
     /**
@@ -131,7 +117,7 @@ public class TopTen implements Listener{
      * 
      * @param ownerUUID
      */
-    public static void topTenRemoveEntry(UUID ownerUUID) {
+    public void topTenRemoveEntry(UUID ownerUUID) {
         topTenList.remove(ownerUUID);
     }
 
@@ -139,7 +125,7 @@ public class TopTen implements Listener{
      * Generates a sorted map of islands for the Top Ten list from all player
      * files
      */
-    public static void topTenCreate() {
+    public void topTenCreate() {
         topTenCreate(null);
     }
 
@@ -149,7 +135,7 @@ public class TopTen implements Listener{
      * Runs asynchronously from the main thread.
      * @param sender
      */
-    public static void topTenCreate(final CommandSender sender) {
+    public void topTenCreate(final CommandSender sender) {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 
             @Override
@@ -206,7 +192,7 @@ public class TopTen implements Listener{
             }});
     }
 
-    public static void topTenSave() {
+    public void topTenSave() {
         if (topTenList == null) {
             return;
         }
@@ -237,7 +223,7 @@ public class TopTen implements Listener{
      * Loads the top ten from the file system topten.yml. If it does not exist
      * then the top ten is created
      */
-    public static void topTenLoad() {
+    public void topTenLoad() {
         topTenList.clear();
         // Check to see if the top ten list exists
         File topTenFile = new File(plugin.getDataFolder(), "topten.yml");
@@ -256,7 +242,7 @@ public class TopTen implements Listener{
                         // getLogger().info(uuid.toString());
                         int level = topTenConfig.getInt("topten." + playerUUID);
                         // getLogger().info("Level = " + level);
-                        TopTen.topTenAddEntry(uuid, level);
+                        topTenAddEntry(uuid, level);
                     } catch (Exception e) {
                         e.printStackTrace();
                         plugin.getLogger().severe("Problem loading top ten list - recreating - this may take some time");
@@ -274,7 +260,7 @@ public class TopTen implements Listener{
      *            - the requesting player
      * @return - true if successful, false if no Top Ten list exists
      */
-    public static boolean topTenShow(final Player player) {
+    public boolean topTenShow(final Player player) {
         // Old chat display
         if(Settings.displayIslandTopTenInChat){
             Util.sendMessage(player, ChatColor.GOLD + plugin.myLocale(player.getUniqueId()).topTenheader);
@@ -369,7 +355,7 @@ public class TopTen implements Listener{
     }
 
 
-    static ItemStack getSkull(int rank, Long long1, UUID player){
+    ItemStack getSkull(int rank, Long long1, UUID player){
         if (DEBUG)
             plugin.getLogger().info("DEBUG: Getting the skull");
         String playerName = plugin.getPlayers().getName(player);
@@ -404,7 +390,7 @@ public class TopTen implements Listener{
         return playerSkull;
     }
 
-    static void remove(UUID owner) {
+    void remove(UUID owner) {
         topTenList.remove(owner);
     }
 
@@ -423,8 +409,10 @@ public class TopTen implements Listener{
         event.setCancelled(true);
         player.updateInventory();
         if(event.getCurrentItem() != null && event.getCurrentItem().getType().equals(Material.SKULL_ITEM) && event.getCurrentItem().hasItemMeta()){
-            Util.runCommand(player, "is warp " + ((SkullMeta)event.getCurrentItem().getItemMeta()).getOwner());
-            player.closeInventory();
+            if (((SkullMeta)event.getCurrentItem().getItemMeta()).hasOwner()) {
+                Util.runCommand(player, "is warp " + ((SkullMeta)event.getCurrentItem().getItemMeta()).getOwner());
+                player.closeInventory();
+            }
             return;
         }
         if (event.getSlotType().equals(SlotType.OUTSIDE)) {
@@ -441,7 +429,13 @@ public class TopTen implements Listener{
      * Get a sorted descending map of the top players
      * @return the topTenList - may be more or less than ten
      */
-    public static Map<UUID, Long> getTopTenList() {
+    public Map<UUID, Long> getTopTenList() {
         return topTenList;
+    }
+
+    @Override
+    public void setHead(HeadInfo headInfo) {
+        topTenHeads.put(headInfo.getUuid(), headInfo.getHead());
+
     }
 }
