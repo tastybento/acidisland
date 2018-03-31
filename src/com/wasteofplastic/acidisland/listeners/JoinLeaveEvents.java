@@ -1,5 +1,4 @@
 /*******************************************************************************
- * This file is part of ASkyBlock.
  *
  *     ASkyBlock is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -40,7 +39,6 @@ import com.wasteofplastic.acidisland.LevelCalcByChunk;
 import com.wasteofplastic.acidisland.PlayerCache;
 import com.wasteofplastic.acidisland.Scoreboards;
 import com.wasteofplastic.acidisland.Settings;
-import com.wasteofplastic.acidisland.TopTen;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
@@ -75,7 +73,6 @@ public class JoinLeaveEvents implements Listener {
                 plugin.getLogger().info("DEBUG: checking language");
             // Get language
             String language = getLanguage(player);
-            //plugin.getLogger().info("DEBUG: language = " + language);
             // Check if we have this language
             if (plugin.getResource("locale/" + language + ".yml") != null) {
                 if (DEBUG)
@@ -255,6 +252,9 @@ public class JoinLeaveEvents implements Listener {
                             // Only set the island range if the player has a perm to override the default
                             if (hasARangePerm) {
                                 // Do some sanity checking
+                                if (range > Settings.islandDistance) {
+                                    range = Settings.islandDistance;
+                                }
                                 if (range % 2 != 0) {
                                     range--;
                                     if (DEBUG)

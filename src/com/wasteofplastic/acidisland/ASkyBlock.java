@@ -141,6 +141,7 @@ public class ASkyBlock extends JavaPlugin {
 
     // Head getter
     private HeadGetter headGetter;
+    private EntityLimits entityLimits;
     
     /**
      * Returns the World object for the island world named in config.yml.
@@ -242,6 +243,10 @@ public class ASkyBlock extends JavaPlugin {
             // Remove temporary perms
             if (playerEvents != null) {
                 playerEvents.removeAllTempPerms();
+            }
+            // Save entitiy limits
+            if (entityLimits != null) {
+                entityLimits.disable();
             }
         } catch (final Exception e) {
             getLogger().severe("Something went wrong saving files!");
@@ -459,9 +464,6 @@ public class ASkyBlock extends JavaPlugin {
                         // Load Biomes
                         biomes = new BiomesPanel(ASkyBlock.this);
                         getServer().getPluginManager().registerEvents(biomes, ASkyBlock.this);
-
-                        topTen = new TopTen(plugin);
-                        topTen.topTenLoad();
 
                         // Add any online players to the DB
                         for (Player onlinePlayer : ASkyBlock.this.getServer().getOnlinePlayers()) {
@@ -693,7 +695,8 @@ public class ASkyBlock extends JavaPlugin {
         // Island Protection events
         manager.registerEvents(new IslandGuard(this), this);
         // Island Entity Limits
-        manager.registerEvents(new EntityLimits(this), this);
+        entityLimits = new EntityLimits(this);
+        manager.registerEvents(entityLimits, this);
         // Player events
         playerEvents = new PlayerEvents(this);
         manager.registerEvents(playerEvents, this);
@@ -759,6 +762,7 @@ public class ASkyBlock extends JavaPlugin {
      *
      * @param player - player
      */
+    @SuppressWarnings("deprecation")
     public void resetPlayer(Player player) {
         // getLogger().info("DEBUG: clear inventory = " +
         // Settings.clearInventory);
