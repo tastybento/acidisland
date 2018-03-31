@@ -67,7 +67,6 @@ import com.wasteofplastic.acidisland.GridManager;
 import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.PluginConfig;
 import com.wasteofplastic.acidisland.Settings;
-import com.wasteofplastic.acidisland.TopTen;
 import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.Settings.GameType;
 import com.wasteofplastic.acidisland.listeners.LavaCheck;
