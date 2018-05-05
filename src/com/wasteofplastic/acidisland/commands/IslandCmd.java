@@ -74,10 +74,7 @@ import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.LevelCalcByChunk;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.Island.SettingsFlag;
-import com.wasteofplastic.acidisland.events.IslandJoinEvent;
-import com.wasteofplastic.acidisland.events.IslandLeaveEvent;
-import com.wasteofplastic.acidisland.events.IslandNewEvent;
-import com.wasteofplastic.acidisland.events.IslandResetEvent;
+import com.wasteofplastic.acidisland.events.*;
 import com.wasteofplastic.acidisland.listeners.PlayerEvents;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
 import com.wasteofplastic.acidisland.schematics.Schematic;
@@ -1759,7 +1756,13 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     if (spawn != null && spawn.getSpawnPoint() != null) {
                         l = spawn.getSpawnPoint();
                     }	
-                    player.teleport(l);
+
+                    IslandPreTeleportEvent event = new IslandPreTeleportEvent(player, IslandPreTeleportEvent.Type.SPAWN, l);
+                    Bukkit.getPluginManager().callEvent(event);
+                    if (!event.isCancelled()) {
+                        player.teleport(event.getLocation());
+                    }
+
                 } else {
                     Util.sendMessage(player, ChatColor.RED + plugin.myLocale(playerUUID).errorNoPermission);  
                 }
@@ -3194,24 +3197,28 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
         float yaw = Util.blockFaceToFloat(directionFacing);
         final Location actualWarp = new Location(inFront.getWorld(), inFront.getBlockX() + 0.5D, inFront.getBlockY(),
                 inFront.getBlockZ() + 0.5D, yaw, 30F);
-        player.teleport(actualWarp);
-        if (pvp) {
-            Util.sendMessage(player, ChatColor.BOLD + "" + ChatColor.RED + plugin.myLocale(player.getUniqueId()).igs.get(SettingsFlag.PVP) + " " + plugin.myLocale(player.getUniqueId()).igsAllowed);
-            if (plugin.getServer().getVersion().contains("(MC: 1.8") || plugin.getServer().getVersion().contains("(MC: 1.7")) {
-                player.getWorld().playSound(player.getLocation(), Sound.valueOf("ARROW_HIT"), 1F, 1F);
+        IslandPreTeleportEvent event = new IslandPreTeleportEvent(player, IslandPreTeleportEvent.Type.WARP, actualWarp);
+        Bukkit.getPluginManager().callEvent(event);
+        if (!event.isCancelled()) {
+            player.teleport(event.getLocation());
+            if (pvp) {
+                Util.sendMessage(player, ChatColor.BOLD + "" + ChatColor.RED + plugin.myLocale(player.getUniqueId()).igs.get(SettingsFlag.PVP) + " " + plugin.myLocale(player.getUniqueId()).igsAllowed);
+                if (plugin.getServer().getVersion().contains("(MC: 1.8") || plugin.getServer().getVersion().contains("(MC: 1.7")) {
+                    player.getWorld().playSound(player.getLocation(), Sound.valueOf("ARROW_HIT"), 1F, 1F);
+                } else {
+                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT, 1F, 1F);
+                }
             } else {
-                player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ARROW_HIT, 1F, 1F);
+                if (plugin.getServer().getVersion().contains("(MC: 1.8") || plugin.getServer().getVersion().contains("(MC: 1.7")) {
+                    player.getWorld().playSound(player.getLocation(), Sound.valueOf("BAT_TAKEOFF"), 1F, 1F);
+                } else {
+                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BAT_TAKEOFF, 1F, 1F);
+                }
             }
-        } else {
-            if (plugin.getServer().getVersion().contains("(MC: 1.8") || plugin.getServer().getVersion().contains("(MC: 1.7")) {
-                player.getWorld().playSound(player.getLocation(), Sound.valueOf("BAT_TAKEOFF"), 1F, 1F);
-            } else {
-                player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BAT_TAKEOFF, 1F, 1F);
+            Player warpOwner = plugin.getServer().getPlayer(foundWarp);
+            if (warpOwner != null && !warpOwner.equals(player)) {
+                Util.sendMessage(warpOwner, plugin.myLocale(foundWarp).warpsPlayerWarped.replace("[name]", player.getName()));
             }
-        }
-        Player warpOwner = plugin.getServer().getPlayer(foundWarp);
-        if (warpOwner != null && !warpOwner.equals(player)) {
-            Util.sendMessage(warpOwner, plugin.myLocale(foundWarp).warpsPlayerWarped.replace("[name]", player.getName()));
         }
     }
 

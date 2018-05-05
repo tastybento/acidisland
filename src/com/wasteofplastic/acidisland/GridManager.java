@@ -49,6 +49,7 @@ import org.bukkit.util.Vector;
 
 import com.wasteofplastic.acidisland.Island.SettingsFlag;
 import com.wasteofplastic.acidisland.events.IslandChangeOwnerEvent;
+import com.wasteofplastic.acidisland.events.IslandPreTeleportEvent;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.teleport.SafeTeleportBuilder;
 
@@ -1263,12 +1264,16 @@ public class GridManager {
         }
         //plugin.getLogger().info("DEBUG: home loc = " + home + " teleporting");
         //home.getChunk().load();
-        player.teleport(home);
-        //player.sendBlockChange(home, Material.GLOWSTONE, (byte)0);
-        if (number ==1 ) {
-            Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).islandteleport);
-        } else {
-            Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).islandteleport + " #" + number);
+        IslandPreTeleportEvent event = new IslandPreTeleportEvent(player, IslandPreTeleportEvent.Type.HOME, home);
+        Bukkit.getPluginManager().callEvent(event);
+        if (!event.isCancelled()) {
+            player.teleport(event.getLocation());
+            //player.sendBlockChange(home, Material.GLOWSTONE, (byte)0);
+            if (number ==1 ) {
+                Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).islandteleport);
+            } else {
+                Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).islandteleport + " #" + number);
+            }
         }
     }
 
@@ -1303,6 +1308,24 @@ public class GridManager {
      */
     public void homeSet(final Player player) {
         homeSet(player, 1);
+    }
+    
+    /**
+     * Checks if a player is in their full island space
+     * @param player
+     * @return true if they are anywhere inside their island space (not just protected area)
+     */
+    public boolean inIslandSpace(Player player) {
+        if (player == null) {
+            return false;
+        }
+        Island island = getIslandAt(player.getLocation());
+        if (island != null) {
+            if (island.inIslandSpace(player.getLocation()) && island.getMembers().contains(player.getUniqueId())) { 
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
