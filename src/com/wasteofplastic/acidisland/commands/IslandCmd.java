@@ -74,7 +74,11 @@ import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.LevelCalcByChunk;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.Island.SettingsFlag;
-import com.wasteofplastic.acidisland.events.*;
+import com.wasteofplastic.acidisland.events.IslandJoinEvent;
+import com.wasteofplastic.acidisland.events.IslandLeaveEvent;
+import com.wasteofplastic.acidisland.events.IslandNewEvent;
+import com.wasteofplastic.acidisland.events.IslandPreTeleportEvent;
+import com.wasteofplastic.acidisland.events.IslandResetEvent;
 import com.wasteofplastic.acidisland.listeners.PlayerEvents;
 import com.wasteofplastic.acidisland.panels.ControlPanel;
 import com.wasteofplastic.acidisland.schematics.Schematic;
@@ -339,8 +343,8 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                         newSchem.setUsePhysics(schemSection.getBoolean("schematics." + key + ".usephysics",Settings.usePhysics));	    
                         // Paste Entities or not
                         newSchem.setPasteEntities(schemSection.getBoolean("schematics." + key + ".pasteentities",false));
-                        // Paste air or not. Default is false - huge performance savings!
-                        //newSchem.setPasteAir(schemSection.getBoolean("schematics." + key + ".pasteair",false));	    
+                        // Paste air or not. 
+                        newSchem.setPasteAir(schemSection.getBoolean("schematics." + key + ".pasteair",true));
                         // Visible in GUI or not
                         newSchem.setVisible(schemSection.getBoolean("schematics." + key + ".show",true));
                         // Partner schematic
@@ -1079,57 +1083,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
             }
         case 1:
             if (split[0].equalsIgnoreCase("value")) {
-                // Explain command
-                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.value")) {
-                    // Check they are on their island
-                    if (!plugin.getGrid().playerIsOnIsland(player)) {
-                        Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNotOnIsland);
-                        return true;
-                    }
-                    ItemStack item = player.getItemInHand();
-                    double multiplier = 1;
-                    if (item != null && item.getType().isBlock()) {
-                        // Get permission multiplier                
-                        for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
-                            if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.multiplier.")) {
-                                String[] spl = perms.getPermission().split(Settings.PERMPREFIX + "island.multiplier.");
-                                // Get the max value should there be more than one
-                                if (spl.length > 1) {
-                                    if (!NumberUtils.isDigits(spl[1])) {
-                                        plugin.getLogger().severe("Player " + player.getName() + " has permission: " + perms.getPermission() + " <-- the last part MUST be a number! Ignoring...");
-
-                                    } else {
-                                        multiplier = Math.max(multiplier, Integer.valueOf(spl[1]));
-                                    }
-                                }
-                            }
-                            // Do some sanity checking
-                            if (multiplier < 1) {
-                                multiplier = 1;
-                            }
-                        }
-                        // Player height
-                        if (player.getLocation().getBlockY() < Settings.seaHeight) {
-                            multiplier *= Settings.underWaterMultiplier;
-                        }
-                        // Get the value. Try the specific item
-                        int value = 0;
-                        if (Settings.blockValues.containsKey(item.getData())) {
-                            value = (int)((double)Settings.blockValues.get(item.getData()) * multiplier);
-                        } else if (Settings.blockValues.containsKey(new MaterialData(item.getType()))) {
-                            value = (int)((double)Settings.blockValues.get(new MaterialData(item.getType())) * multiplier);
-                        }
-                        if (value > 0) {
-                            // [name] placed here may be worth [value]
-                            Util.sendMessage(player, ChatColor.GREEN + (plugin.myLocale(player.getUniqueId()).islandblockValue.replace("[name]", Util.prettifyText(item.getType().name())).replace("[value]", String.valueOf(value))));
-                        } else {
-                            // [name] is worthless
-                            Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).islandblockWorthless.replace("[name]", Util.prettifyText(item.getType().name())));
-                        }
-                    } else {
-                        // That is not a block
-                        Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNotABlock);
-                    }
+                if(valueLookup(player, split)) {
                     return true;
                 }
             } else if (split[0].equalsIgnoreCase("name")) {
@@ -1850,7 +1804,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                 }
             } else if (split[0].equalsIgnoreCase("coopaccept")) {
                 // Accept an invite command
-                if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "coop")) {
                     if (coopInviteList.containsKey(playerUUID)) {
                         // Check if inviter is online
                         Player inviter = plugin.getServer().getPlayer(coopInviteList.get(playerUUID));
@@ -1872,10 +1825,6 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     }
                     Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorCommandNotReady);
                     return true;
-                } else {
-                    Util.sendMessage(player, ChatColor.RED + plugin.myLocale(playerUUID).errorNoPermission);
-                    return true;
-                }
             } else if (split[0].equalsIgnoreCase("accept")) {
                 // Accept an invite command
                 if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "team.join")) {
@@ -2109,6 +2058,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                     return true;
                 } else {
                     Util.sendMessage(player, plugin.myLocale(playerUUID).errorNoPermission);
+                    return true;
+                }
+            } else if (split[0].equalsIgnoreCase("value")) {
+                if(valueLookup(player, split)) {
                     return true;
                 }
             } else
@@ -2468,7 +2421,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "team.create")) {
                                 // Only online players can be invited
                                 Player invitedPlayer = plugin.getServer().getPlayer(split[1]);
-                                if (invitedPlayer == null) {
+                                if (invitedPlayer == null || !player.canSee(invitedPlayer)) {
                                     Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
                                     return true;  
                                 }                                
@@ -2633,7 +2586,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             }
                             // Only online players can be cooped
                             Player target = plugin.getServer().getPlayer(split[1]);
-                            if (target == null) {
+                            if (target == null || !player.canSee(target)) {
                                 Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorOfflinePlayer);
                                 return true;  
                             }                                
@@ -2670,7 +2623,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             // Send out coop invite
                             Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).inviteinviteSentTo.replace("[name]", target.getName()));
                             Util.sendMessage(target, ChatColor.GREEN + plugin.myLocale(targetPlayerUUID).coopHasInvited.replace("[name]", player.getName()));
-                            Util.sendMessage(target, ChatColor.WHITE + "/" + label + " [coopaccept/coopreject]" + ChatColor.YELLOW + plugin.myLocale(targetPlayerUUID).invitetoAcceptOrReject);
+                            Util.sendMessage(target, ChatColor.WHITE + "/" + label + " [coopaccept/coopreject] " + ChatColor.YELLOW + plugin.myLocale(targetPlayerUUID).invitetoAcceptOrReject);
                             coopInviteList.put(targetPlayerUUID, playerUUID);
                             if (Settings.inviteTimeout > 0) {
                                 plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
@@ -2710,6 +2663,10 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             // Target cannot be op
                             Player target = plugin.getServer().getPlayer(targetPlayerUUID);
                             if (target != null) {
+                                if (!player.canSee(target)) {
+                                    Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorUnknownPlayer);
+                                    return true;  
+                                }
                                 if (target.isOp() || VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypassprotect")
                                         || VaultHelper.checkPerm(target, Settings.PERMPREFIX + "mod.bypassexpel")) {
                                     Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).expelFail.replace("[name]", target.getName()));
@@ -2820,7 +2777,7 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
                             // Get offline player
                             OfflinePlayer offlineTarget = plugin.getServer().getOfflinePlayer(targetPlayerUUID);
                             // Target cannot be op
-                            if (offlineTarget.isOp()) {
+                            if (offlineTarget.isOp() || (offlineTarget.isOnline() && !player.canSee(offlineTarget.getPlayer()))) {
                                 Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).banFail.replace("[name]", split[1]));
                                 return true;
                             }
@@ -3437,6 +3394,71 @@ public class IslandCmd implements CommandExecutor, TabCompleter {
      */
     public void reserveLocation(UUID playerUUID, Location location) {
         islandSpot.put(playerUUID, location);
+    }
+
+    public boolean valueLookup(Player player, String[] split)
+    {
+        // Explain command
+        if (VaultHelper.checkPerm(player, Settings.PERMPREFIX + "island.value")) {
+            // Check they are on their island
+            if (!plugin.getGrid().playerIsOnIsland(player)) {
+                Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNotOnIsland);
+                return true;
+            }
+            ItemStack item = player.getItemInHand();
+            if(split.length >= 1) {
+                // Match Material for parsed input.
+                Material material = Material.matchMaterial(split[1]);
+                if(material != null) {
+                    item = new ItemStack(material);
+                }
+            }
+            double multiplier = 1;
+            if (item != null && item.getType().isBlock()) {
+                // Get permission multiplier
+                for (PermissionAttachmentInfo perms : player.getEffectivePermissions()) {
+                    if (perms.getPermission().startsWith(Settings.PERMPREFIX + "island.multiplier.")) {
+                        String[] spl = perms.getPermission().split(Settings.PERMPREFIX + "island.multiplier.");
+                        // Get the max value should there be more than one
+                        if (spl.length > 1) {
+                            if (!NumberUtils.isDigits(spl[1])) {
+                                plugin.getLogger().severe("Player " + player.getName() + " has permission: " + perms.getPermission() + " <-- the last part MUST be a number! Ignoring...");
+
+                            } else {
+                                multiplier = Math.max(multiplier, Integer.valueOf(spl[1]));
+                            }
+                        }
+                    }
+                    // Do some sanity checking
+                    if (multiplier < 1) {
+                        multiplier = 1;
+                    }
+                }
+                // Player height
+                if (player.getLocation().getBlockY() < Settings.seaHeight) {
+                    multiplier *= Settings.underWaterMultiplier;
+                }
+                // Get the value. Try the specific item
+                int value = 0;
+                if (Settings.blockValues.containsKey(item.getData())) {
+                    value = (int)((double)Settings.blockValues.get(item.getData()) * multiplier);
+                } else if (Settings.blockValues.containsKey(new MaterialData(item.getType()))) {
+                    value = (int)((double)Settings.blockValues.get(new MaterialData(item.getType())) * multiplier);
+                }
+                if (value > 0) {
+                    // [name] placed here may be worth [value]
+                    Util.sendMessage(player, ChatColor.GREEN + (plugin.myLocale(player.getUniqueId()).islandblockValue.replace("[name]", Util.prettifyText(item.getType().name())).replace("[value]", String.valueOf(value))));
+                } else {
+                    // [name] is worthless
+                    Util.sendMessage(player, ChatColor.GREEN + plugin.myLocale(player.getUniqueId()).islandblockWorthless.replace("[name]", Util.prettifyText(item.getType().name())));
+                }
+            } else {
+                // That is not a block
+                Util.sendMessage(player, ChatColor.RED + plugin.myLocale(player.getUniqueId()).errorNotABlock);
+            }
+            return true;
+        }
+        return true;
     }
 
     @Override

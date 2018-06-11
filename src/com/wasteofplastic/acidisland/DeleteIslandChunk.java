@@ -39,8 +39,8 @@ import com.wasteofplastic.acidisland.util.Util;
  * 
  */
 public class DeleteIslandChunk {
-    private Set<Pair<Integer, Integer>> chunksToClear = new HashSet<Pair<Integer, Integer>>();
-    //private HashMap<Location, Material> blocksToClear = new HashMap<Location,Material>();
+    private Set<Pair<Integer, Integer>> chunksToClear = new HashSet<>();
+    //private Map<Location, Material> blocksToClear = new HashMap<>();
     private NMSAbstraction nms = null;
 
     private int nearest16(int x, boolean countUp) {
@@ -82,7 +82,7 @@ public class DeleteIslandChunk {
                     }
                 } 
                 } else {
-                    chunksToClear.add(new Pair<Integer, Integer>(i,j));
+                    chunksToClear.add(new Pair<>(i, j));
                 }
             }
         }

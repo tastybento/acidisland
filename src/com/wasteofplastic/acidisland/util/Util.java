@@ -51,8 +51,11 @@ import com.wasteofplastic.acidisland.nms.NMSAbstraction;
  * @author tastybento
  * 
  */
-public class Util {
-    private static ASkyBlock plugin = ASkyBlock.getPlugin();
+public final class Util {
+
+    private Util() { }
+
+    private static final ASkyBlock plugin = ASkyBlock.getPlugin();
     private static Long x = System.nanoTime();
 
     /**
@@ -100,15 +103,25 @@ public class Util {
      * 
      * @param yamlFile
      * @param fileLocation
+     * @param async 
      */
-    public static void saveYamlFile(YamlConfiguration yamlFile, String fileLocation) {
+    public static void saveYamlFile(YamlConfiguration yamlFile, String fileLocation, boolean async) {
         File dataFolder = plugin.getDataFolder();
         File file = new File(dataFolder, fileLocation);
-
-        try {
-            yamlFile.save(file);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    yamlFile.save(file);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            try {
+                yamlFile.save(file);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -415,16 +428,9 @@ public class Util {
      * @throws IOException
      */
     public static void setPlayerYamlConfig(File playerFolder, String setting, String newSettingValue) throws IOException {
-        FilenameFilter ymlFilter = new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                String lowercaseName = name.toLowerCase();
-                if (lowercaseName.endsWith(".yml")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
+        FilenameFilter ymlFilter = (dir, name) -> {
+            String lowercaseName = name.toLowerCase();
+            return lowercaseName.endsWith(".yml");
         };
         for (File file: playerFolder.listFiles(ymlFilter)) {
             Path path = Paths.get(file.getAbsolutePath());
@@ -503,30 +509,24 @@ public class Util {
      * @param type
      * @return true if they are holding an item of type type
      */
+    @SuppressWarnings("deprecation")
     public static boolean playerIsHolding(Player player, Material type) {
         if (plugin.getServer().getVersion().contains("(MC: 1.7")
                 || plugin.getServer().getVersion().contains("(MC: 1.8")) {
-            if (player.getItemInHand() != null && player.getItemInHand().getType().equals(type)) {
-                return true;
-            }
-            return false;
+            return player.getItemInHand() != null && player.getItemInHand().getType().equals(type);
         }
         if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().getType().equals(type)) {
             return true;
         }
-        if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInOffHand().getType().equals(type)) {
-            return true;
-        }
-        return false;
+        return player.getInventory().getItemInMainHand() != null && player.getInventory()
+                .getItemInOffHand().getType().equals(type);
     }
 
     public static void runCommand(final Player player, final String string) {
-        plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
-
-            @Override
-            public void run() {
-                player.performCommand(string);               
-            }});
-
+        if (plugin.getServer().isPrimaryThread()) {
+            player.performCommand(string);  
+        } else {
+            plugin.getServer().getScheduler().runTask(plugin, () -> player.performCommand(string));
+        }
     }
 }

@@ -18,7 +18,7 @@
 package com.wasteofplastic.acidisland;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +36,9 @@ import com.wasteofplastic.acidisland.util.Util;
  * 
  */
 public class Messages {
-    private ASkyBlock plugin;
+    private final ASkyBlock plugin;
     // Offline Messages
-    private HashMap<UUID, List<String>> messages = new HashMap<UUID, List<String>>();
+    private final HashMap<UUID, List<String>> messages = new HashMap<>();
     private YamlConfiguration messageStore;
 
 
@@ -56,8 +56,7 @@ public class Messages {
      * @return List of messages
      */
     public List<String> getMessages(UUID playerUUID) {
-        List<String> playerMessages = messages.get(playerUUID);
-        return playerMessages;
+        return messages.get(playerUUID);
     }
 
     /**
@@ -69,7 +68,7 @@ public class Messages {
         messages.remove(playerUUID);
     }
 
-    public void saveMessages() {
+    public void saveMessages(boolean async) {
         if (messageStore == null) {
             return;
         }
@@ -84,11 +83,9 @@ public class Messages {
             }
             // Convert to YAML
             messageStore.set("messages", offlineMessages);
-            Util.saveYamlFile(messageStore, "messages.yml");
-            return;
+            Util.saveYamlFile(messageStore, "messages.yml", async);
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
     }
 
@@ -149,13 +146,10 @@ public class Messages {
         }
         UUID teamLeader = plugin.getPlayers().getTeamLeader(playerUUID);
         List<UUID> teamMembers = plugin.getPlayers().getMembers(teamLeader);
-        for (UUID member : teamMembers) {
-            // getLogger().info("DEBUG: trying UUID " + member.toString());
-            if (plugin.getServer().getPlayer(member) == null) {
-                // Offline player
-                setMessage(member, message);
-            }
-        }
+        // getLogger().info("DEBUG: trying UUID " + member.toString());
+        // Offline player
+        teamMembers.stream().filter(member -> plugin.getServer().getPlayer(member) == null)
+            .forEach(member -> setMessage(member, message));
     }
 
     /**
@@ -212,7 +206,7 @@ public class Messages {
         if (playerMessages != null) {
             playerMessages.add(message);
         } else {
-            playerMessages = new ArrayList<String>(Arrays.asList(message));
+            playerMessages = new ArrayList<>(Collections.singletonList(message));
         }
         put(playerUUID, playerMessages);
     }

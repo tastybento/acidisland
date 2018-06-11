@@ -15,7 +15,6 @@
  *******************************************************************************/
 package com.wasteofplastic.acidisland.listeners;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,8 +40,8 @@ import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
 public class JoinLeaveEvents implements Listener {
-    private ASkyBlock plugin;
-    private PlayerCache players;
+    private final ASkyBlock plugin;
+    private final PlayerCache players;
     private final static boolean DEBUG = false;
 
     public JoinLeaveEvents(ASkyBlock aSkyBlock) {
@@ -109,12 +108,14 @@ public class JoinLeaveEvents implements Listener {
         // Only happens when the team leader logs in
         if (players.inTeam(playerUUID) && players.getTeamLeader(playerUUID).equals(playerUUID)) {
             // Run through this team leader's players and check they are correct
-            Iterator<UUID> it = players.getMembers(playerUUID).iterator();
-            while (it.hasNext()) {
-                UUID member = it.next();
-                if (players.getTeamLeader(member) != null && !players.getTeamLeader(member).equals(playerUUID)) {
-                    plugin.getLogger().warning(plugin.getPlayers().getName(member) + " is on more than one team. Fixing...");
-                    plugin.getLogger().warning("Removing " + player.getName() + " as team leader, keeping " + plugin.getPlayers().getName(players.getTeamLeader(member)));
+            for (UUID member : players.getMembers(playerUUID)) {
+                if (players.getTeamLeader(member) != null && !players.getTeamLeader(member)
+                    .equals(playerUUID)) {
+                    plugin.getLogger().warning(plugin.getPlayers().getName(member)
+                        + " is on more than one team. Fixing...");
+                    plugin.getLogger().warning(
+                        "Removing " + player.getName() + " as team leader, keeping " + plugin
+                            .getPlayers().getName(players.getTeamLeader(member)));
                     players.removeMember(players.getTeamLeader(member), member);
                 }
             }
@@ -331,17 +332,14 @@ public class JoinLeaveEvents implements Listener {
         if (messages != null) {
             if (DEBUG)
                 plugin.getLogger().info("DEBUG: Messages waiting!");
-            plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    Util.sendMessage(player, ChatColor.AQUA + plugin.myLocale(playerUUID).newsHeadline);
-                    int i = 1;
-                    for (String message : messages) {
-                        Util.sendMessage(player, i++ + ": " + message);
-                    }
-                    // Clear the messages
-                    plugin.getMessages().clearMessages(playerUUID);
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                Util.sendMessage(player, ChatColor.AQUA + plugin.myLocale(playerUUID).newsHeadline);
+                int i = 1;
+                for (String message : messages) {
+                    Util.sendMessage(player, i++ + ": " + message);
                 }
+                // Clear the messages
+                plugin.getMessages().clearMessages(playerUUID);
             }, 40L);
         } // else {
         // plugin.getLogger().info("no messages");
