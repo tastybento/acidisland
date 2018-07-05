@@ -26,9 +26,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -40,6 +43,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 
 import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Settings;
@@ -47,20 +51,25 @@ import com.wasteofplastic.acidisland.nms.NMSAbstraction;
 
 /**
  * A set of utility methods
- * 
+ *
  * @author tastybento
- * 
+ *
  */
 public final class Util {
 
     private Util() { }
 
     private static final ASkyBlock plugin = ASkyBlock.getPlugin();
+    private static final long TIMEOUT = 3000; // 3 seconds
     private static Long x = System.nanoTime();
+    private static Queue<PendingItem> saveQueue = new ConcurrentLinkedQueue<>();
+    private static boolean midSave = false;
+    private static BukkitTask queueSaver;
+    private static boolean midLoad = false;
 
     /**
      * Loads a YAML file and if it does not exist it is looked for in the JAR
-     * 
+     *
      * @param file
      * @return
      */
@@ -70,12 +79,18 @@ public final class Util {
 
         YamlConfiguration config = null;
         if (yamlFile.exists()) {
+            // Set midLoad flag to pause any saving
+            midLoad = true;
+            // Block until saving is paused or until a timeout, just to prevent infinite loop
+            long watchdog = System.currentTimeMillis();
+            while(midSave && System.currentTimeMillis() < watchdog + TIMEOUT ) {};
             try {
                 config = new YamlConfiguration();
                 config.load(yamlFile);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            midLoad = false;
         } else {
             // Create the missing file
             config = new YamlConfiguration();
@@ -100,35 +115,65 @@ public final class Util {
 
     /**
      * Saves a YAML file
-     * 
+     *
      * @param yamlFile
      * @param fileLocation
-     * @param async 
+     * @param async
      */
     public static void saveYamlFile(YamlConfiguration yamlFile, String fileLocation, boolean async) {
-        File dataFolder = plugin.getDataFolder();
-        File file = new File(dataFolder, fileLocation);
         if (async) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
-                    yamlFile.save(file);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        } else {
-            try {
-                yamlFile.save(file);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (queueSaver == null) {
+                queueSaver = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+                    if (!plugin.isEnabled()) {
+                        // Stop task if plugin is disabled
+                        queueSaver.cancel();
+                    } else if (!midLoad && !midSave && !saveQueue.isEmpty()) {
+                        PendingItem item = saveQueue.poll();
+                        if (item != null) {
+                            // Set semaphore
+                            midSave = true;
+                            try {
+                                Files.copy(item.getSource(), item.getDest(), StandardCopyOption.REPLACE_EXISTING);
+                                Files.delete(item.getSource());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            // Clear semaphore
+                            midSave = false;
+                        }
+                    }
+                }, 0L, 1L);
             }
         }
+        save(yamlFile, fileLocation, async);
     }
+
+    private static void save(YamlConfiguration yamlFile, String fileLocation, boolean async) {
+        File dataFolder = plugin.getDataFolder();
+        File file = new File(dataFolder, fileLocation);
+        try {
+            File tmpFile = File.createTempFile("yaml", null, dataFolder);
+            tmpFile.deleteOnExit();
+            yamlFile.save(tmpFile);
+            if (tmpFile.exists()) {
+                if (async) {
+                    saveQueue.add(new PendingItem(tmpFile.toPath(), file.toPath()));
+                } else {
+                    Files.copy(tmpFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    Files.delete(tmpFile.toPath());
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().severe(() -> "Could not save YAML file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Cuts up a string into multiple lines with the same color code at the
      * start of each line
-     * 
+     *
      * @param color
      * @param longLine
      * @param length
@@ -176,7 +221,7 @@ public final class Util {
     /**
      * Converts block face direction to radial degrees. Returns 0 if block face
      * is not radial.
-     * 
+     *
      * @param face
      * @return degrees
      */
@@ -221,11 +266,11 @@ public final class Util {
 
     /**
      * Converts a name like IRON_INGOT into Iron Ingot to improve readability
-     * 
+     *
      * @param ugly
      *            The string such as IRON_INGOT
      * @return A nicer version, such as Iron Ingot
-     * 
+     *
      *         Credits to mikenon on GitHub!
      */
     public static String prettifyText(String ugly) {
@@ -251,7 +296,7 @@ public final class Util {
     /**
      * Converts a serialized location to a Location. Returns null if string is
      * empty
-     * 
+     *
      * @param s
      *            - serialized location in format "world:x:y:z"
      * @return Location
@@ -288,7 +333,7 @@ public final class Util {
     /**
      * Converts a location to a simple string representation
      * If location is null, returns empty string
-     * 
+     *
      * @param location
      * @return String of location
      */
@@ -300,9 +345,9 @@ public final class Util {
     }
 
     /**
-     * Returns all of the items that begin with the given start, 
-     * ignoring case.  Intended for tabcompletion. 
-     * 
+     * Returns all of the items that begin with the given start,
+     * ignoring case.  Intended for tabcompletion.
+     *
      * @param list
      * @param start
      * @return List of items that start with the letters
@@ -322,7 +367,7 @@ public final class Util {
 
     /**
      * Gets a list of all players who are currently online.
-     * 
+     *
      * @return list of online players
      */
     public static List<String> getOnlinePlayerList() {
@@ -476,7 +521,7 @@ public final class Util {
         final List<String> returned = new ArrayList<String>();
         for (Player p : Bukkit.getServer().getOnlinePlayers()) {
             if (player == null || player.canSee(p)) {
-                returned.add(p.getName()); 
+                returned.add(p.getName());
             }
         }
         return returned;
@@ -524,7 +569,7 @@ public final class Util {
 
     public static void runCommand(final Player player, final String string) {
         if (plugin.getServer().isPrimaryThread()) {
-            player.performCommand(string);  
+            player.performCommand(string);
         } else {
             plugin.getServer().getScheduler().runTask(plugin, () -> player.performCommand(string));
         }

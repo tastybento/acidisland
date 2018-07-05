@@ -58,6 +58,9 @@ permissions:
           acidisland.island.controlpanel:
             description: Allows usage of the island GUI
             default: true
+          acidisland.island.controlpanelonoff:
+            description: Allows turning on/off of the island GUI
+            default: true
           acidisland.island.biomes:
             description: Allows biome changing
             default: true
