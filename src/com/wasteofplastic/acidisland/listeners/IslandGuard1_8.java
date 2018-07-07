@@ -36,6 +36,8 @@ import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.Island;
 import com.wasteofplastic.acidisland.Settings;
 import com.wasteofplastic.acidisland.Island.SettingsFlag;
+import com.wasteofplastic.acidisland.events.AcidEvent;
+import com.wasteofplastic.acidisland.events.AcidRainEvent;
 import com.wasteofplastic.acidisland.util.Util;
 import com.wasteofplastic.acidisland.util.VaultHelper;
 
@@ -51,6 +53,20 @@ public class IslandGuard1_8 implements Listener {
     public IslandGuard1_8(final ASkyBlock plugin) {
         this.plugin = plugin;
 
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
+    public void test(AcidEvent event) {
+        plugin.getLogger().info(event.getEventName());
+        plugin.getLogger().info(event.getPlayer().getName());
+        plugin.getLogger().info("Damage = " + event.getTotalDamage());
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled=true)
+    public void test(AcidRainEvent event) {
+        plugin.getLogger().info(event.getEventName());
+        plugin.getLogger().info(event.getPlayer().getName());
+        plugin.getLogger().info("Damage = " + event.getRainDamage());
     }
 
 
