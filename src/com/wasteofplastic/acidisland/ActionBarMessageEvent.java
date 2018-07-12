@@ -1,4 +1,4 @@
-package hcom.wasteofplastic.askyblock.events;
+package hcom.wasteofplastic.acidisland.events;
 
 import org.bukkit.event.Cancellable;
 import org.bukkit.entity.Player;
