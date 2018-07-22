@@ -45,6 +45,7 @@ import com.wasteofplastic.acidisland.commands.AdminCmd;
 import com.wasteofplastic.acidisland.commands.Challenges;
 import com.wasteofplastic.acidisland.commands.IslandCmd;
 import com.wasteofplastic.acidisland.events.IslandDeleteEvent;
+import com.wasteofplastic.acidisland.events.IslandPreDeleteEvent;
 import com.wasteofplastic.acidisland.events.ReadyEvent;
 import com.wasteofplastic.acidisland.generators.ChunkGeneratorWorld;
 import com.wasteofplastic.acidisland.listeners.AcidEffect;
@@ -601,6 +602,7 @@ public class ASkyBlock extends JavaPlugin {
         getWarpSignsListener().removeWarp(player);
         Island island = grid.getIsland(player);
         if (island != null) {
+            getServer().getPluginManager().callEvent(new IslandPreDeleteEvent(player, island));
             if (removeBlocks) {
                 grid.removePlayersFromIsland(island, player);
                 new DeleteIslandChunk(this, island);

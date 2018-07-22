@@ -683,6 +683,8 @@ public class PluginConfig {
         Settings.persistantCoops = plugin.getConfig().getBoolean("general.persistentcoops");
         // Only leader can coop
         Settings.onlyLeaderCanCoop = plugin.getConfig().getBoolean("general.onlyleadercancoop", false);
+        // Can coop requests be rejected
+        Settings.coopIsRequest = plugin.getConfig().getBoolean("general.coopisrequest", true);
 
         // Fake players
         Settings.allowedFakePlayers = plugin.getConfig().getStringList("general.fakeplayers");
@@ -919,7 +921,7 @@ public class PluginConfig {
                     materialData.setData(data);
                     Settings.blockValues.put(materialData, blockValuesConfig.getInt("blocks." + material, 0));
                     if (DEBUG) {
-                        plugin.getLogger().info(materialData.toString());
+                        plugin.getLogger().info(materialData.toString() + " value " + Settings.blockValues.get(materialData));
                     }
                 } catch (Exception e) {
                     // e.printStackTrace();
