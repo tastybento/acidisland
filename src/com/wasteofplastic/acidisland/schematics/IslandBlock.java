@@ -44,6 +44,7 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.wasteofplastic.acidisland.ASkyBlock;
 import com.wasteofplastic.acidisland.nms.NMSAbstraction;
 import com.wasteofplastic.org.jnbt.CompoundTag;
 import com.wasteofplastic.org.jnbt.ListTag;
@@ -301,7 +302,7 @@ public class IslandBlock {
      */
     public void setSpawnerType(Map<String, Tag> tileData) {
         //Bukkit.getLogger().info("DEBUG: " + tileData.toString());
-        String creatureType = "";        
+        String creatureType = "";
         if (tileData.containsKey("EntityId")) {
             creatureType = ((StringTag) tileData.get("EntityId")).getValue().toUpperCase();
         } else if (tileData.containsKey("SpawnData")) {
@@ -348,10 +349,12 @@ public class IslandBlock {
 
         JSONParser parser = new JSONParser();
         ContainerFactory containerFactory = new ContainerFactory(){
+            @Override
             public List creatArrayContainer() {
                 return new LinkedList();
             }
 
+            @Override
             public Map createObjectContainer() {
                 return new LinkedHashMap();
             }
@@ -410,7 +413,7 @@ public class IslandBlock {
                                                     Bukkit.getLogger().warning("Unknown format " + value +" in sign when pasting schematic, skipping...");
                                                 }
                                             }
-                                        }   
+                                        }
                                     }
                                 } else {
                                     // This is unformatted text. It is included in "". A reset is required to clear
@@ -418,7 +421,7 @@ public class IslandBlock {
                                     if (format.length()>1) {
                                         lineText += ChatColor.RESET + format.substring(format.indexOf('"')+1,format.lastIndexOf('"'));
                                     }
-                                } 
+                                }
                             }
                         } else {
                             // No extra tag
@@ -541,13 +544,16 @@ public class IslandBlock {
      * @param nms
      * @param blockLoc
      */
-    //@SuppressWarnings("deprecation")
     @SuppressWarnings("deprecation")
     public void paste(NMSAbstraction nms, Location blockLoc, boolean usePhysics, Biome biome) {
         // Only paste air if it is below the sea level and in the overworld
         Block block = new Location(blockLoc.getWorld(), x, y, z).add(blockLoc).getBlock();
         block.setBiome(biome);
         nms.setBlockSuperFast(block, typeId, data, usePhysics);
+        if (typeId == Material.LAVA.getId() || typeId == Material.STATIONARY_LAVA.getId()) {
+            Bukkit.getScheduler().runTask(ASkyBlock.getPlugin(), () -> nms.setBlockSuperFast(block, typeId, data, usePhysics));
+            return;
+        }
         if (signText != null) {
             if (block.getTypeId() != typeId) {
                 block.setTypeId(typeId);
@@ -579,7 +585,7 @@ public class IslandBlock {
             }
             //Bukkit.getLogger().info("DEBUG: inventory holder "+ block.getType());
             // Check if this is a double chest
-            
+
             InventoryHolder chestBlock = (InventoryHolder) block.getState();
             //InventoryHolder iH = chestBlock.getInventory().getHolder();
             if (chestBlock instanceof DoubleChest) {

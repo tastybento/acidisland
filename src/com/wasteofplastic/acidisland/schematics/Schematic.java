@@ -102,7 +102,7 @@ public class Schematic {
     private String description;
     private int rating;
     private boolean useDefaultChest;
-    private Material icon;    
+    private Material icon;
     private Biome biome;
     private boolean usePhysics;
     private boolean pasteEntities;
@@ -150,14 +150,14 @@ public class Schematic {
 
     public Schematic(ASkyBlock plugin) {
         this.plugin = plugin;
-        // Initialize 
+        // Initialize
         name = "";
         heading = "";
         description = "Default Island";
         perm = "";
         icon = Material.MAP;
         rating = 50;
-        useDefaultChest = true;	
+        useDefaultChest = true;
         biome = Settings.defaultBiome;
         usePhysics = Settings.usePhysics;
         file = null;
@@ -284,7 +284,7 @@ public class Schematic {
             attachable.add(Material.BIRCH_DOOR.getId());
             attachable.add(Material.SPRUCE_DOOR.getId());
             attachable.add(Material.DARK_OAK_DOOR.getId());
-            attachable.add(Material.JUNGLE_DOOR.getId());  
+            attachable.add(Material.JUNGLE_DOOR.getId());
         }
 
         // Entities
@@ -395,7 +395,7 @@ public class Schematic {
                                     ent.setType(type);
                                     break;
                                 }
-                            }                            
+                            }
                         }
                     }
 
@@ -406,7 +406,7 @@ public class Schematic {
                             List<Tag> pos = new ArrayList<Tag>();
                             pos = ((ListTag) entry.getValue()).getValue();
                             //Bukkit.getLogger().info("DEBUG pos: " + pos);
-                            if (pos.size() == 3) {                               
+                            if (pos.size() == 3) {
                                 double x = (double)pos.get(0).getValue() - origin.getX();
                                 double y = (double)pos.get(1).getValue() - origin.getY();
                                 double z = (double)pos.get(2).getValue() - origin.getZ();
@@ -506,7 +506,7 @@ public class Schematic {
                                     if (itemEntry.getValue() instanceof StringTag){
                                         ent.setId(((StringTag) itemEntry.getValue()).getValue());
                                     }
-                                } 
+                                }
                             }
                         }
                     } else if (entry.getKey().equals("TileX")){
@@ -608,7 +608,7 @@ public class Schematic {
                     } else if (blocks[index] == 2) {
                         // Grass
                         grassBlocks.add(new Vector(x,y,z));
-                    } 
+                    }
                 }
             }
         }
@@ -755,7 +755,7 @@ public class Schematic {
     @SuppressWarnings("deprecation")
      */
     /*
-     * 
+     *
     public void pasteSchematic(final Location loc, final Player player, boolean teleport)  {
 	plugin.getLogger().info("WE Pasting");
 	com.sk89q.worldedit.Vector WEorigin = new com.sk89q.worldedit.Vector(loc.getBlockX(),loc.getBlockY(),loc.getBlockZ());
@@ -781,7 +781,7 @@ public class Schematic {
     		}}, 10L);
 
     	}
-    }   
+    }
      */
     /**
      * This method pastes a schematic.
@@ -871,7 +871,7 @@ public class Schematic {
                         ItemStack item;
 
                         if(material != null){
-                            //Bukkit.getLogger().info("DEBUG: id: " + ent.getId() + ", material match: " + material.toString()); 
+                            //Bukkit.getLogger().info("DEBUG: id: " + ent.getId() + ", material match: " + material.toString());
                             if(ent.getCount() != null){
                                 if(ent.getDamage() != null){
                                     item = new ItemStack(material, ent.getCount(), ent.getDamage());
@@ -886,7 +886,7 @@ public class Schematic {
                                 }
                             }
                         } else {
-                            //Bukkit.getLogger().info("DEBUG: material can't be found for: " + ent.getId() + " (" + ent.getId().substring(10).toUpperCase() + ")"); 
+                            //Bukkit.getLogger().info("DEBUG: material can't be found for: " + ent.getId() + " (" + ent.getId().substring(10).toUpperCase() + ")");
                             // Set to default content
                             item = new ItemStack(Material.STONE, 0, (short) 4);
                         }
@@ -920,7 +920,7 @@ public class Schematic {
                         spawned.setVelocity(ent.getMotion());
                         if (ent.getType() == EntityType.SHEEP) {
                             Sheep sheep = (Sheep)spawned;
-                            if (ent.isSheared()) {   
+                            if (ent.isSheared()) {
                                 sheep.setSheared(true);
                             }
                             DyeColor[] set = DyeColor.values();
@@ -976,7 +976,7 @@ public class Schematic {
             grass = gr;
         } else {
             grass = null;
-        }	
+        }
 
         //Bukkit.getLogger().info("DEBUG cow location " + grass);
         Block blockToChange = null;
@@ -1149,7 +1149,7 @@ public class Schematic {
             for (int y = 0; y < height; ++y) {
                 for (int z = 0; z < length; ++z) {
                     int index = y * width * length + z * width + x;
-                    // Only bother if this block is above ground zero and 
+                    // Only bother if this block is above ground zero and
                     // only bother with air if it is below sea level
                     // TODO: need to check max world height too?
                     int h = Settings.islandHeight + y - bedrock.getBlockY();
@@ -1197,7 +1197,7 @@ public class Schematic {
                                         ) {
                                     //plugin.getLogger().info("DEBUG: Block is inventory holder, id = " + Material.getMaterial(block.getTypeId()));
                                     block.setChest(nms, tileEntitiesMap.get(new BlockVector(x, y, z)));
-                                } 
+                                }
                             }
                             islandBlocks.add(block);
                         }
@@ -1261,7 +1261,7 @@ public class Schematic {
 
     public void setIcon(Material icon, int damage) {
         this.icon = icon;
-        this.durability = damage;    
+        this.durability = damage;
     }
     /**
      * @param icon the icon to set
@@ -1314,14 +1314,14 @@ public class Schematic {
         if (!pasteAir) {
             islandBlocks.removeIf(b -> b.getTypeId() == 0);
         }
-        
+
     }
 
     /**
      * Creates the AcidIsland default island block by block
      * @param islandLoc
      * @param player
-     * @param reason 
+     * @param reason
      */
     @SuppressWarnings("deprecation")
     public void generateIslandBlocks(final Location islandLoc, final Player player, PasteReason reason) {
@@ -1505,7 +1505,7 @@ public class Schematic {
     }
     /**
      * Get child tag of a NBT structure.
-     * 
+     *
      * @param items
      *            The parent tag map
      * @param key
@@ -1544,7 +1544,7 @@ public class Schematic {
                     //plugin.getLogger().info("DEBUG: name is " + name);
                     companion.setCustomName(name);
                     companion.setCustomNameVisible(true);
-                } 
+                }
             }
         }
     }
